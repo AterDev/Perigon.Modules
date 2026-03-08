@@ -1,0 +1,13 @@
+{
+	"servers": {
+		"perigon": {
+			"type": "stdio",
+			"command": "perigon",
+			"args": [
+				"mcp",
+				"start"
+			]
+		}
+	},
+	"inputs": []
+}

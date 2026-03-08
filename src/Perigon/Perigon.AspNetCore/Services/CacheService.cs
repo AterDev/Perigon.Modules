@@ -1,4 +1,5 @@
 using Microsoft.Extensions.Caching.Hybrid;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
 
 namespace Perigon.AspNetCore.Services;
@@ -8,11 +9,23 @@ namespace Perigon.AspNetCore.Services;
 /// </summary>
 public class CacheService(
     HybridCache cache,
+    IMemoryCache memory,
     IOptions<CacheOption> options,
     IOptions<ComponentOption> component
 )
 {
-    //public HybridCache Cache { get; init; } = cache;
+
+    public void SetMemory<T>(string key, T data, TimeSpan? timeSpan = null)
+    {
+        timeSpan ??= TimeSpan.FromHours(2);
+        memory.Set(key, data, timeSpan.Value);
+    }
+
+    public T? GetMemory<T>(string key)
+    {
+        return memory.TryGetValue<T>(key, out var value) ? value : default;
+    }
+
 
     /// <summary>
     /// 缓存存储
@@ -42,8 +55,18 @@ public class CacheService(
     )
     {
         var cacheOption = options.Value;
-        var cacheOptions = GetCacheEntryOptions(expiration, localExpiration, flags);
-        await cache.SetAsync(key, data, cacheOptions);
+        var entryOption = new HybridCacheEntryOptions()
+        {
+            Expiration = expiration.HasValue
+                ? TimeSpan.FromSeconds(expiration.Value)
+                : TimeSpan.FromMinutes(cacheOption.Expiration),
+            Flags = flags ?? GetGlobalCacheFlags(cacheOption),
+            LocalCacheExpiration = localExpiration.HasValue
+                ? TimeSpan.FromMinutes(localExpiration.Value)
+                : TimeSpan.FromMinutes(cacheOption.LocalCacheExpiration),
+        };
+
+        await cache.SetAsync(key, data, entryOption);
     }
 
     /// <summary>
@@ -72,50 +95,18 @@ public class CacheService(
         return cachedValue;
     }
 
-    /// <summary>
-    /// Get or create value from cache.
-    /// <para>
-    /// <b>Cache Stampede (Thundering Herd):</b> Automatically handled by HybridCache (concurrent requests wait for single factory execution).
-    /// </para>
-    /// <para>
-    /// <b>Cache Penetration (Invalid Keys):</b>
-    /// <br/>- If factory returns <c>null</c> (and T is nullable), it is cached. This protects against repeated queries for missing data.
-    /// <br/>- If keys are random/malicious, this can fill the cache. Ensure keys are validated before calling this.
-    /// </para>
-    /// </summary>
-    public async Task<T?> GetOrCreateAsync<T>(
+    public async Task<T> GetOrCreateAsync<T>(
         string key,
-        Func<CancellationToken, ValueTask<T?>> factory,
+        Func<CancellationToken, ValueTask<T>> factory,
         CancellationToken cancellation = default
     )
     {
-        var cacheOptions = GetCacheEntryOptions();
-        var cachedValue = await cache.GetOrCreateAsync<T?>(
+        var cachedValue = await cache.GetOrCreateAsync(
             key,
             factory,
-            cacheOptions,
             cancellationToken: cancellation
         );
         return cachedValue;
-    }
-
-    private HybridCacheEntryOptions GetCacheEntryOptions(
-        int? expiration = null,
-        int? localExpiration = null,
-        HybridCacheEntryFlags? flags = null
-    )
-    {
-        var cacheOption = options.Value;
-        return new HybridCacheEntryOptions()
-        {
-            Expiration = expiration.HasValue
-                ? TimeSpan.FromSeconds(expiration.Value)
-                : TimeSpan.FromMinutes(cacheOption.Expiration),
-            Flags = flags ?? GetGlobalCacheFlags(cacheOption),
-            LocalCacheExpiration = localExpiration.HasValue
-                ? TimeSpan.FromMinutes(localExpiration.Value)
-                : TimeSpan.FromMinutes(cacheOption.LocalCacheExpiration),
-        };
     }
 
     private HybridCacheEntryFlags GetGlobalCacheFlags(CacheOption cacheOption)

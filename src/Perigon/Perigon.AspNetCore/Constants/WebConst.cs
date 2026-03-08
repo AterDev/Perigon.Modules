@@ -5,7 +5,7 @@ namespace Perigon.AspNetCore.Constants;
 /// </summary>
 public static class WebConst
 {
-    public const string ProjectName = "Perigon.Modules";
+    public const string ProjectName = "MyProjectName";
     public const string DefaultStateName = "statestore";
     public const string DefaultPubSubName = "pubsub";
     public const string TenantId = "TenantId";
