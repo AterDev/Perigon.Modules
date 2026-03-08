@@ -47,16 +47,20 @@ $robocopyArgs = @(
 
 $sourcePath = Join-Path $projectRoot "..\Perigon.template\ApiStandard\src\Definition"
 $targetPath = Join-Path $projectRoot "src\Definition"
-$excludeDirs = @("bin", "obj", "Entity", "EntityFramework")
+$excludeDirs = @("bin", "obj", "Entity", "AppDbContext")
+$excludeFiles = @("GlobalUsings.cs")
 $robocopyArgs = @(
     $sourcePath,
     $targetPath,
     "/MIR",
     "/XD", $excludeDirs,
+    "/XF", $excludeFiles,
     "/R:3",
     "/W:1",
     "/NP"
 )
+
+& robocopy @robocopyArgs
 
 # robocopy 的退出代码含义:
 # 0 = 没有复制文件，没有失败，没有不匹配的文件

@@ -28,7 +28,6 @@ public abstract class ManagerBase<TDbContext>(TDbContext dbContext, ILogger logg
 /// <typeparam name="TDbContext">Database context type</typeparam>
 /// <typeparam name="TEntity">Entity type</typeparam>
 public abstract class ManagerBase<TDbContext, TEntity>
-    : IDisposable, IAsyncDisposable
     where TDbContext : DbContext
     where TEntity : class, IEntityBase
 {
@@ -49,29 +48,12 @@ public abstract class ManagerBase<TDbContext, TEntity>
     )
     {
         _logger = logger;
-        _dbContext = (dbContextFactory.CreateDbContextAsync().Result as TDbContext)!;
         _userContext = userContext;
         _isMultiTenant = dbContextFactory.IsMultiTenant;
-        _dbSet = _dbContext.Set<TEntity>();
-        Queryable = _dbSet.AsNoTracking().AsQueryable();
-
-        if (_isMultiTenant && _userContext.TenantId == Guid.Empty)
-        {
-            _logger.LogWarning("TenantId is empty in UserContext");
-        }
-    }
-
-    protected ManagerBase(
-        TDbContext dbContext,
-        IUserContext userContext,
-        ILogger logger,
-        bool isMultiTenant = false
-    )
-    {
-        _logger = logger;
-        _dbContext = dbContext;
-        _userContext = userContext;
-        _isMultiTenant = isMultiTenant;
+        Guid? tenantId = _isMultiTenant && _userContext.TenantId != Guid.Empty
+            ? _userContext.TenantId
+            : null;
+        _dbContext = (dbContextFactory.CreateDbContext(tenantId) as TDbContext)!;
         _dbSet = _dbContext.Set<TEntity>();
         Queryable = _dbSet.AsNoTracking().AsQueryable();
 
@@ -85,10 +67,11 @@ public abstract class ManagerBase<TDbContext, TEntity>
     /// Finds and attaches the entity by id for tracking.
     /// </summary>
     /// <param name="id">Entity id</param>
+    /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>The entity if found; otherwise, null.</returns>
-    public async Task<TEntity?> FindAsync(Guid id)
+    public async Task<TEntity?> FindAsync(Guid id, CancellationToken cancellationToken = default)
     {
-        return await _dbSet.FindAsync(id);
+        return await _dbSet.FindAsync(new object?[] { id }, cancellationToken: cancellationToken);
     }
 
     /// <summary>
@@ -96,8 +79,11 @@ public abstract class ManagerBase<TDbContext, TEntity>
     /// </summary>
     /// <typeparam name="TDto">DTO type</typeparam>
     /// <param name="whereExp">Filter expression</param>
+    /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>The DTO if found; otherwise, null.</returns>
-    protected async Task<TDto?> FindAsync<TDto>(Expression<Func<TEntity, bool>>? whereExp = null)
+    protected async Task<TDto?> FindAsync<TDto>(
+        Expression<Func<TEntity, bool>>? whereExp = null,
+        CancellationToken cancellationToken = default)
         where TDto : class
     {
         var query = _dbSet.AsNoTracking();
@@ -105,7 +91,7 @@ public abstract class ManagerBase<TDbContext, TEntity>
         var model = await query
             .Where(whereExp ?? (e => true))
             .ProjectToType<TDto>()
-            .FirstOrDefaultAsync();
+            .FirstOrDefaultAsync(cancellationToken);
         return model;
     }
 
@@ -113,10 +99,11 @@ public abstract class ManagerBase<TDbContext, TEntity>
     /// Checks if an entity with the specified id exists.
     /// </summary>
     /// <param name="id">Entity id</param>
+    /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>True if exists; otherwise, false.</returns>
-    public async Task<bool> ExistAsync(Guid id)
+    public async Task<bool> ExistAsync(Guid id, CancellationToken cancellationToken = default)
     {
-        return await _dbSet.AnyAsync(q => q.Id == id);
+        return await _dbSet.AnyAsync(q => q.Id == id, cancellationToken);
     }
 
     /// <summary>
@@ -172,8 +159,9 @@ public abstract class ManagerBase<TDbContext, TEntity>
                     ? Queryable
                     : Queryable.OrderByDescending(t => t.CreatedTime);
 
-        var count = await Queryable.CountAsync(cancellationToken);
-        List<TItem> data = await Queryable.AsNoTracking()
+        var count = Queryable.Count();
+        List<TItem> data = await Queryable
+            .AsNoTracking()
             .Skip((filter.PageIndex - 1) * filter.PageSize)
             .Take(filter.PageSize)
             .ProjectToType<TItem>()
@@ -193,13 +181,14 @@ public abstract class ManagerBase<TDbContext, TEntity>
     /// </summary>
     /// <remarks></remarks>
     /// <param name="entity">The entity to insert or update. Cannot be null.</param>
-    protected async Task InsertAsync(TEntity entity)
+    /// <param name="cancellationToken">Cancellation token</param>
+    protected async Task InsertAsync(TEntity entity, CancellationToken cancellationToken = default)
     {
         if (_isMultiTenant && IsTenantScoped)
         {
             ((ITenantEntityBase)entity).TenantId = _userContext.TenantId;
         }
-        await _dbContext.BulkInsertAsync([entity]);
+        await _dbContext.BulkInsertAsync([entity], cancellationToken: cancellationToken);
     }
 
     /// <summary>
@@ -209,14 +198,16 @@ public abstract class ManagerBase<TDbContext, TEntity>
     /// <param name="id"></param>
     /// <param name="dto"></param>
     /// <param name="updateTime"></param>
+    /// <param name="cancellationToken">Cancellation token</param>
     /// <returns></returns>
     protected async Task<int> UpdateAsync<TUpdateDto>(
         Guid id,
         TUpdateDto dto,
-        bool updateTime = true
+        bool updateTime = true,
+        CancellationToken cancellationToken = default
     ) where TUpdateDto : class
     {
-        return await _dbContext.PartialUpdateAsync<TEntity, TUpdateDto>(id, dto, updateTime);
+        return await _dbContext.PartialUpdateAsync<TEntity, TUpdateDto>(id, dto, updateTime, cancellationToken);
     }
 
     protected async Task BulkInsertAsync(
@@ -231,7 +222,7 @@ public abstract class ManagerBase<TDbContext, TEntity>
                 ((ITenantEntityBase)entity).TenantId = _userContext.TenantId;
             }
 
-            entity.UpdatedTime = DateTimeOffset.UtcNow;
+            entity.UpdatedTime = DateTime.UtcNow;
         }
         await _dbContext.BulkInsertAsync(entities, cancellationToken: cancellationToken);
     }
@@ -269,25 +260,28 @@ public abstract class ManagerBase<TDbContext, TEntity>
     /// <typeparam name="TProperty">Navigation property type</typeparam>
     /// <param name="entity">Entity instance</param>
     /// <param name="propertyExpression">Navigation property expression</param>
+    /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>Task representing the asynchronous operation.</returns>
     protected async Task LoadAsync<TProperty>(
         TEntity entity,
-        Expression<Func<TEntity, TProperty?>> propertyExpression
+        Expression<Func<TEntity, TProperty?>> propertyExpression,
+        CancellationToken cancellationToken = default
     )
         where TProperty : class
     {
         var entry = _dbContext.Entry(entity);
         if (entry.State != EntityState.Detached)
         {
-            await _dbContext.Entry(entity).Reference(propertyExpression).LoadAsync();
+            await _dbContext.Entry(entity).Reference(propertyExpression).LoadAsync(cancellationToken);
         }
         else
         {
-            await _dbContext.Entry(entity)
+            await _dbContext
+                .Entry(entity)
                 .Reference(propertyExpression)
                 .Query()
                 .AsNoTracking()
-                .LoadAsync();
+                .LoadAsync(cancellationToken);
         }
     }
 
@@ -297,17 +291,19 @@ public abstract class ManagerBase<TDbContext, TEntity>
     /// <typeparam name="TProperty">Collection property type</typeparam>
     /// <param name="entity">Entity instance</param>
     /// <param name="propertyExpression">Collection property expression</param>
+    /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>Task representing the asynchronous operation.</returns>
     protected async Task LoadManyAsync<TProperty>(
         TEntity entity,
-        Expression<Func<TEntity, IEnumerable<TProperty>>> propertyExpression
+        Expression<Func<TEntity, IEnumerable<TProperty>>> propertyExpression,
+        CancellationToken cancellationToken = default
     )
         where TProperty : class
     {
         var entry = _dbContext.Entry(entity);
         if (entry.State != EntityState.Detached)
         {
-            await _dbContext.Entry(entity).Collection(propertyExpression).LoadAsync();
+            await _dbContext.Entry(entity).Collection(propertyExpression).LoadAsync(cancellationToken);
         }
         else
         {
@@ -316,7 +312,7 @@ public abstract class ManagerBase<TDbContext, TEntity>
                 .Collection(propertyExpression)
                 .Query()
                 .AsNoTracking()
-                .LoadAsync();
+                .LoadAsync(cancellationToken);
         }
     }
 
@@ -400,7 +396,7 @@ public abstract class ManagerBase<TDbContext, TEntity>
     /// </summary>
     protected void ResetQuery()
     {
-        Queryable = _dbSet.AsNoTracking().AsQueryable();
+        Queryable = _dbSet.AsQueryable();
     }
 
     protected IQueryable<TEntity> ApplyTenantFilter(IQueryable<TEntity> query)
@@ -410,34 +406,5 @@ public abstract class ManagerBase<TDbContext, TEntity>
             return query.Where(e => ((ITenantEntityBase)e).TenantId == _userContext.TenantId);
         }
         return query;
-    }
-
-    public void Dispose()
-    {
-        Dispose(true);
-        GC.SuppressFinalize(this);
-    }
-
-    protected virtual void Dispose(bool disposing)
-    {
-        if (disposing)
-        {
-            _dbContext?.Dispose();
-        }
-    }
-
-    public async ValueTask DisposeAsync()
-    {
-        await DisposeAsyncCore();
-        Dispose(false);
-        GC.SuppressFinalize(this);
-    }
-
-    protected virtual async ValueTask DisposeAsyncCore()
-    {
-        if (_dbContext is not null)
-        {
-            await _dbContext.DisposeAsync();
-        }
     }
 }

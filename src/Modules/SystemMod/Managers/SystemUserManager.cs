@@ -14,7 +14,6 @@ public class SystemUserManager(
     SystemLogService logService,
     ILogger<SystemUserManager> logger,
     IUserContext userContext,
-    ITenantContext tenantContext,
     Localizer localizer,
     SystemUserRoleManager userRoleManager
 ) : ManagerBase<DefaultDbContext, SystemUser>(dbContextFactory, userContext, logger)
@@ -140,7 +139,7 @@ public class SystemUserManager(
         jwtService.Claims = [
             new(ClaimTypes.Email, user.Email),
             new(ClaimTypes.Name, user.UserName??string.Empty),
-            new(CustomClaimTypes.TenantId, tenantContext.TenantId.ToString())
+            new(CustomClaimTypes.TenantId, _userContext.TenantId.ToString())
             ];
         var token = jwtService.GetToken(user.Id.ToString(), [.. roles]);
 
@@ -271,8 +270,8 @@ public class SystemUserManager(
             await _dbContext.Tenants.Where(t => t.Domain == domain).FirstOrDefaultAsync()
             ?? throw new BusinessException(Localizer.TenantNotExist);
 
-        tenantContext.TenantId = tenant.Id;
-        tenantContext.TenantType = tenant.Type.ToString();
+        _userContext.TenantId = tenant.Id;
+        _userContext.TenantType = tenant.Type.ToString();
 
         // 查询用户
         var user = await _dbSet

@@ -23,7 +23,6 @@ public static class FrameworkExtensions
 
             builder.Services.AddHttpContextAccessor();
             builder.Services.AddScoped<IUserContext, UserContext>();
-            builder.Services.AddScoped<ITenantContext, TenantContext>();
 
             var components = builder.Configuration.GetSection(ComponentOption.ConfigPath)
                 .Get<ComponentOption>() ?? new ComponentOption();
@@ -67,7 +66,7 @@ public static class FrameworkExtensions
         public IHostApplicationBuilder AddDbFactory()
         {
             builder.Services.AddSingleton<UniversalDbFactory>();
-            builder.Services.AddScoped<TenantDbFactory>();
+            builder.Services.AddSingleton<TenantDbFactory>();
             return builder;
         }
 
