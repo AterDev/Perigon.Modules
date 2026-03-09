@@ -83,15 +83,9 @@ if ($moduleDirectories.Count -eq 0) {
 	return
 }
 
-$existingPackages = Get-ChildItem -Path $packageRoot -Filter *.zip -File
-foreach ($package in $existingPackages) {
-	if ($PSCmdlet.ShouldProcess($package.FullName, '删除旧模块压缩包')) {
-		Remove-Item -Path $package.FullName -Force
-	}
-}
-
 $location = Get-Location
 $allMetadata = [System.Collections.Generic.List[object]]::new()
+$failedModules = [System.Collections.Generic.List[string]]::new()
 
 try {
 	Set-Location $projectRoot
@@ -102,19 +96,30 @@ try {
 		Write-Host "开始打包模块：$moduleName (Service: $serviceName)" -ForegroundColor Cyan
 
 		if ($PSCmdlet.ShouldProcess($moduleName, "执行 perigon pack $moduleName $serviceName")) {
-			& perigon pack $moduleName $serviceName
-			if ($LASTEXITCODE -ne 0) {
-				throw "perigon pack $moduleName $serviceName 执行失败，退出码：$LASTEXITCODE"
-			}
+			try {
+				& perigon pack $moduleName $serviceName
+				if ($LASTEXITCODE -ne 0) {
+					Write-Error "perigon pack $moduleName $serviceName 执行失败，退出码：$LASTEXITCODE"
+					$failedModules.Add($moduleName)
+					continue
+				}
 
-			$packageFile = Get-LatestModulePackage -PackageRoot $packageRoot -ModuleName $moduleName -PackStartTime $packStartTime
-			if (-not $packageFile) {
-				throw "未在目录 '$packageRoot' 中找到模块 '$moduleName' 的打包结果。"
-			}
+				$packageFile = Get-LatestModulePackage -PackageRoot $packageRoot -ModuleName $moduleName -PackStartTime $packStartTime
+				if (-not $packageFile) {
+					Write-Error "未在目录 '$packageRoot' 中找到模块 '$moduleName' 的打包结果。"
+					$failedModules.Add($moduleName)
+					continue
+				}
 
-			$metadata = Get-MetadataFromZip -ZipPath $packageFile.FullName
-			$allMetadata.Add($metadata)
-			Write-Host "  ✓ 已生成：$($packageFile.Name)" -ForegroundColor Green
+				$metadata = Get-MetadataFromZip -ZipPath $packageFile.FullName
+				$allMetadata.Add($metadata)
+				Write-Host "  ✓ 已生成：$($packageFile.Name)" -ForegroundColor Green
+			}
+			catch {
+				Write-Error "模块 '$moduleName' 打包失败：$($_.Exception.Message)"
+				$failedModules.Add($moduleName)
+				continue
+			}
 		}
 	}
 }
@@ -132,3 +137,7 @@ if ($PSCmdlet.ShouldProcess($modulesJsonPath, '写入模块元数据汇总')) {
 Write-Host "完成，共处理 $($moduleDirectories.Count) 个模块。" -ForegroundColor Green
 Write-Host "压缩包输出目录：$packageRoot" -ForegroundColor Green
 Write-Host "元数据汇总文件：$modulesJsonPath" -ForegroundColor Green
+
+if ($failedModules.Count -gt 0) {
+	Write-Warning ("以下模块打包失败：" + ($failedModules | Select-Object -Unique | Sort-Object) -join ', ')
+}
