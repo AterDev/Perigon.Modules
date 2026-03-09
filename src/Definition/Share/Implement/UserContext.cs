@@ -9,7 +9,7 @@ public class UserContext : IUserContext
 
     public Guid? GroupId { get; init; }
 
-    public Guid TenantId { get; set; }
+    public Guid TenantId { get; init; }
     public string? TenantType { get; set; }
 
     public string? UserName { get; init; }

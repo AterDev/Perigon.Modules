@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Hosting;
 using System.ComponentModel;
 using SystemMod.Worker;
@@ -18,9 +19,25 @@ public static class ModuleExtensions
     /// <returns></returns>
     public static IHostApplicationBuilder AddSystemMod(this IHostApplicationBuilder builder)
     {
+        builder.AddModServices();
+        return builder;
+    }
+
+    private static IHostApplicationBuilder AddModServices(this IHostApplicationBuilder builder)
+    {
         builder.Services.AddSingleton<IEntityTaskQueue<SystemLogs>, EntityTaskQueue<SystemLogs>>();
         builder.Services.AddSingleton<SystemLogService>();
         builder.Services.AddHostedService<SystemLogTaskHostedService>();
         return builder;
+    }
+
+    /// <summary>
+    /// 使用模块服务
+    /// </summary>
+    /// <param name="app"></param>
+    /// <returns></returns>
+    public static WebApplication UseSystemModServices(this WebApplication app)
+    {
+        return app;
     }
 }

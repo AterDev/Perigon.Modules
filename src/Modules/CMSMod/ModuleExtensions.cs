@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Hosting;
 using System.ComponentModel;
 
@@ -15,7 +16,22 @@ public static class ModuleExtensions
     /// <param name="builder"></param>
     public static IHostApplicationBuilder AddCMSMod(this IHostApplicationBuilder builder)
     {
+        builder.AddModServices();
         return builder;
+    }
+
+    private static IHostApplicationBuilder AddModServices(this IHostApplicationBuilder builder)
+    {
+        return builder;
+    }
+
+    /// <summary>
+    /// use module services
+    /// </summary>
+    /// <param name="app"></param>
+    public static WebApplication UseCMSModServices(this WebApplication app)
+    {
+        return app;
     }
 }
 
