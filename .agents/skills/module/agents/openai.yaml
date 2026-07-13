@@ -1,0 +1,4 @@
+interface:
+  display_name: "Module Development"
+  short_description: "Develop, integrate, and package official modules"
+  default_prompt: "Use $module to develop and package an official Perigon module."

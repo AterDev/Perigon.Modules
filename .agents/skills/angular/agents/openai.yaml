@@ -1,0 +1,4 @@
+interface:
+  display_name: "Angular Development"
+  short_description: "Build the Angular module verification client"
+  default_prompt: "Use $angular to implement a module UI in the verification client."
