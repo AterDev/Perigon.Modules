@@ -96,6 +96,9 @@ export const I18N_KEYS = {
     "systemRole": "menu.systemRole",
     "systemUser": "menu.systemUser",
     "systemLogs": "menu.systemLogs",
-    "systemConfig": "menu.systemConfig"
+    "systemConfig": "menu.systemConfig",
+    "resource": "menu.resource",
+    "resourceList": "menu.resourceList",
+    "resourceConfig": "menu.resourceConfig"
   }
 };

@@ -1,0 +1,20 @@
+<section class="resource-page">
+  <header>
+    <h1>{{ 'menu.resourceList' | translate }}</h1>
+    <button mat-stroked-button (click)="load()">{{ 'common.search' | translate }}</button>
+  </header>
+  @if (loading()) {
+    <mat-spinner diameter="32" />
+  } @else if (resources().length === 0) {
+    <p>{{ 'common.noData' | translate }}</p>
+  } @else {
+    <table>
+      <thead><tr><th>名称</th><th>环境</th><th>分类</th><th>分组</th><th>定义</th><th>标签</th></tr></thead>
+      <tbody>
+        @for (resource of resources(); track resource.id) {
+          <tr><td>{{ resource.name }}</td><td>{{ resource.environmentName }}</td><td>{{ resource.categoryName }}</td><td>{{ resource.groupName || '-' }}</td><td>{{ resource.definitionName }}</td><td>{{ resource.tagNames.join(', ') }}</td></tr>
+        }
+      </tbody>
+    </table>
+  }
+</section>

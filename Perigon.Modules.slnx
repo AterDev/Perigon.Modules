@@ -18,6 +18,7 @@
   </Folder>
   <Folder Name="/src/Modules/">
     <Project Path="src/Modules/CMSMod/CMSMod.csproj" />
+    <Project Path="src/Modules/ResourceMod/ResourceMod.csproj" />
     <Project Path="src/Modules/SystemMod/SystemMod.csproj" />
   </Folder>
   <Folder Name="/src/Perigon/" Id="9048eb7f-3875-a59e-e36b-5bd4c6f2a282">

@@ -22,3 +22,5 @@ global using CMSMod.Managers;
 global using Entity.CMSMod;
 global using CMSMod.Models.ArticleCategoryDtos;
 global using CMSMod.Models.ArticleDtos;
+global using ResourceMod.Managers;
+global using ResourceMod.Models;

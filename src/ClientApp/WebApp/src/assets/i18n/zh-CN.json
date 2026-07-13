@@ -94,5 +94,8 @@
     "systemUser": "账号管理",
     "systemLogs": "系统日志",
     "systemConfig": "系统设置"
+    ,"resource": "资源管理"
+    ,"resourceList": "资源列表"
+    ,"resourceConfig": "资源配置"
   }
 }

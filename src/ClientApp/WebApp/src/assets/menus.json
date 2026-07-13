@@ -1,5 +1,31 @@
 [
     {
+        "name": "menu.resource",
+        "path": null,
+        "accessCode": "resource",
+        "icon": "inventory_2",
+        "sort": 1,
+        "menuType": 0,
+        "children": [
+            {
+                "name": "menu.resourceList",
+                "path": "/resource",
+                "accessCode": "resource-list",
+                "icon": "inventory_2",
+                "sort": 0,
+                "menuType": 0
+            },
+            {
+                "name": "menu.resourceConfig",
+                "path": "/resource-config",
+                "accessCode": "resource-config",
+                "icon": "tune",
+                "sort": 1,
+                "menuType": 0
+            }
+        ]
+    },
+    {
         "name": "menu.system",
         "path": null,
         "accessCode": "system",

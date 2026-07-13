@@ -7,6 +7,15 @@ public partial class DefaultDbContext(DbContextOptions<DefaultDbContext> options
 {
     public DbSet<Article> Articles { get; set; }
     public DbSet<ArticleCategory> ArticleCategories { get; set; }
+    public DbSet<ResEnvironment> ResEnvironments { get; set; }
+    public DbSet<ResCategory> ResCategories { get; set; }
+    public DbSet<ResGroup> ResGroups { get; set; }
+    public DbSet<ResTag> ResTags { get; set; }
+    public DbSet<ResDefinition> ResDefinitions { get; set; }
+    public DbSet<ResDefinitionProperty> ResDefinitionProperties { get; set; }
+    public DbSet<Resource> Resources { get; set; }
+    public DbSet<ResValue> ResValues { get; set; }
+    public DbSet<ResPermission> ResPermissions { get; set; }
     public DbSet<SystemConfig> SystemConfigs { get; set; }
     public DbSet<SystemLogs> SystemLogs { get; set; }
     public DbSet<SystemMenu> SystemMenus { get; set; }

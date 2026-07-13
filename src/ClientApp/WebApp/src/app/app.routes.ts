@@ -33,6 +33,20 @@ export const routes: Routes = [
           { path: 'index', loadComponent: () => import('./pages/system-logs/index/index').then(m => m.Index) },
         ]
       },
+      {
+        path: 'resource',
+        children: [
+          { path: '', redirectTo: '/resource/index', pathMatch: 'full' },
+          { path: 'index', loadComponent: () => import('./pages/resource/index/index').then(m => m.ResourceIndex) },
+        ]
+      },
+      {
+        path: 'resource-config',
+        children: [
+          { path: '', redirectTo: '/resource-config/index', pathMatch: 'full' },
+          { path: 'index', loadComponent: () => import('./pages/resource-config/index/index').then(m => m.ResourceConfigIndex) },
+        ]
+      },
       // {
       //   path: 'system-config',
       //   children: [

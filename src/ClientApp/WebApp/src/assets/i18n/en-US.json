@@ -93,6 +93,9 @@
     "systemRole": "Role",
     "systemUser": "Account",
     "systemLogs": "Logs",
-    "systemConfig": "Settings"
+    "systemConfig": "Settings",
+    "resource": "Resources",
+    "resourceList": "Resource list",
+    "resourceConfig": "Resource configuration"
   }
 }
