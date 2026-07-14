@@ -1,20 +1,23 @@
 <section class="page">
-  <header><h1>新增文章分类</h1></header>
+  <header><h1>{{ i18nKeys.cms.category.addTitle | translate }}</h1></header>
   <form [formGroup]="form" (ngSubmit)="save()">
     <mat-form-field appearance="outline"
-      ><mat-label>分类名称</mat-label
+      ><mat-label>{{ i18nKeys.cms.category.name | translate }}</mat-label
       ><input matInput formControlName="name" /></mat-form-field
     ><mat-form-field appearance="outline"
-      ><mat-label>上级分类</mat-label
+      ><mat-label>{{ i18nKeys.cms.category.parent | translate }}</mat-label
       ><mat-select formControlName="parentId"
-        ><mat-option value="">顶级分类</mat-option>@for (item of categories();
-        track item.id) {
+        ><mat-option value="">{{ i18nKeys.cms.category.root | translate }}</mat-option
+        >@for (item of categories(); track item.id) {
         <mat-option [value]="item.id">{{ item.name }}</mat-option> }</mat-select
       ></mat-form-field
     >
     <div class="actions">
-      <button mat-button type="button" routerLink="../">取消</button
-      ><button mat-flat-button type="submit" [disabled]="saving">保存</button>
+      <button mat-button type="button" routerLink="../">
+        {{ i18nKeys.common.cancel | translate }}</button
+      ><button mat-flat-button type="submit" [disabled]="saving">
+        {{ i18nKeys.common.save | translate }}
+      </button>
     </div>
   </form>
 </section>

@@ -1,9 +1,9 @@
 <section class="page">
   <header>
-    <h1>资源详情</h1>
+    <h1>{{ i18nKeys.resource.detailTitle | translate }}</h1>
     @if (resource(); as item) {
     <a mat-flat-button [routerLink]="['../../', item.id, 'edit']"
-      ><mat-icon>edit</mat-icon>编辑</a
+      ><mat-icon>edit</mat-icon>{{ i18nKeys.common.edit | translate }}</a
     >
     }
   </header>
@@ -11,19 +11,19 @@
   <mat-card
     ><mat-card-content
       ><dl>
-        <dt>名称</dt>
+        <dt>{{ i18nKeys.resource.name | translate }}</dt>
         <dd>{{ item.name }}</dd>
-        <dt>环境</dt>
+        <dt>{{ i18nKeys.resource.environment | translate }}</dt>
         <dd>{{ item.environmentName }}</dd>
-        <dt>分类</dt>
+        <dt>{{ i18nKeys.resource.category | translate }}</dt>
         <dd>{{ item.categoryName }}</dd>
-        <dt>分组</dt>
+        <dt>{{ i18nKeys.resource.group | translate }}</dt>
         <dd>{{ item.groupName || '-' }}</dd>
-        <dt>定义</dt>
+        <dt>{{ i18nKeys.resource.definition | translate }}</dt>
         <dd>{{ item.definitionName }}</dd>
-        <dt>标签</dt>
+        <dt>{{ i18nKeys.resource.tag | translate }}</dt>
         <dd>{{ item.tagNames.join(', ') || '-' }}</dd>
-        <dt>描述</dt>
+        <dt>{{ i18nKeys.resource.description | translate }}</dt>
         <dd>{{ item.description || '-' }}</dd>
         @for (value of item.values; track value.definitionPropertyId) {
         <dt>{{ value.name }}</dt>

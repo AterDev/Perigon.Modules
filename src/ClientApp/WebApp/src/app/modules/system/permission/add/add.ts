@@ -7,7 +7,7 @@ import {
 import { FormBuilder, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { CommonFormModules } from '../../../../share/shared-modules';
+import { CommonFormModules } from '../../../share/shared-modules';
 import { AdminClient } from '../../../../services/admin/admin-client';
 import { SystemPermissionGroupItemDto } from '../../../../services/admin/models/system-mod/system-permission-group-item-dto.model';
 import { PermissionType } from '../../../../services/admin/models/entity/permission-type.model';

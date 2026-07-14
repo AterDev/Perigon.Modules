@@ -7,8 +7,8 @@ import { AuthService } from '../services/auth.service';
 import { NavigationComponent } from "./navigation/navigation";
 import { TranslateService } from '@ngx-translate/core';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
-import { I18N_KEYS } from '../share/i18n-keys';
-import { BaseMatModules, CommonModules } from '../share/shared-modules';
+import { I18N_KEYS } from '../modules/share/i18n-keys';
+import { BaseMatModules, CommonModules } from '../modules/share/shared-modules';
 
 @Component({
   selector: 'app-layout',

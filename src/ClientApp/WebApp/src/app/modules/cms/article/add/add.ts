@@ -1,3 +1,4 @@
+import { I18N_KEYS } from '../../../share/i18n-keys';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -7,12 +8,13 @@ import {
 import { FormBuilder, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { CommonFormModules } from '../../../../share/shared-modules';
+import { CommonFormModules } from '../../../share/shared-modules';
 import { AdminClient } from '../../../../services/admin/admin-client';
 import { ArticleCategoryItemDto } from '../../../../services/admin/models/cmsmod/article-category-item-dto.model';
 import { LanguageType } from '../../../../services/admin/models/entity/language-type.model';
 import { ContentType } from '../../../../services/admin/models/entity/content-type.model';
 import { AuthService } from '../../../../services/auth.service';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-article-add',
@@ -22,11 +24,13 @@ import { AuthService } from '../../../../services/auth.service';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ArticleAddComponent {
+  readonly i18nKeys = I18N_KEYS;
   private readonly fb = inject(FormBuilder);
   private readonly client = inject(AdminClient);
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
   private readonly snackBar = inject(MatSnackBar);
+  private readonly translate = inject(TranslateService);
   readonly categories = signal<ArticleCategoryItemDto[]>([]);
   readonly languages = Object.entries(LanguageType).filter(
     ([, value]) => typeof value === 'number',
@@ -70,7 +74,11 @@ export class ArticleAddComponent {
       })
       .subscribe({
         next: (article) => {
-          this.snackBar.open('文章已创建', '关闭', { duration: 2500 });
+          this.snackBar.open(
+            this.translate.instant('cms.article.createSuccess'),
+            this.translate.instant('common.close'),
+            { duration: 2500 },
+          );
           this.router.navigate(['/cms/article', article.id, 'detail']);
         },
         error: () => (this.saving = false),

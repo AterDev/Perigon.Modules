@@ -1,58 +1,58 @@
 <section class="page">
   <header>
-    <h1>{{ 'menu.resourceList' | translate }}</h1>
-    <a mat-flat-button routerLink="../add">{{ 'common.add' | translate }}</a>
+    <h1>{{ i18nKeys.menu.resourceList | translate }}</h1>
+    <a mat-flat-button routerLink="../add">{{ i18nKeys.common.add | translate }}</a>
   </header>
 
   <div class="filters">
     <mat-form-field appearance="outline"
-      ><mat-label>名称</mat-label
+      ><mat-label>{{ i18nKeys.resource.name | translate }}</mat-label
       ><input matInput [(ngModel)]="name" /></mat-form-field
     ><mat-form-field appearance="outline"
-      ><mat-label>环境</mat-label
+      ><mat-label>{{ i18nKeys.resource.environment | translate }}</mat-label
       ><mat-select [(ngModel)]="environmentId"
-        ><mat-option value="">全部</mat-option>@for (item of environments();
-        track item.id) {
+        ><mat-option value="">{{ i18nKeys.common.all | translate }}</mat-option>@for
+        (item of environments(); track item.id) {
         <mat-option [value]="item.id">{{ item.name }}</mat-option> }</mat-select
       ></mat-form-field
     ><mat-form-field appearance="outline"
-      ><mat-label>分类</mat-label
+      ><mat-label>{{ i18nKeys.resource.category | translate }}</mat-label
       ><mat-select [(ngModel)]="categoryId"
-        ><mat-option value="">全部</mat-option>@for (item of categories(); track
-        item.id) {
+        ><mat-option value="">{{ i18nKeys.common.all | translate }}</mat-option>@for
+        (item of categories(); track item.id) {
         <mat-option [value]="item.id">{{ item.name }}</mat-option> }</mat-select
       ></mat-form-field
     ><mat-form-field appearance="outline"
-      ><mat-label>定义</mat-label
+      ><mat-label>{{ i18nKeys.resource.definition | translate }}</mat-label
       ><mat-select [(ngModel)]="definitionId"
-        ><mat-option value="">全部</mat-option>@for (item of definitions();
-        track item.id) {
+        ><mat-option value="">{{ i18nKeys.common.all | translate }}</mat-option>@for
+        (item of definitions(); track item.id) {
         <mat-option [value]="item.id">{{ item.name }}</mat-option> }</mat-select
       ></mat-form-field
     ><mat-form-field appearance="outline"
-      ><mat-label>标签</mat-label
+      ><mat-label>{{ i18nKeys.resource.tag | translate }}</mat-label
       ><input matInput [(ngModel)]="tagName" /></mat-form-field
     ><button mat-stroked-button (click)="load()">
-      <mat-icon>search</mat-icon>查询
+      <mat-icon>search</mat-icon>{{ i18nKeys.common.search | translate }}
     </button>
   </div>
 
   @if (loading()) {
   <mat-spinner diameter="32" />
   } @else if (resources().length === 0) {
-  <p>{{ 'common.noData' | translate }}</p>
+  <p>{{ i18nKeys.common.noData | translate }}</p>
   } @else {
   <div class="table-wrap">
     <table>
       <thead>
         <tr>
-          <th>名称</th>
-          <th>环境</th>
-          <th>分类</th>
-          <th>分组</th>
-          <th>定义</th>
-          <th>标签</th>
-          <th>操作</th>
+          <th>{{ i18nKeys.resource.name | translate }}</th>
+          <th>{{ i18nKeys.resource.environment | translate }}</th>
+          <th>{{ i18nKeys.resource.category | translate }}</th>
+          <th>{{ i18nKeys.resource.group | translate }}</th>
+          <th>{{ i18nKeys.resource.definition | translate }}</th>
+          <th>{{ i18nKeys.resource.tag | translate }}</th>
+          <th>{{ i18nKeys.common.actions | translate }}</th>
         </tr>
       </thead>
       <tbody>

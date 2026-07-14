@@ -7,10 +7,10 @@ import {
 } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
 import { Router } from '@angular/router';
-import { CommonFormModules } from 'src/app/share/shared-modules';
+import { CommonFormModules } from 'src/app/modules/share/shared-modules';
 import { AuthService } from 'src/app/services/auth.service';
 import { TranslateService } from '@ngx-translate/core';
-import { I18N_KEYS } from 'src/app/share/i18n-keys';
+import { I18N_KEYS } from 'src/app/modules/share/i18n-keys';
 import { initStarfield } from './starfield';
 import { AdminClient } from 'src/app/services/admin/admin-client';
 

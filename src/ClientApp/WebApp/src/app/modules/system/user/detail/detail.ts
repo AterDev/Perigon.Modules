@@ -5,7 +5,7 @@ import {
   signal,
 } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { CommonListModules } from '../../../../share/shared-modules';
+import { CommonListModules } from '../../../share/shared-modules';
 import { AdminClient } from '../../../../services/admin/admin-client';
 import { SystemUserDetailDto } from '../../../../services/admin/models/system-mod/system-user-detail-dto.model';
 @Component({

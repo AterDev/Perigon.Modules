@@ -1,3 +1,4 @@
+import { I18N_KEYS } from '../../../share/i18n-keys';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -13,7 +14,7 @@ import {
 } from '@angular/forms';
 import { Router } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { CommonFormModules } from '../../../../share/shared-modules';
+import { CommonFormModules } from '../../../share/shared-modules';
 import { AdminClient } from '../../../../services/admin/admin-client';
 import { ResEnvironment } from '../../../../services/admin/models/entity/res-environment.model';
 import { ResCategory } from '../../../../services/admin/models/entity/res-category.model';
@@ -21,6 +22,7 @@ import { ResGroup } from '../../../../services/admin/models/entity/res-group.mod
 import { ResTag } from '../../../../services/admin/models/entity/res-tag.model';
 import { ResDefinition } from '../../../../services/admin/models/entity/res-definition.model';
 import { ResValueType } from '../../../../services/admin/models/entity/res-value-type.model';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-resource-add',
@@ -30,10 +32,12 @@ import { ResValueType } from '../../../../services/admin/models/entity/res-value
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ResourceAddComponent {
+  readonly i18nKeys = I18N_KEYS;
   private readonly fb = inject(FormBuilder);
   private readonly client = inject(AdminClient);
   private readonly router = inject(Router);
   private readonly snackBar = inject(MatSnackBar);
+  private readonly translate = inject(TranslateService);
   readonly environments = signal<ResEnvironment[]>([]);
   readonly categories = signal<ResCategory[]>([]);
   readonly groups = signal<ResGroup[]>([]);
@@ -102,7 +106,7 @@ export class ResourceAddComponent {
     }
   }
   createTag(): void {
-    const name = prompt('新标签名称');
+    const name = prompt(this.translate.instant('resource.newTagNamePrompt'));
     if (!name) return;
     this.client.resourceConfiguration
       .addTag({ name, color: '#607d8b', icon: 'label' })
@@ -117,10 +121,14 @@ export class ResourceAddComponent {
   createGroup(): void {
     const categoryId = this.form.controls.categoryId.value;
     if (!categoryId) {
-      this.snackBar.open('请先选择分类', '关闭', { duration: 2500 });
+      this.snackBar.open(
+        this.translate.instant('resource.selectCategoryFirst'),
+        this.translate.instant('common.close'),
+        { duration: 2500 },
+      );
       return;
     }
-    const name = prompt('新分组名称');
+    const name = prompt(this.translate.instant('resource.newGroupNamePrompt'));
     if (!name) return;
     this.client.resourceConfiguration
       .addGroup({
@@ -155,7 +163,11 @@ export class ResourceAddComponent {
       })
       .subscribe({
         next: (resource) => {
-          this.snackBar.open('资源已创建', '关闭', { duration: 2500 });
+          this.snackBar.open(
+            this.translate.instant('resource.createSuccess'),
+            this.translate.instant('common.close'),
+            { duration: 2500 },
+          );
           this.router.navigate(['/resource', resource.id, 'detail']);
         },
         error: () => (this.saving = false),

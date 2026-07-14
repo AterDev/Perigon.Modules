@@ -1,3 +1,4 @@
+import { I18N_KEYS } from '../../../share/i18n-keys';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -5,10 +6,11 @@ import {
   signal,
 } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { CommonListModules } from '../../../../share/shared-modules';
+import { CommonListModules } from '../../../share/shared-modules';
 import { AdminClient } from '../../../../services/admin/admin-client';
 import { ArticleItemDto } from '../../../../services/admin/models/cmsmod/article-item-dto.model';
 import { ArticleCategoryItemDto } from '../../../../services/admin/models/cmsmod/article-category-item-dto.model';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-article-index',
@@ -18,8 +20,10 @@ import { ArticleCategoryItemDto } from '../../../../services/admin/models/cmsmod
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ArticleIndexComponent {
+  readonly i18nKeys = I18N_KEYS;
   private readonly client = inject(AdminClient);
   private readonly snackBar = inject(MatSnackBar);
+  private readonly translate = inject(TranslateService);
   readonly articles = signal<ArticleItemDto[]>([]);
   readonly categories = signal<ArticleCategoryItemDto[]>([]);
   readonly loading = signal(false);
@@ -60,9 +64,20 @@ export class ArticleIndexComponent {
       });
   }
   remove(item: ArticleItemDto): void {
-    if (!confirm(`确定删除文章“${item.title}”吗？`)) return;
+    if (
+      !confirm(
+        this.translate.instant('cms.article.deleteConfirm', {
+          title: item.title,
+        }),
+      )
+    )
+      return;
     this.client.article.delete(item.id).subscribe(() => {
-      this.snackBar.open('文章已删除', '关闭', { duration: 2500 });
+      this.snackBar.open(
+        this.translate.instant('cms.article.deleteSuccess'),
+        this.translate.instant('common.close'),
+        { duration: 2500 },
+      );
       this.load();
     });
   }

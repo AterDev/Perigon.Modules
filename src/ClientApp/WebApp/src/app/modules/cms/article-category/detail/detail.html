@@ -1,23 +1,23 @@
 <section class="page">
   <header>
-    <h1>文章分类详情</h1>
+    <h1>{{ i18nKeys.cms.category.detailTitle | translate }}</h1>
     <a mat-flat-button [routerLink]="['../../', id, 'edit']"
-      ><mat-icon>edit</mat-icon>编辑</a
+      ><mat-icon>edit</mat-icon>{{ i18nKeys.common.edit | translate }}</a
     >
   </header>
   @if (category(); as item) {
   <mat-card
     ><mat-card-content
       ><dl>
-        <dt>分类名称</dt>
+        <dt>{{ i18nKeys.cms.category.name | translate }}</dt>
         <dd>{{ item.name }}</dd>
-        <dt>层级</dt>
+        <dt>{{ i18nKeys.cms.category.level | translate }}</dt>
         <dd>{{ item.level }}</dd>
-        <dt>上级分类</dt>
+        <dt>{{ i18nKeys.cms.category.parent | translate }}</dt>
         <dd>{{ $any(item.parent)?.name || '-' }}</dd>
-        <dt>创建时间</dt>
+        <dt>{{ i18nKeys.common.createdTime | translate }}</dt>
         <dd>{{ item.createdTime | date:'medium' }}</dd>
-        <dt>更新时间</dt>
+        <dt>{{ i18nKeys.common.updatedTime | translate }}</dt>
         <dd>{{ item.updatedTime | date:'medium' }}</dd>
       </dl></mat-card-content
     ></mat-card

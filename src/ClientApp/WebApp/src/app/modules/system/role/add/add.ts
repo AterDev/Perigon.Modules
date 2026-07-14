@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { CommonFormModules } from '../../../../share/shared-modules';
+import { CommonFormModules } from '../../../share/shared-modules';
 import { AdminClient } from '../../../../services/admin/admin-client';
 @Component({
   selector: 'app-system-role-add',

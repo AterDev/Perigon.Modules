@@ -1,49 +1,62 @@
 <section class="page">
-  <header><h1>编辑文章</h1></header>
+  <header><h1>{{ i18nKeys.cms.article.editTitle | translate }}</h1></header>
   <form [formGroup]="form" (ngSubmit)="save()">
     <mat-form-field appearance="outline"
-      ><mat-label>标题</mat-label
+      ><mat-label>{{ i18nKeys.cms.article.title | translate }}</mat-label
       ><input matInput formControlName="title" /></mat-form-field
     ><mat-form-field appearance="outline"
-      ><mat-label>摘要</mat-label
+      ><mat-label>{{ i18nKeys.cms.article.summary | translate }}</mat-label
       ><textarea
         matInput
         formControlName="description"
       ></textarea></mat-form-field
     ><mat-form-field appearance="outline"
-      ><mat-label>正文</mat-label
+      ><mat-label>{{ i18nKeys.cms.article.content | translate }}</mat-label
       ><textarea
         matInput
         rows="14"
         formControlName="content"
       ></textarea></mat-form-field
     ><mat-form-field appearance="outline"
-      ><mat-label>作者</mat-label
+      ><mat-label>{{ i18nKeys.cms.article.author | translate }}</mat-label
       ><input matInput formControlName="authors" /></mat-form-field
     ><mat-form-field appearance="outline"
-      ><mat-label>分类</mat-label
+      ><mat-label>{{ i18nKeys.cms.article.category | translate }}</mat-label
       ><mat-select formControlName="catalogId"
         >@for (item of categories(); track item.id) {
         <mat-option [value]="item.id">{{ item.name }}</mat-option> }</mat-select
       ></mat-form-field
     ><mat-form-field appearance="outline"
-      ><mat-label>语言</mat-label
+      ><mat-label>{{ i18nKeys.cms.article.language | translate }}</mat-label
       ><mat-select formControlName="languageType"
         >@for (item of languages; track item[1]) {
-        <mat-option [value]="item[1]">{{ item[0] }}</mat-option> }</mat-select
+        <mat-option [value]="item[1]"
+          >{{ ('cms.languageTypes.' + item[0]) | translate }}</mat-option
+        >
+        }</mat-select
       ></mat-form-field
     ><mat-form-field appearance="outline"
-      ><mat-label>内容类型</mat-label
+      ><mat-label>{{ i18nKeys.cms.article.contentType | translate }}</mat-label
       ><mat-select formControlName="blogType"
         >@for (item of types; track item[1]) {
-        <mat-option [value]="item[1]">{{ item[0] }}</mat-option> }</mat-select
+        <mat-option [value]="item[1]"
+          >{{ ('cms.contentTypes.' + item[0]) | translate }}</mat-option
+        >
+        }</mat-select
       ></mat-form-field
-    ><mat-checkbox formControlName="isPublic">公开</mat-checkbox
-    ><mat-checkbox formControlName="isAudit">已审核</mat-checkbox
-    ><mat-checkbox formControlName="isOriginal">原创</mat-checkbox>
+    ><mat-checkbox formControlName="isPublic"
+      >{{ i18nKeys.cms.article.public | translate }}</mat-checkbox
+    ><mat-checkbox formControlName="isAudit"
+      >{{ i18nKeys.cms.article.audited | translate }}</mat-checkbox
+    ><mat-checkbox formControlName="isOriginal"
+      >{{ i18nKeys.cms.article.original | translate }}</mat-checkbox
+    >
     <div class="actions">
-      <button mat-button type="button" routerLink="../../">取消</button
-      ><button mat-flat-button type="submit" [disabled]="saving">保存</button>
+      <button mat-button type="button" routerLink="../../">
+        {{ i18nKeys.common.cancel | translate }}</button
+      ><button mat-flat-button type="submit" [disabled]="saving">
+        {{ i18nKeys.common.save | translate }}
+      </button>
     </div>
   </form>
 </section>

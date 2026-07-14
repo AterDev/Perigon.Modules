@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
-import { I18N_KEYS } from 'src/app/share/i18n-keys';
+import { I18N_KEYS } from 'src/app/modules/share/i18n-keys';
 
 @Component({
   selector: 'app-notfound',

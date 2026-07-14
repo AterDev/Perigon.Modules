@@ -1,3 +1,4 @@
+import { I18N_KEYS } from '../../../share/i18n-keys';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -5,7 +6,7 @@ import {
   signal,
 } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { CommonListModules } from '../../../../share/shared-modules';
+import { CommonListModules } from '../../../share/shared-modules';
 import { AdminClient } from '../../../../services/admin/admin-client';
 import { SystemUserItemDto } from '../../../../services/admin/models/system-mod/system-user-item-dto.model';
 @Component({
@@ -16,6 +17,7 @@ import { SystemUserItemDto } from '../../../../services/admin/models/system-mod/
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SystemUserIndexComponent {
+  readonly i18nKeys = I18N_KEYS;
   private readonly client = inject(AdminClient);
   private readonly snackBar = inject(MatSnackBar);
   readonly users = signal<SystemUserItemDto[]>([]);

@@ -10,13 +10,14 @@ Work only under `src/ClientApp/WebApp` unless the task explicitly includes backe
 ## Use the existing layout
 
 - Keep bootstrap/configuration in `main.ts`, `app.config.ts`, and `app.routes.ts`.
-- Keep application-shell pages such as login, home, and not-found under `app/pages`; shell/navigation remains under `app/layout`, shared UI under `app/share/components`, and pipes under `app/share/pipe`.
-- Put every distributable business feature under `app/modules/{module-name}`. Each feature has its own `NgModule` and `RouterModule.forChild()` routes; `app.routes.ts` only lazy-loads the feature module.
+- Keep application-shell pages such as login, home, and not-found under `app/pages`; shell/navigation remains under `app/layout`.
+- Put every distributable business feature under `app/modules/{module-name}`. `app/modules/share` contains the shared UI, pipes, guards, i18n keys, and helpers required by other distributable modules, so a frontend package must include it as its base dependency. Each business feature has its own `NgModule` and `RouterModule.forChild()` routes; `app.routes.ts` only lazy-loads the feature module.
 - Do not add a `pages` directory inside a feature module. Place entity components directly at `app/modules/{module-name}/{entity}/{index|add|edit|detail}/`.
 - Every entity view uses separate, colocated `index.ts`, `index.html`, and `index.scss` files (and likewise for add/edit/detail). Use descriptive `*Component` class names, never compressed one-line components or `*.page.ts` placeholders.
 - Keep API clients and models under `app/services`; generated admin clients live below `app/services/admin`.
 - Preserve `customer-http.interceptor`, `auth.service`, `auth.guard`, environment files, and `proxy.conf.json` behavior.
-- Maintain navigation metadata in `src/assets/menus.json` and translations in `src/assets/i18n/*.json`; keep keys aligned with `app/share/i18n-keys.ts` and the `i18n:keys` script.
+- Maintain navigation metadata in `src/assets/menus.json` and translations in `src/assets/i18n/*.json`; keep keys aligned with `app/modules/share/i18n-keys.ts` and the `i18n:keys` script.
+- For static translation keys, never hardcode string literals in a TypeScript file or template (for example, `{{ 'menu.resourceConfig' | translate }}`). Import `I18N_KEYS` from `app/modules/share/i18n-keys`, expose it to the template (for example, `readonly i18nKeys = I18N_KEYS`), and bind through the generated key (for example, `{{ i18nKeys.menu.resourceConfig | translate }}`). Only construct a key dynamically when its segment is genuinely runtime data; keep that key family in `I18N_KEYS` and the translation JSON files.
 
 ## Angular and TypeScript conventions
 

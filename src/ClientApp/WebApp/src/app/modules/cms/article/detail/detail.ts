@@ -1,3 +1,4 @@
+import { I18N_KEYS } from '../../../share/i18n-keys';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -5,7 +6,7 @@ import {
   signal,
 } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { CommonListModules } from '../../../../share/shared-modules';
+import { CommonListModules } from '../../../share/shared-modules';
 import { AdminClient } from '../../../../services/admin/admin-client';
 import { ArticleDetailDto } from '../../../../services/admin/models/cmsmod/article-detail-dto.model';
 
@@ -17,6 +18,7 @@ import { ArticleDetailDto } from '../../../../services/admin/models/cmsmod/artic
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ArticleDetailComponent {
+  readonly i18nKeys = I18N_KEYS;
   private readonly client = inject(AdminClient);
   private readonly route = inject(ActivatedRoute);
   readonly article = signal<ArticleDetailDto | null>(null);

@@ -1,10 +1,11 @@
+import { I18N_KEYS } from '../../../share/i18n-keys';
 import {
   ChangeDetectionStrategy,
   Component,
   inject,
   signal,
 } from '@angular/core';
-import { CommonListModules } from '../../../../share/shared-modules';
+import { CommonListModules } from '../../../share/shared-modules';
 import { AdminClient } from '../../../../services/admin/admin-client';
 import { ResEnvironment } from '../../../../services/admin/models/entity/res-environment.model';
 import { ResCategory } from '../../../../services/admin/models/entity/res-category.model';
@@ -14,6 +15,7 @@ import { ResDefinition } from '../../../../services/admin/models/entity/res-defi
 import { SystemRole } from '../../../../services/admin/models/entity/system-role.model';
 import { ResValueType } from '../../../../services/admin/models/entity/res-value-type.model';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-resource-config-index',
@@ -23,8 +25,10 @@ import { MatSnackBar } from '@angular/material/snack-bar';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ResourceConfigIndexComponent {
+  readonly i18nKeys = I18N_KEYS;
   private readonly client = inject(AdminClient);
   private readonly snackBar = inject(MatSnackBar);
+  private readonly translate = inject(TranslateService);
   readonly environments = signal<ResEnvironment[]>([]);
   readonly categories = signal<ResCategory[]>([]);
   readonly groups = signal<ResGroup[]>([]);
@@ -65,36 +69,57 @@ export class ResourceConfigIndexComponent {
       .subscribe((value) => this.groups.set(value));
   }
   createEnvironment(): void {
-    const name = prompt('环境名称');
+    const name = prompt(
+      this.translate.instant('resource.environmentNamePrompt'),
+    );
     if (!name) return;
     this.client.resourceConfiguration
       .addEnvironment({ name, icon: 'cloud', color: '#3f51b5' })
       .subscribe(() => this.load());
   }
   editEnvironment(item: ResEnvironment): void {
-    const name = prompt('环境名称', item.name);
+    const name = prompt(
+      this.translate.instant('resource.environmentNamePrompt'),
+      item.name,
+    );
     if (!name) return;
     this.client.resourceConfiguration
       .updateEnvironment(item.id, { name, icon: item.icon, color: item.color })
       .subscribe(() => this.load());
   }
   deleteEnvironment(item: ResEnvironment): void {
-    if (confirm(`删除环境“${item.name}”？`))
+    if (
+      confirm(
+        this.translate.instant('resource.deleteEnvironmentConfirm', {
+          name: item.name,
+        }),
+      )
+    )
       this.client.resourceConfiguration
         .deleteEnvironment(item.id)
         .subscribe(() => this.load());
   }
   createCategory(): void {
-    const name = prompt('分类名称');
-    const catalogCode = name ? prompt('分类编码') : null;
+    const name = prompt(this.translate.instant('resource.categoryNamePrompt'));
+    const catalogCode = name
+      ? prompt(this.translate.instant('resource.categoryCodePrompt'))
+      : null;
     if (!name || !catalogCode) return;
     this.client.resourceConfiguration
       .addCategory({ name, catalogCode, icon: 'category', color: '#009688' })
       .subscribe(() => this.load());
   }
   editCategory(item: ResCategory): void {
-    const name = prompt('分类名称', item.name);
-    const catalogCode = name ? prompt('分类编码', item.catalogCode) : null;
+    const name = prompt(
+      this.translate.instant('resource.categoryNamePrompt'),
+      item.name,
+    );
+    const catalogCode = name
+      ? prompt(
+          this.translate.instant('resource.categoryCodePrompt'),
+          item.catalogCode,
+        )
+      : null;
     if (!name || !catalogCode) return;
     this.client.resourceConfiguration
       .updateCategory(item.id, {
@@ -106,14 +131,20 @@ export class ResourceConfigIndexComponent {
       .subscribe(() => this.load());
   }
   deleteCategory(item: ResCategory): void {
-    if (confirm(`删除分类“${item.name}”？`))
+    if (
+      confirm(
+        this.translate.instant('resource.deleteCategoryConfirm', {
+          name: item.name,
+        }),
+      )
+    )
       this.client.resourceConfiguration
         .deleteCategory(item.id)
         .subscribe(() => this.load());
   }
   createGroup(): void {
     if (!this.groupCategoryId) return;
-    const name = prompt('分组名称');
+    const name = prompt(this.translate.instant('resource.groupNamePrompt'));
     if (!name) return;
     this.client.resourceConfiguration
       .addGroup({
@@ -126,7 +157,10 @@ export class ResourceConfigIndexComponent {
       .subscribe(() => this.loadGroups());
   }
   editGroup(item: ResGroup): void {
-    const name = prompt('分组名称', item.name);
+    const name = prompt(
+      this.translate.instant('resource.groupNamePrompt'),
+      item.name,
+    );
     if (!name) return;
     this.client.resourceConfiguration
       .updateGroup(item.id, {
@@ -139,35 +173,54 @@ export class ResourceConfigIndexComponent {
       .subscribe(() => this.loadGroups());
   }
   deleteGroup(item: ResGroup): void {
-    if (confirm(`删除分组“${item.name}”？`))
+    if (
+      confirm(
+        this.translate.instant('resource.deleteGroupConfirm', {
+          name: item.name,
+        }),
+      )
+    )
       this.client.resourceConfiguration
         .deleteGroup(item.id)
         .subscribe(() => this.loadGroups());
   }
   createTag(): void {
-    const name = prompt('标签名称');
+    const name = prompt(this.translate.instant('resource.tagNamePrompt'));
     if (!name) return;
     this.client.resourceConfiguration
       .addTag({ name, icon: 'label', color: '#ff9800' })
       .subscribe(() => this.load());
   }
   editTag(item: ResTag): void {
-    const name = prompt('标签名称', item.name);
+    const name = prompt(
+      this.translate.instant('resource.tagNamePrompt'),
+      item.name,
+    );
     if (!name) return;
     this.client.resourceConfiguration
       .updateTag(item.id, { name, icon: item.icon, color: item.color })
       .subscribe(() => this.load());
   }
   deleteTag(item: ResTag): void {
-    if (confirm(`删除标签“${item.name}”？历史资源中的标签名不会改变。`))
+    if (
+      confirm(
+        this.translate.instant('resource.deleteTagConfirm', {
+          name: item.name,
+        }),
+      )
+    )
       this.client.resourceConfiguration
         .deleteTag(item.id)
         .subscribe(() => this.load());
   }
   createDefinition(): void {
-    const name = prompt('资源定义名称');
+    const name = prompt(
+      this.translate.instant('resource.definitionNamePrompt'),
+    );
     if (!name) return;
-    const propertyName = prompt('首个属性名称（可留空）');
+    const propertyName = prompt(
+      this.translate.instant('resource.firstPropertyNamePrompt'),
+    );
     const properties = propertyName
       ? [
           {
@@ -185,7 +238,10 @@ export class ResourceConfigIndexComponent {
       .subscribe(() => this.load());
   }
   editDefinition(item: ResDefinition): void {
-    const name = prompt('资源定义名称', item.name);
+    const name = prompt(
+      this.translate.instant('resource.definitionNamePrompt'),
+      item.name,
+    );
     if (!name) return;
     this.client.resourceConfiguration
       .updateDefinition(item.id, {
@@ -203,7 +259,13 @@ export class ResourceConfigIndexComponent {
       .subscribe(() => this.load());
   }
   deleteDefinition(item: ResDefinition): void {
-    if (confirm(`删除定义“${item.name}”？`))
+    if (
+      confirm(
+        this.translate.instant('resource.deleteDefinitionConfirm', {
+          name: item.name,
+        }),
+      )
+    )
       this.client.resourceConfiguration
         .deleteDefinition(item.id)
         .subscribe(() => this.load());
@@ -225,7 +287,11 @@ export class ResourceConfigIndexComponent {
         roleIds: this.permissionRoleIds,
       })
       .subscribe(() =>
-        this.snackBar.open('读取授权已保存', '关闭', { duration: 2500 }),
+        this.snackBar.open(
+          this.translate.instant('resource.permissionSaveSuccess'),
+          this.translate.instant('common.close'),
+          { duration: 2500 },
+        ),
       );
   }
 }

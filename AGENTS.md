@@ -25,7 +25,7 @@
 - `src/Services/ApiService`：面向普通用户的 API。
 - `src/Services/MigrationService`：AppHost 启动时执行迁移与基础数据初始化。
 - `src/AppHost`：Aspire 分布式应用入口，编排数据库、缓存、迁移和 API 服务。
-- `src/ClientApp/WebApp`：Angular 21+ 验证客户端；它不是当前 zip 模块包的默认组成部分。
+- `src/ClientApp/WebApp`：Angular 21+ 验证客户端；可分发前端模块位于 `src/app/modules`，其中 `modules/share` 是其他前端模块的基础依赖。它不是当前后端 zip 模块包的默认组成部分；启用前端打包时应将该基础依赖一并包含。
 - `src/Perigon`：从 `Perigon.template` 同步的基础库与源生成器。模块任务不要顺手修改这里，除非任务明确涉及框架能力。
 - `test/ApiTest`：TUnit + Aspire.Hosting.Testing 的黑盒集成测试。
 - `scripts`：迁移、请求客户端生成、菜单同步、基础库同步和模块打包脚本。

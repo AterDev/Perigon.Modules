@@ -1,9 +1,9 @@
 <section class="page">
   <header>
-    <h1>文章详情</h1>
+    <h1>{{ i18nKeys.cms.article.detailTitle | translate }}</h1>
     @if (article(); as item) {
     <a mat-flat-button [routerLink]="['../../', item.id, 'edit']"
-      ><mat-icon>edit</mat-icon>编辑</a
+      ><mat-icon>edit</mat-icon>{{ i18nKeys.common.edit | translate }}</a
     >
     }
   </header>

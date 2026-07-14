@@ -1,3 +1,4 @@
+import { I18N_KEYS } from '../../../share/i18n-keys';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -14,7 +15,7 @@ import {
 import { ActivatedRoute, Router } from '@angular/router';
 import { forkJoin } from 'rxjs';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { CommonFormModules } from '../../../../share/shared-modules';
+import { CommonFormModules } from '../../../share/shared-modules';
 import { AdminClient } from '../../../../services/admin/admin-client';
 import { ResEnvironment } from '../../../../services/admin/models/entity/res-environment.model';
 import { ResCategory } from '../../../../services/admin/models/entity/res-category.model';
@@ -22,6 +23,7 @@ import { ResGroup } from '../../../../services/admin/models/entity/res-group.mod
 import { ResTag } from '../../../../services/admin/models/entity/res-tag.model';
 import { ResDefinition } from '../../../../services/admin/models/entity/res-definition.model';
 import { ResValueType } from '../../../../services/admin/models/entity/res-value-type.model';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-resource-edit',
@@ -31,11 +33,13 @@ import { ResValueType } from '../../../../services/admin/models/entity/res-value
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ResourceEditComponent {
+  readonly i18nKeys = I18N_KEYS;
   private readonly fb = inject(FormBuilder);
   private readonly client = inject(AdminClient);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly snackBar = inject(MatSnackBar);
+  private readonly translate = inject(TranslateService);
   readonly id = this.route.snapshot.paramMap.get('id')!;
   readonly environments = signal<ResEnvironment[]>([]);
   readonly categories = signal<ResCategory[]>([]);
@@ -114,7 +118,7 @@ export class ResourceEditComponent {
       );
   }
   createTag(): void {
-    const name = prompt('新标签名称');
+    const name = prompt(this.translate.instant('resource.newTagNamePrompt'));
     if (!name) return;
     this.client.resourceConfiguration
       .addTag({ name, color: '#607d8b', icon: 'label' })
@@ -129,7 +133,7 @@ export class ResourceEditComponent {
   createGroup(): void {
     const categoryId = this.form.controls.categoryId.value;
     if (!categoryId) return;
-    const name = prompt('新分组名称');
+    const name = prompt(this.translate.instant('resource.newGroupNamePrompt'));
     if (!name) return;
     this.client.resourceConfiguration
       .addGroup({
@@ -164,7 +168,11 @@ export class ResourceEditComponent {
       })
       .subscribe({
         next: () => {
-          this.snackBar.open('资源已更新', '关闭', { duration: 2500 });
+          this.snackBar.open(
+            this.translate.instant('resource.updateSuccess'),
+            this.translate.instant('common.close'),
+            { duration: 2500 },
+          );
           this.router.navigate(['/resource', this.id, 'detail']);
         },
         error: () => (this.saving = false),

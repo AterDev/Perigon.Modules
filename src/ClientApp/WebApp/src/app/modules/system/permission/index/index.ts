@@ -5,7 +5,7 @@ import {
   signal,
 } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { CommonListModules } from '../../../../share/shared-modules';
+import { CommonListModules } from '../../../share/shared-modules';
 import { AdminClient } from '../../../../services/admin/admin-client';
 import { SystemPermissionItemDto } from '../../../../services/admin/models/system-mod/system-permission-item-dto.model';
 @Component({

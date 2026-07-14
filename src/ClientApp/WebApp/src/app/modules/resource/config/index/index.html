@@ -1,153 +1,94 @@
 <section class="page">
   <header>
     <div>
-      <h1>{{ 'menu.resourceConfig' | translate }}</h1>
-      <p>环境、分类、分组、标签、定义及角色读取授权</p>
+      <h1>{{ i18nKeys.menu.resourceConfig | translate }}</h1>
+      <p>{{ i18nKeys.resource.configDescription | translate }}</p>
     </div>
     <button mat-stroked-button (click)="load()">
-      <mat-icon>refresh</mat-icon>刷新
+      <mat-icon>refresh</mat-icon>{{ i18nKeys.resource.refresh | translate }}
     </button>
   </header>
-  <mat-tab-group animationDuration="0ms"
-    ><mat-tab label="环境"
-      ><div class="tab-content">
-        <button mat-flat-button (click)="createEnvironment()">新增环境</button
-        >@for (item of environments(); track item.id) {
-        <mat-card
-          ><mat-card-content
-            ><mat-icon [style.color]="item.color"
-              >{{ item.icon || 'cloud' }}</mat-icon
-            ><strong>{{ item.name }}</strong><span class="spacer"></span
-            ><button mat-icon-button (click)="editEnvironment(item)">
-              <mat-icon>edit</mat-icon></button
-            ><button mat-icon-button (click)="deleteEnvironment(item)">
+  <mat-tab-group animationDuration="0ms"><mat-tab [label]="i18nKeys.resource.environments | translate">
+      <div class="tab-content">
+        <button mat-flat-button (click)="createEnvironment()">
+          {{ i18nKeys.resource.addEnvironment | translate }}</button>@for (item of environments(); track item.id) {
+        <mat-card><mat-card-content><mat-icon [style.color]="item.color">{{ item.icon || 'cloud' }}</mat-icon><strong>{{
+              item.name }}</strong><span class="spacer"></span><button mat-icon-button (click)="editEnvironment(item)">
+              <mat-icon>edit</mat-icon></button><button mat-icon-button (click)="deleteEnvironment(item)">
               <mat-icon>delete</mat-icon>
-            </button></mat-card-content
-          ></mat-card
-        >
+            </button></mat-card-content></mat-card>
         }
-      </div></mat-tab
-    ><mat-tab label="分类"
-      ><div class="tab-content">
-        <button mat-flat-button (click)="createCategory()">新增分类</button>@for
-        (item of categories(); track item.id) {
-        <mat-card
-          ><mat-card-content
-            ><strong>{{ item.name }}</strong><code>{{ item.catalogCode }}</code
-            ><span class="spacer"></span
-            ><button mat-icon-button (click)="editCategory(item)">
-              <mat-icon>edit</mat-icon></button
-            ><button mat-icon-button (click)="deleteCategory(item)">
+      </div>
+    </mat-tab><mat-tab [label]="i18nKeys.resource.categories | translate">
+      <div class="tab-content">
+        <button mat-flat-button (click)="createCategory()">
+          {{ i18nKeys.resource.addCategory | translate }}</button>@for (item of categories(); track item.id) {
+        <mat-card><mat-card-content><strong>{{ item.name }}</strong><code>{{ item.catalogCode }}</code><span
+              class="spacer"></span><button mat-icon-button (click)="editCategory(item)">
+              <mat-icon>edit</mat-icon></button><button mat-icon-button (click)="deleteCategory(item)">
               <mat-icon>delete</mat-icon>
-            </button></mat-card-content
-          ></mat-card
-        >
+            </button></mat-card-content></mat-card>
         }
-      </div></mat-tab
-    ><mat-tab label="分组"
-      ><div class="tab-content">
-        <mat-form-field appearance="outline"
-          ><mat-label>所属分类</mat-label
-          ><mat-select
-            [(ngModel)]="groupCategoryId"
-            (selectionChange)="loadGroups()"
-            >@for (item of categories(); track item.id) {
+      </div>
+    </mat-tab><mat-tab [label]="i18nKeys.resource.groups | translate">
+      <div class="tab-content">
+        <mat-form-field appearance="outline"><mat-label>{{ i18nKeys.resource.parentCategory | translate
+            }}</mat-label><mat-select [(ngModel)]="groupCategoryId" (selectionChange)="loadGroups()">@for (item of
+            categories(); track item.id) {
             <mat-option [value]="item.id">{{ item.name }}</mat-option>
-            }</mat-select
-          ></mat-form-field
-        ><button
-          mat-flat-button
-          [disabled]="!groupCategoryId"
-          (click)="createGroup()"
-        >
-          新增分组</button
-        >@for (item of groups(); track item.id) {
-        <mat-card
-          ><mat-card-content
-            ><strong>{{ item.name }}</strong><span class="spacer"></span
-            ><button mat-icon-button (click)="editGroup(item)">
-              <mat-icon>edit</mat-icon></button
-            ><button mat-icon-button (click)="deleteGroup(item)">
+            }</mat-select></mat-form-field><button mat-flat-button [disabled]="!groupCategoryId"
+          (click)="createGroup()">
+          {{ i18nKeys.resource.addGroup | translate }}</button>@for (item of groups(); track item.id) {
+        <mat-card><mat-card-content><strong>{{ item.name }}</strong><span class="spacer"></span><button mat-icon-button
+              (click)="editGroup(item)">
+              <mat-icon>edit</mat-icon></button><button mat-icon-button (click)="deleteGroup(item)">
               <mat-icon>delete</mat-icon>
-            </button></mat-card-content
-          ></mat-card
-        >
+            </button></mat-card-content></mat-card>
         }
-      </div></mat-tab
-    ><mat-tab label="标签"
-      ><div class="tab-content">
-        <button mat-flat-button (click)="createTag()">新增标签</button>@for
-        (item of tags(); track item.id) {
-        <mat-card
-          ><mat-card-content
-            ><mat-icon [style.color]="item.color"
-              >{{ item.icon || 'label' }}</mat-icon
-            ><strong>{{ item.name }}</strong><span class="spacer"></span
-            ><button mat-icon-button (click)="editTag(item)">
-              <mat-icon>edit</mat-icon></button
-            ><button mat-icon-button (click)="deleteTag(item)">
+      </div>
+    </mat-tab><mat-tab [label]="i18nKeys.resource.tags | translate">
+      <div class="tab-content">
+        <button mat-flat-button (click)="createTag()">
+          {{ i18nKeys.resource.addTag | translate }}</button>@for (item of tags(); track item.id) {
+        <mat-card><mat-card-content><mat-icon [style.color]="item.color">{{ item.icon || 'label' }}</mat-icon><strong>{{
+              item.name }}</strong><span class="spacer"></span><button mat-icon-button (click)="editTag(item)">
+              <mat-icon>edit</mat-icon></button><button mat-icon-button (click)="deleteTag(item)">
               <mat-icon>delete</mat-icon>
-            </button></mat-card-content
-          ></mat-card
-        >
+            </button></mat-card-content></mat-card>
         }
-      </div></mat-tab
-    ><mat-tab label="资源定义"
-      ><div class="tab-content">
-        <button mat-flat-button (click)="createDefinition()">新增定义</button
-        >@for (item of definitions(); track item.id) {
-        <mat-card
-          ><mat-card-content
-            ><strong>{{ item.name }}</strong
-            ><span>{{ item.properties.length }} 个属性</span
-            ><span class="spacer"></span
-            ><button mat-icon-button (click)="editDefinition(item)">
-              <mat-icon>edit</mat-icon></button
-            ><button mat-icon-button (click)="deleteDefinition(item)">
+      </div>
+    </mat-tab><mat-tab [label]="i18nKeys.resource.definitions | translate">
+      <div class="tab-content">
+        <button mat-flat-button (click)="createDefinition()">
+          {{ i18nKeys.resource.addDefinition | translate }}</button>@for (item of definitions(); track item.id) {
+        <mat-card><mat-card-content><strong>{{ item.name }}</strong><span>{{ i18nKeys.resource.propertyCount | translate: {
+              count:
+              item.properties.length } }}</span><span class="spacer"></span><button mat-icon-button
+              (click)="editDefinition(item)">
+              <mat-icon>edit</mat-icon></button><button mat-icon-button (click)="deleteDefinition(item)">
               <mat-icon>delete</mat-icon>
-            </button></mat-card-content
-          ></mat-card
-        >
+            </button></mat-card-content></mat-card>
         }
-      </div></mat-tab
-    ><mat-tab label="角色授权"
-      ><div class="tab-content">
+      </div>
+    </mat-tab><mat-tab [label]="i18nKeys.resource.rolePermissions | translate">
+      <div class="tab-content">
         <div class="filters">
-          <mat-form-field appearance="outline"
-            ><mat-label>环境</mat-label
-            ><mat-select
-              [(ngModel)]="permissionEnvironmentId"
-              (selectionChange)="loadPermissions()"
-              >@for (item of environments(); track item.id) {
+          <mat-form-field appearance="outline"><mat-label>{{ i18nKeys.resource.environment | translate
+              }}</mat-label><mat-select [(ngModel)]="permissionEnvironmentId" (selectionChange)="loadPermissions()">@for
+              (item of environments(); track item.id) {
               <mat-option [value]="item.id">{{ item.name }}</mat-option>
-              }</mat-select
-            ></mat-form-field
-          ><mat-form-field appearance="outline"
-            ><mat-label>分类</mat-label
-            ><mat-select
-              [(ngModel)]="permissionCategoryId"
-              (selectionChange)="loadPermissions()"
-              >@for (item of categories(); track item.id) {
+              }</mat-select></mat-form-field><mat-form-field appearance="outline"><mat-label>{{ i18nKeys.resource.category | translate }}</mat-label><mat-select [(ngModel)]="permissionCategoryId"
+              (selectionChange)="loadPermissions()">@for (item of categories(); track item.id) {
               <mat-option [value]="item.id">{{ item.name }}</mat-option>
-              }</mat-select
-            ></mat-form-field
-          >
+              }</mat-select></mat-form-field>
         </div>
-        <mat-form-field appearance="outline"
-          ><mat-label>可读取角色</mat-label
-          ><mat-select [(ngModel)]="permissionRoleIds" multiple
-            >@for (role of roles(); track role.id) {
+        <mat-form-field appearance="outline"><mat-label>{{ i18nKeys.resource.readableRoles | translate
+            }}</mat-label><mat-select [(ngModel)]="permissionRoleIds" multiple>@for (role of roles(); track role.id) {
             <mat-option [value]="role.id">{{ role.name }}</mat-option>
-            }</mat-select
-          ></mat-form-field
-        ><button
-          mat-flat-button
-          [disabled]="!permissionEnvironmentId || !permissionCategoryId"
-          (click)="savePermissions()"
-        >
-          保存授权
+            }</mat-select></mat-form-field><button mat-flat-button
+          [disabled]="!permissionEnvironmentId || !permissionCategoryId" (click)="savePermissions()">
+          {{ i18nKeys.resource.savePermissions | translate }}
         </button>
-      </div></mat-tab
-    ></mat-tab-group
-  >
+      </div>
+    </mat-tab></mat-tab-group>
 </section>

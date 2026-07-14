@@ -2,7 +2,7 @@ import { Routes } from '@angular/router';
 import { Login } from './pages/login/login';
 import { LayoutComponent } from './layout/layout';
 import { Notfound } from './pages/notfound/notfound';
-import { AuthGuard } from './share/auth.guard';
+import { AuthGuard } from './modules/share/auth.guard';
 
 export const routes: Routes = [
   { path: 'login', component: Login },

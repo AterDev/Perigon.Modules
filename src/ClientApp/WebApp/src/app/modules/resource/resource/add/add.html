@@ -1,22 +1,22 @@
 <section class="page">
   <header>
     <div>
-      <h1>新增资源</h1>
-      <p>先选择环境与分类，再选择定义填写动态属性</p>
+      <h1>{{ i18nKeys.resource.addTitle | translate }}</h1>
+      <p>{{ i18nKeys.resource.addDescription | translate }}</p>
     </div>
   </header>
   <form [formGroup]="form" (ngSubmit)="save()">
     <mat-form-field appearance="outline"
-      ><mat-label>名称</mat-label
+      ><mat-label>{{ i18nKeys.resource.name | translate }}</mat-label
       ><input matInput formControlName="name" /></mat-form-field
     ><mat-form-field appearance="outline"
-      ><mat-label>环境</mat-label
+      ><mat-label>{{ i18nKeys.resource.environment | translate }}</mat-label
       ><mat-select formControlName="environmentId"
         >@for (item of environments(); track item.id) {
         <mat-option [value]="item.id">{{ item.name }}</mat-option> }</mat-select
       ></mat-form-field
     ><mat-form-field appearance="outline"
-      ><mat-label>分类</mat-label
+      ><mat-label>{{ i18nKeys.resource.category | translate }}</mat-label
       ><mat-select
         formControlName="categoryId"
         (selectionChange)="categoryChanged()"
@@ -26,19 +26,20 @@
     >
     <div class="filters">
       <mat-form-field appearance="outline"
-        ><mat-label>分组</mat-label
+        ><mat-label>{{ i18nKeys.resource.group | translate }}</mat-label
         ><mat-select formControlName="groupId"
-          ><mat-option value="">不分组</mat-option>@for (item of groups(); track
-          item.id) {
+          ><mat-option value=""
+            >{{ i18nKeys.resource.ungrouped | translate }}</mat-option
+          >@for (item of groups(); track item.id) {
           <mat-option [value]="item.id">{{ item.name }}</mat-option>
           }</mat-select
         ></mat-form-field
       ><button mat-stroked-button type="button" (click)="createGroup()">
-        <mat-icon>create_new_folder</mat-icon>新建分组
+        <mat-icon>create_new_folder</mat-icon>{{ i18nKeys.resource.createGroup | translate }}
       </button>
     </div>
     <mat-form-field appearance="outline"
-      ><mat-label>资源定义</mat-label
+      ><mat-label>{{ i18nKeys.resource.resourceDefinition | translate }}</mat-label
       ><mat-select
         formControlName="definitionId"
         (selectionChange)="definitionChanged()"
@@ -49,7 +50,8 @@
     <mat-card
       ><mat-card-header
         ><mat-card-title
-          >{{ selected.name }} 属性</mat-card-title
+          >{{ i18nKeys.resource.properties | translate: { name: selected.name }
+          }}</mat-card-title
         ></mat-card-header
       ><mat-card-content class="dynamic-fields"
         >@for (property of selected.properties; track property.id) {
@@ -58,8 +60,11 @@
             >{{ property.name }}{{ property.isRequired ? ' *' : '' }}</mat-label
           >@if (property.valueType === valueTypes.Boolean) {
           <mat-select [formControl]="values.controls[property.id]"
-            ><mat-option value="true">是</mat-option
-            ><mat-option value="false">否</mat-option></mat-select
+            ><mat-option value="true"
+              >{{ i18nKeys.resource.yes | translate }}</mat-option
+            ><mat-option value="false"
+              >{{ i18nKeys.resource.no | translate }}</mat-option
+            ></mat-select
           >
           } @else {
           <input
@@ -68,8 +73,8 @@
             [formControl]="values.controls[property.id]"
           />
           }<mat-hint
-            >类型 {{ property.valueType }}，最长 {{ property.maxLength
-            }}</mat-hint
+            >{{ i18nKeys.resource.propertyHint | translate: { type: property.valueType,
+            maxLength: property.maxLength } }}</mat-hint
           ></mat-form-field
         >
         }</mat-card-content
@@ -78,26 +83,29 @@
     }
     <div class="filters">
       <mat-form-field appearance="outline"
-        ><mat-label>标签</mat-label
+        ><mat-label>{{ i18nKeys.resource.tag | translate }}</mat-label
         ><mat-select formControlName="tagNames" multiple
           >@for (item of tags(); track item.id) {
           <mat-option [value]="item.name">{{ item.name }}</mat-option>
           }</mat-select
         ></mat-form-field
       ><button mat-stroked-button type="button" (click)="createTag()">
-        <mat-icon>new_label</mat-icon>新建标签
+        <mat-icon>new_label</mat-icon>{{ i18nKeys.resource.createTag | translate }}
       </button>
     </div>
     <mat-form-field appearance="outline"
-      ><mat-label>图标 URL</mat-label
+      ><mat-label>{{ i18nKeys.resource.iconUrl | translate }}</mat-label
       ><input matInput formControlName="iconUrl" /></mat-form-field
     ><mat-form-field appearance="outline"
-      ><mat-label>描述</mat-label
+      ><mat-label>{{ i18nKeys.resource.description | translate }}</mat-label
       ><textarea matInput rows="4" formControlName="description"></textarea>
     </mat-form-field>
     <div class="actions">
-      <button mat-button type="button" routerLink="../">取消</button
-      ><button mat-flat-button type="submit" [disabled]="saving">保存</button>
+      <button mat-button type="button" routerLink="../">
+        {{ i18nKeys.common.cancel | translate }}</button
+      ><button mat-flat-button type="submit" [disabled]="saving">
+        {{ i18nKeys.common.save | translate }}
+      </button>
     </div>
   </form>
 </section>
