@@ -21,11 +21,4 @@ public static class ModuleExtensions
         builder.Services.AddHostedService<Services.InitResourceModService>();
         return builder;
     }
-
-    // The module middlewares registration
-    public static WebApplication UseResourceModServices(this WebApplication app)
-    {
-       // custom middlewares and init task
-       return app;
-    }
 }

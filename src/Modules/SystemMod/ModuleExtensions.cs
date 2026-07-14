@@ -31,14 +31,4 @@ public static class ModuleExtensions
         builder.Services.AddHostedService<InitSystemModService>();
         return builder;
     }
-
-    /// <summary>
-    /// 使用模块服务
-    /// </summary>
-    /// <param name="app"></param>
-    /// <returns></returns>
-    public static WebApplication UseSystemModServices(this WebApplication app)
-    {
-        return app;
-    }
 }

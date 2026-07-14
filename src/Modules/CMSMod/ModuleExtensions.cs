@@ -24,14 +24,5 @@ public static class ModuleExtensions
     {
         return builder;
     }
-
-    /// <summary>
-    /// use module services
-    /// </summary>
-    /// <param name="app"></param>
-    public static WebApplication UseCMSModServices(this WebApplication app)
-    {
-        return app;
-    }
 }
 
