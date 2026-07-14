@@ -1,0 +1,28 @@
+<section class="page">
+  <header>
+    <h1>角色详情</h1>
+    @if (role(); as item) {
+    <a mat-flat-button [routerLink]="['../../', item.id, 'edit']"
+      ><mat-icon>edit</mat-icon>编辑</a
+    >
+    }
+  </header>
+  @if (role(); as item) {
+  <mat-card
+    ><mat-card-content
+      ><dl>
+        <dt>角色名称</dt>
+        <dd>{{ item.name }}</dd>
+        <dt>角色标识</dt>
+        <dd><code>{{ item.nameValue }}</code></dd>
+        <dt>角色类型</dt>
+        <dd>{{ item.isSystem ? '系统内置' : '自定义' }}</dd>
+        <dt>创建时间</dt>
+        <dd>{{ item.createdTime | date:'medium' }}</dd>
+        <dt>更新时间</dt>
+        <dd>{{ item.updatedTime | date:'medium' }}</dd>
+      </dl></mat-card-content
+    ></mat-card
+  >
+  } @else { <mat-spinner diameter="36" /> }
+</section>

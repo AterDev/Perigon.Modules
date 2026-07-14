@@ -20,7 +20,7 @@ public class ResourceController(
     public async Task<ActionResult<Resource>> AddAsync(ResourceInput input)
     {
         Resource resource = await _manager.AddAsync(input);
-        return CreatedAtAction(nameof(DetailAsync), new { id = resource.Id }, resource);
+        return Created($"/api/Resource/{resource.Id}", resource);
     }
 
     [HttpPatch("{id}")]

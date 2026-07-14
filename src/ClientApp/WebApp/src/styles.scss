@@ -1,6 +1,6 @@
-@use './theme.scss' as theme;
-@use '@angular/material' as mat;
-@import './assets/bootstrap-grid.min.css';
+@use "./theme.scss" as theme;
+@use "@angular/material" as mat;
+@import "./assets/bootstrap-grid.min.css";
 
 @include mat.elevation-classes();
 @include mat.app-background();
@@ -9,12 +9,19 @@ html,
 body {
   height: 100%;
   margin: 0;
-  font-family: Ginto, ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", Segoe UI Symbol, "Noto Color Emoji";
+  font-family:
+    Ginto,
+    ui-sans-serif,
+    system-ui,
+    sans-serif,
+    "Apple Color Emoji",
+    "Segoe UI Emoji",
+    Segoe UI Symbol,
+    "Noto Color Emoji";
 }
 
 html {
   @include mat.all-component-themes(theme.$dark-theme);
-
 
   @media (prefers-color-scheme: light) {
     @include mat.all-component-colors(theme.$light-theme);
@@ -58,4 +65,62 @@ mat-nav-list .mat-icon {
 mat-panel-title .mat-icon {
   margin-right: 4px;
   vertical-align: middle;
+}
+
+.page {
+  display: grid;
+  gap: 20px;
+  padding: 24px;
+}
+
+.page > header {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+}
+
+.page h1 {
+  margin: 0;
+}
+
+.page header p,
+.empty {
+  color: var(--mat-sys-on-surface-variant);
+  margin: 6px 0 0;
+}
+
+.page .filters,
+.page .actions {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.page form {
+  display: grid;
+  gap: 16px;
+  max-width: 760px;
+}
+
+.page .table-wrap {
+  overflow: auto;
+}
+
+.page table {
+  width: 100%;
+}
+
+.page dl {
+  display: grid;
+  gap: 12px 24px;
+  grid-template-columns: minmax(100px, 180px) 1fr;
+}
+
+.page dt {
+  color: var(--mat-sys-on-surface-variant);
+}
+
+.page dd {
+  margin: 0;
 }

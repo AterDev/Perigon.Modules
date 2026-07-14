@@ -19,6 +19,11 @@ public class ArticleDetailDto
     public string? Description { get; set; }
 
     /// <summary>
+    /// 内容
+    /// </summary>
+    public string Content { get; set; } = default!;
+
+    /// <summary>
     /// 作者
     /// </summary>
     [MaxLength(200)]

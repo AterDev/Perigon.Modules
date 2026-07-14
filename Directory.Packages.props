@@ -5,20 +5,19 @@
   </PropertyGroup>
   <ItemGroup>
     <!-- Aspire Packages -->
-    <PackageVersion Include="Aspire.Hosting.AppHost" Version="13.1.2" />
-    <PackageVersion Include="Aspire.Hosting.Nats" Version="13.1.2" />
-    <PackageVersion Include="Aspire.Hosting.JavaScript" Version="13.1.2" />
-    <PackageVersion Include="Aspire.Hosting.Qdrant" Version="13.1.2" />
-    <PackageVersion Include="Aspire.Hosting.Redis" Version="13.1.2" />
-    <PackageVersion Include="Aspire.Hosting.SqlServer" Version="13.1.2" />
-    <PackageVersion Include="Aspire.Hosting.PostgreSQL" Version="13.1.2" />
-    <PackageVersion Include="Aspire.Microsoft.EntityFrameworkCore.SqlServer" Version="13.1.2" />
-    <PackageVersion Include="Aspire.NATS.Net" Version="13.1.0" />
-    <PackageVersion Include="Aspire.Npgsql.EntityFrameworkCore.PostgreSQL" Version="13.1.2" />
-    <PackageVersion Include="Aspire.Qdrant.Client" Version="13.1.0" />
-    <PackageVersion Include="Aspire.StackExchange.Redis.DistributedCaching" Version="13.1.2" />
+    <PackageVersion Include="Aspire.Hosting.Nats" Version="13.4.6" />
+    <PackageVersion Include="Aspire.Hosting.JavaScript" Version="13.4.6" />
+    <PackageVersion Include="Aspire.Hosting.Qdrant" Version="13.4.6" />
+    <PackageVersion Include="Aspire.Hosting.Redis" Version="13.4.6" />
+    <PackageVersion Include="Aspire.Hosting.SqlServer" Version="13.4.6" />
+    <PackageVersion Include="Aspire.Hosting.PostgreSQL" Version="13.4.6" />
+    <PackageVersion Include="Aspire.Microsoft.EntityFrameworkCore.SqlServer" Version="13.4.6" />
+    <PackageVersion Include="Aspire.NATS.Net" Version="13.4.6" />
+    <PackageVersion Include="Aspire.Npgsql.EntityFrameworkCore.PostgreSQL" Version="13.4.6" />
+    <PackageVersion Include="Aspire.Qdrant.Client" Version="13.4.6" />
+    <PackageVersion Include="Aspire.StackExchange.Redis.DistributedCaching" Version="13.4.6" />
     <!--Test -->
-    <PackageVersion Include="Aspire.Hosting.Testing" Version="13.1.2" />
+    <PackageVersion Include="Aspire.Hosting.Testing" Version="13.4.6" />
     <PackageVersion Include="TUnit" Version="1.19.0" />
     <!-- Microsoft ASP.NET Core Packages -->
     <PackageVersion Include="EFCore.BulkExtensions.PostgreSql" Version="10.0.1" />
@@ -37,7 +36,7 @@
     <PackageVersion Include="Microsoft.EntityFrameworkCore.Sqlite" Version="10.0.1" />
     <!-- Microsoft Extensions Packages -->
     <PackageVersion Include="Microsoft.Extensions.Caching.Hybrid" Version="10.3.0" />
-    <PackageVersion Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="10.0.3" />
+    <PackageVersion Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="10.0.8" />
     <PackageVersion Include="Microsoft.Extensions.Hosting" Version="10.0.3" />
     <PackageVersion Include="Microsoft.Extensions.Http.Resilience" Version="10.3.0" />
     <PackageVersion Include="Microsoft.Extensions.Localization.Abstractions" Version="10.0.3" />
@@ -47,7 +46,7 @@
     <PackageVersion Include="Microsoft.CodeAnalysis.CSharp" Version="5.0.0" />
     <!-- OpenTelemetry Packages -->
     <PackageVersion Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.15.0" />
-    <PackageVersion Include="OpenTelemetry.Extensions.Hosting" Version="1.15.0" />
+    <PackageVersion Include="OpenTelemetry.Extensions.Hosting" Version="1.15.3" />
     <PackageVersion Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.15.0" />
     <PackageVersion Include="OpenTelemetry.Instrumentation.Http" Version="1.15.0" />
     <PackageVersion Include="OpenTelemetry.Instrumentation.Runtime" Version="1.15.0" />

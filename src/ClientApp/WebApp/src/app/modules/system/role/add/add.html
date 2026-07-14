@@ -1,0 +1,20 @@
+<section class="page">
+  <header><h1>新增角色</h1></header>
+  <form [formGroup]="form" (ngSubmit)="save()">
+    <mat-form-field appearance="outline"
+      ><mat-label>角色名称</mat-label
+      ><input matInput formControlName="name" /><mat-error
+        >请输入角色名称</mat-error
+      ></mat-form-field
+    ><mat-form-field appearance="outline"
+      ><mat-label>角色标识</mat-label
+      ><input matInput formControlName="nameValue" /><mat-error
+        >请输入唯一角色标识</mat-error
+      ></mat-form-field
+    ><mat-checkbox formControlName="isSystem">系统内置角色</mat-checkbox>
+    <div class="actions">
+      <button mat-button type="button" routerLink="../">取消</button
+      ><button mat-flat-button type="submit" [disabled]="saving">保存</button>
+    </div>
+  </form>
+</section>

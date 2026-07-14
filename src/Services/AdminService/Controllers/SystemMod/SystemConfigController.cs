@@ -46,7 +46,7 @@ public class SystemConfigController(
     public async Task<ActionResult<SystemConfig>> AddAsync(SystemConfigAddDto dto)
     {
         var entity = await _manager.AddAsync(dto);
-        return CreatedAtAction(nameof(GetDetailAsync), new { id = entity.Id }, entity);
+        return Created($"/api/SystemConfig/{entity.Id}", entity);
     }
 
     /// <summary>

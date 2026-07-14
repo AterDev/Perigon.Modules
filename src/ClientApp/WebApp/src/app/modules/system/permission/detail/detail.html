@@ -1,0 +1,28 @@
+<section class="page">
+  <header>
+    <h1>权限详情</h1>
+    @if (permission(); as item) {
+    <a mat-flat-button [routerLink]="['../../', item.id, 'edit']"
+      ><mat-icon>edit</mat-icon>编辑</a
+    >
+    }
+  </header>
+  @if (permission(); as item) {
+  <mat-card
+    ><mat-card-content
+      ><dl>
+        <dt>权限名称</dt>
+        <dd><code>{{ item.name }}</code></dd>
+        <dt>说明</dt>
+        <dd>{{ item.description || '-' }}</dd>
+        <dt>权限类型值</dt>
+        <dd>{{ item.permissionType }}</dd>
+        <dt>状态</dt>
+        <dd>{{ item.enable ? '启用' : '停用' }}</dd>
+        <dt>权限组</dt>
+        <dd>{{ item.group.name }}</dd>
+      </dl></mat-card-content
+    ></mat-card
+  >
+  } @else { <mat-spinner diameter="36" /> }
+</section>

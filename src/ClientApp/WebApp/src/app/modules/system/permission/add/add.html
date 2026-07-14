@@ -1,0 +1,33 @@
+<section class="page">
+  <header><h1>新增权限</h1></header>
+  <form [formGroup]="form" (ngSubmit)="save()">
+    <mat-form-field appearance="outline"
+      ><mat-label>权限名称</mat-label
+      ><input matInput formControlName="name" /></mat-form-field
+    ><mat-form-field appearance="outline"
+      ><mat-label>说明</mat-label
+      ><textarea
+        matInput
+        formControlName="description"
+      ></textarea></mat-form-field
+    ><mat-form-field appearance="outline"
+      ><mat-label>权限类型</mat-label
+      ><mat-select formControlName="permissionType"
+        >@for (type of types; track type[1]) {
+        <mat-option [value]="type[1]">{{ type[0] }} ({{ type[1] }})</mat-option>
+        }</mat-select
+      ></mat-form-field
+    ><mat-form-field appearance="outline"
+      ><mat-label>权限组</mat-label
+      ><mat-select formControlName="systemPermissionGroupId"
+        >@for (group of groups(); track group.id) {
+        <mat-option [value]="group.id">{{ group.name }}</mat-option>
+        }</mat-select
+      ></mat-form-field
+    ><mat-checkbox formControlName="enable">启用</mat-checkbox>
+    <div class="actions">
+      <button mat-button type="button" routerLink="../">取消</button
+      ><button mat-flat-button type="submit" [disabled]="saving">保存</button>
+    </div>
+  </form>
+</section>

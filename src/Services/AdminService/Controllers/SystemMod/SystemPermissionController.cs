@@ -45,7 +45,7 @@ public class SystemPermissionController(
         }
 
         var entity = await _manager.AddAsync(dto);
-        return CreatedAtAction(nameof(GetDetailAsync), new { id = entity.Id }, entity);
+        return Created($"/api/SystemPermission/{entity.Id}", entity);
     }
 
     /// <summary>

@@ -99,6 +99,9 @@ export const I18N_KEYS = {
     "systemConfig": "menu.systemConfig",
     "resource": "menu.resource",
     "resourceList": "menu.resourceList",
-    "resourceConfig": "menu.resourceConfig"
+    "resourceConfig": "menu.resourceConfig",
+    "cms": "menu.cms",
+    "article": "menu.article",
+    "articleCategory": "menu.articleCategory"
   }
 };

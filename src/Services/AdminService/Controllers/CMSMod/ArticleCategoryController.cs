@@ -20,7 +20,7 @@ public class ArticleCategoryController(
     /// <returns></returns>
     [HttpGet("list")]
     public async Task<PageList<ArticleCategoryItemDto>> ListAsync(
-        ArticleCategoryFilterDto filter
+        [FromQuery] ArticleCategoryFilterDto filter
     )
     {
         return await _manager.FilterAsync(filter);
@@ -35,7 +35,7 @@ public class ArticleCategoryController(
     public async Task<ActionResult<ArticleCategory>> AddAsync(ArticleCategoryAddDto dto)
     {
         var entity = await _manager.AddAsync(dto);
-        return CreatedAtAction(nameof(DetailAsync), new { id = entity.Id }, entity);
+        return Created($"/api/ArticleCategory/{entity.Id}", entity);
     }
 
     /// <summary>

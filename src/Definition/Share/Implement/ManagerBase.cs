@@ -184,7 +184,7 @@ public abstract class ManagerBase<TDbContext, TEntity>
     /// <param name="cancellationToken">Cancellation token</param>
     protected async Task InsertAsync(TEntity entity, CancellationToken cancellationToken = default)
     {
-        if (_isMultiTenant && IsTenantScoped)
+        if (IsTenantScoped && _userContext.TenantId != Guid.Empty)
         {
             ((ITenantEntityBase)entity).TenantId = _userContext.TenantId;
         }
@@ -217,7 +217,7 @@ public abstract class ManagerBase<TDbContext, TEntity>
     {
         foreach (TEntity entity in entities)
         {
-            if (_isMultiTenant && IsTenantScoped)
+            if (IsTenantScoped && _userContext.TenantId != Guid.Empty)
             {
                 ((ITenantEntityBase)entity).TenantId = _userContext.TenantId;
             }

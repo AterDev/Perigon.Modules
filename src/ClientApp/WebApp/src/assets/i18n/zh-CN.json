@@ -93,9 +93,12 @@
     "systemRole": "角色管理",
     "systemUser": "账号管理",
     "systemLogs": "系统日志",
-    "systemConfig": "系统设置"
-    ,"resource": "资源管理"
-    ,"resourceList": "资源列表"
-    ,"resourceConfig": "资源配置"
+    "systemConfig": "系统设置",
+    "resource": "资源管理",
+    "resourceList": "资源列表",
+    "resourceConfig": "资源配置",
+    "cms": "内容管理",
+    "article": "文章管理",
+    "articleCategory": "文章分类"
   }
 }

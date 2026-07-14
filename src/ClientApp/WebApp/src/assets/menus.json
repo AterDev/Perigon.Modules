@@ -1,70 +1,96 @@
 [
-    {
-        "name": "menu.resource",
-        "path": null,
-        "accessCode": "resource",
-        "icon": "inventory_2",
+  {
+    "name": "menu.cms",
+    "path": null,
+    "accessCode": "cms",
+    "icon": "article",
+    "sort": 0,
+    "menuType": 0,
+    "children": [
+      {
+        "name": "menu.article",
+        "path": "/cms/article",
+        "accessCode": "cms-article",
+        "icon": "description",
+        "sort": 0,
+        "menuType": 0
+      },
+      {
+        "name": "menu.articleCategory",
+        "path": "/cms/article-category",
+        "accessCode": "cms-article-category",
+        "icon": "folder",
         "sort": 1,
-        "menuType": 0,
-        "children": [
-            {
-                "name": "menu.resourceList",
-                "path": "/resource",
-                "accessCode": "resource-list",
-                "icon": "inventory_2",
-                "sort": 0,
-                "menuType": 0
-            },
-            {
-                "name": "menu.resourceConfig",
-                "path": "/resource-config",
-                "accessCode": "resource-config",
-                "icon": "tune",
-                "sort": 1,
-                "menuType": 0
-            }
-        ]
-    },
-    {
-        "name": "menu.system",
-        "path": null,
-        "accessCode": "system",
-        "icon": "admin_panel_settings",
-        "sort": 2,
-        "menuType": 0,
-        "children": [
-            {
-                "name": "menu.systemRole",
-                "path": "/system-role",
-                "accessCode": "system-role",
-                "icon": "groups",
-                "sort": 0,
-                "menuType": 0
-            },
-            {
-                "name": "menu.systemUser",
-                "path": "/system-user",
-                "accessCode": "system-user",
-                "icon": "manage_accounts",
-                "sort": 1,
-                "menuType": 0
-            },
-            {
-                "name": "menu.systemLogs",
-                "path": "/system-logs",
-                "accessCode": "system-logs",
-                "icon": "manage_search",
-                "sort": 3,
-                "menuType": 0
-            },
-            {
-                "name": "menu.systemConfig",
-                "path": "/system-config",
-                "accessCode": "system-config",
-                "icon": "settings",
-                "sort": 4,
-                "menuType": 0
-            }
-        ]
-    }
+        "menuType": 0
+      }
+    ]
+  },
+  {
+    "name": "menu.resource",
+    "path": null,
+    "accessCode": "resource",
+    "icon": "inventory_2",
+    "sort": 1,
+    "menuType": 0,
+    "children": [
+      {
+        "name": "menu.resourceList",
+        "path": "/resource",
+        "accessCode": "resource-list",
+        "icon": "inventory_2",
+        "sort": 0,
+        "menuType": 0
+      },
+      {
+        "name": "menu.resourceConfig",
+        "path": "/resource/config",
+        "accessCode": "resource-config",
+        "icon": "tune",
+        "sort": 1,
+        "menuType": 0
+      }
+    ]
+  },
+  {
+    "name": "menu.system",
+    "path": null,
+    "accessCode": "system",
+    "icon": "admin_panel_settings",
+    "sort": 2,
+    "menuType": 0,
+    "children": [
+      {
+        "name": "menu.systemRole",
+        "path": "/system/role",
+        "accessCode": "system-role",
+        "icon": "groups",
+        "sort": 0,
+        "menuType": 0
+      },
+      {
+        "name": "menu.systemUser",
+        "path": "/system/user",
+        "accessCode": "system-user",
+        "icon": "manage_accounts",
+        "sort": 1,
+        "menuType": 0
+      },
+      {
+        "name": "menu.systemLogs",
+        "path": "/system/log",
+        "accessCode": "system-logs",
+        "icon": "manage_search",
+        "sort": 3,
+        "menuType": 0
+      },
+      {
+        "name": "权限管理",
+        "path": "/system/permission",
+        "accessCode": "system-permissions",
+        "icon": "policy",
+        "sort": 4,
+        "menuType": 0
+      }
+    ]
+  }
 ]

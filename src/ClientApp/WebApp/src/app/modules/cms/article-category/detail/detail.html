@@ -1,0 +1,26 @@
+<section class="page">
+  <header>
+    <h1>文章分类详情</h1>
+    <a mat-flat-button [routerLink]="['../../', id, 'edit']"
+      ><mat-icon>edit</mat-icon>编辑</a
+    >
+  </header>
+  @if (category(); as item) {
+  <mat-card
+    ><mat-card-content
+      ><dl>
+        <dt>分类名称</dt>
+        <dd>{{ item.name }}</dd>
+        <dt>层级</dt>
+        <dd>{{ item.level }}</dd>
+        <dt>上级分类</dt>
+        <dd>{{ $any(item.parent)?.name || '-' }}</dd>
+        <dt>创建时间</dt>
+        <dd>{{ item.createdTime | date:'medium' }}</dd>
+        <dt>更新时间</dt>
+        <dd>{{ item.updatedTime | date:'medium' }}</dd>
+      </dl></mat-card-content
+    ></mat-card
+  >
+  } @else { <mat-spinner diameter="36" /> }
+</section>

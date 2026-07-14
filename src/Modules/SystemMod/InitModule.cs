@@ -19,11 +19,14 @@ public class InitModule
 
         try
         {
-            var hasTenant = await context.Tenants.AnyAsync();
-            if (!hasTenant)
+            if (!await context.SystemUsers.AnyAsync())
             {
                 logger.LogInformation("⛏️ Start init [System] Module");
                 await InitTenantAdminAccountAsync(context);
+            }
+
+            if (!await context.SystemConfigs.AnyAsync())
+            {
                 await InitConfigAsync(context, configuration, logger);
             }
 

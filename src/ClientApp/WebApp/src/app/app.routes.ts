@@ -13,39 +13,21 @@ export const routes: Routes = [
     canActivateChild: [AuthGuard],
     children: [
       {
-        path: 'system-role',
-        children: [
-          { path: '', redirectTo: '/system-role/index', pathMatch: 'full' },
-          { path: 'index', loadComponent: () => import('./pages/system-role/index/index').then(m => m.Index) },
-        ]
-      },
-      {
-        path: 'system-user',
-        children: [
-          { path: '', redirectTo: '/system-user/index', pathMatch: 'full' },
-          { path: 'index', loadComponent: () => import('./pages/system-user/index/index').then(m => m.Index) },
-        ]
-      },
-      {
-        path: 'system-logs',
-        children: [
-          { path: '', redirectTo: '/system-logs/index', pathMatch: 'full' },
-          { path: 'index', loadComponent: () => import('./pages/system-logs/index/index').then(m => m.Index) },
-        ]
+        path: 'system',
+        loadChildren: () =>
+          import('./modules/system/system.module').then((m) => m.SystemModule),
       },
       {
         path: 'resource',
-        children: [
-          { path: '', redirectTo: '/resource/index', pathMatch: 'full' },
-          { path: 'index', loadComponent: () => import('./pages/resource/index/index').then(m => m.ResourceIndex) },
-        ]
+        loadChildren: () =>
+          import('./modules/resource/resource.module').then(
+            (m) => m.ResourceModule,
+          ),
       },
       {
-        path: 'resource-config',
-        children: [
-          { path: '', redirectTo: '/resource-config/index', pathMatch: 'full' },
-          { path: 'index', loadComponent: () => import('./pages/resource-config/index/index').then(m => m.ResourceConfigIndex) },
-        ]
+        path: 'cms',
+        loadChildren: () =>
+          import('./modules/cms/cms.module').then((m) => m.CmsModule),
       },
       // {
       //   path: 'system-config',
@@ -56,7 +38,7 @@ export const routes: Routes = [
       // },
     ],
   },
-  
+
   { path: '', redirectTo: '/login', pathMatch: 'full' },
   { path: '**', component: Notfound },
 ];

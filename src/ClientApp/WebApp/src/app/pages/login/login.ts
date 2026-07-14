@@ -1,94 +1,91 @@
-import { Component, inject, OnInit, AfterViewInit, signal } from '@angular/core';
-import { AbstractControl, FormControl, FormGroup, ValidationErrors, Validators } from '@angular/forms';
+import { Component, inject, OnInit, AfterViewInit } from '@angular/core';
+import {
+  FormControl,
+  FormGroup,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
 import { Router } from '@angular/router';
 import { CommonFormModules } from 'src/app/share/shared-modules';
 import { AuthService } from 'src/app/services/auth.service';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslateService } from '@ngx-translate/core';
 import { I18N_KEYS } from 'src/app/share/i18n-keys';
 import { initStarfield } from './starfield';
-import { form, FormField, required, email, FieldState, minLength, maxLength, ValidationError } from '@angular/forms/signals'
-import { translateValidationError } from 'src/app/share/validation-helpers';
-
+import { AdminClient } from 'src/app/services/admin/admin-client';
 
 @Component({
   selector: 'app-login',
-  imports: [CommonFormModules, MatCardModule, FormField],
+  imports: [CommonFormModules, MatCardModule, ReactiveFormsModule],
   templateUrl: './login.html',
-  styleUrls: ['./login.scss']
+  styleUrls: ['./login.scss'],
 })
 export class Login implements OnInit, AfterViewInit {
   i18nKeys = I18N_KEYS;
-  // private adminClient = inject(AdminClient);
+  private adminClient = inject(AdminClient);
   private translate = inject(TranslateService);
   constructor(
     private authService: AuthService,
-    private router: Router
+    private router: Router,
   ) {
     if (authService.isLogin) {
-      this.router.navigate(['/system-role']);
+      this.router.navigate(['/system']);
     }
   }
 
-  loginModel = signal<any>({
-    email: '',
-    password: ''
-  })
-
-  loginForm = form(this.loginModel, (schema) => {
-    required(schema.email);
-    email(schema.email);
-    minLength(schema.email, 4);
-    maxLength(schema.email, 100);
-    required(schema.password);
-    minLength(schema.password, 6);
-    maxLength(schema.password, 60);
+  readonly loginForm = new FormGroup({
+    email: new FormControl('', [
+      Validators.required,
+      Validators.email,
+      Validators.minLength(4),
+      Validators.maxLength(100),
+    ]),
+    password: new FormControl('', [
+      Validators.required,
+      Validators.minLength(6),
+      Validators.maxLength(60),
+    ]),
   });
 
   get email() {
-    return this.loginForm.email;
+    return this.loginForm.controls.email;
   }
   get password() {
-    return this.loginForm.password;
+    return this.loginForm.controls.password;
   }
 
-  ngOnInit(): void {
-  }
+  ngOnInit(): void {}
 
   ngAfterViewInit(): void {
-    const canvas = document.getElementById('starfield') as HTMLCanvasElement | null;
+    const canvas = document.getElementById(
+      'starfield',
+    ) as HTMLCanvasElement | null;
     if (canvas) {
       initStarfield(canvas);
     }
   }
 
-  getValidatorMessage(field: FieldState<string, string>): string {
-    const errors = field.errors();
-    if (!errors || errors.length === 0) {
-      return '';
-    }
-
-    return translateValidationError(this.translate, errors[0]);
+  getValidatorMessage(): string {
+    return this.translate.instant(I18N_KEYS.validation.required);
   }
 
   doLogin(): void {
-    // const data = this.loginForm().value();
-    // // 登录接口
-    // this.adminClient.systemUser.login(data)
-    //   .subscribe(res => {
-    //     this.authService.saveToken(res);
-    //     this.getUserInfo();
-    //   });
+    if (this.loginForm.invalid) return;
+    const data = this.loginForm.getRawValue();
+    this.adminClient.systemUser
+      .login({ email: data.email ?? '', password: data.password ?? '' })
+      .subscribe((res) => {
+        this.authService.saveToken(res);
+        this.getUserInfo();
+      });
   }
 
   getUserInfo(): void {
-    // this.adminClient.systemUser.getUserInfo()
-    //   .subscribe(res => {
-    //     this.authService.saveUserInfo(res);
-    //     this.router.navigate(['/system-role']);
-    //   });
+    this.adminClient.systemUser.getUserInfo().subscribe((res) => {
+      this.authService.saveUserInfo(res);
+      this.router.navigate(['/system']);
+    });
   }
-
 
   logout(): void {
     this.authService.logout();

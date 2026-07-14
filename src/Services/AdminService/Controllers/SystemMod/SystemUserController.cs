@@ -195,7 +195,7 @@ public class SystemUserController(
                 .Contains(r.Id));
         }
         var entity = await _manager.AddAsync(dto, roles);
-        return CreatedAtAction(nameof(GetDetailAsync), new { id = entity.Id }, entity);
+        return Created($"/api/SystemUser/{entity.Id}", entity);
     }
 
     /// <summary>

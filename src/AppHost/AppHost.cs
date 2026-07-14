@@ -64,12 +64,16 @@ var adminService = builder.AddProject<Projects.AdminService>("AdminService")
     .WaitForCompletion(migration)
     .WithParentRelationship(serviceGroup);
 
-// run frontend app, you should install npm packages first
-//var webApp = builder.AddJavaScriptApp("frontend", "../ClientApp/WebApp")
-//    .WithPnpm()
-//    .WithUrl("http://localhost:4200")
-//    .WaitFor(adminService)
-//    .WithParentRelationship(serviceGroup);
+// Angular verification client. Dependencies are restored by pnpm before startup.
+var webApp = builder.AddJavaScriptApp(
+        "frontend",
+        "../ClientApp/WebApp",
+        runScriptName: "start")
+    .WithPnpm()
+    .WithUrl("http://localhost:4200")
+    .WithReference(adminService)
+    .WaitFor(adminService)
+    .WithParentRelationship(serviceGroup);
 
 if (database != null)
 {

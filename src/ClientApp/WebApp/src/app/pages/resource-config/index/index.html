@@ -1,8 +1,0 @@
-<section class="config-page">
-  <header><h1>{{ 'menu.resourceConfig' | translate }}</h1><button mat-stroked-button (click)="load()">{{ 'common.search' | translate }}</button></header>
-  <div class="columns">
-    <article><h2>环境</h2>@for (item of environments(); track item.id) { <p>{{ item.name }}</p> }</article>
-    <article><h2>分类</h2>@for (item of categories(); track item.id) { <p>{{ item.name }}</p> }</article>
-    <article><h2>标签</h2>@for (item of tags(); track item.id) { <p>{{ item.name }}</p> }</article>
-  </div>
-</section>

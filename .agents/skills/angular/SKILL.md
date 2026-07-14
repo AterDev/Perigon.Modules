@@ -10,7 +10,10 @@ Work only under `src/ClientApp/WebApp` unless the task explicitly includes backe
 ## Use the existing layout
 
 - Keep bootstrap/configuration in `main.ts`, `app.config.ts`, and `app.routes.ts`.
-- Place route pages under `app/pages`, shell/navigation under `app/layout`, shared UI under `app/share/components`, and pipes under `app/share/pipe`.
+- Keep application-shell pages such as login, home, and not-found under `app/pages`; shell/navigation remains under `app/layout`, shared UI under `app/share/components`, and pipes under `app/share/pipe`.
+- Put every distributable business feature under `app/modules/{module-name}`. Each feature has its own `NgModule` and `RouterModule.forChild()` routes; `app.routes.ts` only lazy-loads the feature module.
+- Do not add a `pages` directory inside a feature module. Place entity components directly at `app/modules/{module-name}/{entity}/{index|add|edit|detail}/`.
+- Every entity view uses separate, colocated `index.ts`, `index.html`, and `index.scss` files (and likewise for add/edit/detail). Use descriptive `*Component` class names, never compressed one-line components or `*.page.ts` placeholders.
 - Keep API clients and models under `app/services`; generated admin clients live below `app/services/admin`.
 - Preserve `customer-http.interceptor`, `auth.service`, `auth.guard`, environment files, and `proxy.conf.json` behavior.
 - Maintain navigation metadata in `src/assets/menus.json` and translations in `src/assets/i18n/*.json`; keep keys aligned with `app/share/i18n-keys.ts` and the `i18n:keys` script.

@@ -38,7 +38,7 @@ public class SystemRoleController(
     public async Task<ActionResult<SystemRole>> AddAsync(SystemRoleAddDto dto)
     {
         var entity = await _manager.AddAsync(dto);
-        return CreatedAtAction(nameof(DetailAsync), new { id = entity.Id }, entity);
+        return Created($"/api/SystemRole/{entity.Id}", entity);
     }
 
     /// <summary>

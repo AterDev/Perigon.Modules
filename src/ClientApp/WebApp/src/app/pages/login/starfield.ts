@@ -34,14 +34,15 @@ function createStars(count: number, w: number, h: number): Star[] {
   for (let i = 0; i < count; i++) {
     // depth: 0=最远, 1=最近，近的星点更大更亮更快
     const depth = Math.pow(random(0, 1), 2.2); // 趋向远距离分布
-    const color = STAR_COLORS.length > 0
-      ? STAR_COLORS[Math.floor(Math.random() * STAR_COLORS.length)]
-      : 'rgba(255,255,255,0.85)';
+    const color =
+      STAR_COLORS.length > 0
+        ? STAR_COLORS[Math.floor(Math.random() * STAR_COLORS.length)]
+        : 'rgba(255,255,255,0.85)';
     // 物理参数映射
     const r = 0.7 + depth * 2.3; // 半径 0.7~3.0
     const brightness = 0.5 + depth * 0.5; // 亮度 0.5~1.0
-    const dx = (random(-0.03, 0.03)) * (0.3 + depth * 1.2); // 远的慢，近的快
-    const dy = (random(-0.02, 0.02)) * (0.3 + depth * 1.2);
+    const dx = random(-0.03, 0.03) * (0.3 + depth * 1.2); // 远的慢，近的快
+    const dy = random(-0.02, 0.02) * (0.3 + depth * 1.2);
     const twinkle = random(0.7, 1) * brightness;
     const twinkleSpeed = random(0.002, 0.008) * (0.5 + depth);
     stars.push({
@@ -53,7 +54,7 @@ function createStars(count: number, w: number, h: number): Star[] {
       dy,
       twinkle,
       twinkleSpeed,
-      depth
+      depth,
     });
   }
   return stars;
@@ -62,8 +63,8 @@ function createStars(count: number, w: number, h: number): Star[] {
 export function initStarfield(canvas: HTMLCanvasElement) {
   const ctx = canvas.getContext('2d');
   if (!ctx) return;
-  let w = canvas.width = canvas.offsetWidth;
-  let h = canvas.height = canvas.offsetHeight;
+  let w = (canvas.width = canvas.offsetWidth);
+  let h = (canvas.height = canvas.offsetHeight);
   let stars = createStars(w > 900 ? 80 : 40, w, h);
 
   function resize() {

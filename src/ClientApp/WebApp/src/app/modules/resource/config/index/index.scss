@@ -1,0 +1,13 @@
+.tab-content {
+  display: grid;
+  gap: 12px;
+  padding: 20px 0;
+}
+mat-card-content {
+  align-items: center;
+  display: flex;
+  gap: 12px;
+}
+.spacer {
+  flex: 1;
+}

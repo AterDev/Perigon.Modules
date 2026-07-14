@@ -1,0 +1,24 @@
+<section class="page">
+  <header>
+    <h1>文章详情</h1>
+    @if (article(); as item) {
+    <a mat-flat-button [routerLink]="['../../', item.id, 'edit']"
+      ><mat-icon>edit</mat-icon>编辑</a
+    >
+    }
+  </header>
+  @if (article(); as item) {
+  <mat-card
+    ><mat-card-header
+      ><mat-card-title>{{ item.title }}</mat-card-title
+      ><mat-card-subtitle
+        >{{ item.authors }} · {{ item.createdTime | date:'medium'
+        }}</mat-card-subtitle
+      ></mat-card-header
+    ><mat-card-content
+      ><p>{{ item.description }}</p>
+      <article class="content">{{ item.content }}</article></mat-card-content
+    ></mat-card
+  >
+  } @else { <mat-spinner diameter="36" /> }
+</section>

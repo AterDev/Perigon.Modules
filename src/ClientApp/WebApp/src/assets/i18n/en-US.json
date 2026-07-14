@@ -96,6 +96,9 @@
     "systemConfig": "Settings",
     "resource": "Resources",
     "resourceList": "Resource list",
-    "resourceConfig": "Resource configuration"
+    "resourceConfig": "Resource configuration",
+    "cms": "Content",
+    "article": "Articles",
+    "articleCategory": "Article categories"
   }
 }

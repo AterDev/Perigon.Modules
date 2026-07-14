@@ -1,0 +1,36 @@
+<section class="page">
+  <header>
+    <h1>资源详情</h1>
+    @if (resource(); as item) {
+    <a mat-flat-button [routerLink]="['../../', item.id, 'edit']"
+      ><mat-icon>edit</mat-icon>编辑</a
+    >
+    }
+  </header>
+  @if (resource(); as item) {
+  <mat-card
+    ><mat-card-content
+      ><dl>
+        <dt>名称</dt>
+        <dd>{{ item.name }}</dd>
+        <dt>环境</dt>
+        <dd>{{ item.environmentName }}</dd>
+        <dt>分类</dt>
+        <dd>{{ item.categoryName }}</dd>
+        <dt>分组</dt>
+        <dd>{{ item.groupName || '-' }}</dd>
+        <dt>定义</dt>
+        <dd>{{ item.definitionName }}</dd>
+        <dt>标签</dt>
+        <dd>{{ item.tagNames.join(', ') || '-' }}</dd>
+        <dt>描述</dt>
+        <dd>{{ item.description || '-' }}</dd>
+        @for (value of item.values; track value.definitionPropertyId) {
+        <dt>{{ value.name }}</dt>
+        <dd>{{ value.value }}</dd>
+        }
+      </dl></mat-card-content
+    ></mat-card
+  >
+  } @else { <mat-spinner diameter="36" /> }
+</section>

@@ -34,7 +34,7 @@ public class SystemPermissionGroupController(
     public async Task<ActionResult<SystemPermissionGroup>> AddAsync(SystemPermissionGroupAddDto dto)
     {
         var entity = await _manager.AddAsync(dto);
-        return CreatedAtAction(nameof(GetDetailAsync), new { id = entity.Id }, entity);
+        return Created($"/api/SystemPermissionGroup/{entity.Id}", entity);
     }
 
     /// <summary>
