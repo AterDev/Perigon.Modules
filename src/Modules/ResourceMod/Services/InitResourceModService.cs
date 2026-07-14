@@ -1,4 +1,3 @@
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
 namespace ResourceMod.Services;
@@ -17,16 +16,34 @@ public class InitResourceModService(
         {
             using IServiceScope scope = serviceProvider.CreateScope();
             DefaultDbContext context = scope.ServiceProvider.GetRequiredService<DefaultDbContext>();
-            List<Guid> tenantIds = await context.Tenants.Select(t => t.Id).ToListAsync(stoppingToken);
+            List<Guid> tenantIds = await context.Tenants
+                .Select(t => t.Id)
+                .ToListAsync(stoppingToken);
             foreach (Guid tenantId in tenantIds)
             {
-                if (!await context.ResEnvironments.AnyAsync(e => e.TenantId == tenantId && e.Name == "Dev", stoppingToken))
+                bool developmentEnvironmentExists = await context.ResEnvironments.AnyAsync(e =>
+                    e.TenantId == tenantId && e.Name == "Dev", stoppingToken);
+                if (!developmentEnvironmentExists)
                 {
-                    context.ResEnvironments.Add(new ResEnvironment { Name = "Dev", Color = "#2196f3", TenantId = tenantId });
+                    context.ResEnvironments.Add(new ResEnvironment
+                    {
+                        Name = "Dev",
+                        Color = "#2196f3",
+                        TenantId = tenantId
+                    });
                 }
-                if (!await context.ResCategories.AnyAsync(c => c.TenantId == tenantId && c.CatalogCode == "Default", stoppingToken))
+
+                bool defaultCategoryExists = await context.ResCategories.AnyAsync(c =>
+                    c.TenantId == tenantId && c.CatalogCode == "Default", stoppingToken);
+                if (!defaultCategoryExists)
                 {
-                    context.ResCategories.Add(new ResCategory { Name = "Default", CatalogCode = "Default", Color = "#9e9e9e", TenantId = tenantId });
+                    context.ResCategories.Add(new ResCategory
+                    {
+                        Name = "Default",
+                        CatalogCode = "Default",
+                        Color = "#9e9e9e",
+                        TenantId = tenantId
+                    });
                 }
             }
             await context.SaveChangesAsync(stoppingToken);

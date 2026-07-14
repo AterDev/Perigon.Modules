@@ -45,7 +45,7 @@ When adding a dependency, decide whether it is available to consumers of the mod
 For a single module, the repository's current contract is:
 
 ```powershell
-perigon pack <ModuleName> AdminService
+perigon module pack <ModuleName> AdminService
 ```
 
 For all `*Mod` directories, use `scripts/PackModules.ps1`. Packaging mutates `package_modules` and writes a metadata summary according to the script's current configured path, so inspect the script and working tree before running it.

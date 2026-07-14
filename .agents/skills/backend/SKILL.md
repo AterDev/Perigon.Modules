@@ -31,6 +31,7 @@ Implement a backend feature in this order:
 
 ## Managers and queries
 
+- Keep C# readable: limit lines to 120 characters, split fluent queries and complex conditions at meaningful boundaries, and place one statement on each line. Use brace-delimited method bodies rather than expression-bodied methods (`=>`); this does not prohibit Lambda expressions used inside a method.
 - Keep validation, business rules, transactions, and data access in Managers or module-owned domain services.
 - Reuse `FindAsync`, `ExistAsync`, list/page, insert/update/delete, bulk, and transaction helpers only after checking their current signatures and permission semantics.
 - Prefer projection to DTOs, pagination, and `AsNoTracking` for reads. Avoid N+1 queries, large unbounded results, and unnecessary `Include` graphs.

@@ -1,22 +1,35 @@
 [
-	{
-		"ModuleName": "CMSMod",
-		"Author": "Perigon",
-		"DisplayName": "CMSMod",
-		"Description": "包含内容管理相关功能",
-		"PackageType": 0,
-		"Version": "1.0.0",
-		"UseSelfServices": false,
-		"CreatedTime": "2026-03-08T12:05:35.8412859Z"
-	},
-	{
-		"ModuleName": "SystemMod",
-		"Author": "Perigon",
-		"DisplayName": "SystemMod",
-		"Description": "包含系统角色，用户，权限等相关功能",
-		"PackageType": 0,
-		"Version": "1.0.0",
-		"UseSelfServices": false,
-		"CreatedTime": "2026-03-08T12:05:26.5400516Z"
-	}
+  {
+    "ModuleName": "CMSMod",
+    "Author": "Perigon",
+    "DisplayName": "CMSMod",
+    "Description": "包含内容管理相关功能",
+    "PackageType": 0,
+    "Version": "1.0.0",
+    "UseSelfServices": true,
+    "Frontend": "Angular",
+    "CreatedTime": "2026-07-14T06:32:10.2750833Z"
+  },
+  {
+    "ModuleName": "ResourceMod",
+    "Author": "Perigon",
+    "DisplayName": "ResourceMod",
+    "Description": "通用资源管理模块",
+    "PackageType": 0,
+    "Version": "1.0.0",
+    "UseSelfServices": true,
+    "Frontend": "Angular",
+    "CreatedTime": "2026-07-14T06:32:10.7965074Z"
+  },
+  {
+    "ModuleName": "SystemMod",
+    "Author": "Perigon",
+    "DisplayName": "SystemMod",
+    "Description": "包含系统角色，用户，权限等相关功能",
+    "PackageType": 0,
+    "Version": "1.0.0",
+    "UseSelfServices": true,
+    "Frontend": "Angular",
+    "CreatedTime": "2026-07-14T06:32:11.3813997Z"
+  }
 ]

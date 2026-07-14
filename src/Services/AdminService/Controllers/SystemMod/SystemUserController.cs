@@ -3,7 +3,6 @@ using Perigon.AspNetCore.Options;
 using Perigon.AspNetCore.Services;
 using Microsoft.AspNetCore.RateLimiting;
 using Share.Models.Auth;
-using SystemMod.Models.SystemUserDtos;
 
 namespace AdminService.Controllers.SystemMod;
 

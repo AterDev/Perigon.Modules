@@ -1,4 +1,3 @@
-using Entity.SystemMod;
 using EntityFramework.AppDbFactory;
 using Microsoft.AspNetCore.Http;
 using ResourceMod.Models;
@@ -12,169 +11,448 @@ public class ResourceConfigurationManager(
     IUserContext userContext
 ) : ManagerBase<DefaultDbContext, ResEnvironment>(dbContextFactory, userContext, logger)
 {
-    public async Task<List<ResEnvironment>> EnvironmentsAsync() => await _dbContext.ResEnvironments.Where(e => e.TenantId == _userContext.TenantId).OrderBy(e => e.Name).ToListAsync();
-    public async Task<List<ResCategory>> CategoriesAsync() => await _dbContext.ResCategories.Where(c => c.TenantId == _userContext.TenantId).OrderBy(c => c.Name).ToListAsync();
-    public async Task<List<ResGroup>> GroupsAsync(Guid categoryId) => await _dbContext.ResGroups.Where(g => g.TenantId == _userContext.TenantId && g.CategoryId == categoryId).OrderBy(g => g.Name).ToListAsync();
-    public async Task<List<ResTag>> TagsAsync() => await _dbContext.ResTags.Where(t => t.TenantId == _userContext.TenantId).OrderBy(t => t.Name).ToListAsync();
-    public async Task<List<ResDefinition>> DefinitionsAsync() => await _dbContext.ResDefinitions.Where(d => d.TenantId == _userContext.TenantId).Include(d => d.Properties).OrderBy(d => d.Name).ToListAsync();
-    public async Task<List<SystemRole>> RolesAsync() => await _dbContext.SystemRoles.Where(r => r.TenantId == _userContext.TenantId).OrderBy(r => r.Name).ToListAsync();
+    public async Task<List<ResEnvironment>> EnvironmentsAsync()
+    {
+        return await _dbContext.ResEnvironments
+            .Where(e => e.TenantId == _userContext.TenantId)
+            .OrderBy(e => e.Name)
+            .ToListAsync();
+    }
+
+    public async Task<List<ResCategory>> CategoriesAsync()
+    {
+        return await _dbContext.ResCategories
+            .Where(c => c.TenantId == _userContext.TenantId)
+            .OrderBy(c => c.Name)
+            .ToListAsync();
+    }
+
+    public async Task<List<ResGroup>> GroupsAsync(Guid categoryId)
+    {
+        return await _dbContext.ResGroups
+            .Where(g => g.TenantId == _userContext.TenantId && g.CategoryId == categoryId)
+            .OrderBy(g => g.Name)
+            .ToListAsync();
+    }
+
+    public async Task<List<ResTag>> TagsAsync()
+    {
+        return await _dbContext.ResTags
+            .Where(t => t.TenantId == _userContext.TenantId)
+            .OrderBy(t => t.Name)
+            .ToListAsync();
+    }
+
+    public async Task<List<ResDefinition>> DefinitionsAsync()
+    {
+        return await _dbContext.ResDefinitions
+            .Where(d => d.TenantId == _userContext.TenantId)
+            .Include(d => d.Properties)
+            .OrderBy(d => d.Name)
+            .ToListAsync();
+    }
 
     public async Task<ResEnvironment> AddEnvironmentAsync(ResEnvironmentInput input)
     {
         EnsureAdmin();
-        ResEnvironment entity = new() { Name = input.Name, Icon = input.Icon, Color = input.Color, TenantId = _userContext.TenantId };
-        await _dbContext.ResEnvironments.AddAsync(entity); await _dbContext.SaveChangesAsync(); return entity;
+
+        ResEnvironment entity = new()
+        {
+            Name = input.Name,
+            Icon = input.Icon,
+            Color = input.Color,
+            TenantId = _userContext.TenantId
+        };
+
+        await _dbContext.ResEnvironments.AddAsync(entity);
+        await _dbContext.SaveChangesAsync();
+
+        return entity;
     }
 
     public async Task<ResEnvironment> UpdateEnvironmentAsync(Guid id, ResEnvironmentInput input)
     {
         EnsureAdmin();
+
         ResEnvironment entity = await GetTenantEntityAsync(_dbContext.ResEnvironments, id, "环境不存在");
-        entity.Name = input.Name; entity.Icon = input.Icon; entity.Color = input.Color;
-        await _dbContext.SaveChangesAsync(); return entity;
+        entity.Name = input.Name;
+        entity.Icon = input.Icon;
+        entity.Color = input.Color;
+
+        await _dbContext.SaveChangesAsync();
+
+        return entity;
     }
 
     public async Task DeleteEnvironmentAsync(Guid id)
     {
         EnsureAdmin();
+
         ResEnvironment entity = await GetTenantEntityAsync(_dbContext.ResEnvironments, id, "环境不存在");
-        if (await _dbContext.Resources.AnyAsync(r => r.TenantId == _userContext.TenantId && r.EnvironmentId == id))
+        bool isReferenced = await _dbContext.Resources.AnyAsync(r =>
+            r.TenantId == _userContext.TenantId && r.EnvironmentId == id);
+        if (isReferenced)
+        {
             throw new BusinessException("环境已被资源引用，不能删除", StatusCodes.Status409Conflict);
-        _dbContext.ResEnvironments.Remove(entity); await _dbContext.SaveChangesAsync();
+        }
+
+        _dbContext.ResEnvironments.Remove(entity);
+        await _dbContext.SaveChangesAsync();
     }
+
     public async Task<ResCategory> AddCategoryAsync(ResCategoryInput input)
     {
         EnsureAdmin();
-        if (await _dbContext.ResCategories.AnyAsync(c => c.TenantId == _userContext.TenantId && c.CatalogCode == input.CatalogCode)) throw new BusinessException("分类编码已存在", StatusCodes.Status409Conflict);
-        ResCategory entity = new() { Name = input.Name, CatalogCode = input.CatalogCode, Icon = input.Icon, Color = input.Color, TenantId = _userContext.TenantId };
-        await _dbContext.ResCategories.AddAsync(entity); await _dbContext.SaveChangesAsync(); return entity;
+
+        bool codeExists = await _dbContext.ResCategories.AnyAsync(c =>
+            c.TenantId == _userContext.TenantId && c.CatalogCode == input.CatalogCode);
+        if (codeExists)
+        {
+            throw new BusinessException("分类编码已存在", StatusCodes.Status409Conflict);
+        }
+
+        ResCategory entity = new()
+        {
+            Name = input.Name,
+            CatalogCode = input.CatalogCode,
+            Icon = input.Icon,
+            Color = input.Color,
+            TenantId = _userContext.TenantId
+        };
+
+        await _dbContext.ResCategories.AddAsync(entity);
+        await _dbContext.SaveChangesAsync();
+
+        return entity;
     }
 
     public async Task<ResCategory> UpdateCategoryAsync(Guid id, ResCategoryInput input)
     {
         EnsureAdmin();
+
         ResCategory entity = await GetTenantEntityAsync(_dbContext.ResCategories, id, "分类不存在");
-        if (await _dbContext.ResCategories.AnyAsync(c => c.TenantId == _userContext.TenantId && c.Id != id && c.CatalogCode == input.CatalogCode))
+        bool codeExists = await _dbContext.ResCategories.AnyAsync(c =>
+            c.TenantId == _userContext.TenantId &&
+            c.Id != id &&
+            c.CatalogCode == input.CatalogCode);
+        if (codeExists)
+        {
             throw new BusinessException("分类编码已存在", StatusCodes.Status409Conflict);
-        entity.Name = input.Name; entity.CatalogCode = input.CatalogCode; entity.Icon = input.Icon; entity.Color = input.Color;
-        await _dbContext.SaveChangesAsync(); return entity;
+        }
+
+        entity.Name = input.Name;
+        entity.CatalogCode = input.CatalogCode;
+        entity.Icon = input.Icon;
+        entity.Color = input.Color;
+
+        await _dbContext.SaveChangesAsync();
+
+        return entity;
     }
 
     public async Task DeleteCategoryAsync(Guid id)
     {
         EnsureAdmin();
+
         ResCategory entity = await GetTenantEntityAsync(_dbContext.ResCategories, id, "分类不存在");
-        if (await _dbContext.Resources.AnyAsync(r => r.TenantId == _userContext.TenantId && r.CategoryId == id))
+        bool isReferenced = await _dbContext.Resources.AnyAsync(r =>
+            r.TenantId == _userContext.TenantId && r.CategoryId == id);
+        if (isReferenced)
+        {
             throw new BusinessException("分类已被资源引用，不能删除", StatusCodes.Status409Conflict);
-        _dbContext.ResCategories.Remove(entity); await _dbContext.SaveChangesAsync();
+        }
+
+        _dbContext.ResCategories.Remove(entity);
+        await _dbContext.SaveChangesAsync();
     }
+
     public async Task<ResGroup> AddGroupAsync(ResGroupInput input)
     {
-        EnsureAdmin(); await EnsureCategoryAsync(input.CategoryId);
-        ResGroup entity = new() { Name = input.Name, Description = input.Description, Icon = input.Icon, Color = input.Color, CategoryId = input.CategoryId, TenantId = _userContext.TenantId };
-        await _dbContext.ResGroups.AddAsync(entity); await _dbContext.SaveChangesAsync(); return entity;
+        EnsureAdmin();
+        await EnsureCategoryAsync(input.CategoryId);
+
+        ResGroup entity = new()
+        {
+            Name = input.Name,
+            Description = input.Description,
+            Icon = input.Icon,
+            Color = input.Color,
+            CategoryId = input.CategoryId,
+            TenantId = _userContext.TenantId
+        };
+
+        await _dbContext.ResGroups.AddAsync(entity);
+        await _dbContext.SaveChangesAsync();
+
+        return entity;
     }
 
     public async Task<ResGroup> UpdateGroupAsync(Guid id, ResGroupInput input)
     {
-        EnsureAdmin(); await EnsureCategoryAsync(input.CategoryId);
+        EnsureAdmin();
+        await EnsureCategoryAsync(input.CategoryId);
+
         ResGroup entity = await GetTenantEntityAsync(_dbContext.ResGroups, id, "分组不存在");
-        entity.Name = input.Name; entity.Description = input.Description; entity.Icon = input.Icon; entity.Color = input.Color; entity.CategoryId = input.CategoryId;
-        await _dbContext.SaveChangesAsync(); return entity;
+        entity.Name = input.Name;
+        entity.Description = input.Description;
+        entity.Icon = input.Icon;
+        entity.Color = input.Color;
+        entity.CategoryId = input.CategoryId;
+
+        await _dbContext.SaveChangesAsync();
+
+        return entity;
     }
 
     public async Task DeleteGroupAsync(Guid id)
     {
         EnsureAdmin();
+
         ResGroup entity = await GetTenantEntityAsync(_dbContext.ResGroups, id, "分组不存在");
-        if (await _dbContext.Resources.AnyAsync(r => r.TenantId == _userContext.TenantId && r.GroupId == id))
+        bool isReferenced = await _dbContext.Resources.AnyAsync(r =>
+            r.TenantId == _userContext.TenantId && r.GroupId == id);
+        if (isReferenced)
+        {
             throw new BusinessException("分组已被资源引用，不能删除", StatusCodes.Status409Conflict);
-        _dbContext.ResGroups.Remove(entity); await _dbContext.SaveChangesAsync();
+        }
+
+        _dbContext.ResGroups.Remove(entity);
+        await _dbContext.SaveChangesAsync();
     }
+
     public async Task<ResTag> AddTagAsync(ResTagInput input)
     {
-        EnsureAdmin(); ResTag entity = new() { Name = input.Name, Color = input.Color, Icon = input.Icon, TenantId = _userContext.TenantId };
-        await _dbContext.ResTags.AddAsync(entity); await _dbContext.SaveChangesAsync(); return entity;
+        EnsureAdmin();
+
+        ResTag entity = new()
+        {
+            Name = input.Name,
+            Color = input.Color,
+            Icon = input.Icon,
+            TenantId = _userContext.TenantId
+        };
+
+        await _dbContext.ResTags.AddAsync(entity);
+        await _dbContext.SaveChangesAsync();
+
+        return entity;
     }
 
     public async Task<ResTag> UpdateTagAsync(Guid id, ResTagInput input)
     {
         EnsureAdmin();
+
         ResTag entity = await GetTenantEntityAsync(_dbContext.ResTags, id, "标签不存在");
-        entity.Name = input.Name; entity.Color = input.Color; entity.Icon = input.Icon;
-        await _dbContext.SaveChangesAsync(); return entity;
+        entity.Name = input.Name;
+        entity.Color = input.Color;
+        entity.Icon = input.Icon;
+
+        await _dbContext.SaveChangesAsync();
+
+        return entity;
     }
 
     public async Task DeleteTagAsync(Guid id)
     {
         EnsureAdmin();
+
         ResTag entity = await GetTenantEntityAsync(_dbContext.ResTags, id, "标签不存在");
-        _dbContext.ResTags.Remove(entity); await _dbContext.SaveChangesAsync();
+        _dbContext.ResTags.Remove(entity);
+        await _dbContext.SaveChangesAsync();
     }
+
     public async Task<ResDefinition> AddDefinitionAsync(ResDefinitionInput input)
     {
-        EnsureAdmin(); ValidateProperties(input.Properties);
-        ResDefinition entity = new() { Name = input.Name, Icon = input.Icon, TenantId = _userContext.TenantId };
-        foreach (ResDefinitionPropertyInput property in input.Properties) entity.Properties.Add(new ResDefinitionProperty { Name = property.Name, ValueType = property.ValueType, IsRequired = property.IsRequired, MaxLength = property.MaxLength, Sort = property.Sort, TenantId = _userContext.TenantId });
-        await _dbContext.ResDefinitions.AddAsync(entity); await _dbContext.SaveChangesAsync(); return entity;
+        EnsureAdmin();
+        ValidateProperties(input.Properties);
+
+        ResDefinition entity = new()
+        {
+            Name = input.Name,
+            Icon = input.Icon,
+            TenantId = _userContext.TenantId
+        };
+
+        foreach (ResDefinitionPropertyInput property in input.Properties)
+        {
+            entity.Properties.Add(new ResDefinitionProperty
+            {
+                Name = property.Name,
+                ValueType = property.ValueType,
+                IsRequired = property.IsRequired,
+                MaxLength = property.MaxLength,
+                Sort = property.Sort,
+                TenantId = _userContext.TenantId
+            });
+        }
+
+        await _dbContext.ResDefinitions.AddAsync(entity);
+        await _dbContext.SaveChangesAsync();
+
+        return entity;
     }
 
     public async Task<ResDefinition> UpdateDefinitionAsync(Guid id, ResDefinitionInput input)
     {
-        EnsureAdmin(); ValidateProperties(input.Properties);
+        EnsureAdmin();
+        ValidateProperties(input.Properties);
+
         ResDefinition entity = await _dbContext.ResDefinitions
             .Include(d => d.Properties)
             .FirstOrDefaultAsync(d => d.Id == id && d.TenantId == _userContext.TenantId)
             ?? throw new BusinessException("资源定义不存在", StatusCodes.Status404NotFound);
-        entity.Name = input.Name; entity.Icon = input.Icon;
-        HashSet<Guid> retainedIds = input.Properties.Where(p => p.Id.HasValue).Select(p => p.Id!.Value).ToHashSet();
-        List<ResDefinitionProperty> removed = entity.Properties.Where(p => !retainedIds.Contains(p.Id)).ToList();
-        if (removed.Count != 0 && await _dbContext.ResValues.AnyAsync(v => removed.Select(p => p.Id).Contains(v.DefinitionPropertyId)))
+        entity.Name = input.Name;
+        entity.Icon = input.Icon;
+
+        HashSet<Guid> retainedIds = input.Properties
+            .Where(p => p.Id.HasValue)
+            .Select(p => p.Id!.Value)
+            .ToHashSet();
+        List<ResDefinitionProperty> removed = entity.Properties
+            .Where(p => !retainedIds.Contains(p.Id))
+            .ToList();
+        bool isReferenced = removed.Count != 0 && await _dbContext.ResValues.AnyAsync(v =>
+            removed.Select(p => p.Id).Contains(v.DefinitionPropertyId));
+        if (isReferenced)
+        {
             throw new BusinessException("定义属性已被资源值引用，不能删除", StatusCodes.Status409Conflict);
+        }
+
         _dbContext.ResDefinitionProperties.RemoveRange(removed);
+
         foreach (ResDefinitionPropertyInput property in input.Properties)
         {
-            ResDefinitionProperty? target = property.Id.HasValue ? entity.Properties.FirstOrDefault(p => p.Id == property.Id.Value) : null;
+            ResDefinitionProperty? target = property.Id.HasValue
+                ? entity.Properties.FirstOrDefault(p => p.Id == property.Id.Value)
+                : null;
             if (property.Id.HasValue && target is null)
+            {
                 throw new BusinessException("定义属性不属于当前定义", StatusCodes.Status400BadRequest);
+            }
+
             if (target is null)
             {
-                entity.Properties.Add(new ResDefinitionProperty { Name = property.Name, ValueType = property.ValueType, IsRequired = property.IsRequired, MaxLength = property.MaxLength, Sort = property.Sort, TenantId = _userContext.TenantId });
+                entity.Properties.Add(new ResDefinitionProperty
+                {
+                    Name = property.Name,
+                    ValueType = property.ValueType,
+                    IsRequired = property.IsRequired,
+                    MaxLength = property.MaxLength,
+                    Sort = property.Sort,
+                    TenantId = _userContext.TenantId
+                });
             }
             else
             {
-                target.Name = property.Name; target.ValueType = property.ValueType; target.IsRequired = property.IsRequired; target.MaxLength = property.MaxLength; target.Sort = property.Sort;
+                target.Name = property.Name;
+                target.ValueType = property.ValueType;
+                target.IsRequired = property.IsRequired;
+                target.MaxLength = property.MaxLength;
+                target.Sort = property.Sort;
             }
         }
-        await _dbContext.SaveChangesAsync(); return entity;
+
+        await _dbContext.SaveChangesAsync();
+
+        return entity;
     }
 
     public async Task DeleteDefinitionAsync(Guid id)
     {
         EnsureAdmin();
+
         ResDefinition entity = await GetTenantEntityAsync(_dbContext.ResDefinitions, id, "资源定义不存在");
-        if (await _dbContext.Resources.AnyAsync(r => r.TenantId == _userContext.TenantId && r.DefinitionId == id))
+        bool isReferenced = await _dbContext.Resources.AnyAsync(r =>
+            r.TenantId == _userContext.TenantId && r.DefinitionId == id);
+        if (isReferenced)
+        {
             throw new BusinessException("资源定义已被资源引用，不能删除", StatusCodes.Status409Conflict);
-        _dbContext.ResDefinitions.Remove(entity); await _dbContext.SaveChangesAsync();
+        }
+
+        _dbContext.ResDefinitions.Remove(entity);
+        await _dbContext.SaveChangesAsync();
     }
-    public async Task<List<ResPermission>> GetPermissionsAsync(Guid environmentId, Guid categoryId) => await _dbContext.ResPermissions.Where(p => p.TenantId == _userContext.TenantId && p.EnvironmentId == environmentId && p.CategoryId == categoryId).ToListAsync();
+
+    public async Task<List<ResPermission>> GetPermissionsAsync(Guid environmentId, Guid categoryId)
+    {
+        return await _dbContext.ResPermissions
+            .Where(p =>
+                p.TenantId == _userContext.TenantId &&
+                p.EnvironmentId == environmentId &&
+                p.CategoryId == categoryId)
+            .ToListAsync();
+    }
+
     public async Task SetPermissionsAsync(ResPermissionInput input)
     {
         EnsureAdmin();
-        if (!await _dbContext.ResEnvironments.AnyAsync(e => e.Id == input.EnvironmentId && e.TenantId == _userContext.TenantId) || !await _dbContext.ResCategories.AnyAsync(c => c.Id == input.CategoryId && c.TenantId == _userContext.TenantId)) throw new BusinessException("环境或分类不存在", StatusCodes.Status400BadRequest);
+
+        bool environmentExists = await _dbContext.ResEnvironments.AnyAsync(e =>
+            e.Id == input.EnvironmentId && e.TenantId == _userContext.TenantId);
+        bool categoryExists = await _dbContext.ResCategories.AnyAsync(c =>
+            c.Id == input.CategoryId && c.TenantId == _userContext.TenantId);
+        if (!environmentExists || !categoryExists)
+        {
+            throw new BusinessException("环境或分类不存在", StatusCodes.Status400BadRequest);
+        }
+
         List<Guid> roleIds = input.RoleIds.Distinct().ToList();
-        if (roleIds.Count != await _dbContext.SystemRoles.CountAsync(r => r.TenantId == _userContext.TenantId && roleIds.Contains(r.Id))) throw new BusinessException("角色不存在", StatusCodes.Status400BadRequest);
+        int matchingRoleCount = await _dbContext.SystemRoles.CountAsync(r =>
+            r.TenantId == _userContext.TenantId && roleIds.Contains(r.Id));
+        if (roleIds.Count != matchingRoleCount)
+        {
+            throw new BusinessException("角色不存在", StatusCodes.Status400BadRequest);
+        }
+
         List<ResPermission> existing = await GetPermissionsAsync(input.EnvironmentId, input.CategoryId);
         _dbContext.ResPermissions.RemoveRange(existing);
-        await _dbContext.ResPermissions.AddRangeAsync(roleIds.Select(roleId => new ResPermission { RoleId = roleId, EnvironmentId = input.EnvironmentId, CategoryId = input.CategoryId, TenantId = _userContext.TenantId }));
+        await _dbContext.ResPermissions.AddRangeAsync(roleIds.Select(roleId => new ResPermission
+        {
+            RoleId = roleId,
+            EnvironmentId = input.EnvironmentId,
+            CategoryId = input.CategoryId,
+            TenantId = _userContext.TenantId
+        }));
         await _dbContext.SaveChangesAsync();
     }
-    public override Task<bool> HasPermissionAsync(Guid id) => Task.FromResult(_userContext.IsAdmin);
-    private async Task EnsureCategoryAsync(Guid id) { if (!await _dbContext.ResCategories.AnyAsync(c => c.Id == id && c.TenantId == _userContext.TenantId)) throw new BusinessException("分类不存在", StatusCodes.Status400BadRequest); }
-    private static void ValidateProperties(List<ResDefinitionPropertyInput> properties) { if (properties.GroupBy(p => p.Name, StringComparer.OrdinalIgnoreCase).Any(g => g.Count() > 1) || properties.Any(p => p.MaxLength is < 1 or > 1000)) throw new BusinessException("资源定义属性无效", StatusCodes.Status400BadRequest); }
-    private void EnsureAdmin() { if (!_userContext.IsAdmin) throw new BusinessException("无管理资源权限", StatusCodes.Status403Forbidden); }
 
-    private async Task<T> GetTenantEntityAsync<T>(DbSet<T> set, Guid id, string message) where T : EntityBase
+    public override Task<bool> HasPermissionAsync(Guid id)
+    {
+        return Task.FromResult(_userContext.IsAdmin);
+    }
+
+    private async Task EnsureCategoryAsync(Guid id)
+    {
+        bool categoryExists = await _dbContext.ResCategories.AnyAsync(c =>
+            c.Id == id && c.TenantId == _userContext.TenantId);
+        if (!categoryExists)
+        {
+            throw new BusinessException("分类不存在", StatusCodes.Status400BadRequest);
+        }
+    }
+
+    private static void ValidateProperties(List<ResDefinitionPropertyInput> properties)
+    {
+        bool hasDuplicateName = properties
+            .GroupBy(p => p.Name, StringComparer.OrdinalIgnoreCase)
+            .Any(g => g.Count() > 1);
+        bool hasInvalidMaxLength = properties.Any(p => p.MaxLength is < 1 or > 1000);
+        if (hasDuplicateName || hasInvalidMaxLength)
+        {
+            throw new BusinessException("资源定义属性无效", StatusCodes.Status400BadRequest);
+        }
+    }
+
+    private void EnsureAdmin()
+    {
+        if (!_userContext.IsAdmin)
+        {
+            throw new BusinessException("无管理资源权限", StatusCodes.Status403Forbidden);
+        }
+    }
+
+    private async Task<T> GetTenantEntityAsync<T>(DbSet<T> set, Guid id, string message)
+        where T : EntityBase
     {
         return await set.FirstOrDefaultAsync(e => e.Id == id && e.TenantId == _userContext.TenantId)
             ?? throw new BusinessException(message, StatusCodes.Status404NotFound);

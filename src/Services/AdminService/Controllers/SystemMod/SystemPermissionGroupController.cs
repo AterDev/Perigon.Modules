@@ -1,5 +1,4 @@
 using Perigon.AspNetCore.Models;
-using SystemMod.Models.SystemPermissionGroupDtos;
 
 namespace AdminService.Controllers.SystemMod;
 

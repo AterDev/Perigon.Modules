@@ -13,8 +13,11 @@ public class ArticleController(
 ) : RestControllerBase<ArticleManager>(localizer, manager, user, logger)
 {
     [HttpGet("list")]
-    public Task<PageList<ArticleItemDto>> ListAsync([FromQuery] ArticleFilterDto filter) =>
-        _manager.ToPageAsync(filter);
+    public Task<PageList<ArticleItemDto>> ListAsync([FromQuery] ArticleFilterDto filter)
+    {
+        return _manager.ToPageAsync(filter);
+    }
+
 
     [HttpPost]
     public async Task<ActionResult<Article>> AddAsync(ArticleAddDto dto)
@@ -31,7 +34,11 @@ public class ArticleController(
     }
 
     [HttpPatch("{id:guid}")]
-    public Task<Article> UpdateAsync(Guid id, ArticleUpdateDto dto) => _manager.EditAsync(id, dto);
+    public Task<Article> UpdateAsync(Guid id, ArticleUpdateDto dto)
+    {
+        return _manager.EditAsync(id, dto);
+    }
+
 
     [HttpDelete("{id:guid}")]
     public async Task<IActionResult> DeleteAsync(Guid id)

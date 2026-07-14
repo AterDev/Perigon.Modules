@@ -58,11 +58,12 @@ function Get-MetadataFromZip {
 	}
 }
 
-$scriptRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
-$projectRoot = Resolve-Path (Join-Path $scriptRoot '..')
+$scriptRoot = $PSScriptRoot
+$projectRoot = (Resolve-Path -LiteralPath (Join-Path $scriptRoot '..')).Path
 $modulesRoot = Join-Path $projectRoot 'src\Modules'
+$frontendModulesRoot = Join-Path $projectRoot 'src\ClientApp\WebApp\src\app\modules'
 $packageRoot = Join-Path $projectRoot 'package_modules'
-$modulesJsonPath = Join-Path $scriptRoot 'modules.json'
+$modulesJsonPath = Join-Path $projectRoot 'modules.json'
 $serviceName = 'AdminService'
 
 if (-not (Test-Path $modulesRoot)) {
@@ -88,18 +89,28 @@ $allMetadata = [System.Collections.Generic.List[object]]::new()
 $failedModules = [System.Collections.Generic.List[string]]::new()
 
 try {
-	Set-Location $projectRoot
+	Set-Location -LiteralPath $projectRoot
 
 	foreach ($moduleDirectory in $moduleDirectories) {
 		$moduleName = $moduleDirectory.Name
+		$frontendModuleName = $moduleName.Substring(0, $moduleName.Length - 'Mod'.Length).ToLowerInvariant()
+		$frontendPath = Join-Path $frontendModulesRoot $frontendModuleName
+		$packArguments = @('module', 'pack', $moduleName, $serviceName)
+		if (Test-Path -Path $frontendPath -PathType Container) {
+			$packArguments += @('--front-path', $frontendPath)
+		}
+		else {
+			Write-Warning "模块 '$moduleName' 未找到对应前端目录：$frontendPath，将仅打包后端内容。"
+		}
+
 		$packStartTime = [datetime]::UtcNow
 		Write-Host "开始打包模块：$moduleName (Service: $serviceName)" -ForegroundColor Cyan
 
-		if ($PSCmdlet.ShouldProcess($moduleName, "执行 perigon pack $moduleName $serviceName")) {
+		if ($PSCmdlet.ShouldProcess($moduleName, "执行 perigon $($packArguments -join ' ')")) {
 			try {
-				& perigon pack $moduleName $serviceName
+				& perigon @packArguments
 				if ($LASTEXITCODE -ne 0) {
-					Write-Error "perigon pack $moduleName $serviceName 执行失败，退出码：$LASTEXITCODE"
+					Write-Error "perigon $($packArguments -join ' ') 执行失败，退出码：$LASTEXITCODE"
 					$failedModules.Add($moduleName)
 					continue
 				}

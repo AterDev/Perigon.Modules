@@ -1,5 +1,3 @@
-using Entity.ResourceMod;
-
 namespace ResourceMod.Models;
 
 public class ResEnvironmentInput
