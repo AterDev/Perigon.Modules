@@ -1,0 +1,58 @@
+<h2 mat-dialog-title>
+  {{ (data?.definition ? i18nKeys.resource.editDefinition : i18nKeys.resource.addDefinition) | translate }}
+</h2>
+<mat-dialog-content>
+  <form [formGroup]="form" (ngSubmit)="save()" class="d-flex flex-column gap-3">
+    <mat-form-field appearance="outline" subscriptSizing="dynamic">
+      <mat-label>{{ i18nKeys.resource.definitionNamePrompt | translate }}</mat-label>
+      <input matInput formControlName="name" />
+    </mat-form-field>
+
+    <div class="d-flex align-items-center justify-content-between">
+      <h3 class="mat-title-medium m-0">{{ i18nKeys.resource.definitionProperties | translate }}</h3>
+      <button mat-stroked-button type="button" (click)="addProperty()">
+        <mat-icon>add</mat-icon>
+        {{ i18nKeys.resource.addProperty | translate }}
+      </button>
+    </div>
+
+    <div formArrayName="properties" class="d-flex flex-column gap-2">
+      @for (property of properties.controls; track property; let index = $index) {
+        <div [formGroupName]="index" class="property-row">
+          <mat-form-field appearance="outline" subscriptSizing="dynamic">
+            <mat-label>{{ i18nKeys.resource.propertyNamePrompt | translate }}</mat-label>
+            <input matInput formControlName="name" />
+          </mat-form-field>
+          <mat-form-field appearance="outline" subscriptSizing="dynamic">
+            <mat-label>{{ i18nKeys.resource.propertyType | translate }}</mat-label>
+            <mat-select formControlName="valueType">
+              @for (type of valueTypes; track type.value) {
+                <mat-option [value]="type.value">{{ type.label }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+          <mat-form-field appearance="outline" subscriptSizing="dynamic">
+            <mat-label>{{ i18nKeys.resource.propertyMaxLength | translate }}</mat-label>
+            <input matInput type="number" formControlName="maxLength" />
+          </mat-form-field>
+          <mat-checkbox formControlName="isRequired">
+            {{ i18nKeys.resource.propertyRequired | translate }}
+          </mat-checkbox>
+          <button mat-icon-button type="button" class="error" (click)="removeProperty(index)"
+            [attr.aria-label]="i18nKeys.resource.removeProperty | translate">
+            <mat-icon>delete</mat-icon>
+          </button>
+        </div>
+      }
+      @empty {
+        <span class="text-body-secondary">{{ i18nKeys.common.noData | translate }}</span>
+      }
+    </div>
+  </form>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button mat-dialog-close>{{ i18nKeys.common.cancel | translate }}</button>
+  <button mat-flat-button color="primary" type="button" [disabled]="form.invalid" (click)="save()">
+    {{ i18nKeys.common.save | translate }}
+  </button>
+</mat-dialog-actions>

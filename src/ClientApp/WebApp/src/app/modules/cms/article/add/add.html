@@ -1,62 +1,115 @@
 <section class="page">
-  <header><h1>{{ i18nKeys.cms.article.addTitle | translate }}</h1></header>
   <form [formGroup]="form" (ngSubmit)="save()">
     <mat-form-field appearance="outline"
-      ><mat-label>{{ i18nKeys.cms.article.title | translate }}</mat-label
-      ><input matInput formControlName="title" /></mat-form-field
-    ><mat-form-field appearance="outline"
-      ><mat-label>{{ i18nKeys.cms.article.summary | translate }}</mat-label
-      ><textarea
-        matInput
-        formControlName="description"
-      ></textarea></mat-form-field
-    ><mat-form-field appearance="outline"
-      ><mat-label>{{ i18nKeys.cms.article.content | translate }}</mat-label
-      ><textarea
-        matInput
-        rows="14"
-        formControlName="content"
-      ></textarea></mat-form-field
-    ><mat-form-field appearance="outline"
-      ><mat-label>{{ i18nKeys.cms.article.author | translate }}</mat-label
-      ><input matInput formControlName="authors" /></mat-form-field
-    ><mat-form-field appearance="outline"
-      ><mat-label>{{ i18nKeys.cms.article.category | translate }}</mat-label
-      ><mat-select formControlName="catalogId"
-        >@for (item of categories(); track item.id) {
-        <mat-option [value]="item.id">{{ item.name }}</mat-option> }</mat-select
-      ></mat-form-field
-    ><mat-form-field appearance="outline"
-      ><mat-label>{{ i18nKeys.cms.article.language | translate }}</mat-label
-      ><mat-select formControlName="languageType"
-        >@for (item of languages; track item[1]) {
-        <mat-option [value]="item[1]"
-          >{{ ('cms.languageTypes.' + item[0]) | translate }}</mat-option
-        >
-        }</mat-select
-      ></mat-form-field
-    ><mat-form-field appearance="outline"
-      ><mat-label>{{ i18nKeys.cms.article.contentType | translate }}</mat-label
-      ><mat-select formControlName="blogType"
-        >@for (item of types; track item[1]) {
-        <mat-option [value]="item[1]"
-          >{{ ('cms.contentTypes.' + item[0]) | translate }}</mat-option
-        >
-        }</mat-select
-      ></mat-form-field
-    ><mat-checkbox formControlName="isPublic"
-      >{{ i18nKeys.cms.article.public | translate }}</mat-checkbox
-    ><mat-checkbox formControlName="isAudit"
-      >{{ i18nKeys.cms.article.audited | translate }}</mat-checkbox
-    ><mat-checkbox formControlName="isOriginal"
-      >{{ i18nKeys.cms.article.original | translate }}</mat-checkbox
     >
-    <div class="actions">
-      <button mat-button type="button" routerLink="../">
-        {{ i18nKeys.common.cancel | translate }}</button
-      ><button mat-flat-button type="submit" [disabled]="saving">
-        {{ i18nKeys.common.save | translate }}
-      </button>
-    </div>
-  </form>
+    <mat-label>{{ i18nKeys.cms.article.title | translate }}
+    </mat-label
+    >
+    <input matInput formControlName="title" />
+  </mat-form-field
+  >
+  <mat-form-field appearance="outline"
+  >
+  <mat-label>{{ i18nKeys.cms.article.summary | translate }}
+  </mat-label
+  >
+  <textarea
+  matInput
+  formControlName="description"
+  >
+</textarea>
+</mat-form-field
+>
+<mat-form-field appearance="outline"
+>
+<mat-label>{{ i18nKeys.cms.article.content | translate }}
+</mat-label
+>
+<textarea
+matInput
+rows="14"
+formControlName="content"
+>
+</textarea>
+</mat-form-field
+>
+<mat-form-field appearance="outline"
+>
+<mat-label>{{ i18nKeys.cms.article.author | translate }}
+</mat-label
+>
+<input matInput formControlName="authors" />
+</mat-form-field
+>
+<mat-form-field appearance="outline"
+>
+<mat-label>{{ i18nKeys.cms.article.category | translate }}
+</mat-label
+>
+<mat-select formControlName="catalogId"
+>
+@for (item of categories(); track item.id) {
+  <mat-option [value]="item.id">{{ item.name }}
+  </mat-option>
+}
+</mat-select
+>
+</mat-form-field
+>
+<mat-form-field appearance="outline"
+>
+<mat-label>{{ i18nKeys.cms.article.language | translate }}
+</mat-label
+>
+<mat-select formControlName="languageType"
+>
+@for (item of languages; track item[1]) {
+  <mat-option [value]="item[1]"
+  >{{ ('cms.languageTypes.' + item[0]) | translate }}
+</mat-option
+>
+}
+</mat-select
+>
+</mat-form-field
+>
+<mat-form-field appearance="outline"
+>
+<mat-label>{{ i18nKeys.cms.article.contentType | translate }}
+</mat-label
+>
+<mat-select formControlName="blogType"
+>
+@for (item of types; track item[1]) {
+  <mat-option [value]="item[1]"
+  >{{ ('cms.contentTypes.' + item[0]) | translate }}
+</mat-option
+>
+}
+</mat-select
+>
+</mat-form-field
+>
+<mat-checkbox formControlName="isPublic"
+>{{ i18nKeys.cms.article.public | translate }}
+</mat-checkbox
+>
+<mat-checkbox formControlName="isAudit"
+>{{ i18nKeys.cms.article.audited | translate }}
+</mat-checkbox
+>
+<mat-checkbox formControlName="isOriginal"
+>{{ i18nKeys.cms.article.original | translate }}
+</mat-checkbox
+>
+<div class="d-flex justify-content-end gap-3">
+  <button mat-button type="button" routerLink="../">
+    {{ i18nKeys.common.cancel | translate }}
+  </button
+  >
+  <button mat-flat-button type="submit" [disabled]="saving">
+    {{ i18nKeys.common.save | translate }}
+  </button>
+</div>
+</form>
 </section>

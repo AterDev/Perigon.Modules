@@ -13,6 +13,8 @@ import { ResCategory } from '../../../../services/admin/models/entity/res-catego
 import { ResDefinition } from '../../../../services/admin/models/entity/res-definition.model';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { TranslateService } from '@ngx-translate/core';
+import { MatDialog } from '@angular/material/dialog';
+import { ConfirmDialogComponent } from '../../../share/components/confirm-dialog/confirm-dialog.component';
 
 @Component({
   selector: 'app-resource-index',
@@ -26,6 +28,7 @@ export class ResourceIndexComponent {
   private readonly client = inject(AdminClient);
   private readonly snackBar = inject(MatSnackBar);
   private readonly translate = inject(TranslateService);
+  private readonly dialog = inject(MatDialog);
   readonly resources = signal<ResourceItemDto[]>([]);
   readonly environments = signal<ResEnvironment[]>([]);
   readonly categories = signal<ResCategory[]>([]);
@@ -74,21 +77,27 @@ export class ResourceIndexComponent {
   }
 
   remove(resource: ResourceItemDto): void {
-    if (
-      !confirm(
+    this.dialog
+      .open(ConfirmDialogComponent, {
+        data: {
+          title: this.translate.instant('common.confirmDelete'),
+          content:
         this.translate.instant('resource.deleteResourceConfirm', {
           name: resource.name,
         }),
-      )
-    )
-      return;
-    this.client.resource.delete(resource.id).subscribe(() => {
-      this.snackBar.open(
-        this.translate.instant('resource.deleteSuccess'),
-        this.translate.instant('common.close'),
-        { duration: 2500 },
-      );
-      this.load();
-    });
+        },
+      })
+      .afterClosed()
+      .subscribe((confirmed) => {
+        if (!confirmed) return;
+        this.client.resource.delete(resource.id).subscribe(() => {
+          this.snackBar.open(
+            this.translate.instant('resource.deleteSuccess'),
+            this.translate.instant('common.close'),
+            { duration: 2500 },
+          );
+          this.load();
+        });
+      });
   }
 }

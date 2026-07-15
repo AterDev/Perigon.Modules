@@ -11,7 +11,6 @@ import { ResTag } from '../models/entity/res-tag.model';
 import { ResTagInput } from '../models/resource-mod/res-tag-input.model';
 import { ResDefinition } from '../models/entity/res-definition.model';
 import { ResDefinitionInput } from '../models/resource-mod/res-definition-input.model';
-import { SystemRole } from '../models/entity/system-role.model';
 import { ResPermission } from '../models/entity/res-permission.model';
 import { ResPermissionInput } from '../models/resource-mod/res-permission-input.model';
 /**
@@ -151,8 +150,8 @@ export class ResourceConfigurationService extends BaseService {
   /**
    * definitions
    */
-  definitions(): Observable<ResDefinition[]> {
-    const _url = `/api/ResourceConfiguration/definitions`;
+  definitions(name: string | null = null): Observable<ResDefinition[]> {
+    const _url = `/api/ResourceConfiguration/definitions?name=${encodeURIComponent(name ?? '')}`;
     return this.request<ResDefinition[]>('get', _url);
   }
   /**
@@ -179,13 +178,6 @@ export class ResourceConfigurationService extends BaseService {
   deleteDefinition(id: string): Observable<any> {
     const _url = `/api/ResourceConfiguration/definitions/${id}`;
     return this.request<any>('delete', _url);
-  }
-  /**
-   * roles
-   */
-  roles(): Observable<SystemRole[]> {
-    const _url = `/api/ResourceConfiguration/roles`;
-    return this.request<SystemRole[]>('get', _url);
   }
   /**
    * permissions

@@ -1,82 +1,131 @@
 <section class="page">
-  <header>
-    <h1>{{ i18nKeys.menu.resourceList | translate }}</h1>
-    <a mat-flat-button routerLink="../add">{{ i18nKeys.common.add | translate }}</a>
-  </header>
-
-  <div class="filters">
+  <div class="d-flex align-items-center justify-content-between gap-3">
+    <div class="d-flex flex-wrap align-items-center gap-3 flex-grow-1">
+      <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <mat-label>{{ i18nKeys.resource.name | translate
+        }}
+      </mat-label>
+      <input matInput [(ngModel)]="name" />
+    </mat-form-field>
     <mat-form-field appearance="outline"
-      ><mat-label>{{ i18nKeys.resource.name | translate }}</mat-label
-      ><input matInput [(ngModel)]="name" /></mat-form-field
-    ><mat-form-field appearance="outline"
-      ><mat-label>{{ i18nKeys.resource.environment | translate }}</mat-label
-      ><mat-select [(ngModel)]="environmentId"
-        ><mat-option value="">{{ i18nKeys.common.all | translate }}</mat-option>@for
-        (item of environments(); track item.id) {
-        <mat-option [value]="item.id">{{ item.name }}</mat-option> }</mat-select
-      ></mat-form-field
-    ><mat-form-field appearance="outline"
-      ><mat-label>{{ i18nKeys.resource.category | translate }}</mat-label
-      ><mat-select [(ngModel)]="categoryId"
-        ><mat-option value="">{{ i18nKeys.common.all | translate }}</mat-option>@for
-        (item of categories(); track item.id) {
-        <mat-option [value]="item.id">{{ item.name }}</mat-option> }</mat-select
-      ></mat-form-field
-    ><mat-form-field appearance="outline"
-      ><mat-label>{{ i18nKeys.resource.definition | translate }}</mat-label
-      ><mat-select [(ngModel)]="definitionId"
-        ><mat-option value="">{{ i18nKeys.common.all | translate }}</mat-option>@for
-        (item of definitions(); track item.id) {
-        <mat-option [value]="item.id">{{ item.name }}</mat-option> }</mat-select
-      ></mat-form-field
-    ><mat-form-field appearance="outline"
-      ><mat-label>{{ i18nKeys.resource.tag | translate }}</mat-label
-      ><input matInput [(ngModel)]="tagName" /></mat-form-field
-    ><button mat-stroked-button (click)="load()">
-      <mat-icon>search</mat-icon>{{ i18nKeys.common.search | translate }}
-    </button>
-  </div>
-
-  @if (loading()) {
+    subscriptSizing="dynamic">
+    <mat-label>{{ i18nKeys.resource.environment | translate }}
+    </mat-label>
+    <mat-select
+    [(ngModel)]="environmentId">
+    <mat-option value="">{{ i18nKeys.common.all | translate }}
+    </mat-option>
+    @for (item of environments(); track item.id) {
+      <mat-option [value]="item.id">{{ item.name }}
+      </mat-option>
+    }
+  </mat-select>
+</mat-form-field>
+<mat-form-field
+appearance="outline" subscriptSizing="dynamic">
+<mat-label>{{ i18nKeys.resource.category | translate
+}}
+</mat-label>
+<mat-select [(ngModel)]="categoryId">
+  <mat-option value="">{{ i18nKeys.common.all | translate
+  }}
+</mat-option>
+@for (item of categories(); track item.id) {
+  <mat-option [value]="item.id">{{ item.name }}
+  </mat-option>
+}
+</mat-select>
+</mat-form-field>
+<mat-form-field
+appearance="outline" subscriptSizing="dynamic">
+<mat-label>{{ i18nKeys.resource.definition | translate
+}}
+</mat-label>
+<mat-select [(ngModel)]="definitionId">
+  <mat-option value="">{{ i18nKeys.common.all | translate
+  }}
+</mat-option>
+@for (item of definitions(); track item.id) {
+  <mat-option [value]="item.id">{{ item.name }}
+  </mat-option>
+}
+</mat-select>
+</mat-form-field>
+<mat-form-field
+appearance="outline" subscriptSizing="dynamic">
+<mat-label>{{ i18nKeys.resource.tag | translate
+}}
+</mat-label>
+<input matInput [(ngModel)]="tagName" />
+</mat-form-field>
+<button mat-stroked-button
+(click)="load()">
+<mat-icon>search</mat-icon>{{ i18nKeys.common.search | translate }}
+</button>
+</div>
+<a mat-flat-button routerLink="../add">{{ i18nKeys.common.add | translate }}
+</a>
+</div>
+@if (loading()) {
   <mat-spinner diameter="32" />
-  } @else if (resources().length === 0) {
-  <p>{{ i18nKeys.common.noData | translate }}</p>
-  } @else {
+}
+@else if (resources().length === 0) {
+  <p>{{ i18nKeys.common.noData | translate }}
+  </p>
+}
+@else {
   <div class="table-wrap">
     <table>
       <thead>
         <tr>
-          <th>{{ i18nKeys.resource.name | translate }}</th>
-          <th>{{ i18nKeys.resource.environment | translate }}</th>
-          <th>{{ i18nKeys.resource.category | translate }}</th>
-          <th>{{ i18nKeys.resource.group | translate }}</th>
-          <th>{{ i18nKeys.resource.definition | translate }}</th>
-          <th>{{ i18nKeys.resource.tag | translate }}</th>
-          <th>{{ i18nKeys.common.actions | translate }}</th>
+          <th>{{ i18nKeys.resource.name | translate }}
+          </th>
+          <th>{{ i18nKeys.resource.environment | translate }}
+          </th>
+          <th>{{ i18nKeys.resource.category | translate }}
+          </th>
+          <th>{{ i18nKeys.resource.group | translate }}
+          </th>
+          <th>{{ i18nKeys.resource.definition | translate }}
+          </th>
+          <th>{{ i18nKeys.resource.tag | translate }}
+          </th>
+          <th>{{ i18nKeys.common.actions | translate }}
+          </th>
         </tr>
       </thead>
       <tbody>
         @for (resource of resources(); track resource.id) {
-        <tr>
-          <td>{{ resource.name }}</td>
-          <td>{{ resource.environmentName }}</td>
-          <td>{{ resource.categoryName }}</td>
-          <td>{{ resource.groupName || '-' }}</td>
-          <td>{{ resource.definitionName }}</td>
-          <td>{{ resource.tagNames.join(', ') }}</td>
-          <td>
-            <a mat-icon-button [routerLink]="['..', resource.id, 'detail']"
-              ><mat-icon>visibility</mat-icon></a
-            ><a mat-icon-button [routerLink]="['..', resource.id, 'edit']"
-              ><mat-icon>edit</mat-icon></a
-            ><button mat-icon-button (click)="remove(resource)">
-              <mat-icon>delete</mat-icon>
-            </button>
-          </td>
-        </tr>
-        }
-      </tbody>
-    </table>
-  </div>
+          <tr>
+            <td>{{ resource.name }}
+            </td>
+            <td>{{ resource.environmentName }}
+            </td>
+            <td>{{ resource.categoryName }}
+            </td>
+            <td>{{ resource.groupName || '-' }}
+            </td>
+            <td>{{ resource.definitionName }}
+            </td>
+            <td>{{ resource.tagNames.join(', ') }}
+            </td>
+            <td>
+              <a mat-icon-button [routerLink]="['..', resource.id, 'detail']">
+                <mat-icon>visibility</mat-icon>
+                </a>
+                <a
+                mat-icon-button [routerLink]="['..', resource.id, 'edit']">
+                <mat-icon
+                class="primary">edit</mat-icon>
+              </a>
+              <button mat-icon-button (click)="remove(resource)">
+                <mat-icon class="error">delete</mat-icon>
+                </button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
   }
 </section>

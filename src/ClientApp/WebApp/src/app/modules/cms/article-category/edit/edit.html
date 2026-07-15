@@ -1,16 +1,21 @@
 <section class="page">
-  <header><h1>{{ i18nKeys.cms.category.editTitle | translate }}</h1></header>
   <form [formGroup]="form" (ngSubmit)="save()">
     <mat-form-field appearance="outline"
-      ><mat-label>{{ i18nKeys.cms.category.name | translate }}</mat-label
-      ><input matInput formControlName="name"
-    /></mat-form-field>
-    <div class="actions">
-      <button mat-button type="button" routerLink="../../">
-        {{ i18nKeys.common.cancel | translate }}</button
-      ><button mat-flat-button type="submit" [disabled]="saving">
-        {{ i18nKeys.common.save | translate }}
-      </button>
-    </div>
-  </form>
+    >
+    <mat-label>{{ i18nKeys.cms.category.name | translate }}
+    </mat-label
+    >
+    <input matInput formControlName="name"
+    />
+  </mat-form-field>
+  <div class="d-flex justify-content-end gap-3">
+    <button mat-button type="button" routerLink="../../">
+      {{ i18nKeys.common.cancel | translate }}
+    </button
+    >
+    <button mat-flat-button type="submit" [disabled]="saving">
+      {{ i18nKeys.common.save | translate }}
+    </button>
+  </div>
+</form>
 </section>

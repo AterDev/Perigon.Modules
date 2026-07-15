@@ -1,43 +1,81 @@
 <section class="page">
-  <header><h1>新增账号</h1></header>
   <form [formGroup]="form" (ngSubmit)="save()">
     <mat-form-field appearance="outline"
-      ><mat-label>用户名</mat-label
-      ><input matInput formControlName="userName" /></mat-form-field
-    ><mat-form-field appearance="outline"
-      ><mat-label>初始密码</mat-label
-      ><input
-        matInput
-        type="password"
-        formControlName="password" /></mat-form-field
-    ><mat-form-field appearance="outline"
-      ><mat-label>真实姓名</mat-label
-      ><input matInput formControlName="realName" /></mat-form-field
-    ><mat-form-field appearance="outline"
-      ><mat-label>邮箱</mat-label
-      ><input matInput type="email" formControlName="email" /></mat-form-field
-    ><mat-form-field appearance="outline"
-      ><mat-label>手机号</mat-label
-      ><input matInput formControlName="phoneNumber" /></mat-form-field
-    ><mat-form-field appearance="outline"
-      ><mat-label>性别</mat-label
-      ><mat-select formControlName="sex"
-        >@for (gender of genders; track gender.value) {
-        <mat-option [value]="gender.value">{{ gender.label }}</mat-option>
-        }</mat-select
-      ></mat-form-field
-    ><mat-form-field appearance="outline"
-      ><mat-label>角色</mat-label
-      ><mat-select formControlName="roleIds" multiple
-        >@for (role of roles(); track role.id) {
-        <mat-option [value]="role.id">{{ role.name }}</mat-option> }</mat-select
-      ></mat-form-field
-    ><mat-form-field appearance="outline"
-      ><mat-label>头像 URL</mat-label><input matInput formControlName="avatar"
-    /></mat-form-field>
-    <div class="actions">
-      <button mat-button type="button" routerLink="../">取消</button
-      ><button mat-flat-button type="submit" [disabled]="saving">保存</button>
+    >
+    <mat-label>用户名</mat-label
+      >
+      <input matInput formControlName="userName" />
+    </mat-form-field
+    >
+    <mat-form-field appearance="outline"
+    >
+    <mat-label>初始密码</mat-label
+      >
+      <input
+      matInput
+      type="password"
+      formControlName="password" />
+    </mat-form-field
+    >
+    <mat-form-field appearance="outline"
+    >
+    <mat-label>真实姓名</mat-label
+      >
+      <input matInput formControlName="realName" />
+    </mat-form-field
+    >
+    <mat-form-field appearance="outline"
+    >
+    <mat-label>邮箱</mat-label
+      >
+      <input matInput type="email" formControlName="email" />
+    </mat-form-field
+    >
+    <mat-form-field appearance="outline"
+    >
+    <mat-label>手机号</mat-label
+      >
+      <input matInput formControlName="phoneNumber" />
+    </mat-form-field
+    >
+    <mat-form-field appearance="outline"
+    >
+    <mat-label>性别</mat-label
+      >
+      <mat-select formControlName="sex"
+      >
+      @for (gender of genders; track gender.value) {
+        <mat-option [value]="gender.value">{{ gender.label }}
+        </mat-option>
+      }
+    </mat-select
+    >
+  </mat-form-field
+  >
+  <mat-form-field appearance="outline"
+  >
+  <mat-label>角色</mat-label
+    >
+    <mat-select formControlName="roleIds" multiple
+    >
+    @for (role of roles(); track role.id) {
+      <mat-option [value]="role.id">{{ role.name }}
+      </mat-option>
+    }
+  </mat-select
+  >
+</mat-form-field
+>
+<mat-form-field appearance="outline"
+>
+<mat-label>头像 URL</mat-label>
+  <input matInput formControlName="avatar"
+  />
+</mat-form-field>
+<div class="d-flex justify-content-end gap-3">
+  <button mat-button type="button" routerLink="../">取消</button
+    >
+    <button mat-flat-button type="submit" [disabled]="saving">保存</button>
     </div>
   </form>
 </section>

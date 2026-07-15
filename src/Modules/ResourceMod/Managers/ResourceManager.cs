@@ -209,7 +209,6 @@ public class ResourceManager(
     private async Task<Resource?> FindOwnedAsync(Guid id)
     {
         return await _dbContext.Resources
-            .Include(r => r.Values)
             .FirstOrDefaultAsync(r => r.Id == id && r.TenantId == _userContext.TenantId);
     }
 
@@ -261,8 +260,10 @@ public class ResourceManager(
             throw new BusinessException("缺少必填资源属性", StatusCodes.Status400BadRequest);
         }
 
-        _dbContext.ResValues.RemoveRange(resource.Values);
-        resource.Values.Clear();
+        await _dbContext.ResValues
+            .Where(value => value.ResourceId == resource.Id && value.TenantId == _userContext.TenantId)
+            .ExecuteDeleteAsync();
+        resource.Values = [];
         foreach (ResourceValueInput input in inputs)
         {
             ResDefinitionProperty property = properties.Single(p => p.Id == input.DefinitionPropertyId);
@@ -273,14 +274,17 @@ public class ResourceManager(
                     StatusCodes.Status400BadRequest);
             }
 
-            resource.Values.Add(new ResValue
+            ResValue value = new()
             {
+                ResourceId = resource.Id,
                 DefinitionPropertyId = property.Id,
                 Value = NormalizeValue(input.Value, property.ValueType),
                 PropertyNameSnapshot = property.Name,
                 ValueTypeSnapshot = property.ValueType,
                 TenantId = _userContext.TenantId
-            });
+            };
+            _dbContext.ResValues.Add(value);
+            resource.Values.Add(value);
         }
     }
 

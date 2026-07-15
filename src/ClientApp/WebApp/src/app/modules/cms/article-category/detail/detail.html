@@ -1,26 +1,44 @@
 <section class="page">
   <header>
-    <h1>{{ i18nKeys.cms.category.detailTitle | translate }}</h1>
     <a mat-flat-button [routerLink]="['../../', id, 'edit']"
-      ><mat-icon>edit</mat-icon>{{ i18nKeys.common.edit | translate }}</a
+    >
+    <mat-icon class="primary">edit</mat-icon>{{ i18nKeys.common.edit | translate }}
+    </a
     >
   </header>
   @if (category(); as item) {
-  <mat-card
-    ><mat-card-content
-      ><dl>
-        <dt>{{ i18nKeys.cms.category.name | translate }}</dt>
-        <dd>{{ item.name }}</dd>
-        <dt>{{ i18nKeys.cms.category.level | translate }}</dt>
-        <dd>{{ item.level }}</dd>
-        <dt>{{ i18nKeys.cms.category.parent | translate }}</dt>
-        <dd>{{ $any(item.parent)?.name || '-' }}</dd>
-        <dt>{{ i18nKeys.common.createdTime | translate }}</dt>
-        <dd>{{ item.createdTime | date:'medium' }}</dd>
-        <dt>{{ i18nKeys.common.updatedTime | translate }}</dt>
-        <dd>{{ item.updatedTime | date:'medium' }}</dd>
-      </dl></mat-card-content
-    ></mat-card
+    <mat-card
+    >
+    <mat-card-content
+    >
+    <dl>
+      <dt>{{ i18nKeys.cms.category.name | translate }}
+      </dt>
+      <dd>{{ item.name }}
+      </dd>
+      <dt>{{ i18nKeys.cms.category.level | translate }}
+      </dt>
+      <dd>{{ item.level }}
+      </dd>
+      <dt>{{ i18nKeys.cms.category.parent | translate }}
+      </dt>
+      <dd>{{ $any(item.parent)?.name || '-' }}
+      </dd>
+      <dt>{{ i18nKeys.common.createdTime | translate }}
+      </dt>
+      <dd>{{ item.createdTime | date:'medium' }}
+      </dd>
+      <dt>{{ i18nKeys.common.updatedTime | translate }}
+      </dt>
+      <dd>{{ item.updatedTime | date:'medium' }}
+      </dd>
+    </dl>
+  </mat-card-content
   >
-  } @else { <mat-spinner diameter="36" /> }
+</mat-card
+>
+}
+@else {
+  <mat-spinner diameter="36" />
+}
 </section>

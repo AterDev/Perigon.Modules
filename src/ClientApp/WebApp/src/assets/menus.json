@@ -35,7 +35,7 @@
     "children": [
       {
         "name": "menu.resourceList",
-        "path": "/resource",
+        "path": "/resource/index",
         "accessCode": "resource-list",
         "icon": "inventory_2",
         "sort": 0,
@@ -47,6 +47,14 @@
         "accessCode": "resource-config",
         "icon": "tune",
         "sort": 1,
+        "menuType": 0
+      },
+      {
+        "name": "menu.resourceDefinition",
+        "path": "/resource/definition",
+        "accessCode": "resource-definition",
+        "icon": "schema",
+        "sort": 2,
         "menuType": 0
       }
     ]

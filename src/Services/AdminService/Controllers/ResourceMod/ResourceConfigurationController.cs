@@ -106,9 +106,9 @@ public class ResourceConfigurationController(
     }
 
     [HttpGet("definitions")]
-    public Task<List<ResDefinition>> DefinitionsAsync()
+    public Task<List<ResDefinition>> DefinitionsAsync(string? name)
     {
-        return _manager.DefinitionsAsync();
+        return _manager.DefinitionsAsync(name);
     }
 
     [HttpPost("definitions")]

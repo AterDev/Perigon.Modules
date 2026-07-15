@@ -43,13 +43,17 @@ public class ResourceConfigurationManager(
             .ToListAsync();
     }
 
-    public async Task<List<ResDefinition>> DefinitionsAsync()
+    public async Task<List<ResDefinition>> DefinitionsAsync(string? name = null)
     {
-        return await _dbContext.ResDefinitions
+        IQueryable<ResDefinition> query = _dbContext.ResDefinitions
             .Where(d => d.TenantId == _userContext.TenantId)
-            .Include(d => d.Properties)
-            .OrderBy(d => d.Name)
-            .ToListAsync();
+            .Include(d => d.Properties);
+        if (!string.IsNullOrWhiteSpace(name))
+        {
+            query = query.Where(d => d.Name.Contains(name.Trim()));
+        }
+
+        return await query.OrderBy(d => d.Name).ToListAsync();
     }
 
     public async Task<ResEnvironment> AddEnvironmentAsync(ResEnvironmentInput input)
@@ -91,7 +95,9 @@ public class ResourceConfigurationManager(
         ResEnvironment entity = await GetTenantEntityAsync(_dbContext.ResEnvironments, id, "环境不存在");
         bool isReferenced = await _dbContext.Resources.AnyAsync(r =>
             r.TenantId == _userContext.TenantId && r.EnvironmentId == id);
-        if (isReferenced)
+        bool hasPermissions = await _dbContext.ResPermissions.AnyAsync(p =>
+            p.TenantId == _userContext.TenantId && p.EnvironmentId == id);
+        if (isReferenced || hasPermissions)
         {
             throw new BusinessException("环境已被资源引用，不能删除", StatusCodes.Status409Conflict);
         }
@@ -157,7 +163,11 @@ public class ResourceConfigurationManager(
         ResCategory entity = await GetTenantEntityAsync(_dbContext.ResCategories, id, "分类不存在");
         bool isReferenced = await _dbContext.Resources.AnyAsync(r =>
             r.TenantId == _userContext.TenantId && r.CategoryId == id);
-        if (isReferenced)
+        bool hasGroups = await _dbContext.ResGroups.AnyAsync(g =>
+            g.TenantId == _userContext.TenantId && g.CategoryId == id);
+        bool hasPermissions = await _dbContext.ResPermissions.AnyAsync(p =>
+            p.TenantId == _userContext.TenantId && p.CategoryId == id);
+        if (isReferenced || hasGroups || hasPermissions)
         {
             throw new BusinessException("分类已被资源引用，不能删除", StatusCodes.Status409Conflict);
         }

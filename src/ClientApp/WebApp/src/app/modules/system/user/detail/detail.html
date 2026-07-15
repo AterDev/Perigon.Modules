@@ -1,34 +1,47 @@
 <section class="page">
   <header>
-    <h1>账号详情</h1>
     @if (user(); as item) {
-    <a mat-flat-button [routerLink]="['../../', item.id, 'edit']"
-      ><mat-icon>edit</mat-icon>编辑</a
-    >
-    }
-  </header>
-  @if (user(); as item) {
-  <mat-card
-    ><mat-card-content
-      ><dl>
+      <a mat-flat-button [routerLink]="['../../', item.id, 'edit']"
+      >
+      <mat-icon class="primary">edit</mat-icon>编辑</a
+        >
+      }
+    </header>
+    @if (user(); as item) {
+      <mat-card
+      >
+      <mat-card-content
+      >
+      <dl>
         <dt>用户名</dt>
-        <dd>{{ item.userName }}</dd>
-        <dt>真实姓名</dt>
-        <dd>{{ item.realName || '-' }}</dd>
-        <dt>邮箱</dt>
-        <dd>{{ item.email || '-' }}</dd>
-        <dt>手机号</dt>
-        <dd>{{ item.phoneNumber || '-' }}</dd>
-        <dt>最后登录</dt>
-        <dd>
-          {{ item.lastLoginTime ? (item.lastLoginTime | date:'medium') : '-' }}
-        </dd>
-        <dt>锁定状态</dt>
-        <dd>{{ item.lockoutEnabled ? '已锁定' : '正常' }}</dd>
-        <dt>创建时间</dt>
-        <dd>{{ item.createdTime | date:'medium' }}</dd>
-      </dl></mat-card-content
-    ></mat-card
-  >
-  } @else { <mat-spinner diameter="36" /> }
-</section>
+          <dd>{{ item.userName }}
+          </dd>
+          <dt>真实姓名</dt>
+            <dd>{{ item.realName || '-' }}
+            </dd>
+            <dt>邮箱</dt>
+              <dd>{{ item.email || '-' }}
+              </dd>
+              <dt>手机号</dt>
+                <dd>{{ item.phoneNumber || '-' }}
+                </dd>
+                <dt>最后登录</dt>
+                  <dd>
+                    {{ item.lastLoginTime ? (item.lastLoginTime | date:'medium') : '-' }}
+                  </dd>
+                  <dt>锁定状态</dt>
+                    <dd>{{ item.lockoutEnabled ? '已锁定' : '正常' }}
+                    </dd>
+                    <dt>创建时间</dt>
+                      <dd>{{ item.createdTime | date:'medium' }}
+                      </dd>
+                    </dl>
+                  </mat-card-content
+                  >
+                </mat-card
+                >
+              }
+              @else {
+                <mat-spinner diameter="36" />
+              }
+            </section>

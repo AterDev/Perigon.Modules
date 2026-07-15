@@ -1,0 +1,62 @@
+<section class="page">
+  <div class="d-flex align-items-center justify-content-between gap-3">
+    <mat-form-field appearance="outline" subscriptSizing="dynamic">
+      <mat-label>{{ i18nKeys.resource.definitionSearch | translate }}</mat-label>
+      <input matInput [(ngModel)]="name" (keyup.enter)="load()" />
+    </mat-form-field>
+    <button mat-stroked-button (click)="load()">
+      <mat-icon>search</mat-icon>{{ i18nKeys.common.search | translate }}
+    </button>
+    <span class="flex-grow-1"></span>
+    <button mat-flat-button (click)="createDefinition()">
+      {{ i18nKeys.resource.addDefinition | translate }}
+    </button>
+  </div>
+  <div class="d-flex flex-column gap-3">
+    @for (item of definitions(); track item.id) {
+      <mat-card>
+        <mat-card-content class="d-flex flex-column gap-3">
+          <div class="d-flex align-items-center gap-3">
+            <mat-icon>schema</mat-icon>
+              <strong>{{ item.name }}
+              </strong>
+              <span class="ms-auto d-flex gap-2">
+                <button mat-icon-button (click)="editDefinition(item)">
+                  <mat-icon class="primary">edit</mat-icon>
+                  </button>
+                  <button mat-icon-button (click)="deleteDefinition(item)">
+                    <mat-icon class="error">delete</mat-icon>
+                    </button>
+                  </span>
+                </div>
+                <div class="d-flex flex-column gap-2">
+                  @for (property of item.properties; track property.id) {
+                    <div class="d-flex align-items-center gap-3">
+                      <span>{{ property.name }}
+                      </span>
+                      <span class="text-body-secondary">{{ property.valueType }}
+                      </span>
+                      @if (property.isRequired) {
+                        <span class="text-body-secondary">*</span>
+                        }
+                        <span class="text-body-secondary">
+                          {{ i18nKeys.resource.propertyHint | translate: { type: property.valueType, maxLength: property.maxLength }
+                        }}
+                      </span>
+                    </div>
+                  }
+                  @empty {
+                  <span class="text-body-secondary">
+                    {{ i18nKeys.common.noData | translate }}
+                  </span>
+                }
+              </div>
+            </mat-card-content>
+          </mat-card>
+        }
+        @empty {
+        <p class="empty">{{ i18nKeys.common.noData | translate }}
+        </p>
+      }
+    </div>
+  </section>

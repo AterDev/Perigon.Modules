@@ -5,6 +5,7 @@ import { ResourceAddComponent } from './resource/add/add';
 import { ResourceEditComponent } from './resource/edit/edit';
 import { ResourceDetailComponent } from './resource/detail/detail';
 import { ResourceConfigIndexComponent } from './config/index/index';
+import { ResourceDefinitionIndexComponent } from './definition/index/index';
 
 const routes: Routes = [
   { path: '', redirectTo: 'index', pathMatch: 'full' },
@@ -13,6 +14,7 @@ const routes: Routes = [
   { path: ':id/edit', component: ResourceEditComponent },
   { path: ':id/detail', component: ResourceDetailComponent },
   { path: 'config', component: ResourceConfigIndexComponent },
+  { path: 'definition', component: ResourceDefinitionIndexComponent },
 ];
 
 @NgModule({
@@ -23,6 +25,7 @@ const routes: Routes = [
     ResourceEditComponent,
     ResourceDetailComponent,
     ResourceConfigIndexComponent,
+    ResourceDefinitionIndexComponent,
   ],
 })
-export class ResourceModule {}
+export class ResourceModule { }

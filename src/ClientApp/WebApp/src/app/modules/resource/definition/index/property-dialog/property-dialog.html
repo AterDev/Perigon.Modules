@@ -1,0 +1,36 @@
+<h2 mat-dialog-title>{{ i18nKeys.resource.addProperty | translate }}
+</h2>
+<mat-dialog-content>
+  <form [formGroup]="form" (ngSubmit)="save()" class="d-flex flex-column gap-3">
+    <mat-form-field appearance="outline" subscriptSizing="dynamic">
+      <mat-label>{{ i18nKeys.resource.propertyNamePrompt | translate }}
+      </mat-label>
+      <input matInput formControlName="name" />
+    </mat-form-field>
+    <mat-form-field appearance="outline" subscriptSizing="dynamic">
+      <mat-label>{{ i18nKeys.resource.propertyType | translate }}
+      </mat-label>
+      <mat-select formControlName="valueType">
+        @for (type of valueTypes; track type.value) {
+          <mat-option [value]="type.value">{{ type.label }}
+          </mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+    <mat-checkbox formControlName="isRequired">
+      {{ i18nKeys.resource.propertyRequired | translate }}
+    </mat-checkbox>
+    <mat-form-field appearance="outline" subscriptSizing="dynamic">
+      <mat-label>{{ i18nKeys.resource.propertyMaxLength | translate }}
+      </mat-label>
+      <input matInput type="number" formControlName="maxLength" />
+    </mat-form-field>
+  </form>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button mat-dialog-close>{{ i18nKeys.common.cancel | translate }}
+  </button>
+  <button mat-flat-button color="primary" type="button" [disabled]="form.invalid" (click)="save()">
+    {{ i18nKeys.common.save | translate }}
+  </button>
+</mat-dialog-actions>

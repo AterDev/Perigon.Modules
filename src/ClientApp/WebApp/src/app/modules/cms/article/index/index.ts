@@ -11,6 +11,8 @@ import { AdminClient } from '../../../../services/admin/admin-client';
 import { ArticleItemDto } from '../../../../services/admin/models/cmsmod/article-item-dto.model';
 import { ArticleCategoryItemDto } from '../../../../services/admin/models/cmsmod/article-category-item-dto.model';
 import { TranslateService } from '@ngx-translate/core';
+import { MatDialog } from '@angular/material/dialog';
+import { ConfirmDialogComponent } from '../../../share/components/confirm-dialog/confirm-dialog.component';
 
 @Component({
   selector: 'app-article-index',
@@ -24,6 +26,7 @@ export class ArticleIndexComponent {
   private readonly client = inject(AdminClient);
   private readonly snackBar = inject(MatSnackBar);
   private readonly translate = inject(TranslateService);
+  private readonly dialog = inject(MatDialog);
   readonly articles = signal<ArticleItemDto[]>([]);
   readonly categories = signal<ArticleCategoryItemDto[]>([]);
   readonly loading = signal(false);
@@ -64,21 +67,27 @@ export class ArticleIndexComponent {
       });
   }
   remove(item: ArticleItemDto): void {
-    if (
-      !confirm(
+    this.dialog
+      .open(ConfirmDialogComponent, {
+        data: {
+          title: this.translate.instant('common.confirmDelete'),
+          content:
         this.translate.instant('cms.article.deleteConfirm', {
           title: item.title,
         }),
-      )
-    )
-      return;
-    this.client.article.delete(item.id).subscribe(() => {
-      this.snackBar.open(
-        this.translate.instant('cms.article.deleteSuccess'),
-        this.translate.instant('common.close'),
-        { duration: 2500 },
-      );
-      this.load();
-    });
+        },
+      })
+      .afterClosed()
+      .subscribe((confirmed) => {
+        if (!confirmed) return;
+        this.client.article.delete(item.id).subscribe(() => {
+          this.snackBar.open(
+            this.translate.instant('cms.article.deleteSuccess'),
+            this.translate.instant('common.close'),
+            { duration: 2500 },
+          );
+          this.load();
+        });
+      });
   }
 }

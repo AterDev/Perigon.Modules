@@ -7,31 +7,55 @@ description: Implement and review the Angular 21 verification client in src/Clie
 
 Work only under `src/ClientApp/WebApp` unless the task explicitly includes backend contracts or packaging. This app validates and demonstrates modules; do not assume its files are included in module zip packages.
 
-## Use the existing layout
+## Project structure
 
-- Keep bootstrap/configuration in `main.ts`, `app.config.ts`, and `app.routes.ts`.
-- Keep application-shell pages such as login, home, and not-found under `app/pages`; shell/navigation remains under `app/layout`.
-- Put every distributable business feature under `app/modules/{module-name}`. `app/modules/share` contains the shared UI, pipes, guards, i18n keys, and helpers required by other distributable modules, so a frontend package must include it as its base dependency. Each business feature has its own `NgModule` and `RouterModule.forChild()` routes; `app.routes.ts` only lazy-loads the feature module.
-- Do not add a `pages` directory inside a feature module. Place entity components directly at `app/modules/{module-name}/{entity}/{index|add|edit|detail}/`.
-- Every entity view uses separate, colocated `index.ts`, `index.html`, and `index.scss` files (and likewise for add/edit/detail). Use descriptive `*Component` class names, never compressed one-line components or `*.page.ts` placeholders.
-- Keep API clients and models under `app/services`; generated admin clients live below `app/services/admin`.
-- Preserve `customer-http.interceptor`, `auth.service`, `auth.guard`, environment files, and `proxy.conf.json` behavior.
-- Maintain navigation metadata in `src/assets/menus.json` and translations in `src/assets/i18n/*.json`; keep keys aligned with `app/modules/share/i18n-keys.ts` and the `i18n:keys` script.
-- For static translation keys, never hardcode string literals in a TypeScript file or template (for example, `{{ 'menu.resourceConfig' | translate }}`). Import `I18N_KEYS` from `app/modules/share/i18n-keys`, expose it to the template (for example, `readonly i18nKeys = I18N_KEYS`), and bind through the generated key (for example, `{{ i18nKeys.menu.resourceConfig | translate }}`). Only construct a key dynamically when its segment is genuinely runtime data; keep that key family in `I18N_KEYS` and the translation JSON files.
+```sh
+src/
+  ├── main.ts
+  ├── app/
+  │   ├── app.config.ts
+  │   ├── app.routes.ts
+  │   ├── layout/
+  │   ├── pages/
+  │   ├── modules/
+  │   │   ├── share/          # 打包的基础依赖，供所有业务模块复用
+  │   │   │   ├── components/
+  │   │   │   ├── pipe/
+  │   │   │   ├── auth.guard.ts
+  │   │   │   ├── custom-paginator-intl.ts
+  │   │   │   └── i18n-keys.ts
+  │   │   └── {module}/       # 业务前端模块
+  │   └── services/
+  ├── assets/i18n/
+  ├── environments/
+  ├── styles/
+  └── proxy.conf.json
+```
 
-## Angular and TypeScript conventions
+## Core rules
 
-- Use strict TypeScript, inference for obvious types, and `unknown` instead of `any` when the type is uncertain.
-- Use standalone components; Angular 21 makes standalone the default, so do not add `standalone: true`.
-- Prefer `inject()`, signals, `computed()`, `input()`, and `output()`; update signals with `set`/`update`, never `mutate`.
-- Use `ChangeDetectionStrategy.OnPush` for components with stateful UI.
-- Use native template control flow (`@if`, `@for`, `@switch`), class/style bindings instead of `ngClass`/`ngStyle`, and keep template expressions simple.
-- Prefer typed reactive or signal forms with visible validation messages.
-- Use async pipe for observable rendering. For necessary manual subscriptions, use `takeUntilDestroyed`.
-- Put host bindings/listeners in the decorator `host` object instead of `@HostBinding`/`@HostListener`.
-- Use `NgOptimizedImage` for static non-base64 images.
-- Keep feature routes lazy-loaded and styles colocated. Use Angular Material plus `styles.scss`, `theme.scss`, and `vars.scss`; avoid global overrides unless the theme requires them.
-- Preserve keyboard access, labels, focus behavior, ARIA semantics, and Material accessibility patterns.
+- 组件默认standalone模式，默认拆分成html/scss/ts文件.
+- UI 优先使用 Angular Material；样式优先复用现有样式`styles.scss`及`theme.scss`，布局使用Bootstrap flex，避免使用row&col，避免内联样式。
+- 状态优先使用 signals、async pipe 或框架推荐响应式写法；模板中避免调用复杂函数。
+- 表单使用 Typed Reactive Forms；在 FormGroup 内优先用 `[formControl]` + getter，不优先使用 `formControlName`。
+- Import `I18N_KEYS` from `src/app/modules/share/i18n-keys` and expose it on each translated component. In templates use `i18nKeys.common.save | translate`; for `TranslateService` use `translate.instant(this.i18nKeys.common.save)`. Do not use literal or constructed translation keys.
+- Keep generated request contracts untouched and regenerate them when the backend changes.
+- Avoid inline styles and prefer shared styles / Material tokens.
+- Put reusable frontend infrastructure in `src/app/modules/share` and import it through `src/app/modules/share/...`; do not create `src/app/share`.
+
+## 页面组件和UX指南
+
+根据数据结构选择合适的Material组件进行展示和交互，如：
+
+- 在筛选组件中对 类别、枚举、目录等数据不多的，使用`mat-select`，以进行选择。
+- 在筛选组件中对 用户或其他列表选择时，使用`Autocomplete`，以支持搜索和选择。
+- 在列表的筛选页面，筛选控件通常与添加按钮放到同一行，并垂直对齐(align-items-center)，此时`<mat-form-field>`要添加`subscriptSizing="dynamic"`。
+- 不要使用浏览器的弹窗提示，而是使用material dialog实现，弹窗要有适合的宽度和长度，通常长度不超过`96vh`，宽度不超过`900px`，最小宽度一般在`400px`.
+
+在UX设计中，要遵循：
+
+- 视觉体验交互良好。如使用不同颜色和风格标记组件或按钮。如删除要添加`error`class。
+- 遵循整体的主题设计，不要自己添加自定义字体颜色。
 
 ## Integrate APIs
 

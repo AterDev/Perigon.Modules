@@ -23,6 +23,9 @@ import { ResTag } from '../../../../services/admin/models/entity/res-tag.model';
 import { ResDefinition } from '../../../../services/admin/models/entity/res-definition.model';
 import { ResValueType } from '../../../../services/admin/models/entity/res-value-type.model';
 import { TranslateService } from '@ngx-translate/core';
+import { MatDialog } from '@angular/material/dialog';
+import { ResourceGroupDialogComponent } from './group-dialog/group-dialog';
+import { ResourceInputDialogComponent } from '../../dialogs/input-dialog/input-dialog';
 
 @Component({
   selector: 'app-resource-add',
@@ -38,6 +41,7 @@ export class ResourceAddComponent {
   private readonly router = inject(Router);
   private readonly snackBar = inject(MatSnackBar);
   private readonly translate = inject(TranslateService);
+  private readonly dialog = inject(MatDialog);
   readonly environments = signal<ResEnvironment[]>([]);
   readonly categories = signal<ResCategory[]>([]);
   readonly groups = signal<ResGroup[]>([]);
@@ -106,16 +110,31 @@ export class ResourceAddComponent {
     }
   }
   createTag(): void {
-    const name = prompt(this.translate.instant('resource.newTagNamePrompt'));
-    if (!name) return;
-    this.client.resourceConfiguration
-      .addTag({ name, color: '#607d8b', icon: 'label' })
-      .subscribe((tag) => {
-        this.tags.update((items) => [...items, tag]);
-        this.form.controls.tagNames.setValue([
-          ...this.form.controls.tagNames.value,
-          tag.name,
-        ]);
+    this.dialog
+      .open(ResourceInputDialogComponent, {
+        data: {
+          title: this.translate.instant('resource.createTag'),
+          fields: [
+            {
+              key: 'name',
+              label: this.translate.instant('resource.tag'),
+              required: true,
+            },
+          ],
+        },
+      })
+      .afterClosed()
+      .subscribe((value: { name?: string } | undefined) => {
+        if (!value?.name) return;
+        this.client.resourceConfiguration
+          .addTag({ name: value.name, color: '#607d8b', icon: 'label' })
+          .subscribe((tag) => {
+            this.tags.update((items) => [...items, tag]);
+            this.form.controls.tagNames.setValue([
+              ...this.form.controls.tagNames.value,
+              tag.name,
+            ]);
+          });
       });
   }
   createGroup(): void {
@@ -128,19 +147,23 @@ export class ResourceAddComponent {
       );
       return;
     }
-    const name = prompt(this.translate.instant('resource.newGroupNamePrompt'));
-    if (!name) return;
-    this.client.resourceConfiguration
-      .addGroup({
-        name,
-        categoryId,
-        color: '#607d8b',
-        icon: 'folder',
-        description: null,
-      })
-      .subscribe((group) => {
-        this.groups.update((items) => [...items, group]);
-        this.form.controls.groupId.setValue(group.id);
+    this.dialog
+      .open(ResourceGroupDialogComponent)
+      .afterClosed()
+      .subscribe((name: string | undefined) => {
+        if (!name) return;
+        this.client.resourceConfiguration
+          .addGroup({
+            name,
+            categoryId,
+            color: '#607d8b',
+            icon: 'folder',
+            description: null,
+          })
+          .subscribe((group) => {
+            this.groups.update((items) => [...items, group]);
+            this.form.controls.groupId.setValue(group.id);
+          });
       });
   }
   save(): void {

@@ -1,3 +1,6 @@
 {
-    "typescript.tsdk": "node_modules\\typescript\\lib"
+    "[html]": {
+        "editor.defaultFormatter": "vscode.html-language-features",
+        "editor.formatOnSave": false
+    }
 }

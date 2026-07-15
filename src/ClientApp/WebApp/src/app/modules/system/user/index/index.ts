@@ -9,6 +9,9 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { CommonListModules } from '../../../share/shared-modules';
 import { AdminClient } from '../../../../services/admin/admin-client';
 import { SystemUserItemDto } from '../../../../services/admin/models/system-mod/system-user-item-dto.model';
+import { MatDialog } from '@angular/material/dialog';
+import { ConfirmDialogComponent } from '../../../share/components/confirm-dialog/confirm-dialog.component';
+import { TranslateService } from '@ngx-translate/core';
 @Component({
   selector: 'app-system-user-index',
   imports: CommonListModules,
@@ -20,6 +23,8 @@ export class SystemUserIndexComponent {
   readonly i18nKeys = I18N_KEYS;
   private readonly client = inject(AdminClient);
   private readonly snackBar = inject(MatSnackBar);
+  private readonly dialog = inject(MatDialog);
+  private readonly translate = inject(TranslateService);
   readonly users = signal<SystemUserItemDto[]>([]);
   readonly loading = signal(false);
   userName = '';
@@ -42,10 +47,20 @@ export class SystemUserIndexComponent {
   }
 
   remove(user: SystemUserItemDto): void {
-    if (!confirm(`确定删除账号“${user.userName}”吗？`)) return;
-    this.client.systemUser.delete(user.id).subscribe(() => {
-      this.snackBar.open('账号已删除', '关闭', { duration: 2500 });
-      this.load();
-    });
+    this.dialog
+      .open(ConfirmDialogComponent, {
+        data: {
+          title: this.translate.instant('common.confirmDelete'),
+          content: `确定删除账号“${user.userName}”吗？`,
+        },
+      })
+      .afterClosed()
+      .subscribe((confirmed) => {
+        if (!confirmed) return;
+        this.client.systemUser.delete(user.id).subscribe(() => {
+          this.snackBar.open('账号已删除', '关闭', { duration: 2500 });
+          this.load();
+        });
+      });
   }
 }
