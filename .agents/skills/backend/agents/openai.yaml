@@ -1,4 +1,0 @@
-interface:
-  display_name: "Backend Development"
-  short_description: "Build Perigon module backends consistently"
-  default_prompt: "Use $backend to implement a repository-consistent backend change."

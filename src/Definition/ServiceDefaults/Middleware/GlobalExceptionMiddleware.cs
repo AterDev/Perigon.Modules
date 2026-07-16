@@ -19,7 +19,10 @@ public class GlobalExceptionMiddleware(RequestDelegate next, Localizer localizer
             // 并发冲突提示
             ctx.Response.StatusCode = StatusCodes.Status409Conflict;
             await ctx.Response.WriteAsJsonAsync(
-                new ErrorResult(localizer.Get(Localizer.AlreadyUpdated), ctx.TraceIdentifier)
+                new ErrorResult(
+                    localizer.Get(Localizer.AlreadyUpdated),
+                    ctx.TraceIdentifier,
+                    status: StatusCodes.Status409Conflict)
             );
         }
         catch (DbUpdateException ex) when (EfCoreErrorHelper.IsUniqueConstraintViolation(ex))

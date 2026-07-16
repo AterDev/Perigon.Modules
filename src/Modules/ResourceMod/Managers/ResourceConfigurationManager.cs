@@ -342,15 +342,17 @@ public class ResourceConfigurationManager(
 
             if (target is null)
             {
-                entity.Properties.Add(new ResDefinitionProperty
+                ResDefinitionProperty newProperty = new()
                 {
                     Name = property.Name,
                     ValueType = property.ValueType,
                     IsRequired = property.IsRequired,
                     MaxLength = property.MaxLength,
                     Sort = property.Sort,
+                    DefinitionId = entity.Id,
                     TenantId = _userContext.TenantId
-                });
+                };
+                _dbContext.ResDefinitionProperties.Add(newProperty);
             }
             else
             {

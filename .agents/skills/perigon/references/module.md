@@ -1,11 +1,6 @@
----
-name: module
-description: Develop, integrate, inspect, and package official Perigon modules in Perigon.Modules. Use for creating a new *Mod assembly, changing module metadata or ModuleExtensions, deciding portable package contents, wiring a module into a host service, running Perigon generation, or producing package_modules artifacts and the module catalog.
----
+# Module Development Reference
 
-# Module Development
-
-Read `../../../AGENTS.md` and the relevant user story. Use `CMSMod` for a small CRUD example and `SystemMod` for initialization, workers, services, and complex module behavior.
+Read `../../../../AGENTS.md` and the relevant user story. Use `CMSMod` for a small CRUD example and `SystemMod` for initialization, workers, services, and complex module behavior.
 
 ## Define the module contract
 
@@ -62,6 +57,6 @@ Do not package for an instructions-only or source-only task unless release artif
 ## Validate
 
 - For structural changes, inspect project references, source-generator conventions, solution entries, and package paths.
-- For backend behavior, follow `../backend/SKILL.md` and add focused tests from `../test/SKILL.md`.
+- For backend behavior, follow `backend.md` and add focused tests from the repository's test skill.
 - For migrations, run repository scripts from their expected working directory only after confirming database configuration.
 - Treat CLI/container/runtime failures separately from module regressions and retain the original diagnostic.

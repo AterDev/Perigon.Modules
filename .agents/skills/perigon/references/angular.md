@@ -1,11 +1,13 @@
----
-name: angular
-description: Implement and review the Angular 21 verification client in src/ClientApp/WebApp. Use for standalone components, routes, Material UI, signals, forms, generated API clients, authentication, menus, i18n, theming, accessibility, or frontend tests related to Perigon modules.
----
+# Angular Reference
 
-# Angular Development
+This reference belongs to the Perigon skill and covers Angular 21+ frontend work for this template.
 
-Work only under `src/ClientApp/WebApp` unless the task explicitly includes backend contracts or packaging. This app validates and demonstrates modules; do not assume its files are included in module zip packages.
+## When to use
+
+- Build CRUD pages, forms, routes, shared components, and Material-based layouts.
+- Generate typed request clients from backend OpenAPI through Perigon.
+- Implement or review frontend changes in a Perigon-based project.
+- When editing Angular files: component, template, route, form, Material UI, signals, i18n, generated request client
 
 ## Project structure
 
@@ -57,12 +59,21 @@ src/
 - 视觉体验交互良好。如使用不同颜色和风格标记组件或按钮。如删除要添加`error`class。
 - 遵循整体的主题设计，不要自己添加自定义字体颜色。
 
-## Integrate APIs
+## Recommended workflow
 
-Confirm the backend Swagger contract before editing calls. Prefer regenerating request clients through the repository's Perigon flow (`scripts/NgRequestSync.ps1`) when the API contract changes, then review the generated diff. Do not hardcode service URLs or silently hand-edit many generated client files.
+1. Generate or refresh request clients from backend OpenAPI through Perigon.
+2. Create the page or component structure.
+3. Configure route/menu(`menus.json`) and shared UI pieces.
+4. Implement the TS / HTML / SCSS logic and validate the interaction states.
+5. Run `pnpm build` (and optionally `pnpm start`) to verify the result.
 
-Update route, menu, permission/access code, translation, and page behavior as one coherent change. Reuse existing dialogs, paginator, avatar, tag, layout, and service patterns before adding new abstractions.
+## UX and validation checklist
 
-## Validate
+- Check layout density, empty / loading / error states, and responsive behavior.
+- Prefer Material components and existing theme styles over custom visual overrides.
+- Keep user-visible strings in i18n and avoid hard-coded text.
 
-Use `pnpm` in `src/ClientApp/WebApp`. Run the smallest relevant script; `start` and `build` also regenerate i18n keys. Do not start the Angular dev server or regenerate clients for an unrelated docs/backend task. Separate frontend compiler failures from an unavailable backend or proxy target.
+## Verification
+
+- Run `pnpm build` after frontend changes.
+- Prefer `pnpm start` for live validation when the page is non-trivial.

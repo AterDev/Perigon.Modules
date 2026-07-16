@@ -117,6 +117,53 @@ public class ResourceModApiTests
 
     [ClassDataSource<TestHttpClientData>(Shared = SharedType.None)]
     [Test]
+    public async Task DefinitionApi_ShouldUpdateExistingAndAddNewProperty(TestHttpClientData data)
+    {
+        HttpClient client = data.HttpClient;
+        string suffix = Guid.NewGuid().ToString("N");
+        ResDefinition definition = await PostAsync<ResDefinition>(
+            client,
+            "/api/ResourceConfiguration/definitions",
+            DefinitionInput(suffix),
+            HttpStatusCode.OK);
+
+        List<ResDefinitionPropertyInput> properties = definition.Properties
+            .Select(property => new ResDefinitionPropertyInput
+            {
+                Id = property.Id,
+                Name = property.Name,
+                ValueType = property.ValueType,
+                IsRequired = property.IsRequired,
+                MaxLength = property.MaxLength,
+                Sort = property.Sort
+            })
+            .ToList();
+        properties.Add(new ResDefinitionPropertyInput
+        {
+            Name = "Host",
+            ValueType = ResValueType.String,
+            IsRequired = false,
+            MaxLength = 200,
+            Sort = properties.Count
+        });
+
+        ResDefinition updated = await PutAsync<ResDefinition>(
+            client,
+            $"/api/ResourceConfiguration/definitions/{definition.Id}",
+            new ResDefinitionInput
+            {
+                Name = definition.Name,
+                Icon = definition.Icon,
+                Properties = properties
+            },
+            HttpStatusCode.OK);
+
+        await Assert.That(updated.Properties.Any(property => property.Name == "Host")).IsTrue();
+        await DeleteAsync(client, $"/api/ResourceConfiguration/definitions/{definition.Id}", HttpStatusCode.OK);
+    }
+
+    [ClassDataSource<TestHttpClientData>(Shared = SharedType.None)]
+    [Test]
     public async Task ResourceApis_ShouldValidateNormalizeFilterAndSoftDelete(TestHttpClientData data)
     {
         HttpClient client = data.HttpClient;
@@ -415,6 +462,12 @@ public class ResourceModApiTests
         HttpStatusCode status)
     {
         HttpResponseMessage response = await client.PutAsJsonAsync(path, body);
+        if (response.StatusCode != status)
+        {
+            string error = await response.Content.ReadAsStringAsync();
+            throw new InvalidOperationException(
+                $"PUT {path} returned {(int)response.StatusCode}: {error}");
+        }
         await Assert.That(response.StatusCode).IsEqualTo(status);
         return await response.Content.ReadFromJsonAsync<T>()
             ?? throw new InvalidOperationException($"Response for {path} was empty.");

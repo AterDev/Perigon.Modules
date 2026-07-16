@@ -1,4 +1,0 @@
-interface:
-  display_name: "Engineering Router"
-  short_description: "Route cross-layer module engineering work"
-  default_prompt: "Use $engineer to plan and implement a repository-consistent change."

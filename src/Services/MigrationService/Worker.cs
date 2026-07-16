@@ -55,6 +55,14 @@ public class Worker(
         {
 
             var domain = "default.com";
+            var tenantExists = await dbContext.Tenants
+                .AnyAsync(tenant => tenant.Domain == domain, cancellationToken);
+
+            if (tenantExists)
+            {
+                return;
+            }
+
             var tenant = new Tenant()
             {
                 Domain = domain,
