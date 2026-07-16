@@ -1,60 +1,40 @@
-<section class="page">
-  <header>
-    @if (resource(); as item) {
-      <a mat-flat-button [routerLink]="['../../', item.id, 'edit']"
-      >
-      <mat-icon class="primary">edit</mat-icon>{{ i18nKeys.common.edit | translate }}
-      </a
-      >
-    }
-  </header>
+<h2 mat-dialog-title>{{ i18nKeys.resource.detailTitle | translate }}</h2>
+<mat-dialog-content>
   @if (resource(); as item) {
-    <mat-card
-    >
-    <mat-card-content
-    >
-    <dl>
-      <dt>{{ i18nKeys.resource.name | translate }}
-      </dt>
-      <dd>{{ item.name }}
-      </dd>
-      <dt>{{ i18nKeys.resource.environment | translate }}
-      </dt>
-      <dd>{{ item.environmentName }}
-      </dd>
-      <dt>{{ i18nKeys.resource.category | translate }}
-      </dt>
-      <dd>{{ item.categoryName }}
-      </dd>
-      <dt>{{ i18nKeys.resource.group | translate }}
-      </dt>
-      <dd>{{ item.groupName || '-' }}
-      </dd>
-      <dt>{{ i18nKeys.resource.definition | translate }}
-      </dt>
-      <dd>{{ item.definitionName }}
-      </dd>
-      <dt>{{ i18nKeys.resource.tag | translate }}
-      </dt>
-      <dd>{{ item.tagNames.join(', ') || '-' }}
-      </dd>
-      <dt>{{ i18nKeys.resource.description | translate }}
-      </dt>
-      <dd>{{ item.description || '-' }}
-      </dd>
-      @for (value of item.values; track value.definitionPropertyId) {
-        <dt>{{ value.name }}
-        </dt>
-        <dd>{{ value.value }}
-        </dd>
-      }
-    </dl>
-  </mat-card-content
-  >
-</mat-card
->
-}
-@else {
-  <mat-spinner diameter="36" />
-}
-</section>
+    <div class="resource-detail-grid">
+      <div><span>{{ i18nKeys.resource.environment | translate }}</span><strong>{{ item.environmentName }}</strong></div>
+      <div><span>{{ i18nKeys.resource.category | translate }}</span><strong>{{ item.categoryName }}</strong></div>
+      <div><span>{{ i18nKeys.resource.group | translate }}</span><strong>{{ item.groupName || '-' }}</strong></div>
+      <div><span>{{ i18nKeys.resource.definition | translate }}</span><strong>{{ item.definitionName }}</strong></div>
+      <div class="full-width">
+        <span>{{ i18nKeys.resource.tag | translate }}</span>
+        <strong>{{ item.tagNames.join(', ') || '-' }}</strong>
+      </div>
+    </div>
+
+    <section class="values-section">
+      <h3>{{ i18nKeys.resource.properties | translate: { name: item.definitionName } }}</h3>
+      <div class="values-grid">
+        @for (value of item.values; track value.definitionPropertyId) {
+          <div>
+            <span>{{ value.name }}</span>
+            <strong>{{ value.value }}</strong>
+          </div>
+        }
+        @empty {
+          <span class="text-body-secondary">{{ i18nKeys.common.noData | translate }}</span>
+        }
+      </div>
+    </section>
+  } @else {
+    <mat-spinner diameter="36" />
+  }
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button mat-dialog-close>{{ i18nKeys.common.close | translate }}</button>
+  @if (resource()) {
+    <button mat-flat-button color="primary" (click)="edit()">
+      <mat-icon>edit</mat-icon>{{ i18nKeys.common.edit | translate }}
+    </button>
+  }
+</mat-dialog-actions>

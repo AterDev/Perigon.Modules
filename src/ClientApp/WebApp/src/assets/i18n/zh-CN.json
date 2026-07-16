@@ -103,17 +103,13 @@
     "articleCategory": "文章分类"
   },
   "resource": {
-    "name": "名称",
     "environment": "环境",
     "category": "分类",
     "group": "分组",
     "definition": "定义",
     "resourceDefinition": "资源定义",
     "tag": "标签",
-    "description": "描述",
-    "iconUrl": "图标 URL",
     "addTitle": "新增资源",
-    "addDescription": "先选择环境与分类，再选择定义填写动态属性",
     "editTitle": "编辑资源",
     "detailTitle": "资源详情",
     "ungrouped": "不分组",
@@ -156,6 +152,14 @@
     "addProperty": "新增属性",
     "removeProperty": "删除属性",
     "propertyType": "属性类型",
+    "propertyTypes": {
+      "string": "字符串",
+      "number": "数字",
+      "boolean": "布尔值",
+      "date": "日期",
+      "uri": "URI",
+      "ipAddress": "IP 地址"
+    },
     "propertyRequired": "必填",
     "propertyMaxLength": "最大长度",
     "selectCategoryFirst": "请先选择分类",

@@ -43,7 +43,8 @@ function createStars(count: number, w: number, h: number): Star[] {
     const brightness = 0.5 + depth * 0.5; // 亮度 0.5~1.0
     const dx = random(-0.03, 0.03) * (0.3 + depth * 1.2); // 远的慢，近的快
     const dy = random(-0.02, 0.02) * (0.3 + depth * 1.2);
-    const twinkle = random(0.7, 1) * brightness;
+    // Keep a random phase so every star twinkles independently.
+    const twinkle = random(0, Math.PI * 2);
     const twinkleSpeed = random(0.002, 0.008) * (0.5 + depth);
     stars.push({
       x: random(0, w),
@@ -60,22 +61,37 @@ function createStars(count: number, w: number, h: number): Star[] {
   return stars;
 }
 
-export function initStarfield(canvas: HTMLCanvasElement) {
-  const ctx = canvas.getContext('2d');
-  if (!ctx) return;
+export function initStarfield(canvas: HTMLCanvasElement): () => void {
+  const context = canvas.getContext('2d');
+  if (!context) return () => {};
+  const ctx: CanvasRenderingContext2D = context;
   let w = (canvas.width = canvas.offsetWidth);
   let h = (canvas.height = canvas.offsetHeight);
   let stars = createStars(w > 900 ? 80 : 40, w, h);
+  let animationFrame = 0;
+  let stopped = false;
+  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 
   function resize() {
     w = canvas.width = canvas.offsetWidth;
     h = canvas.height = canvas.offsetHeight;
     stars = createStars(w > 900 ? 80 : 40, w, h);
   }
-  window.addEventListener('resize', resize);
+  function handleVisibilityChange() {
+    if (document.hidden) {
+      cancelAnimationFrame(animationFrame);
+      animationFrame = 0;
+    } else if (!stopped && !animationFrame && !reducedMotion.matches) {
+      animationFrame = requestAnimationFrame(draw);
+    }
+  }
+
+  window.addEventListener('resize', resize, { passive: true });
+  document.addEventListener('visibilitychange', handleVisibilityChange);
 
   function draw() {
-    if (!ctx) return;
+    if (stopped) return;
+    const now = performance.now();
     ctx.clearRect(0, 0, w, h);
     for (const star of stars) {
       // 物理感：近的星点更大更亮，远的更小更暗
@@ -86,21 +102,43 @@ export function initStarfield(canvas: HTMLCanvasElement) {
       if (star.x > w) star.x -= w;
       if (star.y < 0) star.y += h;
       if (star.y > h) star.y -= h;
-      // twinkle动画
-      star.twinkle += Math.sin(Date.now() * star.twinkleSpeed) * 0.01;
-      // 亮度与距离相关
-      const alpha = Math.max(0.3, 0.7 * star.depth + 0.3) * star.twinkle;
-      ctx.save();
+      // Use brightness/radius modulation instead of shadowBlur for a cheap twinkle.
+      const wave = (Math.sin(now * star.twinkleSpeed + star.twinkle) + 1) / 2;
+      const pulse = 0.65 + wave * 0.35;
+      const alpha = Math.max(0.3, 0.7 * star.depth + 0.3) * pulse;
+      const radius = star.r * (0.85 + pulse * 0.15);
+
+      // A small translucent halo preserves the bright-flash effect without canvas shadows.
+      if (wave > 0.92) {
+        ctx.globalAlpha = alpha * 0.12;
+        ctx.fillStyle = star.color;
+        ctx.beginPath();
+        ctx.arc(star.x, star.y, radius * 2.2, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
       ctx.beginPath();
-      ctx.arc(star.x, star.y, star.r, 0, Math.PI * 2);
+      ctx.arc(star.x, star.y, radius, 0, Math.PI * 2);
       ctx.globalAlpha = alpha;
       ctx.fillStyle = star.color;
-      ctx.shadowColor = star.color;
-      ctx.shadowBlur = 2 + star.depth * 6;
       ctx.fill();
-      ctx.restore();
     }
-    requestAnimationFrame(draw);
+    ctx.globalAlpha = 1;
+    animationFrame = requestAnimationFrame(draw);
   }
-  draw();
+
+  if (reducedMotion.matches) {
+    draw();
+    cancelAnimationFrame(animationFrame);
+    animationFrame = 0;
+  } else if (!document.hidden) {
+    animationFrame = requestAnimationFrame(draw);
+  }
+
+  return () => {
+    stopped = true;
+    cancelAnimationFrame(animationFrame);
+    window.removeEventListener('resize', resize);
+    document.removeEventListener('visibilitychange', handleVisibilityChange);
+  };
 }

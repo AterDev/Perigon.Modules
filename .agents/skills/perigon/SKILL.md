@@ -73,3 +73,4 @@ Treat these scripts as part of the template workflow; do not reimplement their b
 - **Do not manually edit generated request contracts unless necessary**; regenerate when the backend changes.
 - **Check help before guessing options** with `perigon -h` or `perigon <command> -h`.
 - **Prefer the current subcommand form** (`perigon module ...`) over older shorthand aliases when the help output is ambiguous.
+- **Enforce the DTO layout and naming rule**: module DTOs belong under `Models/{Entity}Dtos`, one type per file, and every data-transfer type ends in `Dto`; use `{Entity}AddDto`, `{Entity}UpdateDto`, `{Entity}FilterDto`, `{Entity}DetailDto`, and `{Entity}ItemDto` where applicable. Do not introduce `Input`, `Request`, or `Response` DTO names.

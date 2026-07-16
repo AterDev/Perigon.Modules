@@ -20,7 +20,7 @@
 | `ResTag` | `Name` 必填，最大 60；`Color` 必填，最大 20；`Icon` 可空，最大 60。 | 仅是标签词表。资源持久化 `TagNames` 字符串数组，不建多对多表。标签改名或删除不回写已保存资源。 |
 | `ResDefinition` | `Name` 必填，最大 60；`Icon` 可空，最大 60。 | 一对多 `ResDefinitionProperty`，一对多 `Resource`。存在资源时拒绝删除。 |
 | `ResDefinitionProperty` | `Name` 必填，最大 60；`ValueType` 必填枚举；`IsRequired` 必填；`MaxLength` 必填，默认 200，范围 1–1000；`Sort` 必填。 | 多对一 `ResDefinition`，一对多 `ResValue`。同一资源定义内名称唯一；存在资源值时拒绝删除。属性变更只影响后续资源编辑校验。 |
-| `Resource` | `Name` 必填，最大 120；`IconUrl` 可空，最大 500；`Description` 可空，最大 2000；`EnvironmentId`、`CategoryId`、`DefinitionId` 必填；`GroupId` 可空；`TagNames` 必填，默认空数组。 | 分别多对一环境、分类、定义和可选分组；一对多 `ResValue`。建立常用筛选索引：`EnvironmentId`、`CategoryId`、`GroupId`、`DefinitionId`。 |
+| `Resource` | `EnvironmentId`、`CategoryId`、`DefinitionId` 必填；`GroupId` 可空；`TagNames` 必填，默认空数组。 | 资源本身不保存名称、图标 URL 或描述；展示名称和说明由 `ResDefinition` 及其属性定义提供。分别多对一环境、分类、定义和可选分组；一对多 `ResValue`。建立常用筛选索引：`EnvironmentId`、`CategoryId`、`GroupId`、`DefinitionId`。 |
 | `ResValue` | `ResourceId`、`DefinitionPropertyId` 必填；`Value` 必填，最大 1000；`PropertyNameSnapshot` 必填，最大 60；`ValueTypeSnapshot` 必填枚举。 | 多对一资源和定义属性；同一资源的 `DefinitionPropertyId` 唯一。快照保证定义属性日后重命名或类型变更时，历史详情仍可正确显示。 |
 | `ResPermission` | `RoleId`、`EnvironmentId`、`CategoryId` 均必填。 | `RoleId + EnvironmentId + CategoryId` 建立租户内唯一索引；角色 ID 指向 `SystemMod` 的 `SystemRole`，环境和分类为本模块外键。删除环境或分类前必须先清理授权。 |
 
@@ -77,17 +77,17 @@
 
 ### 4.2 资源列表、详情和编辑
 
-资源列表提供名称搜索、环境/分类/分组/定义下拉筛选、标签多选筛选、分页、刷新、创建和行操作。列表至少显示名称、环境、分类、分组、定义、标签、更新时间；无数据时显示空态及管理员可用的创建入口。
+资源列表提供环境/分类/分组/定义下拉筛选、标签多选筛选、分页、刷新、创建和行操作。列表显示环境、分类、分组、定义和标签；新增、详情、编辑均使用 Material Dialog，不跳转页面。无数据时显示空态及管理员可用的创建入口。
 
 资源详情显示基础信息、标签和动态属性（名称、类型、值），历史值使用 `PropertyNameSnapshot` 与 `ValueTypeSnapshot` 渲染。管理员可从列表或详情进入编辑；删除必须使用已有确认对话框。
 
-新建和编辑使用一个分区表单，顺序和依赖如下：
+新建和编辑使用一个弹窗分区表单，顺序和依赖如下：
 
-1. 进入新建页并行加载环境、分类、标签和资源定义；各列表非空时默认选择第一个环境、分类和定义。
+1. 打开弹窗并行加载环境、分类、标签和资源定义；各列表非空时默认选择第一个环境、分类和定义。
 2. 选定分类后加载该分类分组；切换分类时清空不属于新分类的分组。分组选择旁提供“新建分组”，保存成功后刷新列表并自动选中。
 3. 标签采用多选；提供“新建标签”，保存成功后追加并自动选中。标签改名或删除不会修改已加载资源的标签名称。
 4. 切换资源定义前提示用户动态属性将被重置；确认后用定义属性重新建立表单控件。编辑已有资源时，以当前定义属性预填匹配的值，并将不再属于当前定义的历史值单独只读显示。
-5. 依属性类型呈现控件：字符串为文本框，数字为 number 输入，布尔为开关/选择，日期为日期选择器，URI 和 IP 地址为文本框。前端即时执行必填、长度和类型校验；提交前禁止无效表单。API 返回字段级 `ProblemDetails` 时映射到对应控件并显示摘要。
+5. 表单布局固定为：第一行环境和分类，第二行资源定义，第三行分组和标签，第四行开始动态属性两列排列。依属性类型呈现控件：字符串为文本框，数字为 number 输入，布尔为选择，日期为日期选择器，URI 和 IP 地址为文本框。前端即时执行必填、长度和类型校验；提交前禁止无效表单。API 返回字段级 `ProblemDetails` 时映射到对应控件并显示摘要。
 
 ### 4.3 配置页
 

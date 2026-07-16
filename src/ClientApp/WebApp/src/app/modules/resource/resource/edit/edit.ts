@@ -25,6 +25,7 @@ import { ResDefinition } from '../../../../services/admin/models/entity/res-defi
 import { ResValueType } from '../../../../services/admin/models/entity/res-value-type.model';
 import { TranslateService } from '@ngx-translate/core';
 import { MatDialog } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { ResourceInputDialogComponent } from '../../dialogs/input-dialog/input-dialog';
 import { ResourceGroupDialogComponent } from '../add/group-dialog/group-dialog';
 
@@ -39,22 +40,29 @@ export class ResourceEditComponent {
   readonly i18nKeys = I18N_KEYS;
   private readonly fb = inject(FormBuilder);
   private readonly client = inject(AdminClient);
-  private readonly route = inject(ActivatedRoute);
+  private readonly route = inject(ActivatedRoute, { optional: true });
   private readonly router = inject(Router);
   private readonly snackBar = inject(MatSnackBar);
   private readonly translate = inject(TranslateService);
   private readonly dialog = inject(MatDialog);
-  readonly id = this.route.snapshot.paramMap.get('id')!;
+  private readonly dialogRef = inject(MatDialogRef<ResourceEditComponent>, { optional: true });
+  private readonly data = inject<{ id: string }>(MAT_DIALOG_DATA, { optional: true });
+  readonly id = this.data?.id ?? this.route?.snapshot.paramMap.get('id') ?? '';
   readonly environments = signal<ResEnvironment[]>([]);
   readonly categories = signal<ResCategory[]>([]);
   readonly groups = signal<ResGroup[]>([]);
   readonly tags = signal<ResTag[]>([]);
   readonly definitions = signal<ResDefinition[]>([]);
   readonly valueTypes = ResValueType;
+  readonly valueTypeLabels = {
+    [ResValueType.String]: I18N_KEYS.resource.propertyTypes.string,
+    [ResValueType.Number]: I18N_KEYS.resource.propertyTypes.number,
+    [ResValueType.Boolean]: I18N_KEYS.resource.propertyTypes.boolean,
+    [ResValueType.Date]: I18N_KEYS.resource.propertyTypes.date,
+    [ResValueType.Uri]: I18N_KEYS.resource.propertyTypes.uri,
+    [ResValueType.IPAddress]: I18N_KEYS.resource.propertyTypes.ipAddress,
+  };
   readonly form = this.fb.nonNullable.group({
-    name: ['', Validators.required],
-    iconUrl: [''],
-    description: [''],
     environmentId: ['', Validators.required],
     categoryId: ['', Validators.required],
     groupId: [''],
@@ -74,7 +82,7 @@ export class ResourceEditComponent {
       environments: this.client.resourceConfiguration.environments(),
       categories: this.client.resourceConfiguration.categories(),
       tags: this.client.resourceConfiguration.tags(),
-      definitions: this.client.resourceConfiguration.definitions(),
+      definitions: this.client.resourceConfiguration.definitions(null),
       detail: this.client.resource.detail(this.id),
     }).subscribe((result) => {
       this.environments.set(result.environments);
@@ -82,9 +90,10 @@ export class ResourceEditComponent {
       this.tags.set(result.tags);
       this.definitions.set(result.definitions);
       this.form.patchValue({
-        ...result.detail,
-        iconUrl: result.detail.iconUrl ?? '',
-        description: result.detail.description ?? '',
+        environmentId: result.detail.environmentId,
+        categoryId: result.detail.categoryId,
+        definitionId: result.detail.definitionId,
+        tagNames: result.detail.tagNames,
         groupId: result.detail.groupId ?? '',
       });
       this.client.resourceConfiguration
@@ -182,8 +191,6 @@ export class ResourceEditComponent {
     this.client.resource
       .update(this.id, {
         ...base,
-        iconUrl: base.iconUrl || null,
-        description: base.description || null,
         groupId: base.groupId || null,
         values: Object.entries(this.values.getRawValue()).map(
           ([definitionPropertyId, value]) => ({ definitionPropertyId, value }),
@@ -196,7 +203,11 @@ export class ResourceEditComponent {
             this.translate.instant('common.close'),
             { duration: 2500 },
           );
-          this.router.navigate(['/resource', this.id, 'detail']);
+          if (this.dialogRef) {
+            this.dialogRef.close({ saved: true });
+          } else {
+            this.router.navigate(['/resource', this.id, 'detail']);
+          }
         },
         error: () => (this.saving = false),
       });

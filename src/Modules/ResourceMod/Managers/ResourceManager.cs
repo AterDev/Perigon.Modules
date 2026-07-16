@@ -13,7 +13,7 @@ public class ResourceManager(
     IUserContext userContext
 ) : ManagerBase<DefaultDbContext, Resource>(dbContextFactory, userContext, logger)
 {
-    public async Task<PageList<ResourceItemDto>> FilterAsync(ResourceFilter filter)
+    public async Task<PageList<ResourceItemDto>> FilterAsync(ResourceFilterDto filter)
     {
         IQueryable<Resource> query = _dbContext.Resources
             .Include(r => r.Environment)
@@ -33,7 +33,6 @@ public class ResourceManager(
         }
 
         query = query
-            .WhereNotNull(filter.Name, r => r.Name.Contains(filter.Name!))
             .WhereNotNull(filter.EnvironmentId, r => r.EnvironmentId == filter.EnvironmentId)
             .WhereNotNull(filter.CategoryId, r => r.CategoryId == filter.CategoryId)
             .WhereNotNull(filter.GroupId, r => r.GroupId == filter.GroupId)
@@ -48,8 +47,6 @@ public class ResourceManager(
             .Select(r => new ResourceItemDto
             {
                 Id = r.Id,
-                Name = r.Name,
-                IconUrl = r.IconUrl,
                 EnvironmentId = r.EnvironmentId,
                 EnvironmentName = r.Environment.Name,
                 CategoryId = r.CategoryId,
@@ -88,9 +85,6 @@ public class ResourceManager(
         return new ResourceDetailDto
         {
             Id = resource.Id,
-            Name = resource.Name,
-            IconUrl = resource.IconUrl,
-            Description = resource.Description,
             EnvironmentId = resource.EnvironmentId,
             EnvironmentName = resource.Environment.Name,
             CategoryId = resource.CategoryId,
@@ -114,15 +108,12 @@ public class ResourceManager(
         };
     }
 
-    public async Task<Resource> AddAsync(ResourceInput input)
+    public async Task<Resource> AddAsync(ResourceAddDto input)
     {
         EnsureAdmin();
 
         Resource resource = new()
         {
-            Name = input.Name,
-            IconUrl = input.IconUrl,
-            Description = input.Description,
             EnvironmentId = input.EnvironmentId,
             CategoryId = input.CategoryId,
             GroupId = input.GroupId,
@@ -138,15 +129,12 @@ public class ResourceManager(
         return resource;
     }
 
-    public async Task<bool> UpdateAsync(Guid id, ResourceInput input)
+    public async Task<bool> UpdateAsync(Guid id, ResourceUpdateDto input)
     {
         EnsureAdmin();
 
         Resource resource = await FindOwnedAsync(id)
             ?? throw new BusinessException("资源不存在", StatusCodes.Status404NotFound);
-        resource.Name = input.Name;
-        resource.IconUrl = input.IconUrl;
-        resource.Description = input.Description;
         resource.EnvironmentId = input.EnvironmentId;
         resource.CategoryId = input.CategoryId;
         resource.GroupId = input.GroupId;
@@ -212,7 +200,7 @@ public class ResourceManager(
             .FirstOrDefaultAsync(r => r.Id == id && r.TenantId == _userContext.TenantId);
     }
 
-    private async Task PopulateAndValidateValuesAsync(Resource resource, List<ResourceValueInput> inputs)
+    private async Task PopulateAndValidateValuesAsync(Resource resource, List<ResourceValueDto> inputs)
     {
         bool environmentExists = await _dbContext.ResEnvironments.AnyAsync(e =>
             e.Id == resource.EnvironmentId && e.TenantId == _userContext.TenantId);
@@ -264,7 +252,7 @@ public class ResourceManager(
             .Where(value => value.ResourceId == resource.Id && value.TenantId == _userContext.TenantId)
             .ExecuteDeleteAsync();
         resource.Values = [];
-        foreach (ResourceValueInput input in inputs)
+        foreach (ResourceValueDto input in inputs)
         {
             ResDefinitionProperty property = properties.Single(p => p.Id == input.DefinitionPropertyId);
             if (input.Value.Length > Math.Min(property.MaxLength, 1000))

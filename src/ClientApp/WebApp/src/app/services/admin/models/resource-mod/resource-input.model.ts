@@ -1,12 +1,6 @@
 import { ResourceValueInput } from '../resource-mod/resource-value-input.model';
 
 export interface ResourceInput {
-  /** name */
-  name: string;
-  /** iconUrl */
-  iconUrl?: string | null;
-  /** description */
-  description?: string | null;
   /** environmentId */
   environmentId: string;
   /** categoryId */

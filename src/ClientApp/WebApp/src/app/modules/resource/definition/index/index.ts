@@ -4,6 +4,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { TranslateService } from '@ngx-translate/core';
 import { AdminClient } from '../../../../services/admin/admin-client';
 import { ResDefinition } from '../../../../services/admin/models/entity/res-definition.model';
+import { ResValueType } from '../../../../services/admin/models/entity/res-value-type.model';
 import { CommonListModules } from '../../../share/shared-modules';
 import { ConfirmDialogComponent } from '../../../share/components/confirm-dialog/confirm-dialog.component';
 import { I18N_KEYS } from '../../../share/i18n-keys';
@@ -19,6 +20,14 @@ import { ResourceDefinitionDialogComponent } from './definition-dialog/definitio
 export class ResourceDefinitionIndexComponent {
   readonly i18nKeys = I18N_KEYS;
   readonly definitions = signal<ResDefinition[]>([]);
+  readonly valueTypeLabels = {
+    [ResValueType.String]: I18N_KEYS.resource.propertyTypes.string,
+    [ResValueType.Number]: I18N_KEYS.resource.propertyTypes.number,
+    [ResValueType.Boolean]: I18N_KEYS.resource.propertyTypes.boolean,
+    [ResValueType.Date]: I18N_KEYS.resource.propertyTypes.date,
+    [ResValueType.Uri]: I18N_KEYS.resource.propertyTypes.uri,
+    [ResValueType.IPAddress]: I18N_KEYS.resource.propertyTypes.ipAddress,
+  };
   name = '';
   private readonly client = inject(AdminClient);
   private readonly dialog = inject(MatDialog);

@@ -6,12 +6,6 @@ namespace Entity.ResourceMod;
 [Index(nameof(DefinitionId))]
 public class Resource : EntityBase
 {
-    [MaxLength(120)]
-    public required string Name { get; set; }
-    [MaxLength(500)]
-    public string? IconUrl { get; set; }
-    [MaxLength(2000)]
-    public string? Description { get; set; }
     public Guid EnvironmentId { get; set; }
     public Guid CategoryId { get; set; }
     public Guid? GroupId { get; set; }

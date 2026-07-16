@@ -103,17 +103,13 @@
     "articleCategory": "Article categories"
   },
   "resource": {
-    "name": "Name",
     "environment": "Environment",
     "category": "Category",
     "group": "Group",
     "definition": "Definition",
     "resourceDefinition": "Resource definition",
     "tag": "Tag",
-    "description": "Description",
-    "iconUrl": "Icon URL",
     "addTitle": "Add resource",
-    "addDescription": "Select an environment and category, then choose a definition and enter its dynamic properties",
     "editTitle": "Edit resource",
     "detailTitle": "Resource details",
     "ungrouped": "No group",
@@ -156,6 +152,14 @@
     "addProperty": "Add property",
     "removeProperty": "Remove property",
     "propertyType": "Property type",
+    "propertyTypes": {
+      "string": "String",
+      "number": "Number",
+      "boolean": "Boolean",
+      "date": "Date",
+      "uri": "URI",
+      "ipAddress": "IP address"
+    },
     "propertyRequired": "Required",
     "propertyMaxLength": "Maximum length",
     "selectCategoryFirst": "Select a category first",

@@ -1,139 +1,94 @@
-<section class="page">
-  <form [formGroup]="form" (ngSubmit)="save()">
-    <mat-form-field appearance="outline">
-      <mat-label>{{ i18nKeys.resource.name | translate }}
-      </mat-label>
-      <input matInput
-      formControlName="name" />
-    </mat-form-field>
-    <mat-form-field appearance="outline">
-      <mat-label>{{
-        i18nKeys.resource.environment | translate }}
-      </mat-label>
-      <mat-select formControlName="environmentId">
-        @for (item of environments(); track item.id) {
-          <mat-option [value]="item.id">{{ item.name }}
-          </mat-option>
-        }
-      </mat-select>
-    </mat-form-field>
-    <mat-form-field
-    appearance="outline">
-    <mat-label>{{ i18nKeys.resource.category | translate }}
-    </mat-label>
-    <mat-select
-    formControlName="categoryId" (selectionChange)="categoryChanged()">
-    @for (item of categories(); track item.id) {
-      <mat-option [value]="item.id">{{ item.name }}
-      </mat-option>
+<h2 mat-dialog-title>{{ i18nKeys.resource.addTitle | translate }}</h2>
+<mat-dialog-content>
+  <form [formGroup]="form" (ngSubmit)="save()" class="resource-form">
+    <div class="form-row">
+      <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <mat-label>{{ i18nKeys.resource.environment | translate }}</mat-label>
+        <mat-select formControlName="environmentId">
+          @for (item of environments(); track item.id) {
+            <mat-option [value]="item.id">{{ item.name }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+      <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <mat-label>{{ i18nKeys.resource.category | translate }}</mat-label>
+        <mat-select formControlName="categoryId" (selectionChange)="categoryChanged()">
+          @for (item of categories(); track item.id) {
+            <mat-option [value]="item.id">{{ item.name }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+    </div>
+
+    <div class="form-row">
+      <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <mat-label>{{ i18nKeys.resource.resourceDefinition | translate }}</mat-label>
+        <mat-select formControlName="definitionId" (selectionChange)="definitionChanged()">
+          @for (item of definitions(); track item.id) {
+            <mat-option [value]="item.id">{{ item.name }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+    </div>
+
+    <div class="form-row form-row-with-action">
+      <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <mat-label>{{ i18nKeys.resource.group | translate }}</mat-label>
+        <mat-select formControlName="groupId">
+          <mat-option value="">{{ i18nKeys.resource.ungrouped | translate }}</mat-option>
+          @for (item of groups(); track item.id) {
+            <mat-option [value]="item.id">{{ item.name }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+      <button mat-stroked-button type="button" (click)="createGroup()">
+        <mat-icon>create_new_folder</mat-icon>{{ i18nKeys.resource.createGroup | translate }}
+      </button>
+      <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <mat-label>{{ i18nKeys.resource.tag | translate }}</mat-label>
+        <mat-select formControlName="tagNames" multiple>
+          @for (item of tags(); track item.id) {
+            <mat-option [value]="item.name">{{ item.name }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+      <button mat-stroked-button type="button" (click)="createTag()">
+        <mat-icon>new_label</mat-icon>{{ i18nKeys.resource.createTag | translate }}
+      </button>
+    </div>
+
+    @if (definition(); as selected) {
+      <section class="properties-section">
+        <h3>{{ i18nKeys.resource.properties | translate: { name: selected.name } }}</h3>
+        <div class="property-grid">
+          @for (property of selected.properties; track property.id) {
+            <mat-form-field appearance="outline" subscriptSizing="dynamic">
+              <mat-label>
+                {{ property.name }}{{ property.isRequired ? ' *' : '' }}
+              </mat-label>
+              @if (property.valueType === valueTypes.Boolean) {
+                <mat-select [formControl]="values.controls[property.id]">
+                  <mat-option value="true">{{ i18nKeys.resource.yes | translate }}</mat-option>
+                  <mat-option value="false">{{ i18nKeys.resource.no | translate }}</mat-option>
+                </mat-select>
+              } @else {
+                <input matInput
+                  [type]="property.valueType === valueTypes.Number ? 'number' : property.valueType === valueTypes.Date ? 'date' : 'text'"
+                  [formControl]="values.controls[property.id]" />
+              }
+              <mat-hint>
+                {{ valueTypeLabels[property.valueType] | translate }} · {{ i18nKeys.resource.propertyMaxLength | translate }}: {{ property.maxLength }}
+              </mat-hint>
+            </mat-form-field>
+          }
+        </div>
+      </section>
     }
-  </mat-select>
-</mat-form-field>
-<div class="d-flex flex-wrap align-items-center gap-3">
-  <mat-form-field appearance="outline">
-    <mat-label>{{ i18nKeys.resource.group | translate }}
-    </mat-label>
-    <mat-select
-    formControlName="groupId">
-    <mat-option value="">{{ i18nKeys.resource.ungrouped | translate
-    }}
-  </mat-option>
-  @for (item of groups(); track item.id) {
-    <mat-option [value]="item.id">{{ item.name }}
-    </mat-option>
-  }
-</mat-select>
-</mat-form-field>
-<button mat-stroked-button type="button" (click)="createGroup()">
-  <mat-icon>create_new_folder</mat-icon>{{ i18nKeys.resource.createGroup |
-    translate }}
-  </button>
-</div>
-<mat-form-field appearance="outline">
-  <mat-label>{{ i18nKeys.resource.resourceDefinition | translate
-  }}
-</mat-label>
-<mat-select formControlName="definitionId" (selectionChange)="definitionChanged()">
-  @for (item of definitions(); track item.id) {
-    <mat-option [value]="item.id">{{ item.name }}
-    </mat-option>
-  }
-</mat-select>
-</mat-form-field>
-@if (definition(); as selected) {
-  <mat-card>
-    <mat-card-header>
-      <mat-card-title>{{ i18nKeys.resource.properties | translate: { name: selected.name }
-      }}
-    </mat-card-title>
-  </mat-card-header>
-  <mat-card-content class="d-flex flex-wrap gap-3">
-    @for (property of selected.properties; track property.id) {
-      <mat-form-field appearance="outline">
-        <mat-label>{{ property.name }}{{ property.isRequired ? ' *' : ''
-        }}
-      </mat-label>
-      @if (property.valueType === valueTypes.Boolean) {
-        <mat-select [formControl]="values.controls[property.id]">
-          <mat-option value="true">{{ i18nKeys.resource.yes |
-            translate }}
-          </mat-option>
-          <mat-option value="false">{{ i18nKeys.resource.no | translate
-          }}
-        </mat-option>
-      </mat-select>
-    }
-    @else {
-      <input matInput
-      [type]="property.valueType === valueTypes.Number ? 'number' : property.valueType === valueTypes.Date ? 'date' : 'text'"
-      [formControl]="values.controls[property.id]" />
-    }
-    <mat-hint>{{ i18nKeys.resource.propertyHint | translate: { type:
-      property.valueType, maxLength: property.maxLength } }}
-    </mat-hint>
-  </mat-form-field>
-}
-</mat-card-content>
-</mat-card>
-}
-<div class="d-flex flex-wrap align-items-center gap-3">
-  <mat-form-field appearance="outline">
-    <mat-label>{{ i18nKeys.resource.tag | translate }}
-    </mat-label>
-    <mat-select
-    formControlName="tagNames" multiple>
-    @for (item of tags(); track item.id) {
-      <mat-option [value]="item.name">{{ item.name }}
-      </mat-option>
-    }
-  </mat-select>
-</mat-form-field>
-<button mat-stroked-button type="button" (click)="createTag()">
-  <mat-icon>new_label</mat-icon>{{ i18nKeys.resource.createTag | translate
-  }}
-</button>
-</div>
-<mat-form-field appearance="outline">
-  <mat-label>{{ i18nKeys.resource.iconUrl | translate }}
-  </mat-label>
-  <input
-  matInput formControlName="iconUrl" />
-</mat-form-field>
-<mat-form-field appearance="outline">
-  <mat-label>{{
-    i18nKeys.resource.description | translate }}
-  </mat-label>
-  <textarea matInput rows="4"
-  formControlName="description">
-</textarea>
-</mat-form-field>
-<div class="d-flex justify-content-end gap-3">
-  <button mat-button type="button" routerLink="../">
-    {{ i18nKeys.common.cancel | translate }}
-  </button>
-  <button mat-flat-button type="submit" [disabled]="saving">
+  </form>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button mat-dialog-close>{{ i18nKeys.common.cancel | translate }}</button>
+  <button mat-flat-button color="primary" type="button" [disabled]="saving" (click)="save()">
     {{ i18nKeys.common.save | translate }}
   </button>
-</div>
-</form>
-</section>
+</mat-dialog-actions>

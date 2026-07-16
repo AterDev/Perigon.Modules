@@ -9,6 +9,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatExpansionModule } from '@angular/material/expansion';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatCardModule } from '@angular/material/card';
@@ -40,6 +41,7 @@ export const CommonFormModules = [
   MatSelectModule,
   MatDatepickerModule,
   MatCheckboxModule,
+  MatExpansionModule,
   MatChipsModule,
   RouterModule,
 ];
@@ -51,6 +53,7 @@ export const CommonListModules = [
   MatDialogModule,
   RouterModule,
   MatTabsModule,
+  MatExpansionModule,
   MatChipsModule,
   MatCheckboxModule,
   FormsModule,

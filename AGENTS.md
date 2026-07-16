@@ -22,6 +22,14 @@
 - `scripts`：迁移、请求客户端生成、菜单同步、基础库同步和模块打包脚本。
 - `package_modules`、`modules.json`：已生成模块包及目录元数据；优先通过打包流程更新，不直接编辑 zip。
 
+## DTO 目录与命名规范（强制）
+
+- 模块中的所有 DTO 必须放在该模块 `Models` 目录下按实体划分的 `{Entity}Dtos` 目录中，例如 `Models/ResourceDtos`、`Models/ResDefinitionDtos`。
+- 一个文件只能定义一个类型；DTO 不得集中写在 `Contracts.cs`、`Dtos.cs` 等多类型文件中。
+- 作为数据转换边界的类型必须以 `Dto` 结尾，禁止使用 `Input`、`Request`、`Response` 作为 DTO 类型名的一部分。新增、修改、筛选、详情和列表数据分别优先使用 `{Entity}AddDto`、`{Entity}UpdateDto`、`{Entity}FilterDto`、`{Entity}DetailDto`、`{Entity}ItemDto` 等命名。
+- DTO 的嵌套属性也必须引用符合上述规则的 DTO；不要通过 `Input` 或实体类型充当 DTO 的替代品。
+- 新增或修改模块时，必须同时检查目录、文件粒度、类型命名和所有引用；生成代码后也必须按此规则整理并完成构建验证。
+
 当前技术基线由仓库配置决定：.NET 10、C# 14、EF Core 10、Aspire 13、Angular 21、TypeScript 5.9、TUnit 和 Microsoft.Testing.Platform。NuGet 版本集中维护在 `Directory.Packages.props`，测试运行器由 `global.json` 指定。
 
 ## 工具优先级

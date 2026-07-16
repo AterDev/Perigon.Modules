@@ -18,7 +18,7 @@ namespace EntityFramework.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "10.0.3")
+                .HasAnnotation("ProductVersion", "10.0.8")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -480,27 +480,14 @@ namespace EntityFramework.Migrations
                     b.Property<Guid>("DefinitionId")
                         .HasColumnType("uuid");
 
-                    b.Property<string>("Description")
-                        .HasMaxLength(2000)
-                        .HasColumnType("character varying(2000)");
-
                     b.Property<Guid>("EnvironmentId")
                         .HasColumnType("uuid");
 
                     b.Property<Guid?>("GroupId")
                         .HasColumnType("uuid");
 
-                    b.Property<string>("IconUrl")
-                        .HasMaxLength(500)
-                        .HasColumnType("character varying(500)");
-
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(120)
-                        .HasColumnType("character varying(120)");
 
                     b.PrimitiveCollection<List<string>>("TagNames")
                         .IsRequired()

@@ -12,7 +12,7 @@ import {
   FormRecord,
   Validators,
 } from '@angular/forms';
-import { Router } from '@angular/router';
+import { MatDialogRef } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { CommonFormModules } from '../../../share/shared-modules';
 import { AdminClient } from '../../../../services/admin/admin-client';
@@ -38,20 +38,25 @@ export class ResourceAddComponent {
   readonly i18nKeys = I18N_KEYS;
   private readonly fb = inject(FormBuilder);
   private readonly client = inject(AdminClient);
-  private readonly router = inject(Router);
   private readonly snackBar = inject(MatSnackBar);
   private readonly translate = inject(TranslateService);
   private readonly dialog = inject(MatDialog);
+  private readonly dialogRef = inject(MatDialogRef<ResourceAddComponent>, { optional: true });
   readonly environments = signal<ResEnvironment[]>([]);
   readonly categories = signal<ResCategory[]>([]);
   readonly groups = signal<ResGroup[]>([]);
   readonly tags = signal<ResTag[]>([]);
   readonly definitions = signal<ResDefinition[]>([]);
   readonly valueTypes = ResValueType;
+  readonly valueTypeLabels = {
+    [ResValueType.String]: I18N_KEYS.resource.propertyTypes.string,
+    [ResValueType.Number]: I18N_KEYS.resource.propertyTypes.number,
+    [ResValueType.Boolean]: I18N_KEYS.resource.propertyTypes.boolean,
+    [ResValueType.Date]: I18N_KEYS.resource.propertyTypes.date,
+    [ResValueType.Uri]: I18N_KEYS.resource.propertyTypes.uri,
+    [ResValueType.IPAddress]: I18N_KEYS.resource.propertyTypes.ipAddress,
+  };
   readonly form = this.fb.nonNullable.group({
-    name: ['', Validators.required],
-    iconUrl: [''],
-    description: [''],
     environmentId: ['', Validators.required],
     categoryId: ['', Validators.required],
     groupId: [''],
@@ -70,16 +75,33 @@ export class ResourceAddComponent {
   constructor() {
     this.client.resourceConfiguration
       .environments()
-      .subscribe((value) => this.environments.set(value));
+      .subscribe((value) => {
+        this.environments.set(value);
+        if (!this.form.controls.environmentId.value && value.length > 0) {
+          this.form.controls.environmentId.setValue(value[0].id);
+        }
+      });
     this.client.resourceConfiguration
       .categories()
-      .subscribe((value) => this.categories.set(value));
+      .subscribe((value) => {
+        this.categories.set(value);
+        if (!this.form.controls.categoryId.value && value.length > 0) {
+          this.form.controls.categoryId.setValue(value[0].id);
+          this.categoryChanged();
+        }
+      });
     this.client.resourceConfiguration
       .tags()
       .subscribe((value) => this.tags.set(value));
     this.client.resourceConfiguration
-      .definitions()
-      .subscribe((value) => this.definitions.set(value));
+      .definitions(null)
+      .subscribe((value) => {
+        this.definitions.set(value);
+        if (!this.form.controls.definitionId.value && value.length > 0) {
+          this.form.controls.definitionId.setValue(value[0].id);
+          this.definitionChanged();
+        }
+      });
   }
   categoryChanged(): void {
     this.form.controls.groupId.setValue('');
@@ -177,8 +199,6 @@ export class ResourceAddComponent {
     this.client.resource
       .add({
         ...base,
-        iconUrl: base.iconUrl || null,
-        description: base.description || null,
         groupId: base.groupId || null,
         values: Object.entries(this.values.getRawValue()).map(
           ([definitionPropertyId, value]) => ({ definitionPropertyId, value }),
@@ -191,7 +211,7 @@ export class ResourceAddComponent {
             this.translate.instant('common.close'),
             { duration: 2500 },
           );
-          this.router.navigate(['/resource', resource.id, 'detail']);
+          this.dialogRef?.close({ saved: true, resourceId: resource.id });
         },
         error: () => (this.saving = false),
       });

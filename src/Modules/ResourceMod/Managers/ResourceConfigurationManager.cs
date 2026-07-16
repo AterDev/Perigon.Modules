@@ -56,7 +56,7 @@ public class ResourceConfigurationManager(
         return await query.OrderBy(d => d.Name).ToListAsync();
     }
 
-    public async Task<ResEnvironment> AddEnvironmentAsync(ResEnvironmentInput input)
+    public async Task<ResEnvironment> AddEnvironmentAsync(ResEnvironmentAddDto input)
     {
         EnsureAdmin();
 
@@ -74,7 +74,7 @@ public class ResourceConfigurationManager(
         return entity;
     }
 
-    public async Task<ResEnvironment> UpdateEnvironmentAsync(Guid id, ResEnvironmentInput input)
+    public async Task<ResEnvironment> UpdateEnvironmentAsync(Guid id, ResEnvironmentUpdateDto input)
     {
         EnsureAdmin();
 
@@ -106,7 +106,7 @@ public class ResourceConfigurationManager(
         await _dbContext.SaveChangesAsync();
     }
 
-    public async Task<ResCategory> AddCategoryAsync(ResCategoryInput input)
+    public async Task<ResCategory> AddCategoryAsync(ResCategoryAddDto input)
     {
         EnsureAdmin();
 
@@ -132,7 +132,7 @@ public class ResourceConfigurationManager(
         return entity;
     }
 
-    public async Task<ResCategory> UpdateCategoryAsync(Guid id, ResCategoryInput input)
+    public async Task<ResCategory> UpdateCategoryAsync(Guid id, ResCategoryUpdateDto input)
     {
         EnsureAdmin();
 
@@ -176,7 +176,7 @@ public class ResourceConfigurationManager(
         await _dbContext.SaveChangesAsync();
     }
 
-    public async Task<ResGroup> AddGroupAsync(ResGroupInput input)
+    public async Task<ResGroup> AddGroupAsync(ResGroupAddDto input)
     {
         EnsureAdmin();
         await EnsureCategoryAsync(input.CategoryId);
@@ -197,7 +197,7 @@ public class ResourceConfigurationManager(
         return entity;
     }
 
-    public async Task<ResGroup> UpdateGroupAsync(Guid id, ResGroupInput input)
+    public async Task<ResGroup> UpdateGroupAsync(Guid id, ResGroupUpdateDto input)
     {
         EnsureAdmin();
         await EnsureCategoryAsync(input.CategoryId);
@@ -230,7 +230,7 @@ public class ResourceConfigurationManager(
         await _dbContext.SaveChangesAsync();
     }
 
-    public async Task<ResTag> AddTagAsync(ResTagInput input)
+    public async Task<ResTag> AddTagAsync(ResTagAddDto input)
     {
         EnsureAdmin();
 
@@ -248,7 +248,7 @@ public class ResourceConfigurationManager(
         return entity;
     }
 
-    public async Task<ResTag> UpdateTagAsync(Guid id, ResTagInput input)
+    public async Task<ResTag> UpdateTagAsync(Guid id, ResTagUpdateDto input)
     {
         EnsureAdmin();
 
@@ -271,7 +271,7 @@ public class ResourceConfigurationManager(
         await _dbContext.SaveChangesAsync();
     }
 
-    public async Task<ResDefinition> AddDefinitionAsync(ResDefinitionInput input)
+    public async Task<ResDefinition> AddDefinitionAsync(ResDefinitionAddDto input)
     {
         EnsureAdmin();
         ValidateProperties(input.Properties);
@@ -283,7 +283,7 @@ public class ResourceConfigurationManager(
             TenantId = _userContext.TenantId
         };
 
-        foreach (ResDefinitionPropertyInput property in input.Properties)
+        foreach (ResDefinitionPropertyDto property in input.Properties)
         {
             entity.Properties.Add(new ResDefinitionProperty
             {
@@ -302,7 +302,7 @@ public class ResourceConfigurationManager(
         return entity;
     }
 
-    public async Task<ResDefinition> UpdateDefinitionAsync(Guid id, ResDefinitionInput input)
+    public async Task<ResDefinition> UpdateDefinitionAsync(Guid id, ResDefinitionUpdateDto input)
     {
         EnsureAdmin();
         ValidateProperties(input.Properties);
@@ -330,7 +330,7 @@ public class ResourceConfigurationManager(
 
         _dbContext.ResDefinitionProperties.RemoveRange(removed);
 
-        foreach (ResDefinitionPropertyInput property in input.Properties)
+        foreach (ResDefinitionPropertyDto property in input.Properties)
         {
             ResDefinitionProperty? target = property.Id.HasValue
                 ? entity.Properties.FirstOrDefault(p => p.Id == property.Id.Value)
@@ -395,7 +395,7 @@ public class ResourceConfigurationManager(
             .ToListAsync();
     }
 
-    public async Task SetPermissionsAsync(ResPermissionInput input)
+    public async Task SetPermissionsAsync(ResPermissionUpdateDto input)
     {
         EnsureAdmin();
 
@@ -443,7 +443,7 @@ public class ResourceConfigurationManager(
         }
     }
 
-    private static void ValidateProperties(List<ResDefinitionPropertyInput> properties)
+    private static void ValidateProperties(List<ResDefinitionPropertyDto> properties)
     {
         bool hasDuplicateName = properties
             .GroupBy(p => p.Name, StringComparer.OrdinalIgnoreCase)

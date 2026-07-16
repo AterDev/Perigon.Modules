@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, AfterViewInit } from '@angular/core';
+import { AfterViewInit, Component, DestroyRef, inject } from '@angular/core';
 import {
   FormControl,
   FormGroup,
@@ -9,7 +9,6 @@ import { MatCardModule } from '@angular/material/card';
 import { Router } from '@angular/router';
 import { CommonFormModules } from 'src/app/modules/share/shared-modules';
 import { AuthService } from 'src/app/services/auth.service';
-import { TranslateService } from '@ngx-translate/core';
 import { I18N_KEYS } from 'src/app/modules/share/i18n-keys';
 import { initStarfield } from './starfield';
 import { AdminClient } from 'src/app/services/admin/admin-client';
@@ -20,10 +19,10 @@ import { AdminClient } from 'src/app/services/admin/admin-client';
   templateUrl: './login.html',
   styleUrls: ['./login.scss'],
 })
-export class Login implements OnInit, AfterViewInit {
+export class Login implements AfterViewInit {
   i18nKeys = I18N_KEYS;
   private adminClient = inject(AdminClient);
-  private translate = inject(TranslateService);
+  private destroyRef = inject(DestroyRef);
   constructor(
     private authService: AuthService,
     private router: Router,
@@ -54,19 +53,14 @@ export class Login implements OnInit, AfterViewInit {
     return this.loginForm.controls.password;
   }
 
-  ngOnInit(): void {}
-
   ngAfterViewInit(): void {
     const canvas = document.getElementById(
       'starfield',
     ) as HTMLCanvasElement | null;
     if (canvas) {
-      initStarfield(canvas);
+      const stopStarfield = initStarfield(canvas);
+      this.destroyRef.onDestroy(stopStarfield);
     }
-  }
-
-  getValidatorMessage(): string {
-    return this.translate.instant(I18N_KEYS.validation.required);
   }
 
   doLogin(): void {

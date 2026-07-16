@@ -1,0 +1,32 @@
+.property-count {
+  margin-left: 0.75rem;
+  color: var(--mat-sys-on-surface-variant);
+  font-size: 0.85rem;
+}
+
+.property-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.property-item {
+  display: grid;
+  grid-template-columns: minmax(120px, 1.2fr) minmax(100px, 1fr) auto minmax(120px, 1fr);
+  align-items: center;
+  gap: 1rem;
+  padding: 0.65rem 0.75rem;
+  border-radius: 0.4rem;
+  background: rgba(128, 150, 180, 0.08);
+}
+
+.required {
+  color: var(--mat-sys-primary);
+  font-size: 0.85rem;
+}
+
+@media (max-width: 620px) {
+  .property-item {
+    grid-template-columns: 1fr 1fr;
+  }
+}

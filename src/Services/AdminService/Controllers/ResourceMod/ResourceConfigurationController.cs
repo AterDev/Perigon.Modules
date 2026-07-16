@@ -16,13 +16,13 @@ public class ResourceConfigurationController(
     }
 
     [HttpPost("environments")]
-    public Task<ResEnvironment> AddEnvironmentAsync(ResEnvironmentInput input)
+    public Task<ResEnvironment> AddEnvironmentAsync(ResEnvironmentAddDto input)
     {
         return _manager.AddEnvironmentAsync(input);
     }
 
     [HttpPut("environments/{id:guid}")]
-    public Task<ResEnvironment> UpdateEnvironmentAsync(Guid id, ResEnvironmentInput input)
+    public Task<ResEnvironment> UpdateEnvironmentAsync(Guid id, ResEnvironmentUpdateDto input)
     {
         return _manager.UpdateEnvironmentAsync(id, input);
     }
@@ -40,13 +40,13 @@ public class ResourceConfigurationController(
     }
 
     [HttpPost("categories")]
-    public Task<ResCategory> AddCategoryAsync(ResCategoryInput input)
+    public Task<ResCategory> AddCategoryAsync(ResCategoryAddDto input)
     {
         return _manager.AddCategoryAsync(input);
     }
 
     [HttpPut("categories/{id:guid}")]
-    public Task<ResCategory> UpdateCategoryAsync(Guid id, ResCategoryInput input)
+    public Task<ResCategory> UpdateCategoryAsync(Guid id, ResCategoryUpdateDto input)
     {
         return _manager.UpdateCategoryAsync(id, input);
     }
@@ -64,13 +64,13 @@ public class ResourceConfigurationController(
     }
 
     [HttpPost("groups")]
-    public Task<ResGroup> AddGroupAsync(ResGroupInput input)
+    public Task<ResGroup> AddGroupAsync(ResGroupAddDto input)
     {
         return _manager.AddGroupAsync(input);
     }
 
     [HttpPut("groups/{id:guid}")]
-    public Task<ResGroup> UpdateGroupAsync(Guid id, ResGroupInput input)
+    public Task<ResGroup> UpdateGroupAsync(Guid id, ResGroupUpdateDto input)
     {
         return _manager.UpdateGroupAsync(id, input);
     }
@@ -88,13 +88,13 @@ public class ResourceConfigurationController(
     }
 
     [HttpPost("tags")]
-    public Task<ResTag> AddTagAsync(ResTagInput input)
+    public Task<ResTag> AddTagAsync(ResTagAddDto input)
     {
         return _manager.AddTagAsync(input);
     }
 
     [HttpPut("tags/{id:guid}")]
-    public Task<ResTag> UpdateTagAsync(Guid id, ResTagInput input)
+    public Task<ResTag> UpdateTagAsync(Guid id, ResTagUpdateDto input)
     {
         return _manager.UpdateTagAsync(id, input);
     }
@@ -112,13 +112,13 @@ public class ResourceConfigurationController(
     }
 
     [HttpPost("definitions")]
-    public Task<ResDefinition> AddDefinitionAsync(ResDefinitionInput input)
+    public Task<ResDefinition> AddDefinitionAsync(ResDefinitionAddDto input)
     {
         return _manager.AddDefinitionAsync(input);
     }
 
     [HttpPut("definitions/{id:guid}")]
-    public Task<ResDefinition> UpdateDefinitionAsync(Guid id, ResDefinitionInput input)
+    public Task<ResDefinition> UpdateDefinitionAsync(Guid id, ResDefinitionUpdateDto input)
     {
         return _manager.UpdateDefinitionAsync(id, input);
     }
@@ -136,7 +136,7 @@ public class ResourceConfigurationController(
     }
 
     [HttpPut("permissions")]
-    public Task SetPermissionsAsync(ResPermissionInput input)
+    public Task SetPermissionsAsync(ResPermissionUpdateDto input)
     {
         return _manager.SetPermissionsAsync(input);
     }

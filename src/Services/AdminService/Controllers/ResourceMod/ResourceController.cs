@@ -11,7 +11,7 @@ public class ResourceController(
 ) : RestControllerBase<ResourceManager>(localizer, manager, user, logger)
 {
     [HttpGet("list")]
-    public Task<PageList<ResourceItemDto>> ListAsync([FromQuery] ResourceFilter filter)
+    public Task<PageList<ResourceItemDto>> ListAsync([FromQuery] ResourceFilterDto filter)
     {
         return _manager.FilterAsync(filter);
     }
@@ -23,14 +23,14 @@ public class ResourceController(
     }
 
     [HttpPost]
-    public async Task<ActionResult<Resource>> AddAsync(ResourceInput input)
+    public async Task<ActionResult<ResourceCreatedDto>> AddAsync(ResourceAddDto input)
     {
         Resource resource = await _manager.AddAsync(input);
-        return Created($"/api/Resource/{resource.Id}", resource);
+        return Created($"/api/Resource/{resource.Id}", new ResourceCreatedDto { Id = resource.Id });
     }
 
     [HttpPatch("{id}")]
-    public Task<bool> UpdateAsync(Guid id, ResourceInput input)
+    public Task<bool> UpdateAsync(Guid id, ResourceUpdateDto input)
     {
         return _manager.UpdateAsync(id, input);
     }

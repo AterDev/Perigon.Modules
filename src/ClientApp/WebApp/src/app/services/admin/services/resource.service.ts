@@ -5,7 +5,7 @@ import { PageList } from '../models/perigon/page-list.model';
 import { ResourceItemDto } from '../models/resource-mod/resource-item-dto.model';
 import { ResourceDetailDto } from '../models/resource-mod/resource-detail-dto.model';
 import { ResourceInput } from '../models/resource-mod/resource-input.model';
-import { Resource } from '../models/entity/resource.model';
+import { ResourceCreatedDto } from '../models/resource-mod/resource-created-dto.model';
 /**
  * 
  */
@@ -13,7 +13,6 @@ import { Resource } from '../models/entity/resource.model';
 export class ResourceService extends BaseService {
   /**
    * list
-   * @param name string
    * @param environmentId string
    * @param categoryId string
    * @param groupId string
@@ -23,8 +22,8 @@ export class ResourceService extends BaseService {
    * @param pageSize number
    * @param orderBy Record<string, boolean>
    */
-  list(name: string | null, environmentId: string | null, categoryId: string | null, groupId: string | null, definitionId: string | null, tagName: string | null, pageIndex: number | null, pageSize: number | null, orderBy: Record<string, boolean> | null): Observable<PageList<ResourceItemDto>> {
-    const _url = `/api/Resource/list?name=${name ?? ''}&environmentId=${environmentId ?? ''}&categoryId=${categoryId ?? ''}&groupId=${groupId ?? ''}&definitionId=${definitionId ?? ''}&tagName=${tagName ?? ''}&pageIndex=${pageIndex ?? ''}&pageSize=${pageSize ?? ''}&orderBy=${orderBy ?? ''}`;
+  list(environmentId: string | null, categoryId: string | null, groupId: string | null, definitionId: string | null, tagName: string | null, pageIndex: number | null, pageSize: number | null, orderBy: Record<string, boolean> | null): Observable<PageList<ResourceItemDto>> {
+    const _url = `/api/Resource/list?environmentId=${environmentId ?? ''}&categoryId=${categoryId ?? ''}&groupId=${groupId ?? ''}&definitionId=${definitionId ?? ''}&tagName=${tagName ?? ''}&pageIndex=${pageIndex ?? ''}&pageSize=${pageSize ?? ''}&orderBy=${orderBy ?? ''}`;
     return this.request<PageList<ResourceItemDto>>('get', _url);
   }
   /**
@@ -56,8 +55,8 @@ export class ResourceService extends BaseService {
    * add
    * @param data ResourceInput
    */
-  add(data: ResourceInput): Observable<Resource> {
+  add(data: ResourceInput): Observable<ResourceCreatedDto> {
     const _url = `/api/Resource`;
-    return this.request<Resource>('post', _url, data);
+    return this.request<ResourceCreatedDto>('post', _url, data);
   }
 }

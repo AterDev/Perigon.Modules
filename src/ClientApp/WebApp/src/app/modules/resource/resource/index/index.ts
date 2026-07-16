@@ -15,6 +15,9 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { TranslateService } from '@ngx-translate/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ConfirmDialogComponent } from '../../../share/components/confirm-dialog/confirm-dialog.component';
+import { ResourceAddComponent } from '../add/add';
+import { ResourceDetailComponent } from '../detail/detail';
+import { ResourceEditComponent } from '../edit/edit';
 
 @Component({
   selector: 'app-resource-index',
@@ -34,7 +37,6 @@ export class ResourceIndexComponent {
   readonly categories = signal<ResCategory[]>([]);
   readonly definitions = signal<ResDefinition[]>([]);
   readonly loading = signal(false);
-  name = '';
   environmentId = '';
   categoryId = '';
   definitionId = '';
@@ -48,7 +50,7 @@ export class ResourceIndexComponent {
       .categories()
       .subscribe((value) => this.categories.set(value));
     this.client.resourceConfiguration
-      .definitions()
+      .definitions(null)
       .subscribe((value) => this.definitions.set(value));
     this.load();
   }
@@ -57,7 +59,6 @@ export class ResourceIndexComponent {
     this.loading.set(true);
     this.client.resource
       .list(
-        this.name || null,
         this.environmentId || null,
         this.categoryId || null,
         null,
@@ -76,6 +77,42 @@ export class ResourceIndexComponent {
       });
   }
 
+  add(): void {
+    this.dialog
+      .open(ResourceAddComponent, {
+        width: '900px',
+        maxWidth: '96vw',
+        maxHeight: '96vh',
+      })
+      .afterClosed()
+      .subscribe((result) => {
+        if (result?.saved) this.load();
+      });
+  }
+
+  detail(resource: ResourceItemDto): void {
+    this.dialog.open(ResourceDetailComponent, {
+      width: '760px',
+      maxWidth: '96vw',
+      maxHeight: '96vh',
+      data: { id: resource.id },
+    });
+  }
+
+  edit(resource: ResourceItemDto): void {
+    this.dialog
+      .open(ResourceEditComponent, {
+        width: '900px',
+        maxWidth: '96vw',
+        maxHeight: '96vh',
+        data: { id: resource.id },
+      })
+      .afterClosed()
+      .subscribe((result) => {
+        if (result?.saved) this.load();
+      });
+  }
+
   remove(resource: ResourceItemDto): void {
     this.dialog
       .open(ConfirmDialogComponent, {
@@ -83,7 +120,7 @@ export class ResourceIndexComponent {
           title: this.translate.instant('common.confirmDelete'),
           content:
         this.translate.instant('resource.deleteResourceConfirm', {
-          name: resource.name,
+          name: resource.definitionName,
         }),
         },
       })

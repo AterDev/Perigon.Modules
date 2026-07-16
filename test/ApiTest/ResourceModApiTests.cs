@@ -1,10 +1,15 @@
 using ApiTest.Data;
 using Entity.ResourceMod;
-using ResourceMod.Models;
+using ResourceMod.Models.ResCategoryDtos;
+using ResourceMod.Models.ResDefinitionDtos;
+using ResourceMod.Models.ResEnvironmentDtos;
+using ResourceMod.Models.ResGroupDtos;
+using ResourceMod.Models.ResPermissionDtos;
+using ResourceMod.Models.ResTagDtos;
+using ResourceMod.Models.ResourceDtos;
 using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
-using ResourceEntity = Entity.ResourceMod.Resource;
 
 namespace ApiTest;
 
@@ -20,12 +25,12 @@ public class ResourceModApiTests
         ResEnvironment environment = await PostAsync<ResEnvironment>(
             client,
             "/api/ResourceConfiguration/environments",
-            new ResEnvironmentInput { Name = $"Environment-{suffix}", Color = "#123456" },
+            new ResEnvironmentAddDto { Name = $"Environment-{suffix}", Color = "#123456" },
             HttpStatusCode.OK);
         ResCategory category = await PostAsync<ResCategory>(
             client,
             "/api/ResourceConfiguration/categories",
-            new ResCategoryInput
+            new ResCategoryAddDto
             {
                 Name = $"Category-{suffix}",
                 CatalogCode = $"catalog-{suffix}",
@@ -35,7 +40,7 @@ public class ResourceModApiTests
         ResGroup group = await PostAsync<ResGroup>(
             client,
             "/api/ResourceConfiguration/groups",
-            new ResGroupInput
+            new ResGroupAddDto
             {
                 Name = $"Group-{suffix}",
                 CategoryId = category.Id,
@@ -45,7 +50,7 @@ public class ResourceModApiTests
         ResTag tag = await PostAsync<ResTag>(
             client,
             "/api/ResourceConfiguration/tags",
-            new ResTagInput { Name = $"Tag-{suffix}", Color = "#fedcba" },
+            new ResTagAddDto { Name = $"Tag-{suffix}", Color = "#fedcba" },
             HttpStatusCode.OK);
 
         ResDefinition definition = await PostAsync<ResDefinition>(
@@ -75,12 +80,12 @@ public class ResourceModApiTests
         environment = await PutAsync<ResEnvironment>(
             client,
             $"/api/ResourceConfiguration/environments/{environment.Id}",
-            new ResEnvironmentInput { Name = $"Environment-Updated-{suffix}", Color = "#111111" },
+            new ResEnvironmentAddDto { Name = $"Environment-Updated-{suffix}", Color = "#111111" },
             HttpStatusCode.OK);
         category = await PutAsync<ResCategory>(
             client,
             $"/api/ResourceConfiguration/categories/{category.Id}",
-            new ResCategoryInput
+            new ResCategoryAddDto
             {
                 Name = $"Category-Updated-{suffix}",
                 CatalogCode = $"catalog-updated-{suffix}",
@@ -90,7 +95,7 @@ public class ResourceModApiTests
         group = await PutAsync<ResGroup>(
             client,
             $"/api/ResourceConfiguration/groups/{group.Id}",
-            new ResGroupInput
+            new ResGroupAddDto
             {
                 Name = $"Group-Updated-{suffix}",
                 CategoryId = category.Id,
@@ -100,7 +105,7 @@ public class ResourceModApiTests
         tag = await PutAsync<ResTag>(
             client,
             $"/api/ResourceConfiguration/tags/{tag.Id}",
-            new ResTagInput { Name = $"Tag-Updated-{suffix}", Color = "#444444" },
+            new ResTagAddDto { Name = $"Tag-Updated-{suffix}", Color = "#444444" },
             HttpStatusCode.OK);
 
         await Assert.That(environment.Name).IsEqualTo($"Environment-Updated-{suffix}");
@@ -127,8 +132,8 @@ public class ResourceModApiTests
             DefinitionInput(suffix),
             HttpStatusCode.OK);
 
-        List<ResDefinitionPropertyInput> properties = definition.Properties
-            .Select(property => new ResDefinitionPropertyInput
+        List<ResDefinitionPropertyDto> properties = definition.Properties
+            .Select(property => new ResDefinitionPropertyDto
             {
                 Id = property.Id,
                 Name = property.Name,
@@ -138,7 +143,7 @@ public class ResourceModApiTests
                 Sort = property.Sort
             })
             .ToList();
-        properties.Add(new ResDefinitionPropertyInput
+        properties.Add(new ResDefinitionPropertyDto
         {
             Name = "Host",
             ValueType = ResValueType.String,
@@ -150,7 +155,7 @@ public class ResourceModApiTests
         ResDefinition updated = await PutAsync<ResDefinition>(
             client,
             $"/api/ResourceConfiguration/definitions/{definition.Id}",
-            new ResDefinitionInput
+            new ResDefinitionAddDto
             {
                 Name = definition.Name,
                 Icon = definition.Icon,
@@ -169,13 +174,11 @@ public class ResourceModApiTests
         HttpClient client = data.HttpClient;
         ResourceFixture fixture = await CreateFixtureAsync(client);
 
-        ResourceEntity resource = await PostAsync<ResourceEntity>(
+        ResourceCreatedDto created = await PostAsync<ResourceCreatedDto>(
             client,
             "/api/Resource",
-            new ResourceInput
+            new ResourceAddDto
             {
-                Name = fixture.Name,
-                Description = "initial",
                 EnvironmentId = fixture.Environment.Id,
                 CategoryId = fixture.Category.Id,
                 GroupId = fixture.Group.Id,
@@ -184,8 +187,9 @@ public class ResourceModApiTests
                 Values = fixture.Values
             },
             HttpStatusCode.Created);
+        Guid resourceId = created.Id;
 
-        HttpResponseMessage detailResponse = await client.GetAsync($"/api/Resource/{resource.Id}");
+        HttpResponseMessage detailResponse = await client.GetAsync($"/api/Resource/{resourceId}");
         await Assert.That(detailResponse.StatusCode).IsEqualTo(HttpStatusCode.OK);
         ResourceDetailDto? detail = await detailResponse.Content.ReadFromJsonAsync<ResourceDetailDto>();
         await Assert.That(detail).IsNotNull();
@@ -197,20 +201,19 @@ public class ResourceModApiTests
             .IsEquivalentTo(["192.168.0.1", "2026-07-15", "true", "80", "https://example.com/", "server"]);
 
         HttpResponseMessage listResponse = await client.GetAsync(
-            $"/api/Resource/list?name={Uri.EscapeDataString(fixture.Name)}&tagName=Other");
+            "/api/Resource/list?tagName=Other");
         await Assert.That(listResponse.StatusCode).IsEqualTo(HttpStatusCode.OK);
         JsonDocument list = await listResponse.Content.ReadFromJsonAsync<JsonDocument>()
             ?? throw new InvalidOperationException("Resource list response was empty.");
         await Assert.That(list.RootElement.GetProperty("count").GetInt32()).IsEqualTo(1);
         await Assert.That(list.RootElement.GetProperty("data").EnumerateArray().Single()
-            .GetProperty("id").GetGuid()).IsEqualTo(resource.Id);
+            .GetProperty("id").GetGuid()).IsEqualTo(resourceId);
 
         HttpResponseMessage updateResponse = await PatchAsync(
             client,
-            $"/api/Resource/{resource.Id}",
-            new ResourceInput
+            $"/api/Resource/{resourceId}",
+            new ResourceAddDto
             {
-                Name = $"{fixture.Name}-Updated",
                 EnvironmentId = fixture.Environment.Id,
                 CategoryId = fixture.Category.Id,
                 DefinitionId = fixture.Definition.Id,
@@ -227,14 +230,13 @@ public class ResourceModApiTests
 
         ResourceDetailDto? updated = await GetAsync<ResourceDetailDto>(
             client,
-            $"/api/Resource/{resource.Id}",
+            $"/api/Resource/{resourceId}",
             HttpStatusCode.OK);
-        await Assert.That(updated!.Name).IsEqualTo($"{fixture.Name}-Updated");
         await Assert.That(updated.GroupId).IsNull();
         await Assert.That(updated.TagNames).IsEquivalentTo(["Updated"]);
 
-        await DeleteAsync(client, $"/api/Resource/{resource.Id}", HttpStatusCode.OK);
-        HttpResponseMessage deletedDetail = await client.GetAsync($"/api/Resource/{resource.Id}");
+        await DeleteAsync(client, $"/api/Resource/{resourceId}", HttpStatusCode.OK);
+        HttpResponseMessage deletedDetail = await client.GetAsync($"/api/Resource/{resourceId}");
         await Assert.That(deletedDetail.StatusCode).IsEqualTo(HttpStatusCode.Forbidden);
     }
 
@@ -248,9 +250,8 @@ public class ResourceModApiTests
 
         HttpResponseMessage missingRequired = await client.PostAsJsonAsync(
             "/api/Resource",
-            new ResourceInput
+            new ResourceAddDto
             {
-                Name = $"Invalid-{fixture.Name}",
                 EnvironmentId = fixture.Environment.Id,
                 CategoryId = fixture.Category.Id,
                 DefinitionId = fixture.Definition.Id,
@@ -258,12 +259,11 @@ public class ResourceModApiTests
             });
         await Assert.That(missingRequired.StatusCode).IsEqualTo(HttpStatusCode.BadRequest);
 
-        ResourceEntity resource = await PostAsync<ResourceEntity>(
+        ResourceCreatedDto created = await PostAsync<ResourceCreatedDto>(
             client,
             "/api/Resource",
-            new ResourceInput
+            new ResourceAddDto
             {
-                Name = fixture.Name,
                 EnvironmentId = fixture.Environment.Id,
                 CategoryId = fixture.Category.Id,
                 GroupId = fixture.Group.Id,
@@ -292,11 +292,11 @@ public class ResourceModApiTests
         ResDefinition updatedDefinition = await PutAsync<ResDefinition>(
             client,
             $"/api/ResourceConfiguration/definitions/{fixture.Definition.Id}",
-            new ResDefinitionInput
+            new ResDefinitionAddDto
             {
                 Name = fixture.Definition.Name,
                 Properties = fixture.Definition.Properties
-                    .Select(property => new ResDefinitionPropertyInput
+                    .Select(property => new ResDefinitionPropertyDto
                     {
                         Id = property.Id,
                         Name = property.Name == "Address" ? "Host" : property.Name,
@@ -311,7 +311,7 @@ public class ResourceModApiTests
         await Assert.That(updatedDefinition.Properties.Single(p => p.Id == fixture.AddressProperty.Id).Name)
             .IsEqualTo("Host");
 
-        await DeleteAsync(client, $"/api/Resource/{resource.Id}", HttpStatusCode.OK);
+        await DeleteAsync(client, $"/api/Resource/{created.Id}", HttpStatusCode.OK);
     }
 
     [ClassDataSource<TestHttpClientData>(Shared = SharedType.None)]
@@ -326,7 +326,7 @@ public class ResourceModApiTests
 
         HttpResponseMessage setResponse = await client.PutAsJsonAsync(
             "/api/ResourceConfiguration/permissions",
-            new ResPermissionInput
+            new ResPermissionUpdateDto
             {
                 EnvironmentId = fixture.Environment.Id,
                 CategoryId = fixture.Category.Id,
@@ -344,7 +344,7 @@ public class ResourceModApiTests
 
         HttpResponseMessage clearPermissions = await client.PutAsJsonAsync(
             "/api/ResourceConfiguration/permissions",
-            new ResPermissionInput
+            new ResPermissionUpdateDto
             {
                 EnvironmentId = fixture.Environment.Id,
                 CategoryId = fixture.Category.Id,
@@ -359,9 +359,9 @@ public class ResourceModApiTests
         await DeleteAsync(client, $"/api/ResourceConfiguration/tags/{fixture.Tag.Id}", HttpStatusCode.OK);
     }
 
-    private static ResDefinitionInput DefinitionInput(string suffix)
+    private static ResDefinitionAddDto DefinitionInput(string suffix)
     {
-        return new ResDefinitionInput
+        return new ResDefinitionAddDto
         {
             Name = $"Definition-{suffix}",
             Properties =
@@ -382,12 +382,12 @@ public class ResourceModApiTests
         ResEnvironment environment = await PostAsync<ResEnvironment>(
             client,
             "/api/ResourceConfiguration/environments",
-            new ResEnvironmentInput { Name = $"Environment-{suffix}", Color = "#123456" },
+            new ResEnvironmentAddDto { Name = $"Environment-{suffix}", Color = "#123456" },
             HttpStatusCode.OK);
         ResCategory category = await PostAsync<ResCategory>(
             client,
             "/api/ResourceConfiguration/categories",
-            new ResCategoryInput
+            new ResCategoryAddDto
             {
                 Name = $"Category-{suffix}",
                 CatalogCode = $"catalog-{suffix}",
@@ -397,12 +397,12 @@ public class ResourceModApiTests
         ResGroup group = await PostAsync<ResGroup>(
             client,
             "/api/ResourceConfiguration/groups",
-            new ResGroupInput { Name = $"Group-{suffix}", CategoryId = category.Id, Color = "#abcdef" },
+            new ResGroupAddDto { Name = $"Group-{suffix}", CategoryId = category.Id, Color = "#abcdef" },
             HttpStatusCode.OK);
         ResTag tag = await PostAsync<ResTag>(
             client,
             "/api/ResourceConfiguration/tags",
-            new ResTagInput { Name = $"Tag-{suffix}", Color = "#fedcba" },
+            new ResTagAddDto { Name = $"Tag-{suffix}", Color = "#fedcba" },
             HttpStatusCode.OK);
         ResDefinition definition = await PostAsync<ResDefinition>(
             client,
@@ -423,15 +423,14 @@ public class ResourceModApiTests
             group,
             tag,
             definition,
-            $"Resource-{suffix}",
             address,
             [
-                new ResourceValueInput { DefinitionPropertyId = address.Id, Value = "192.168.000.001" },
-                new ResourceValueInput { DefinitionPropertyId = enabled.Id, Value = "TRUE" },
-                new ResourceValueInput { DefinitionPropertyId = label.Id, Value = "server" },
-                new ResourceValueInput { DefinitionPropertyId = port.Id, Value = "80" },
-                new ResourceValueInput { DefinitionPropertyId = uri.Id, Value = "https://example.com" },
-                new ResourceValueInput { DefinitionPropertyId = when.Id, Value = "2026-07-15" }
+                new ResourceValueDto { DefinitionPropertyId = address.Id, Value = "192.168.000.001" },
+                new ResourceValueDto { DefinitionPropertyId = enabled.Id, Value = "TRUE" },
+                new ResourceValueDto { DefinitionPropertyId = label.Id, Value = "server" },
+                new ResourceValueDto { DefinitionPropertyId = port.Id, Value = "80" },
+                new ResourceValueDto { DefinitionPropertyId = uri.Id, Value = "https://example.com" },
+                new ResourceValueDto { DefinitionPropertyId = when.Id, Value = "2026-07-15" }
             ]);
     }
 
@@ -496,7 +495,6 @@ public class ResourceModApiTests
         ResGroup Group,
         ResTag Tag,
         ResDefinition Definition,
-        string Name,
         ResDefinitionProperty AddressProperty,
-        List<ResourceValueInput> Values);
+        List<ResourceValueDto> Values);
 }

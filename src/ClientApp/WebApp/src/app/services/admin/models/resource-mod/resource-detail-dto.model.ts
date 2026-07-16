@@ -3,10 +3,6 @@ import { ResourceValueDetailDto } from '../resource-mod/resource-value-detail-dt
 export interface ResourceDetailDto {
   /** id */
   id: string;
-  /** name */
-  name: string;
-  /** iconUrl */
-  iconUrl?: string | null;
   /** environmentId */
   environmentId: string;
   /** environmentName */
@@ -27,8 +23,6 @@ export interface ResourceDetailDto {
   tagNames: string[];
   /** updatedTime */
   updatedTime: Date;
-  /** description */
-  description?: string | null;
   /** values */
   values: ResourceValueDetailDto[];
 }

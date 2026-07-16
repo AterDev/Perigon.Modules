@@ -1,10 +1,6 @@
 export interface ResourceItemDto {
   /** id */
   id: string;
-  /** name */
-  name: string;
-  /** iconUrl */
-  iconUrl?: string | null;
   /** environmentId */
   environmentId: string;
   /** environmentName */

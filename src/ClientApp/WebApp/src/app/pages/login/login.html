@@ -1,14 +1,6 @@
 <div class="login-container">
   <canvas
   id="starfield"
-  style="
-  position: absolute;
-  inset: 0;
-  width: 100vw;
-  height: 100vh;
-  z-index: 0;
-  pointer-events: none;
-  "
   >
 </canvas>
 <mat-card>
@@ -28,7 +20,7 @@
         [placeholder]="i18nKeys.login.emailPlaceholder | translate"
         />
         @if (email.invalid && email.touched) {
-          <mat-error>{{getValidatorMessage()}}
+          <mat-error>{{i18nKeys.validation.required | translate}}
           </mat-error>
         }
       </mat-form-field>
@@ -42,7 +34,7 @@
         formControlName="password"
         />
         @if (password.invalid && password.touched) {
-          <mat-error>{{getValidatorMessage()}}
+          <mat-error>{{i18nKeys.validation.required | translate}}
           </mat-error>
         }
       </mat-form-field>

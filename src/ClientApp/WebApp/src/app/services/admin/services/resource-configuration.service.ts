@@ -149,9 +149,10 @@ export class ResourceConfigurationService extends BaseService {
   }
   /**
    * definitions
+   * @param name string
    */
-  definitions(name: string | null = null): Observable<ResDefinition[]> {
-    const _url = `/api/ResourceConfiguration/definitions?name=${encodeURIComponent(name ?? '')}`;
+  definitions(name: string | null): Observable<ResDefinition[]> {
+    const _url = `/api/ResourceConfiguration/definitions?name=${name ?? ''}`;
     return this.request<ResDefinition[]>('get', _url);
   }
   /**

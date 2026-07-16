@@ -15,12 +15,6 @@ export interface Resource {
   isDeleted: boolean;
   /** tenantId */
   tenantId: string;
-  /** name */
-  name: string;
-  /** iconUrl */
-  iconUrl?: string | null;
-  /** description */
-  description?: string | null;
   /** environmentId */
   environmentId: string;
   /** categoryId */

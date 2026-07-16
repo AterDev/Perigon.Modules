@@ -106,17 +106,13 @@ export const I18N_KEYS = {
     "articleCategory": "menu.articleCategory"
   },
   "resource": {
-    "name": "resource.name",
     "environment": "resource.environment",
     "category": "resource.category",
     "group": "resource.group",
     "definition": "resource.definition",
     "resourceDefinition": "resource.resourceDefinition",
     "tag": "resource.tag",
-    "description": "resource.description",
-    "iconUrl": "resource.iconUrl",
     "addTitle": "resource.addTitle",
-    "addDescription": "resource.addDescription",
     "editTitle": "resource.editTitle",
     "detailTitle": "resource.detailTitle",
     "ungrouped": "resource.ungrouped",
@@ -159,6 +155,14 @@ export const I18N_KEYS = {
     "addProperty": "resource.addProperty",
     "removeProperty": "resource.removeProperty",
     "propertyType": "resource.propertyType",
+    "propertyTypes": {
+      "string": "resource.propertyTypes.string",
+      "number": "resource.propertyTypes.number",
+      "boolean": "resource.propertyTypes.boolean",
+      "date": "resource.propertyTypes.date",
+      "uri": "resource.propertyTypes.uri",
+      "ipAddress": "resource.propertyTypes.ipAddress"
+    },
     "propertyRequired": "resource.propertyRequired",
     "propertyMaxLength": "resource.propertyMaxLength",
     "selectCategoryFirst": "resource.selectCategoryFirst",
