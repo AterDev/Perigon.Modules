@@ -11,7 +11,7 @@ namespace CMSMod.Managers;
 /// 博客
 /// </summary>
 public class ArticleManager(
-    TenantDbFactory dbContextFactory,
+    AppDbFactory dbContextFactory,
     ILogger<ArticleManager> logger,
     IUserContext userContext
 ) : ManagerBase<DefaultDbContext, Article>(dbContextFactory, userContext, logger)

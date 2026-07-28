@@ -12,7 +12,7 @@ namespace CMSMod.Managers;
 /// 目录管理
 /// </summary>
 public class ArticleCategoryManager(
-    TenantDbFactory dbContextFactory,
+    AppDbFactory dbContextFactory,
     ILogger<ArticleManager> logger,
     IUserContext userContext
 ) : ManagerBase<DefaultDbContext, ArticleCategory>(dbContextFactory, userContext, logger)

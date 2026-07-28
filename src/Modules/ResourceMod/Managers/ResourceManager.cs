@@ -8,7 +8,7 @@ using System.Net;
 namespace ResourceMod.Managers;
 
 public class ResourceManager(
-    TenantDbFactory dbContextFactory,
+    AppDbFactory dbContextFactory,
     ILogger<ResourceManager> logger,
     IUserContext userContext
 ) : ManagerBase<DefaultDbContext, Resource>(dbContextFactory, userContext, logger)

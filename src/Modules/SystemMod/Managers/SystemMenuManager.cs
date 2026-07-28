@@ -7,7 +7,7 @@ namespace SystemMod.Managers;
 /// 系统菜单
 /// </summary>
 public class SystemMenuManager(
-    TenantDbFactory dbContextFactory,
+    AppDbFactory dbContextFactory,
     ILogger<SystemMenuManager> logger,
     IUserContext userContext
 ) : ManagerBase<DefaultDbContext, SystemMenu>(dbContextFactory, userContext, logger)

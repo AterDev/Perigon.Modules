@@ -9,7 +9,7 @@ namespace SystemMod.Managers;
 public class SystemLogsManager : ManagerBase<DefaultDbContext, SystemLogs>
 {
     public SystemLogsManager(
-        TenantDbFactory dbContextFactory,
+        AppDbFactory dbContextFactory,
         ILogger<SystemLogsManager> logger,
         IUserContext userContext
     ) : base(dbContextFactory, userContext, logger)

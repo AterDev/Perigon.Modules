@@ -8,7 +8,7 @@ namespace SystemMod.Managers;
 /// 系统配置
 /// </summary>
 public class SystemConfigManager(
-    TenantDbFactory dbContextFactory,
+    AppDbFactory dbContextFactory,
     ILogger<SystemConfigManager> logger,
     IUserContext userContext,
     IConfiguration configuration,

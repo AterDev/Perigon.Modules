@@ -5,7 +5,7 @@ using SystemMod.Models.SystemRoleDtos;
 namespace SystemMod.Managers;
 
 public class SystemRoleManager(
-    TenantDbFactory dbContextFactory,
+    AppDbFactory dbContextFactory,
     ILogger<SystemRoleManager> logger,
     IUserContext userContext
 ) : ManagerBase<DefaultDbContext, SystemRole>(dbContextFactory, userContext, logger)

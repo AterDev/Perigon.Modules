@@ -7,7 +7,7 @@ using SystemMod.Models.SystemUserDtos;
 namespace SystemMod.Managers;
 
 public class SystemUserManager(
-    TenantDbFactory dbContextFactory,
+    AppDbFactory dbContextFactory,
     CacheService cache,
     JwtService jwtService,
     SystemConfigManager systemConfig,

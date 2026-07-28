@@ -6,7 +6,7 @@ using Share.Exceptions;
 namespace ResourceMod.Managers;
 
 public class ResourceConfigurationManager(
-    TenantDbFactory dbContextFactory,
+    AppDbFactory dbContextFactory,
     ILogger<ResourceConfigurationManager> logger,
     IUserContext userContext
 ) : ManagerBase<DefaultDbContext, ResEnvironment>(dbContextFactory, userContext, logger)

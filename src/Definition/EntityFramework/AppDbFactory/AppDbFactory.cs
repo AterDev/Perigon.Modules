@@ -11,7 +11,7 @@ namespace EntityFramework.AppDbFactory;
 /// </summary>
 /// <param name="cache"></param>
 /// <param name="configuration"></param>
-public class TenantDbFactory(IOptions<ComponentOption> options, CacheService cache, IConfiguration configuration)
+public class AppDbFactory(IOptions<ComponentOption> options, CacheService cache, IConfiguration configuration)
 {
     public bool IsMultiTenant => options.Value.IsMultiTenant;
 

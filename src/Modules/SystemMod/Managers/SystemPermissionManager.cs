@@ -7,7 +7,7 @@ namespace SystemMod.Managers;
 /// 权限
 /// </summary>
 public class SystemPermissionManager(
-    TenantDbFactory dbContextFactory,
+    AppDbFactory dbContextFactory,
     ILogger<SystemPermissionManager> logger,
     IUserContext userContext
 ) : ManagerBase<DefaultDbContext, SystemPermission>(dbContextFactory, userContext, logger)

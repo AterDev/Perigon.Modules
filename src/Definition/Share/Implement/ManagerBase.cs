@@ -42,7 +42,7 @@ public abstract class ManagerBase<TDbContext, TEntity>
     protected bool IsTenantScoped => typeof(ITenantEntityBase).IsAssignableFrom(typeof(TEntity));
 
     public ManagerBase(
-        TenantDbFactory dbContextFactory,
+        AppDbFactory dbContextFactory,
         IUserContext userContext,
         ILogger logger
     )

@@ -66,7 +66,7 @@ public static class FrameworkExtensions
         public IHostApplicationBuilder AddDbFactory()
         {
             builder.Services.AddSingleton<UniversalDbFactory>();
-            builder.Services.AddSingleton<TenantDbFactory>();
+            builder.Services.AddSingleton<AppDbFactory>();
             return builder;
         }
 

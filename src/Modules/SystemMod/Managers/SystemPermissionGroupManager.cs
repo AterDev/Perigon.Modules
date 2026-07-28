@@ -4,7 +4,7 @@ using SystemMod.Models.SystemPermissionGroupDtos;
 namespace SystemMod.Managers;
 
 public class SystemPermissionGroupManager(
-    TenantDbFactory dbContextFactory,
+    AppDbFactory dbContextFactory,
     ILogger<SystemPermissionGroupManager> logger,
     IUserContext userContext
 ) : ManagerBase<DefaultDbContext, SystemPermissionGroup>(dbContextFactory, userContext, logger)
