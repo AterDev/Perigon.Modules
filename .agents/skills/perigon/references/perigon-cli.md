@@ -14,24 +14,25 @@ Use this reference whenever the task involves:
 
 ## Core command reference
 
-| Task | Command |
-|---|---|
-| Create a new solution | `perigon new <name>` |
-| Add a module | `perigon add module <ModuleName>` |
-| Add a service | `perigon add service <ServiceName>` |
-| Generate DTO from an entity | `perigon generate dto <EntityPath>` |
-| Generate manager from an entity | `perigon generate manager <EntityPath>` |
-| Generate controller from an entity and target service | `perigon generate controller <EntityPath> <ServicePath|ServiceName>` |
-| Generate typed request client/models from OpenAPI | `perigon generate request <path|url> <outputPath>` |
-| Generate only models from OpenAPI | `perigon generate request <path|url> <outputPath> -m` |
-| List official module packages | `perigon module list` |
-| Install a module package | `perigon module install <PackagePath|OfficialName> <ServiceName>` |
-| Pack a module into a zip | `perigon module pack <ModuleName> <ServiceName>` |
-| Initialize MCP config | `perigon mcp init` |
-| Start MCP server | `perigon mcp start` |
-| Launch Studio | `perigon studio` |
-| Update Studio | `perigon studio update` |
-| Show command help | `perigon -h` or `perigon <command> -h` |
+| Task                                                  | Command                                                              |
+| ----------------------------------------------------- | -------------------------------------------------------------------- |
+| Create a new solution                                 | `perigon new <name>`                                                 |
+| Add a module                                          | `perigon add module <ModuleName>`                                    |
+| Add a service                                         | `perigon add service <ServiceName>`                                  |
+| Get How to generate entity for LLM                    | `perigon generate entity`                                            |
+| Generate DTO from an entity                           | `perigon generate dto <EntityPath>`                                  |
+| Generate manager from an entity                       | `perigon generate manager <EntityPath>`                              |
+| Generate controller from an entity and target service | `perigon generate controller <EntityPath> <ServicePath/ServiceName>` |
+| Generate typed request client/models from OpenAPI     | `perigon generate request <path/url> <outputPath>`                   |
+| Generate only models from OpenAPI                     | `perigon generate request <path/url> <outputPath> -m`                |
+| List official module packages                         | `perigon module list`                                                |
+| Install a module package                              | `perigon module install <PackagePath/OfficialName> <ServiceName>`    |
+| Pack a module into a zip                              | `perigon module pack <ModuleName> <ServiceName>`                     |
+| Initialize MCP config                                 | `perigon mcp init`                                                   |
+| Start MCP server                                      | `perigon mcp start`                                                  |
+| Launch Studio                                         | `perigon studio`                                                     |
+| Update Studio                                         | `perigon studio update`                                              |
+| Show command help                                     | `perigon -h` or `perigon <command> -h`                               |
 
 ## Recommended workflows
 

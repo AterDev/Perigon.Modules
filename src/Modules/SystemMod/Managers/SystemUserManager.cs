@@ -162,6 +162,7 @@ public class SystemUserManager(
     {
         user.PasswordSalt = HashCrypto.BuildSalt();
         user.PasswordHash = HashCrypto.GeneratePwd(newPassword, user.PasswordSalt);
+        user.LastPwdEditTime = DateTimeOffset.UtcNow;
         _dbSet.Update(user);
         return await _dbContext.SaveChangesAsync() > 0;
     }
