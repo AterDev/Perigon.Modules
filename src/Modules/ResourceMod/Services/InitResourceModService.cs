@@ -28,6 +28,7 @@ public class InitResourceModService(
                     context.ResEnvironments.Add(new ResEnvironment
                     {
                         Name = "Dev",
+                        Icon = "cloud",
                         Color = "#2196f3",
                         TenantId = tenantId
                     });
@@ -41,6 +42,7 @@ public class InitResourceModService(
                     {
                         Name = "Default",
                         CatalogCode = "Default",
+                        Icon = "category",
                         Color = "#9e9e9e",
                         TenantId = tenantId
                     });

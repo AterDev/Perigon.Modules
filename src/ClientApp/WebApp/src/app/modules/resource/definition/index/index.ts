@@ -9,6 +9,7 @@ import { CommonListModules } from '../../../share/shared-modules';
 import { ConfirmDialogComponent } from '../../../share/components/confirm-dialog/confirm-dialog.component';
 import { I18N_KEYS } from '../../../share/i18n-keys';
 import { ResourceDefinitionDialogComponent } from './definition-dialog/definition-dialog';
+import { resourceIconName, resourceIconStyle } from '../../shared/resource-appearance';
 
 @Component({
   selector: 'app-resource-definition-index',
@@ -19,6 +20,8 @@ import { ResourceDefinitionDialogComponent } from './definition-dialog/definitio
 })
 export class ResourceDefinitionIndexComponent {
   readonly i18nKeys = I18N_KEYS;
+  readonly iconName = resourceIconName;
+  readonly iconStyle = resourceIconStyle;
   readonly definitions = signal<ResDefinition[]>([]);
   readonly valueTypeLabels = {
     [ResValueType.String]: I18N_KEYS.resource.propertyTypes.string,

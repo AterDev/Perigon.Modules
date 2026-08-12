@@ -1,0 +1,29 @@
+.resource-icon-picker {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.resource-icon-trigger {
+  display: inline-flex;
+  min-height: 3rem;
+  align-items: center;
+  gap: 0.5rem;
+  padding-inline: 0.75rem;
+}
+
+.resource-selected-icon {
+  display: inline-flex;
+  min-height: 2.5rem;
+  align-items: center;
+  gap: 0.5rem;
+  padding-inline: 0.75rem;
+  border: 1px solid var(--mat-sys-outline-variant);
+  border-radius: 0.5rem;
+  color: var(--mat-sys-on-surface);
+}
+
+.resource-selected-icon-empty {
+  padding-inline: 0.25rem;
+}

@@ -8,6 +8,11 @@
       <input matInput formControlName="name" />
     </mat-form-field>
 
+    <div class="resource-picker-field">
+      <h3 class="mat-title-small">{{ i18nKeys.common.icon | translate }}</h3>
+      <app-resource-icon-picker formControlName="icon" />
+    </div>
+
     <div class="d-flex align-items-center justify-content-between">
       <h3 class="mat-title-medium m-0">{{ i18nKeys.resource.definitionProperties | translate }}</h3>
       <button mat-stroked-button type="button" (click)="addProperty()">

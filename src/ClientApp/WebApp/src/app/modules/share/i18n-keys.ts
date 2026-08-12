@@ -22,6 +22,9 @@ export const I18N_KEYS = {
     "icon": "common.icon",
     "title": "common.title",
     "close": "common.close",
+    "clear": "common.clear",
+    "none": "common.none",
+    "color": "common.color",
     "confirmDelete": "common.confirmDelete",
     "deleteSuccess": "common.deleteSuccess",
     "deleteFail": "common.deleteFail",
@@ -146,6 +149,8 @@ export const I18N_KEYS = {
     "categoryNamePrompt": "resource.categoryNamePrompt",
     "categoryCodePrompt": "resource.categoryCodePrompt",
     "groupNamePrompt": "resource.groupNamePrompt",
+    "description": "resource.description",
+    "icon": "resource.icon",
     "tagNamePrompt": "resource.tagNamePrompt",
     "newGroupNamePrompt": "resource.newGroupNamePrompt",
     "newTagNamePrompt": "resource.newTagNamePrompt",
@@ -175,6 +180,16 @@ export const I18N_KEYS = {
     "deleteCategoryConfirm": "resource.deleteCategoryConfirm",
     "deleteGroupConfirm": "resource.deleteGroupConfirm",
     "deleteTagConfirm": "resource.deleteTagConfirm",
+    "editGroup": "resource.editGroup",
+    "editTag": "resource.editTag",
+    "customColor": "resource.customColor",
+    "searchIcons": "resource.searchIcons",
+    "selectIcon": "resource.selectIcon",
+    "currentIcon": "resource.currentIcon",
+    "iconStyles": {
+      "outline": "resource.iconStyles.outline",
+      "fill": "resource.iconStyles.fill"
+    },
     "deleteDefinitionConfirm": "resource.deleteDefinitionConfirm"
   },
   "cms": {

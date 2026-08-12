@@ -27,10 +27,16 @@ public class ResourceConfigurationManager(
             .ToListAsync();
     }
 
-    public async Task<List<ResGroup>> GroupsAsync(Guid categoryId)
+    public async Task<List<ResGroup>> GroupsAsync(Guid? categoryId)
     {
-        return await _dbContext.ResGroups
-            .Where(g => g.TenantId == _userContext.TenantId && g.CategoryId == categoryId)
+        IQueryable<ResGroup> query = _dbContext.ResGroups
+            .Where(g => g.TenantId == _userContext.TenantId);
+        if (categoryId.HasValue)
+        {
+            query = query.Where(g => g.CategoryId == categoryId.Value);
+        }
+
+        return await query
             .OrderBy(g => g.Name)
             .ToListAsync();
     }

@@ -19,6 +19,9 @@
     "icon": "Icon",
     "title": "Title",
     "close": "Close",
+    "clear": "Clear",
+    "none": "None",
+    "color": "Color",
     "confirmDelete": "Are you sure you want to delete?",
     "deleteSuccess": "Delete successful",
     "deleteFail": "Delete failed",
@@ -143,6 +146,8 @@
     "categoryNamePrompt": "Category name",
     "categoryCodePrompt": "Category code",
     "groupNamePrompt": "Group name",
+    "description": "Description",
+    "icon": "Icon",
     "tagNamePrompt": "Tag name",
     "newGroupNamePrompt": "New group name",
     "newTagNamePrompt": "New tag name",
@@ -172,6 +177,16 @@
     "deleteCategoryConfirm": "Delete category “{{name}}”?",
     "deleteGroupConfirm": "Delete group “{{name}}”?",
     "deleteTagConfirm": "Delete tag “{{name}}”? Tag names stored on existing resources will not change.",
+    "editGroup": "Edit group",
+    "editTag": "Edit tag",
+    "customColor": "Custom color",
+    "searchIcons": "Search icons",
+    "selectIcon": "Select icon",
+    "currentIcon": "Current icon",
+    "iconStyles": {
+      "outline": "Outline",
+      "fill": "Fill"
+    },
     "deleteDefinitionConfirm": "Delete definition “{{name}}”?"
   },
   "cms": {

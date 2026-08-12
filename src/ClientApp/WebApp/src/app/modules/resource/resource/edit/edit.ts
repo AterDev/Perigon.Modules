@@ -6,6 +6,7 @@ import {
   inject,
   signal,
 } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import {
   FormBuilder,
   FormControl,
@@ -26,8 +27,11 @@ import { ResValueType } from '../../../../services/admin/models/entity/res-value
 import { TranslateService } from '@ngx-translate/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { ResourceInputDialogComponent } from '../../dialogs/input-dialog/input-dialog';
-import { ResourceGroupDialogComponent } from '../add/group-dialog/group-dialog';
+import { ResourceGroupDialogComponent } from '../../dialogs/group-dialog/group-dialog';
+import { ResourceTagDialogComponent } from '../../dialogs/tag-dialog/tag-dialog';
+import { ResGroupInput } from '../../../../services/admin/models/resource-mod/res-group-input.model';
+import { ResTagInput } from '../../../../services/admin/models/resource-mod/res-tag-input.model';
+import { resourceIconName, resourceIconStyle } from '../../shared/resource-appearance';
 
 @Component({
   selector: 'app-resource-edit',
@@ -38,6 +42,8 @@ import { ResourceGroupDialogComponent } from '../add/group-dialog/group-dialog';
 })
 export class ResourceEditComponent {
   readonly i18nKeys = I18N_KEYS;
+  readonly iconName = resourceIconName;
+  readonly iconStyle = resourceIconStyle;
   private readonly fb = inject(FormBuilder);
   private readonly client = inject(AdminClient);
   private readonly route = inject(ActivatedRoute, { optional: true });
@@ -69,11 +75,15 @@ export class ResourceEditComponent {
     definitionId: ['', Validators.required],
     tagNames: [[] as string[]],
   });
+  private readonly selectedDefinitionId = toSignal(
+    this.form.controls.definitionId.valueChanges,
+    { initialValue: this.form.controls.definitionId.value },
+  );
   readonly values = new FormRecord<FormControl<string>>({});
   readonly definition = computed(
     () =>
       this.definitions().find(
-        (item) => item.id === this.form.controls.definitionId.value,
+        (item) => item.id === this.selectedDefinitionId(),
       ) ?? null,
   );
   saving = false;
@@ -132,23 +142,15 @@ export class ResourceEditComponent {
   }
   createTag(): void {
     this.dialog
-      .open(ResourceInputDialogComponent, {
-        data: {
-          title: this.translate.instant('resource.createTag'),
-          fields: [
-            {
-              key: 'name',
-              label: this.translate.instant('resource.tag'),
-              required: true,
-            },
-          ],
-        },
+      .open(ResourceTagDialogComponent, {
+        maxWidth: '96vw',
+        maxHeight: '96vh',
       })
       .afterClosed()
-      .subscribe((value: { name?: string } | undefined) => {
-        if (!value?.name) return;
+      .subscribe((value: ResTagInput | undefined) => {
+        if (!value) return;
         this.client.resourceConfiguration
-          .addTag({ name: value.name, color: '#607d8b', icon: 'label' })
+          .addTag(value)
           .subscribe((tag) => {
             this.tags.update((items) => [...items, tag]);
             this.form.controls.tagNames.setValue([
@@ -162,18 +164,16 @@ export class ResourceEditComponent {
     const categoryId = this.form.controls.categoryId.value;
     if (!categoryId) return;
     this.dialog
-      .open(ResourceGroupDialogComponent)
+      .open(ResourceGroupDialogComponent, {
+        maxWidth: '96vw',
+        maxHeight: '96vh',
+        data: { categoryId },
+      })
       .afterClosed()
-      .subscribe((name: string | undefined) => {
-        if (!name) return;
+      .subscribe((value: ResGroupInput | undefined) => {
+        if (!value) return;
         this.client.resourceConfiguration
-          .addGroup({
-            name,
-            categoryId,
-            color: '#607d8b',
-            icon: 'folder',
-            description: null,
-          })
+          .addGroup(value)
           .subscribe((group) => {
             this.groups.update((items) => [...items, group]);
             this.form.controls.groupId.setValue(group.id);

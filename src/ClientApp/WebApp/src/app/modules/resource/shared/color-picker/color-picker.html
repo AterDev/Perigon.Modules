@@ -1,0 +1,60 @@
+<div class="resource-color-picker" role="group" [attr.aria-label]="i18nKeys.common.color | translate">
+  <div class="resource-color-options">
+    @for (color of colors; track color) {
+      <button
+        mat-icon-button
+        type="button"
+        class="resource-color-option"
+        [class.selected]="value() === color"
+        [style.background-color]="color"
+        [attr.aria-label]="color"
+        [attr.aria-pressed]="value() === color"
+        [disabled]="disabled()"
+        [matTooltip]="color"
+        (click)="select(color)"
+      >
+        @if (value() === color) {
+          <mat-icon>check</mat-icon>
+        }
+      </button>
+    }
+  </div>
+
+  <div class="resource-color-footer">
+    <button
+      mat-stroked-button
+      type="button"
+      [disabled]="disabled()"
+      (click)="customColorInput.click()"
+    >
+      <mat-icon>colorize</mat-icon>
+      {{ i18nKeys.resource.customColor | translate }}
+    </button>
+    <button
+      mat-icon-button
+      type="button"
+      class="resource-custom-color-preview"
+      [class.selected]="isCustomColor()"
+      [style.background-color]="value() || '#607d8b'"
+      [attr.aria-label]="i18nKeys.resource.customColor | translate"
+      [attr.aria-pressed]="isCustomColor()"
+      [disabled]="disabled()"
+      [matTooltip]="value() || '#607d8b'"
+      (click)="customColorInput.click()"
+    >
+      @if (isCustomColor()) {
+        <mat-icon>check</mat-icon>
+      }
+    </button>
+    <input
+      #customColorInput
+      class="resource-native-color-input"
+      type="color"
+      [value]="value() || '#607d8b'"
+      [disabled]="disabled()"
+      [attr.aria-label]="i18nKeys.resource.customColor | translate"
+      (input)="customColorChanged($event)"
+    />
+    <code>{{ value() || '-' }}</code>
+  </div>
+</div>

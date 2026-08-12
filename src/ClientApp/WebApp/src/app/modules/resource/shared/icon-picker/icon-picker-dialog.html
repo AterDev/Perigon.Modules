@@ -1,0 +1,74 @@
+<h2 mat-dialog-title>{{ i18nKeys.resource.selectIcon | translate }}</h2>
+<mat-dialog-content class="resource-icon-dialog-content">
+  <mat-form-field appearance="outline" subscriptSizing="dynamic" class="resource-icon-search">
+    <mat-label>{{ i18nKeys.resource.searchIcons | translate }}</mat-label>
+    <mat-icon matPrefix>search</mat-icon>
+    <input matInput [value]="query()" (input)="searchChanged($event)" />
+    @if (query()) {
+      <button
+        mat-icon-button
+        matSuffix
+        type="button"
+        [attr.aria-label]="i18nKeys.common.clear | translate"
+        (click)="query.set('')"
+      >
+        <mat-icon>close</mat-icon>
+      </button>
+    }
+  </mat-form-field>
+
+  <div class="resource-icon-dialog-current">
+    <span>{{ i18nKeys.resource.currentIcon | translate }}</span>
+    @if (currentName) {
+      <mat-icon
+        [class.resource-icon-fill]="currentStyle === 'fill'"
+        [class.resource-icon-outline]="currentStyle === 'outline'"
+      >{{ currentName }}</mat-icon>
+      <code>{{ currentName }}</code>
+    } @else {
+      <span class="text-body-secondary">{{ i18nKeys.common.none | translate }}</span>
+    }
+  </div>
+
+  <mat-tab-group animationDuration="0ms" [selectedIndex]="currentStyle === 'fill' ? 1 : 0">
+    <mat-tab [label]="i18nKeys.resource.iconStyles.outline | translate">
+      <ng-container *ngTemplateOutlet="iconGrid; context: { style: 'outline' }" />
+    </mat-tab>
+    <mat-tab [label]="i18nKeys.resource.iconStyles.fill | translate">
+      <ng-container *ngTemplateOutlet="iconGrid; context: { style: 'fill' }" />
+    </mat-tab>
+  </mat-tab-group>
+
+  <ng-template #iconGrid let-style="style">
+    <div class="resource-icon-grid" role="listbox" [attr.aria-label]="i18nKeys.resource.selectIcon | translate">
+      @for (icon of filteredIcons(); track icon) {
+        <button
+          type="button"
+          class="resource-icon-option"
+          [class.selected]="currentName === icon && currentStyle === style"
+          [attr.aria-label]="icon"
+          [attr.aria-selected]="currentName === icon && currentStyle === style"
+          [matTooltip]="icon"
+          (click)="select(icon, style)"
+        >
+          <mat-icon
+            [class.resource-icon-fill]="isFill(style)"
+            [class.resource-icon-outline]="!isFill(style)"
+          >{{ icon }}</mat-icon>
+          <span>{{ icon }}</span>
+          @if (currentName === icon && currentStyle === style) {
+            <mat-icon class="resource-icon-selected-mark">check_circle</mat-icon>
+          }
+        </button>
+      } @empty {
+        <span class="text-body-secondary">{{ i18nKeys.common.noData | translate }}</span>
+      }
+    </div>
+  </ng-template>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button type="button" (click)="clear()">
+    {{ i18nKeys.common.none | translate }}
+  </button>
+  <button mat-button mat-dialog-close>{{ i18nKeys.common.cancel | translate }}</button>
+</mat-dialog-actions>

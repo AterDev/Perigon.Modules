@@ -4,14 +4,28 @@ import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/materia
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
+import { MatIconModule } from '@angular/material/icon';
+import { MatSelectModule } from '@angular/material/select';
 import { TranslateModule } from '@ngx-translate/core';
 import { I18N_KEYS } from '../../../share/i18n-keys';
+import { ResourceColorPickerComponent } from '../../shared/color-picker/color-picker';
+import { ResourceIconPickerComponent } from '../../shared/icon-picker/icon-picker';
+
+export type ResourceInputDialogFieldType = 'text' | 'textarea' | 'color' | 'icon' | 'select';
+
+export interface ResourceInputDialogOption {
+  value: string;
+  label: string;
+  icon?: string;
+}
 
 export interface ResourceInputDialogField {
   key: string;
   label: string;
   value?: string;
   required?: boolean;
+  type?: ResourceInputDialogFieldType;
+  options?: ResourceInputDialogOption[];
 }
 
 export interface ResourceInputDialogData {
@@ -26,10 +40,15 @@ export interface ResourceInputDialogData {
     MatDialogModule,
     MatFormFieldModule,
     MatInputModule,
+    MatIconModule,
+    MatSelectModule,
+    ResourceColorPickerComponent,
+    ResourceIconPickerComponent,
     ReactiveFormsModule,
     TranslateModule,
   ],
   templateUrl: './input-dialog.html',
+  styleUrl: './input-dialog.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ResourceInputDialogComponent {

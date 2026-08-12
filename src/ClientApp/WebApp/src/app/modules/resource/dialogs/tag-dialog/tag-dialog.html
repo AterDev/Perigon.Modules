@@ -1,0 +1,27 @@
+<h2 mat-dialog-title>
+  {{ (data?.tag ? i18nKeys.resource.editTag : i18nKeys.resource.addTag) | translate }}
+</h2>
+<mat-dialog-content>
+  <form [formGroup]="form" (ngSubmit)="save()" class="resource-tag-form">
+    <mat-form-field appearance="outline" subscriptSizing="dynamic">
+      <mat-label>{{ i18nKeys.resource.tag | translate }}</mat-label>
+      <input matInput formControlName="name" />
+    </mat-form-field>
+
+    <div class="resource-picker-field">
+      <h3 class="mat-title-small">{{ i18nKeys.common.color | translate }}</h3>
+      <app-resource-color-picker formControlName="color" />
+    </div>
+
+    <div class="resource-picker-field">
+      <h3 class="mat-title-small">{{ i18nKeys.common.icon | translate }}</h3>
+      <app-resource-icon-picker formControlName="icon" />
+    </div>
+  </form>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button mat-dialog-close>{{ i18nKeys.common.cancel | translate }}</button>
+  <button mat-flat-button color="primary" type="button" [disabled]="form.invalid" (click)="save()">
+    {{ i18nKeys.common.save | translate }}
+  </button>
+</mat-dialog-actions>

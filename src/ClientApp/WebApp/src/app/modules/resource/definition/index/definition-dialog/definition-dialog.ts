@@ -6,6 +6,7 @@ import { I18N_KEYS } from '../../../../share/i18n-keys';
 import { ResDefinition } from '../../../../../services/admin/models/entity/res-definition.model';
 import { ResValueType } from '../../../../../services/admin/models/entity/res-value-type.model';
 import { ResDefinitionInput } from '../../../../../services/admin/models/resource-mod/res-definition-input.model';
+import { ResourceIconPickerComponent } from '../../../shared/icon-picker/icon-picker';
 
 export interface ResourceDefinitionDialogData {
   definition?: ResDefinition;
@@ -21,7 +22,7 @@ type PropertyForm = FormGroup<{
 
 @Component({
   selector: 'app-resource-definition-dialog',
-  imports: CommonFormModules,
+  imports: [...CommonFormModules, ResourceIconPickerComponent],
   templateUrl: './definition-dialog.html',
   styleUrl: './definition-dialog.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -41,11 +42,13 @@ export class ResourceDefinitionDialogComponent {
   readonly data = inject<ResourceDefinitionDialogData>(MAT_DIALOG_DATA, { optional: true });
   readonly form = this.formBuilder.group({
     name: this.formBuilder.nonNullable.control('', Validators.required),
+    icon: this.formBuilder.nonNullable.control('schema'),
     properties: this.formBuilder.array<PropertyForm>([]),
   });
 
   constructor() {
     this.form.controls.name.setValue(this.data?.definition?.name ?? '');
+    this.form.controls.icon.setValue(this.data?.definition?.icon ?? 'schema');
     for (const property of this.data?.definition?.properties ?? []) {
       this.addProperty(property);
     }
@@ -72,7 +75,7 @@ export class ResourceDefinitionDialogComponent {
     const value = this.form.getRawValue();
     const result: ResDefinitionInput = {
       name: value.name.trim(),
-      icon: this.data?.definition?.icon ?? 'schema',
+      icon: value.icon || null,
       properties: value.properties.map((property, index) => ({
         id: property.id,
         name: property.name.trim(),

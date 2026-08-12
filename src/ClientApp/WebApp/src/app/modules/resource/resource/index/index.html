@@ -8,7 +8,10 @@
           <mat-option value="">{{ i18nKeys.common.all | translate }}
           </mat-option>
           @for (item of environments(); track item.id) {
-          <mat-option [value]="item.id">{{ item.name }}
+          <mat-option [value]="item.id">
+            <mat-icon [style.color]="item.color"
+              [class.resource-icon-fill]="iconStyle(item.icon) === 'fill'"
+              [class.resource-icon-outline]="iconStyle(item.icon) === 'outline'">{{ iconName(item.icon, 'cloud') }}</mat-icon>{{ item.name }}
           </mat-option>
           }
         </mat-select>
@@ -20,7 +23,10 @@
           <mat-option value="">{{ i18nKeys.common.all | translate }}
           </mat-option>
           @for (item of categories(); track item.id) {
-          <mat-option [value]="item.id">{{ item.name }}
+          <mat-option [value]="item.id">
+            <mat-icon [style.color]="item.color"
+              [class.resource-icon-fill]="iconStyle(item.icon) === 'fill'"
+              [class.resource-icon-outline]="iconStyle(item.icon) === 'outline'">{{ iconName(item.icon, 'category') }}</mat-icon>{{ item.name }}
           </mat-option>
           }
         </mat-select>
@@ -62,15 +68,64 @@
       <tbody>
         @for (resource of resources(); track resource.id) {
         <tr>
-          <td>{{ resource.environmentName }}
+          <td>
+            <span class="d-inline-flex align-items-center gap-1">
+                <mat-icon [style.color]="environmentsById().get(resource.environmentId)?.color"
+                  [class.resource-icon-fill]="iconStyle(environmentsById().get(resource.environmentId)?.icon) === 'fill'"
+                  [class.resource-icon-outline]="iconStyle(environmentsById().get(resource.environmentId)?.icon) === 'outline'">
+                  {{ iconName(environmentsById().get(resource.environmentId)?.icon, 'cloud') }}
+              </mat-icon>
+              {{ resource.environmentName }}
+            </span>
           </td>
-          <td>{{ resource.categoryName }}
+          <td>
+            <span class="d-inline-flex align-items-center gap-1">
+                <mat-icon [style.color]="categoriesById().get(resource.categoryId)?.color"
+                  [class.resource-icon-fill]="iconStyle(categoriesById().get(resource.categoryId)?.icon) === 'fill'"
+                  [class.resource-icon-outline]="iconStyle(categoriesById().get(resource.categoryId)?.icon) === 'outline'">
+                  {{ iconName(categoriesById().get(resource.categoryId)?.icon, 'category') }}
+              </mat-icon>
+              {{ resource.categoryName }}
+            </span>
           </td>
-          <td>{{ resource.groupName || '-' }}
+          <td>
+            @if (resource.groupId && resource.groupName) {
+              <span class="d-inline-flex align-items-center gap-1">
+                <mat-icon [style.color]="groupsById().get(resource.groupId)?.color"
+                  [class.resource-icon-fill]="iconStyle(groupsById().get(resource.groupId)?.icon) === 'fill'"
+                  [class.resource-icon-outline]="iconStyle(groupsById().get(resource.groupId)?.icon) === 'outline'">
+                  {{ iconName(groupsById().get(resource.groupId)?.icon, 'folder') }}
+                </mat-icon>
+                {{ resource.groupName }}
+              </span>
+            } @else {
+              -
+            }
           </td>
-          <td>{{ resource.definitionName }}
+          <td>
+            <span class="d-inline-flex align-items-center gap-1">
+              <mat-icon
+                [class.resource-icon-fill]="iconStyle(definitionsById().get(resource.definitionId)?.icon) === 'fill'"
+                [class.resource-icon-outline]="iconStyle(definitionsById().get(resource.definitionId)?.icon) === 'outline'">
+                {{ iconName(definitionsById().get(resource.definitionId)?.icon, 'schema') }}</mat-icon>
+              {{ resource.definitionName }}
+            </span>
           </td>
-          <td>{{ resource.tagNames.join(', ') }}
+          <td>
+            <span class="d-inline-flex flex-wrap align-items-center gap-1">
+              @for (tagName of resource.tagNames; track tagName) {
+                <span class="d-inline-flex align-items-center gap-1">
+                  <mat-icon [style.color]="tagsByName().get(tagName)?.color"
+                    [class.resource-icon-fill]="iconStyle(tagsByName().get(tagName)?.icon) === 'fill'"
+                    [class.resource-icon-outline]="iconStyle(tagsByName().get(tagName)?.icon) === 'outline'">
+                    {{ iconName(tagsByName().get(tagName)?.icon, 'label') }}
+                  </mat-icon>
+                  {{ tagName }}
+                </span>
+              } @empty {
+                -
+              }
+            </span>
           </td>
           <td>
             <button mat-icon-button (click)="detail(resource)"

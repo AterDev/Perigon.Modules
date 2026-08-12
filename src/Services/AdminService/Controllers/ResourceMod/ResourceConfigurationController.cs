@@ -58,7 +58,7 @@ public class ResourceConfigurationController(
     }
 
     [HttpGet("groups")]
-    public Task<List<ResGroup>> GroupsAsync(Guid categoryId)
+    public Task<List<ResGroup>> GroupsAsync(Guid? categoryId)
     {
         return _manager.GroupsAsync(categoryId);
     }

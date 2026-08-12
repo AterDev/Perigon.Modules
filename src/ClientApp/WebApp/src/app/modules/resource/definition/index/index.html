@@ -18,7 +18,9 @@
       <mat-expansion-panel>
         <mat-expansion-panel-header>
           <mat-panel-title>
-            <mat-icon>schema</mat-icon>
+            <mat-icon
+              [class.resource-icon-fill]="iconStyle(item.icon) === 'fill'"
+              [class.resource-icon-outline]="iconStyle(item.icon) === 'outline'">{{ iconName(item.icon, 'schema') }}</mat-icon>
             <strong>{{ item.name }}</strong>
             <span class="property-count">
               {{ i18nKeys.resource.propertyCount | translate: { count: item.properties.length } }}

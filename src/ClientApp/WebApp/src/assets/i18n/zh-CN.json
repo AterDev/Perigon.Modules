@@ -19,6 +19,9 @@
     "icon": "图标",
     "title": "标题",
     "close": "关闭",
+    "clear": "清除",
+    "none": "无",
+    "color": "颜色",
     "confirmDelete": "是否确定删除?",
     "deleteSuccess": "删除成功",
     "deleteFail": "删除失败",
@@ -143,6 +146,8 @@
     "categoryNamePrompt": "分类名称",
     "categoryCodePrompt": "分类编码",
     "groupNamePrompt": "分组名称",
+    "description": "描述",
+    "icon": "图标",
     "tagNamePrompt": "标签名称",
     "newGroupNamePrompt": "新分组名称",
     "newTagNamePrompt": "新标签名称",
@@ -172,6 +177,16 @@
     "deleteCategoryConfirm": "删除分类“{{name}}”？",
     "deleteGroupConfirm": "删除分组“{{name}}”？",
     "deleteTagConfirm": "删除标签“{{name}}”？历史资源中的标签名不会改变。",
+    "editGroup": "编辑分组",
+    "editTag": "编辑标签",
+    "customColor": "自定义颜色",
+    "searchIcons": "搜索图标",
+    "selectIcon": "选择图标",
+    "currentIcon": "当前图标",
+    "iconStyles": {
+      "outline": "线框",
+      "fill": "实心"
+    },
     "deleteDefinitionConfirm": "删除定义“{{name}}”？"
   },
   "cms": {

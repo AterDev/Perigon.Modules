@@ -3,11 +3,41 @@
 <mat-dialog-content>
   <form [formGroup]="form" (ngSubmit)="save()" class="d-flex flex-column gap-3">
     @for (field of data.fields; track field.key) {
-      <mat-form-field appearance="outline" subscriptSizing="dynamic">
-        <mat-label>{{ field.label }}
-        </mat-label>
-        <input matInput [formControlName]="field.key" />
-      </mat-form-field>
+      @if (field.type === 'color') {
+        <div class="resource-picker-field">
+          <h3 class="mat-title-small">{{ field.label }}</h3>
+          <app-resource-color-picker [formControlName]="field.key" />
+        </div>
+      } @else if (field.type === 'icon') {
+        <div class="resource-picker-field">
+          <h3 class="mat-title-small">{{ field.label }}</h3>
+          <app-resource-icon-picker [formControlName]="field.key" />
+        </div>
+      } @else if (field.type === 'select') {
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+          <mat-label>{{ field.label }}</mat-label>
+          <mat-select [formControlName]="field.key">
+            @for (option of field.options ?? []; track option.value) {
+              <mat-option [value]="option.value">
+                @if (option.icon) {
+                  <mat-icon>{{ option.icon }}</mat-icon>
+                }
+                {{ option.label }}
+              </mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+      } @else if (field.type === 'textarea') {
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+          <mat-label>{{ field.label }}</mat-label>
+          <textarea matInput rows="3" [formControlName]="field.key"></textarea>
+        </mat-form-field>
+      } @else {
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+          <mat-label>{{ field.label }}</mat-label>
+          <input matInput [formControlName]="field.key" />
+        </mat-form-field>
+      }
     }
   </form>
 </mat-dialog-content>

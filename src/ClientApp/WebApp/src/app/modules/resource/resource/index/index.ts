@@ -2,6 +2,7 @@ import { I18N_KEYS } from '../../../share/i18n-keys';
 import {
   ChangeDetectionStrategy,
   Component,
+  computed,
   inject,
   signal,
 } from '@angular/core';
@@ -11,6 +12,8 @@ import { ResourceItemDto } from '../../../../services/admin/models/resource-mod/
 import { ResEnvironment } from '../../../../services/admin/models/entity/res-environment.model';
 import { ResCategory } from '../../../../services/admin/models/entity/res-category.model';
 import { ResDefinition } from '../../../../services/admin/models/entity/res-definition.model';
+import { ResGroup } from '../../../../services/admin/models/entity/res-group.model';
+import { ResTag } from '../../../../services/admin/models/entity/res-tag.model';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { TranslateService } from '@ngx-translate/core';
 import { MatDialog } from '@angular/material/dialog';
@@ -18,6 +21,7 @@ import { ConfirmDialogComponent } from '../../../share/components/confirm-dialog
 import { ResourceAddComponent } from '../add/add';
 import { ResourceDetailComponent } from '../detail/detail';
 import { ResourceEditComponent } from '../edit/edit';
+import { resourceIconName, resourceIconStyle } from '../../shared/resource-appearance';
 
 @Component({
   selector: 'app-resource-index',
@@ -28,6 +32,8 @@ import { ResourceEditComponent } from '../edit/edit';
 })
 export class ResourceIndexComponent {
   readonly i18nKeys = I18N_KEYS;
+  readonly iconName = resourceIconName;
+  readonly iconStyle = resourceIconStyle;
   private readonly client = inject(AdminClient);
   private readonly snackBar = inject(MatSnackBar);
   private readonly translate = inject(TranslateService);
@@ -36,6 +42,23 @@ export class ResourceIndexComponent {
   readonly environments = signal<ResEnvironment[]>([]);
   readonly categories = signal<ResCategory[]>([]);
   readonly definitions = signal<ResDefinition[]>([]);
+  readonly groups = signal<ResGroup[]>([]);
+  readonly tags = signal<ResTag[]>([]);
+  readonly environmentsById = computed(
+    () => new Map(this.environments().map((item) => [item.id, item])),
+  );
+  readonly categoriesById = computed(
+    () => new Map(this.categories().map((item) => [item.id, item])),
+  );
+  readonly groupsById = computed(
+    () => new Map(this.groups().map((item) => [item.id, item])),
+  );
+  readonly definitionsById = computed(
+    () => new Map(this.definitions().map((item) => [item.id, item])),
+  );
+  readonly tagsByName = computed(
+    () => new Map(this.tags().map((item) => [item.name, item])),
+  );
   readonly loading = signal(false);
   environmentId = '';
   categoryId = '';
@@ -52,6 +75,12 @@ export class ResourceIndexComponent {
     this.client.resourceConfiguration
       .definitions(null)
       .subscribe((value) => this.definitions.set(value));
+    this.client.resourceConfiguration
+      .groups(null)
+      .subscribe((value) => this.groups.set(value));
+    this.client.resourceConfiguration
+      .tags()
+      .subscribe((value) => this.tags.set(value));
     this.load();
   }
 

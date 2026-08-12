@@ -1,0 +1,31 @@
+<div class="resource-icon-picker">
+  <button
+    mat-stroked-button
+    type="button"
+    class="resource-icon-trigger"
+    [disabled]="disabled()"
+    [attr.aria-label]="i18nKeys.resource.selectIcon | translate"
+    (click)="open()"
+  >
+    <mat-icon>image</mat-icon>
+    {{ i18nKeys.resource.selectIcon | translate }}
+  </button>
+
+  @if (value()) {
+    <span
+      class="resource-selected-icon"
+      [matTooltip]="iconName(value())"
+      [attr.aria-label]="i18nKeys.resource.currentIcon | translate"
+    >
+      <mat-icon
+        [class.resource-icon-fill]="iconIsFill(value())"
+        [class.resource-icon-outline]="!iconIsFill(value())"
+      >{{ iconName(value()) }}</mat-icon>
+      <code>{{ iconName(value()) }}</code>
+    </span>
+  } @else {
+    <span class="resource-selected-icon-empty text-body-secondary">
+      {{ i18nKeys.common.none | translate }}
+    </span>
+  }
+</div>

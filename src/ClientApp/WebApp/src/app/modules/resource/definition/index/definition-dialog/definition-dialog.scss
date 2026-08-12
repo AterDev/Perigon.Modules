@@ -1,3 +1,13 @@
+.resource-picker-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.resource-picker-field h3 {
+  margin: 0;
+}
+
 .property-row {
   display: grid;
   grid-template-columns: minmax(140px, 1.5fr) minmax(120px, 1fr) minmax(100px, 0.8fr) auto auto;
