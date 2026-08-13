@@ -220,9 +220,12 @@ public class ResourceManager(
             throw new BusinessException("资源分组不属于所选分类", StatusCodes.Status400BadRequest);
         }
 
-        List<ResDefinitionProperty> properties = await _dbContext.ResDefinitionProperties
-            .Where(p => p.DefinitionId == resource.DefinitionId && p.TenantId == _userContext.TenantId)
-            .OrderBy(p => p.Sort)
+        List<ResDefinitionProperty> properties = await _dbContext.ResDefinitionPropertyMaps
+            .Where(map =>
+                map.DefinitionId == resource.DefinitionId &&
+                map.TenantId == _userContext.TenantId)
+            .OrderBy(map => map.Sort)
+            .Select(map => map.Property)
             .ToListAsync();
         bool definitionDoesNotExist = properties.Count == 0 && !await _dbContext.ResDefinitions.AnyAsync(d =>
             d.Id == resource.DefinitionId && d.TenantId == _userContext.TenantId);
@@ -248,10 +251,7 @@ public class ResourceManager(
             throw new BusinessException("缺少必填资源属性", StatusCodes.Status400BadRequest);
         }
 
-        await _dbContext.ResValues
-            .Where(value => value.ResourceId == resource.Id && value.TenantId == _userContext.TenantId)
-            .ExecuteDeleteAsync();
-        resource.Values = [];
+        List<ResValue> values = [];
         foreach (ResourceValueDto input in inputs)
         {
             ResDefinitionProperty property = properties.Single(p => p.Id == input.DefinitionPropertyId);
@@ -262,7 +262,7 @@ public class ResourceManager(
                     StatusCodes.Status400BadRequest);
             }
 
-            ResValue value = new()
+            values.Add(new ResValue
             {
                 ResourceId = resource.Id,
                 DefinitionPropertyId = property.Id,
@@ -270,10 +270,14 @@ public class ResourceManager(
                 PropertyNameSnapshot = property.Name,
                 ValueTypeSnapshot = property.ValueType,
                 TenantId = _userContext.TenantId
-            };
-            _dbContext.ResValues.Add(value);
-            resource.Values.Add(value);
+            });
         }
+
+        await _dbContext.ResValues
+            .Where(value => value.ResourceId == resource.Id && value.TenantId == _userContext.TenantId)
+            .ExecuteDeleteAsync();
+        resource.Values = values;
+        await _dbContext.ResValues.AddRangeAsync(values);
     }
 
     private static string NormalizeValue(string value, ResValueType type)

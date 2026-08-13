@@ -12,5 +12,5 @@ export interface ResDefinitionPropertyInput {
   /** maxLength */
   maxLength: number;
   /** sort */
-  sort: number;
+  sort?: number;
 }

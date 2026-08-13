@@ -1,0 +1,16 @@
+.property-options {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.property-options mat-checkbox {
+  padding: 0.5rem;
+  border-radius: 0.4rem;
+  background: rgba(128, 150, 180, 0.08);
+}
+
+.property-name {
+  margin-right: 0.5rem;
+  font-weight: 600;
+}

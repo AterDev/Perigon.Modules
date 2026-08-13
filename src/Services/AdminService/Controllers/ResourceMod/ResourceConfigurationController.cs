@@ -105,6 +105,32 @@ public class ResourceConfigurationController(
         return _manager.DeleteTagAsync(id);
     }
 
+    [HttpGet("properties")]
+    public Task<List<ResDefinitionProperty>> PropertiesAsync(string? name)
+    {
+        return _manager.PropertiesAsync(name);
+    }
+
+    [HttpPost("properties")]
+    public Task<ResDefinitionProperty> AddPropertyAsync(ResDefinitionPropertyAddDto input)
+    {
+        return _manager.AddPropertyAsync(input);
+    }
+
+    [HttpPut("properties/{id:guid}")]
+    public Task<ResDefinitionProperty> UpdatePropertyAsync(
+        Guid id,
+        ResDefinitionPropertyUpdateDto input)
+    {
+        return _manager.UpdatePropertyAsync(id, input);
+    }
+
+    [HttpDelete("properties/{id:guid}")]
+    public Task DeletePropertyAsync(Guid id)
+    {
+        return _manager.DeletePropertyAsync(id);
+    }
+
     [HttpGet("definitions")]
     public Task<List<ResDefinition>> DefinitionsAsync(string? name)
     {

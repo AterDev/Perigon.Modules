@@ -25,6 +25,7 @@ global using CMSMod.Models.ArticleDtos;
 global using ResourceMod.Managers;
 global using ResourceMod.Models.ResCategoryDtos;
 global using ResourceMod.Models.ResDefinitionDtos;
+global using ResourceMod.Models.ResDefinitionPropertyDtos;
 global using ResourceMod.Models.ResEnvironmentDtos;
 global using ResourceMod.Models.ResGroupDtos;
 global using ResourceMod.Models.ResPermissionDtos;

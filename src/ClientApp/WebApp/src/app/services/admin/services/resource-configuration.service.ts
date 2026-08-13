@@ -11,6 +11,8 @@ import { ResTag } from '../models/entity/res-tag.model';
 import { ResTagInput } from '../models/resource-mod/res-tag-input.model';
 import { ResDefinition } from '../models/entity/res-definition.model';
 import { ResDefinitionInput } from '../models/resource-mod/res-definition-input.model';
+import { ResDefinitionProperty } from '../models/entity/res-definition-property.model';
+import { ResDefinitionPropertyInput } from '../models/resource-mod/res-definition-property-input.model';
 import { ResPermission } from '../models/entity/res-permission.model';
 import { ResPermissionInput } from '../models/resource-mod/res-permission-input.model';
 /**
@@ -145,6 +147,39 @@ export class ResourceConfigurationService extends BaseService {
    */
   deleteTag(id: string): Observable<any> {
     const _url = `/api/ResourceConfiguration/tags/${id}`;
+    return this.request<any>('delete', _url);
+  }
+  /**
+   * properties
+   * @param name string
+   */
+  properties(name: string | null): Observable<ResDefinitionProperty[]> {
+    const _url = `/api/ResourceConfiguration/properties?name=${name ?? ''}`;
+    return this.request<ResDefinitionProperty[]>('get', _url);
+  }
+  /**
+   * addProperty
+   * @param data ResDefinitionPropertyInput
+   */
+  addProperty(data: ResDefinitionPropertyInput): Observable<ResDefinitionProperty> {
+    const _url = `/api/ResourceConfiguration/properties`;
+    return this.request<ResDefinitionProperty>('post', _url, data);
+  }
+  /**
+   * updateProperty
+   * @param id string
+   * @param data ResDefinitionPropertyInput
+   */
+  updateProperty(id: string, data: ResDefinitionPropertyInput): Observable<ResDefinitionProperty> {
+    const _url = `/api/ResourceConfiguration/properties/${id}`;
+    return this.request<ResDefinitionProperty>('put', _url, data);
+  }
+  /**
+   * deleteProperty
+   * @param id string
+   */
+  deleteProperty(id: string): Observable<any> {
+    const _url = `/api/ResourceConfiguration/properties/${id}`;
     return this.request<any>('delete', _url);
   }
   /**

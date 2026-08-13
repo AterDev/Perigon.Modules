@@ -10,6 +10,12 @@
   gap: 0.5rem;
 }
 
+.property-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
 .property-item {
   display: grid;
   grid-template-columns: minmax(120px, 1.2fr) minmax(100px, 1fr) auto minmax(120px, 1fr);

@@ -1,12 +1,15 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { FormArray, FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { MatDialog } from '@angular/material/dialog';
 import { CommonFormModules } from '../../../../share/shared-modules';
 import { I18N_KEYS } from '../../../../share/i18n-keys';
 import { ResDefinition } from '../../../../../services/admin/models/entity/res-definition.model';
+import { ResDefinitionProperty } from '../../../../../services/admin/models/entity/res-definition-property.model';
 import { ResValueType } from '../../../../../services/admin/models/entity/res-value-type.model';
 import { ResDefinitionInput } from '../../../../../services/admin/models/resource-mod/res-definition-input.model';
 import { ResourceIconPickerComponent } from '../../../shared/icon-picker/icon-picker';
+import { ResourcePropertySelectDialogComponent } from '../property-select-dialog/property-select-dialog';
 
 export interface ResourceDefinitionDialogData {
   definition?: ResDefinition;
@@ -18,6 +21,7 @@ type PropertyForm = FormGroup<{
   valueType: FormControl<ResValueType>;
   isRequired: FormControl<boolean>;
   maxLength: FormControl<number>;
+  isShared: FormControl<boolean>;
 }>;
 
 @Component({
@@ -38,6 +42,7 @@ export class ResourceDefinitionDialogComponent {
     { label: 'IP address', value: ResValueType.IPAddress },
   ];
   private readonly formBuilder = inject(FormBuilder);
+  private readonly dialog = inject(MatDialog);
   private readonly dialogRef = inject(MatDialogRef<ResourceDefinitionDialogComponent>);
   readonly data = inject<ResourceDefinitionDialogData>(MAT_DIALOG_DATA, { optional: true });
   readonly form = this.formBuilder.group({
@@ -50,7 +55,7 @@ export class ResourceDefinitionDialogComponent {
     this.form.controls.name.setValue(this.data?.definition?.name ?? '');
     this.form.controls.icon.setValue(this.data?.definition?.icon ?? 'schema');
     for (const property of this.data?.definition?.properties ?? []) {
-      this.addProperty(property);
+      this.addProperty(property, true);
     }
   }
 
@@ -58,8 +63,27 @@ export class ResourceDefinitionDialogComponent {
     return this.form.controls.properties;
   }
 
-  addProperty(property?: ResDefinition['properties'][number]): void {
-    this.properties.push(this.createPropertyForm(property));
+  addProperty(property?: ResDefinition['properties'][number], shared = false): void {
+    this.properties.push(this.createPropertyForm(property, shared || !!property?.id));
+  }
+
+  selectProperty(): void {
+    const selectedIds = this.properties.controls
+      .map((control) => control.controls.id.value)
+      .filter((id): id is string => !!id);
+    this.dialog
+      .open(ResourcePropertySelectDialogComponent, {
+        width: '600px',
+        maxWidth: '96vw',
+        maxHeight: '96vh',
+        data: { excludeIds: selectedIds },
+      })
+      .afterClosed()
+      .subscribe((selected: ResDefinitionProperty[] | undefined) => {
+        for (const property of selected ?? []) {
+          this.addProperty(property, true);
+        }
+      });
   }
 
   removeProperty(index: number): void {
@@ -94,8 +118,11 @@ export class ResourceDefinitionDialogComponent {
     this.dialogRef.close(result);
   }
 
-  private createPropertyForm(property?: ResDefinition['properties'][number]): PropertyForm {
-    return this.formBuilder.group({
+  private createPropertyForm(
+    property?: ResDefinition['properties'][number],
+    shared = false,
+  ): PropertyForm {
+    const form = this.formBuilder.group({
       id: this.formBuilder.control<string | null>(property?.id ?? null),
       name: this.formBuilder.nonNullable.control(property?.name ?? '', Validators.required),
       valueType: this.formBuilder.nonNullable.control(property?.valueType ?? ResValueType.String),
@@ -105,6 +132,14 @@ export class ResourceDefinitionDialogComponent {
         Validators.min(1),
         Validators.max(1000),
       ]),
+      isShared: this.formBuilder.nonNullable.control(shared),
     });
+    if (shared) {
+      form.controls.name.disable();
+      form.controls.valueType.disable();
+      form.controls.isRequired.disable();
+      form.controls.maxLength.disable();
+    }
+    return form;
   }
 }

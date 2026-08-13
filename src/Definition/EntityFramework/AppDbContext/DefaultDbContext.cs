@@ -13,6 +13,7 @@ public partial class DefaultDbContext(DbContextOptions<DefaultDbContext> options
     public DbSet<ResTag> ResTags { get; set; }
     public DbSet<ResDefinition> ResDefinitions { get; set; }
     public DbSet<ResDefinitionProperty> ResDefinitionProperties { get; set; }
+    public DbSet<ResDefinitionPropertyMap> ResDefinitionPropertyMaps { get; set; }
     public DbSet<Resource> Resources { get; set; }
     public DbSet<ResValue> ResValues { get; set; }
     public DbSet<ResPermission> ResPermissions { get; set; }

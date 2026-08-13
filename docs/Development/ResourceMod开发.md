@@ -18,8 +18,9 @@
 | `ResCategory` | `Name` 必填，最大 60；`Icon` 可空，最大 60；`Color` 必填，最大 20；`CatalogCode` 必填，最大 60。用户故事中的 `CatelogCode` 统一更正为 `CatalogCode`。 | `CatalogCode` 建立租户内唯一索引。一个分类有多个 `ResGroup`、`Resource` 和 `ResPermission`。仍有关联资源、分组或授权记录时拒绝删除。 |
 | `ResGroup` | `Name` 必填，最大 60；`Description` 可空，最大 500；`Icon` 可空，最大 60；`Color` 必填，最大 20；`CategoryId` 必填。 | 多对一 `ResCategory`，一对多 `Resource`。仍有关联资源时拒绝删除。资源选择分组时，其 `CategoryId` 必须等于资源分类。 |
 | `ResTag` | `Name` 必填，最大 60；`Color` 必填，最大 20；`Icon` 可空，最大 60。 | 仅是标签词表。资源持久化 `TagNames` 字符串数组，不建多对多表。标签改名或删除不回写已保存资源。 |
-| `ResDefinition` | `Name` 必填，最大 60；`Icon` 可空，最大 60。 | 一对多 `ResDefinitionProperty`，一对多 `Resource`。存在资源时拒绝删除。 |
-| `ResDefinitionProperty` | `Name` 必填，最大 60；`ValueType` 必填枚举；`IsRequired` 必填；`MaxLength` 必填，默认 200，范围 1–1000；`Sort` 必填。 | 多对一 `ResDefinition`，一对多 `ResValue`。同一资源定义内名称唯一；存在资源值时拒绝删除。属性变更只影响后续资源编辑校验。 |
+| `ResDefinition` | `Name` 必填，最大 60；`Icon` 可空，最大 60。 | 通过 `ResDefinitionPropertyMap` 多对多关联 `ResDefinitionProperty`，一对多 `Resource`。存在资源时拒绝删除。 |
+| `ResDefinitionProperty` | `Name` 必填，最大 60；`ValueType` 必填枚举；`IsRequired` 必填；`MaxLength` 必填，默认 200，范围 1–1000。 | 租户内可复用；通过 `ResDefinitionPropertyMap` 关联多个资源定义，一对多 `ResValue`。被定义映射或资源值引用时拒绝删除。 |
+| `ResDefinitionPropertyMap` | `DefinitionId`、`PropertyId`、`Sort` 必填。 | 多对一资源定义和资源属性；同一资源定义内属性唯一，`Sort` 属于关联。 |
 | `Resource` | `EnvironmentId`、`CategoryId`、`DefinitionId` 必填；`GroupId` 可空；`TagNames` 必填，默认空数组。 | 资源本身不保存名称、图标 URL 或描述；展示名称和说明由 `ResDefinition` 及其属性定义提供。分别多对一环境、分类、定义和可选分组；一对多 `ResValue`。建立常用筛选索引：`EnvironmentId`、`CategoryId`、`GroupId`、`DefinitionId`。 |
 | `ResValue` | `ResourceId`、`DefinitionPropertyId` 必填；`Value` 必填，最大 1000；`PropertyNameSnapshot` 必填，最大 60；`ValueTypeSnapshot` 必填枚举。 | 多对一资源和定义属性；同一资源的 `DefinitionPropertyId` 唯一。快照保证定义属性日后重命名或类型变更时，历史详情仍可正确显示。 |
 | `ResPermission` | `RoleId`、`EnvironmentId`、`CategoryId` 均必填。 | `RoleId + EnvironmentId + CategoryId` 建立租户内唯一索引；角色 ID 指向 `SystemMod` 的 `SystemRole`，环境和分类为本模块外键。删除环境或分类前必须先清理授权。 |

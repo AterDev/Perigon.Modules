@@ -2,6 +2,7 @@ using ApiTest.Data;
 using Entity.ResourceMod;
 using ResourceMod.Models.ResCategoryDtos;
 using ResourceMod.Models.ResDefinitionDtos;
+using ResourceMod.Models.ResDefinitionPropertyDtos;
 using ResourceMod.Models.ResEnvironmentDtos;
 using ResourceMod.Models.ResGroupDtos;
 using ResourceMod.Models.ResPermissionDtos;
@@ -15,6 +16,92 @@ namespace ApiTest;
 
 public class ResourceModApiTests
 {
+    [ClassDataSource<TestHttpClientData>(Shared = SharedType.None)]
+    [Test]
+    public async Task PropertyApi_ShouldReusePropertiesAndProtectReferencedDeletes(TestHttpClientData data)
+    {
+        HttpClient client = data.HttpClient;
+        string suffix = Guid.NewGuid().ToString("N");
+        ResDefinitionProperty property = await PostAsync<ResDefinitionProperty>(
+            client,
+            "/api/ResourceConfiguration/properties",
+            new ResDefinitionPropertyAddDto
+            {
+                Name = $"Shared-{suffix}",
+                ValueType = ResValueType.String,
+                MaxLength = 100
+            },
+            HttpStatusCode.OK);
+
+        ResDefinition first = await PostAsync<ResDefinition>(
+            client,
+            "/api/ResourceConfiguration/definitions",
+            new ResDefinitionAddDto
+            {
+                Name = $"First-{suffix}",
+                Properties =
+                [
+                    new ResDefinitionPropertyDto
+                    {
+                        Id = property.Id,
+                        Name = property.Name,
+                        ValueType = property.ValueType,
+                        IsRequired = property.IsRequired,
+                        MaxLength = property.MaxLength,
+                        Sort = 0
+                    }
+                ]
+            },
+            HttpStatusCode.OK);
+        ResDefinition second = await PostAsync<ResDefinition>(
+            client,
+            "/api/ResourceConfiguration/definitions",
+            new ResDefinitionAddDto
+            {
+                Name = $"Second-{suffix}",
+                Properties =
+                [
+                    new ResDefinitionPropertyDto
+                    {
+                        Id = property.Id,
+                        Name = property.Name,
+                        ValueType = property.ValueType,
+                        IsRequired = property.IsRequired,
+                        MaxLength = property.MaxLength,
+                        Sort = 0
+                    }
+                ]
+            },
+            HttpStatusCode.OK);
+
+        List<ResDefinitionProperty> listed = await GetAsync<List<ResDefinitionProperty>>(
+            client,
+            $"/api/ResourceConfiguration/properties?name=Shared-{suffix}",
+            HttpStatusCode.OK);
+        await Assert.That(listed.Select(item => item.Id)).IsEquivalentTo([property.Id]);
+
+        await DeleteAsync(
+            client,
+            $"/api/ResourceConfiguration/properties/{property.Id}",
+            HttpStatusCode.Conflict);
+        await DeleteAsync(
+            client,
+            $"/api/ResourceConfiguration/definitions/{first.Id}",
+            HttpStatusCode.OK);
+        await DeleteAsync(
+            client,
+            $"/api/ResourceConfiguration/properties/{property.Id}",
+            HttpStatusCode.Conflict);
+        await DeleteAsync(
+            client,
+            $"/api/ResourceConfiguration/definitions/{second.Id}",
+            HttpStatusCode.OK);
+        await DeleteAsync(
+            client,
+            $"/api/ResourceConfiguration/properties/{property.Id}",
+            HttpStatusCode.OK);
+    }
+
     [ClassDataSource<TestHttpClientData>(Shared = SharedType.None)]
     [Test]
     public async Task ConfigurationApis_ShouldMaintainNavigationData(TestHttpClientData data)

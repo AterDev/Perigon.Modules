@@ -53,13 +53,98 @@ public class ResourceConfigurationManager(
     {
         IQueryable<ResDefinition> query = _dbContext.ResDefinitions
             .Where(d => d.TenantId == _userContext.TenantId)
-            .Include(d => d.Properties);
+            .Include(d => d.PropertyMaps)
+            .ThenInclude(map => map.Property)
+            .AsNoTracking();
         if (!string.IsNullOrWhiteSpace(name))
         {
             query = query.Where(d => d.Name.Contains(name.Trim()));
         }
 
-        return await query.OrderBy(d => d.Name).ToListAsync();
+        List<ResDefinition> definitions = await query.OrderBy(d => d.Name).ToListAsync();
+        foreach (ResDefinition definition in definitions)
+        {
+            PopulateProperties(definition);
+        }
+
+        return definitions;
+    }
+
+    public async Task<List<ResDefinitionProperty>> PropertiesAsync(string? name = null)
+    {
+        IQueryable<ResDefinitionProperty> query = _dbContext.ResDefinitionProperties
+            .Where(p => p.TenantId == _userContext.TenantId)
+            .OrderBy(p => p.Name);
+        if (!string.IsNullOrWhiteSpace(name))
+        {
+            query = query.Where(p => p.Name.Contains(name.Trim()));
+        }
+
+        return await query.ToListAsync();
+    }
+
+    public async Task<ResDefinitionProperty> AddPropertyAsync(ResDefinitionPropertyAddDto input)
+    {
+        EnsureAdmin();
+        ValidateProperty(input.Name, input.MaxLength);
+        string name = input.Name.Trim();
+        await EnsurePropertyNameAvailableAsync(name, null);
+
+        ResDefinitionProperty entity = new()
+        {
+            Name = name,
+            ValueType = input.ValueType,
+            IsRequired = input.IsRequired,
+            MaxLength = input.MaxLength,
+            TenantId = _userContext.TenantId
+        };
+
+        await _dbContext.ResDefinitionProperties.AddAsync(entity);
+        await _dbContext.SaveChangesAsync();
+        return entity;
+    }
+
+    public async Task<ResDefinitionProperty> UpdatePropertyAsync(
+        Guid id,
+        ResDefinitionPropertyUpdateDto input)
+    {
+        EnsureAdmin();
+        ValidateProperty(input.Name, input.MaxLength);
+
+        ResDefinitionProperty entity = await GetTenantEntityAsync(
+            _dbContext.ResDefinitionProperties,
+            id,
+            "资源属性不存在");
+        string name = input.Name.Trim();
+        await EnsurePropertyNameAvailableAsync(name, id);
+        entity.Name = name;
+        entity.ValueType = input.ValueType;
+        entity.IsRequired = input.IsRequired;
+        entity.MaxLength = input.MaxLength;
+
+        await _dbContext.SaveChangesAsync();
+        return entity;
+    }
+
+    public async Task DeletePropertyAsync(Guid id)
+    {
+        EnsureAdmin();
+
+        ResDefinitionProperty entity = await GetTenantEntityAsync(
+            _dbContext.ResDefinitionProperties,
+            id,
+            "资源属性不存在");
+        bool isReferenced = await _dbContext.ResDefinitionPropertyMaps.AnyAsync(map =>
+            map.TenantId == _userContext.TenantId && map.PropertyId == id);
+        bool hasValues = await _dbContext.ResValues.AnyAsync(value =>
+            value.TenantId == _userContext.TenantId && value.DefinitionPropertyId == id);
+        if (isReferenced || hasValues)
+        {
+            throw new BusinessException("资源属性正在被使用，不能删除", StatusCodes.Status409Conflict);
+        }
+
+        _dbContext.ResDefinitionProperties.Remove(entity);
+        await _dbContext.SaveChangesAsync();
     }
 
     public async Task<ResEnvironment> AddEnvironmentAsync(ResEnvironmentAddDto input)
@@ -280,24 +365,22 @@ public class ResourceConfigurationManager(
     public async Task<ResDefinition> AddDefinitionAsync(ResDefinitionAddDto input)
     {
         EnsureAdmin();
-        ValidateProperties(input.Properties);
+        List<DefinitionPropertySelection> selections =
+            await ResolveDefinitionPropertiesAsync(input.Properties, null);
 
         ResDefinition entity = new()
         {
-            Name = input.Name,
+            Name = input.Name.Trim(),
             Icon = input.Icon,
             TenantId = _userContext.TenantId
         };
 
-        foreach (ResDefinitionPropertyDto property in input.Properties)
+        foreach (DefinitionPropertySelection selection in selections)
         {
-            entity.Properties.Add(new ResDefinitionProperty
+            entity.PropertyMaps.Add(new ResDefinitionPropertyMap
             {
-                Name = property.Name,
-                ValueType = property.ValueType,
-                IsRequired = property.IsRequired,
-                MaxLength = property.MaxLength,
-                Sort = property.Sort,
+                PropertyId = selection.Property.Id,
+                Sort = selection.Sort,
                 TenantId = _userContext.TenantId
             });
         }
@@ -305,74 +388,54 @@ public class ResourceConfigurationManager(
         await _dbContext.ResDefinitions.AddAsync(entity);
         await _dbContext.SaveChangesAsync();
 
-        return entity;
+        return await GetDefinitionAsync(entity.Id);
     }
 
     public async Task<ResDefinition> UpdateDefinitionAsync(Guid id, ResDefinitionUpdateDto input)
     {
         EnsureAdmin();
-        ValidateProperties(input.Properties);
-
         ResDefinition entity = await _dbContext.ResDefinitions
-            .Include(d => d.Properties)
+            .Include(d => d.PropertyMaps)
+            .ThenInclude(map => map.Property)
             .FirstOrDefaultAsync(d => d.Id == id && d.TenantId == _userContext.TenantId)
             ?? throw new BusinessException("资源定义不存在", StatusCodes.Status404NotFound);
-        entity.Name = input.Name;
+        List<DefinitionPropertySelection> selections =
+            await ResolveDefinitionPropertiesAsync(input.Properties, entity);
+
+        entity.Name = input.Name.Trim();
         entity.Icon = input.Icon;
 
-        HashSet<Guid> retainedIds = input.Properties
-            .Where(p => p.Id.HasValue)
-            .Select(p => p.Id!.Value)
+        HashSet<Guid> retainedIds = selections
+            .Select(selection => selection.Property.Id)
             .ToHashSet();
-        List<ResDefinitionProperty> removed = entity.Properties
-            .Where(p => !retainedIds.Contains(p.Id))
+        List<ResDefinitionPropertyMap> removed = entity.PropertyMaps
+            .Where(map => !retainedIds.Contains(map.PropertyId))
             .ToList();
-        bool isReferenced = removed.Count != 0 && await _dbContext.ResValues.AnyAsync(v =>
-            removed.Select(p => p.Id).Contains(v.DefinitionPropertyId));
-        if (isReferenced)
+        _dbContext.ResDefinitionPropertyMaps.RemoveRange(removed);
+
+        foreach (DefinitionPropertySelection selection in selections)
         {
-            throw new BusinessException("定义属性已被资源值引用，不能删除", StatusCodes.Status409Conflict);
-        }
-
-        _dbContext.ResDefinitionProperties.RemoveRange(removed);
-
-        foreach (ResDefinitionPropertyDto property in input.Properties)
-        {
-            ResDefinitionProperty? target = property.Id.HasValue
-                ? entity.Properties.FirstOrDefault(p => p.Id == property.Id.Value)
-                : null;
-            if (property.Id.HasValue && target is null)
-            {
-                throw new BusinessException("定义属性不属于当前定义", StatusCodes.Status400BadRequest);
-            }
-
+            ResDefinitionPropertyMap? target = entity.PropertyMaps.FirstOrDefault(map =>
+                map.PropertyId == selection.Property.Id);
             if (target is null)
             {
-                ResDefinitionProperty newProperty = new()
+                _dbContext.ResDefinitionPropertyMaps.Add(new ResDefinitionPropertyMap
                 {
-                    Name = property.Name,
-                    ValueType = property.ValueType,
-                    IsRequired = property.IsRequired,
-                    MaxLength = property.MaxLength,
-                    Sort = property.Sort,
                     DefinitionId = entity.Id,
+                    PropertyId = selection.Property.Id,
+                    Sort = selection.Sort,
                     TenantId = _userContext.TenantId
-                };
-                _dbContext.ResDefinitionProperties.Add(newProperty);
+                });
             }
             else
             {
-                target.Name = property.Name;
-                target.ValueType = property.ValueType;
-                target.IsRequired = property.IsRequired;
-                target.MaxLength = property.MaxLength;
-                target.Sort = property.Sort;
+                target.Sort = selection.Sort;
             }
         }
 
         await _dbContext.SaveChangesAsync();
 
-        return entity;
+        return await GetDefinitionAsync(entity.Id);
     }
 
     public async Task DeleteDefinitionAsync(Guid id)
@@ -390,6 +453,176 @@ public class ResourceConfigurationManager(
         _dbContext.ResDefinitions.Remove(entity);
         await _dbContext.SaveChangesAsync();
     }
+
+    private async Task<ResDefinition> GetDefinitionAsync(Guid id)
+    {
+        ResDefinition entity = await _dbContext.ResDefinitions
+            .Include(d => d.PropertyMaps)
+            .ThenInclude(map => map.Property)
+            .AsNoTracking()
+            .FirstOrDefaultAsync(d => d.Id == id && d.TenantId == _userContext.TenantId)
+            ?? throw new BusinessException("资源定义不存在", StatusCodes.Status404NotFound);
+        PopulateProperties(entity);
+        return entity;
+    }
+
+    private async Task<List<DefinitionPropertySelection>> ResolveDefinitionPropertiesAsync(
+        List<ResDefinitionPropertyDto> inputs,
+        ResDefinition? definition)
+    {
+        HashSet<Guid> requestedIds = inputs
+            .Where(input => input.Id.HasValue)
+            .Select(input => input.Id!.Value)
+            .ToHashSet();
+        if (requestedIds.Count != inputs.Count(input => input.Id.HasValue))
+        {
+            throw new BusinessException("资源定义属性不能重复", StatusCodes.Status400BadRequest);
+        }
+
+        List<ResDefinitionProperty> referencedProperties = await _dbContext.ResDefinitionProperties
+            .Where(property =>
+                property.TenantId == _userContext.TenantId && requestedIds.Contains(property.Id))
+            .ToListAsync();
+        Dictionary<Guid, ResDefinitionProperty> propertiesById = referencedProperties
+            .ToDictionary(property => property.Id);
+
+        HashSet<string> requestedNames = inputs
+            .Where(input => !input.Id.HasValue)
+            .Select(input => input.Name.Trim())
+            .Where(name => name.Length != 0)
+            .Select(name => name.ToLower())
+            .ToHashSet(StringComparer.Ordinal);
+        List<ResDefinitionProperty> namedProperties = await _dbContext.ResDefinitionProperties
+            .Where(property =>
+                property.TenantId == _userContext.TenantId &&
+                requestedNames.Contains(property.Name.ToLower()))
+            .ToListAsync();
+        Dictionary<string, ResDefinitionProperty> propertiesByName = namedProperties
+            .ToDictionary(property => property.Name, StringComparer.OrdinalIgnoreCase);
+        HashSet<Guid> currentPropertyIds = definition?.PropertyMaps
+            .Select(map => map.PropertyId)
+            .ToHashSet() ?? [];
+
+        List<DefinitionPropertySelection> selections = [];
+        foreach (ResDefinitionPropertyDto input in inputs)
+        {
+            ValidateProperty(input.Name, input.MaxLength);
+            ResDefinitionProperty property;
+            if (input.Id.HasValue)
+            {
+                if (!propertiesById.TryGetValue(input.Id.Value, out property!))
+                {
+                    throw new BusinessException("资源属性不存在或不属于当前租户", StatusCodes.Status400BadRequest);
+                }
+
+                if (currentPropertyIds.Contains(property.Id) && HasPropertyChanges(property, input))
+                {
+                    await EnsurePropertyNameAvailableAsync(input.Name.Trim(), property.Id);
+                    bool usedByAnotherDefinition = await _dbContext.ResDefinitionPropertyMaps.AnyAsync(map =>
+                        map.TenantId == _userContext.TenantId &&
+                        map.PropertyId == property.Id &&
+                        map.DefinitionId != definition!.Id);
+                    if (usedByAnotherDefinition)
+                    {
+                        throw new BusinessException(
+                            "已复用的资源属性不能在资源定义中修改",
+                            StatusCodes.Status409Conflict);
+                    }
+
+                    property.Name = input.Name.Trim();
+                    property.ValueType = input.ValueType;
+                    property.IsRequired = input.IsRequired;
+                    property.MaxLength = input.MaxLength;
+                }
+            }
+            else if (propertiesByName.TryGetValue(input.Name.Trim(), out ResDefinitionProperty? existing))
+            {
+                if (!MatchesProperty(existing, input))
+                {
+                    throw new BusinessException(
+                        "同名资源属性已存在，请选择已有属性或先修改属性定义",
+                        StatusCodes.Status409Conflict);
+                }
+
+                property = existing;
+            }
+            else
+            {
+                property = new ResDefinitionProperty
+                {
+                    Name = input.Name.Trim(),
+                    ValueType = input.ValueType,
+                    IsRequired = input.IsRequired,
+                    MaxLength = input.MaxLength,
+                    TenantId = _userContext.TenantId
+                };
+                _dbContext.ResDefinitionProperties.Add(property);
+                propertiesByName[property.Name] = property;
+            }
+
+            selections.Add(new DefinitionPropertySelection(property, input.Sort));
+        }
+
+        bool hasDuplicateName = selections
+            .GroupBy(selection => selection.Property.Name, StringComparer.OrdinalIgnoreCase)
+            .Any(group => group.Count() > 1);
+        if (hasDuplicateName)
+        {
+            throw new BusinessException("资源定义属性不能重复", StatusCodes.Status400BadRequest);
+        }
+
+        return selections;
+    }
+
+    private async Task EnsurePropertyNameAvailableAsync(string name, Guid? exceptId)
+    {
+        bool exists = await _dbContext.ResDefinitionProperties.AnyAsync(property =>
+            property.TenantId == _userContext.TenantId &&
+            (!exceptId.HasValue || property.Id != exceptId.Value) &&
+            property.Name.ToLower() == name.ToLower());
+        if (exists)
+        {
+            throw new BusinessException("资源属性名称已存在", StatusCodes.Status409Conflict);
+        }
+    }
+
+    private static void PopulateProperties(ResDefinition definition)
+    {
+        definition.Properties = definition.PropertyMaps
+            .OrderBy(map => map.Sort)
+            .Select(map =>
+            {
+                map.Property.Sort = map.Sort;
+                return map.Property;
+            })
+            .ToList();
+    }
+
+    private static bool HasPropertyChanges(ResDefinitionProperty property, ResDefinitionPropertyDto input)
+    {
+        return !string.Equals(property.Name, input.Name.Trim(), StringComparison.Ordinal) ||
+            property.ValueType != input.ValueType ||
+            property.IsRequired != input.IsRequired ||
+            property.MaxLength != input.MaxLength;
+    }
+
+    private static bool MatchesProperty(ResDefinitionProperty property, ResDefinitionPropertyDto input)
+    {
+        return string.Equals(property.Name, input.Name.Trim(), StringComparison.OrdinalIgnoreCase) &&
+            property.ValueType == input.ValueType &&
+            property.IsRequired == input.IsRequired &&
+            property.MaxLength == input.MaxLength;
+    }
+
+    private static void ValidateProperty(string name, int maxLength)
+    {
+        if (string.IsNullOrWhiteSpace(name) || maxLength is < 1 or > 1000)
+        {
+            throw new BusinessException("资源属性无效", StatusCodes.Status400BadRequest);
+        }
+    }
+
+    private sealed record DefinitionPropertySelection(ResDefinitionProperty Property, int Sort);
 
     public async Task<List<ResPermission>> GetPermissionsAsync(Guid environmentId, Guid categoryId)
     {
@@ -446,18 +679,6 @@ public class ResourceConfigurationManager(
         if (!categoryExists)
         {
             throw new BusinessException("分类不存在", StatusCodes.Status400BadRequest);
-        }
-    }
-
-    private static void ValidateProperties(List<ResDefinitionPropertyDto> properties)
-    {
-        bool hasDuplicateName = properties
-            .GroupBy(p => p.Name, StringComparer.OrdinalIgnoreCase)
-            .Any(g => g.Count() > 1);
-        bool hasInvalidMaxLength = properties.Any(p => p.MaxLength is < 1 or > 1000);
-        if (hasDuplicateName || hasInvalidMaxLength)
-        {
-            throw new BusinessException("资源定义属性无效", StatusCodes.Status400BadRequest);
         }
     }
 

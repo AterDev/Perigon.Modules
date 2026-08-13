@@ -1,6 +1,4 @@
 import { ResValueType } from '../entity/res-value-type.model';
-import { ResDefinition } from '../entity/res-definition.model';
-import { ResValue } from '../entity/res-value.model';
 
 export interface ResDefinitionProperty {
   /** id */
@@ -23,10 +21,4 @@ export interface ResDefinitionProperty {
   maxLength: number;
   /** sort */
   sort: number;
-  /** definitionId */
-  definitionId: string;
-  /** definition */
-  definition: ResDefinition;
-  /** values */
-  values: ResValue[];
 }

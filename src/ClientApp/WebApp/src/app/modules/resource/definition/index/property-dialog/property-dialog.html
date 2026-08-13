@@ -1,4 +1,5 @@
-<h2 mat-dialog-title>{{ i18nKeys.resource.addProperty | translate }}
+<h2 mat-dialog-title>
+  {{ (data?.property ? i18nKeys.resource.editProperty : i18nKeys.resource.addProperty) | translate }}
 </h2>
 <mat-dialog-content>
   <form [formGroup]="form" (ngSubmit)="save()" class="d-flex flex-column gap-3">

@@ -19,6 +19,10 @@
         <mat-icon>add</mat-icon>
         {{ i18nKeys.resource.addProperty | translate }}
       </button>
+      <button mat-stroked-button type="button" (click)="selectProperty()">
+        <mat-icon>playlist_add</mat-icon>
+        {{ i18nKeys.resource.selectProperty | translate }}
+      </button>
     </div>
 
     <div formArrayName="properties" class="d-flex flex-column gap-2">

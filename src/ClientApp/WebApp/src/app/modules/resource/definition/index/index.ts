@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { HttpErrorResponse } from '@angular/common/http';
 import { TranslateService } from '@ngx-translate/core';
 import { AdminClient } from '../../../../services/admin/admin-client';
 import { ResDefinition } from '../../../../services/admin/models/entity/res-definition.model';
@@ -9,6 +10,12 @@ import { CommonListModules } from '../../../share/shared-modules';
 import { ConfirmDialogComponent } from '../../../share/components/confirm-dialog/confirm-dialog.component';
 import { I18N_KEYS } from '../../../share/i18n-keys';
 import { ResourceDefinitionDialogComponent } from './definition-dialog/definition-dialog';
+import {
+  ResourcePropertyDialogComponent,
+  ResourcePropertyDialogData,
+} from './property-dialog/property-dialog';
+import { ResDefinitionProperty } from '../../../../services/admin/models/entity/res-definition-property.model';
+import { ResDefinitionPropertyInput } from '../../../../services/admin/models/resource-mod/res-definition-property-input.model';
 import { resourceIconName, resourceIconStyle } from '../../shared/resource-appearance';
 
 @Component({
@@ -23,6 +30,7 @@ export class ResourceDefinitionIndexComponent {
   readonly iconName = resourceIconName;
   readonly iconStyle = resourceIconStyle;
   readonly definitions = signal<ResDefinition[]>([]);
+  readonly properties = signal<ResDefinitionProperty[]>([]);
   readonly valueTypeLabels = {
     [ResValueType.String]: I18N_KEYS.resource.propertyTypes.string,
     [ResValueType.Number]: I18N_KEYS.resource.propertyTypes.number,
@@ -32,6 +40,7 @@ export class ResourceDefinitionIndexComponent {
     [ResValueType.IPAddress]: I18N_KEYS.resource.propertyTypes.ipAddress,
   };
   name = '';
+  propertyName = '';
   private readonly client = inject(AdminClient);
   private readonly dialog = inject(MatDialog);
   private readonly snackBar = inject(MatSnackBar);
@@ -45,6 +54,9 @@ export class ResourceDefinitionIndexComponent {
     this.client.resourceConfiguration
       .definitions(this.name || null)
       .subscribe((value) => this.definitions.set(value));
+    this.client.resourceConfiguration
+      .properties(this.propertyName || null)
+      .subscribe((value) => this.properties.set(value));
   }
 
   createDefinition(): void {
@@ -104,11 +116,86 @@ export class ResourceDefinitionIndexComponent {
       });
   }
 
+  createProperty(): void {
+    this.dialog
+      .open(ResourcePropertyDialogComponent, {
+        width: '520px',
+        maxWidth: '96vw',
+        data: {} satisfies ResourcePropertyDialogData,
+      })
+      .afterClosed()
+      .subscribe((value: ResDefinitionPropertyInput | undefined) => {
+        if (!value) return;
+        this.client.resourceConfiguration.addProperty(value).subscribe({
+          next: () => {
+            this.showSuccess('resource.createSuccess');
+            this.load();
+          },
+          error: () => this.showError('resource.propertySaveFailed'),
+        });
+      });
+  }
+
+  editProperty(item: ResDefinitionProperty): void {
+    this.dialog
+      .open(ResourcePropertyDialogComponent, {
+        width: '520px',
+        maxWidth: '96vw',
+        data: { property: item } satisfies ResourcePropertyDialogData,
+      })
+      .afterClosed()
+      .subscribe((value: ResDefinitionPropertyInput | undefined) => {
+        if (!value) return;
+        this.client.resourceConfiguration.updateProperty(item.id, value).subscribe({
+          next: () => {
+            this.showSuccess('resource.updateSuccess');
+            this.load();
+          },
+          error: () => this.showError('resource.propertySaveFailed'),
+        });
+      });
+  }
+
+  deleteProperty(item: ResDefinitionProperty): void {
+    this.dialog
+      .open(ConfirmDialogComponent, {
+        data: {
+          title: this.translate.instant('common.confirmDelete'),
+          content: this.translate.instant('resource.deletePropertyConfirm', {
+            name: item.name,
+          }),
+        },
+      })
+      .afterClosed()
+      .subscribe((confirmed) => {
+        if (!confirmed) return;
+        this.client.resourceConfiguration.deleteProperty(item.id).subscribe({
+          next: () => {
+            this.showSuccess('resource.deleteSuccess');
+            this.load();
+          },
+          error: (error: HttpErrorResponse) => {
+            this.showError(
+              error.status === 409 ? 'resource.propertyInUse' : 'resource.propertyDeleteFailed',
+            );
+          },
+        });
+      });
+  }
+
   private showSuccess(key: string): void {
     this.snackBar.open(
       this.translate.instant(key),
       this.translate.instant('common.close'),
       { duration: 2500 },
+    );
+  }
+
+  private showError(key: string): void {
+    this.snackBar.open(
+      this.translate.instant(key),
+      this.translate.instant('common.close'),
+      { duration: 3500 },
     );
   }
 }
