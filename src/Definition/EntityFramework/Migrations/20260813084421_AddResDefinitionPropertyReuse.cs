@@ -49,6 +49,17 @@ namespace EntityFramework.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.AddColumn<string>(
+                name: "NameKey",
+                table: "ResDefinitionProperties",
+                type: "character varying(60)",
+                maxLength: 60,
+                nullable: false,
+                defaultValue: "");
+
+            migrationBuilder.Sql(
+                "UPDATE \"ResDefinitionProperties\" SET \"NameKey\" = lower(trim(\"Name\"));");
+
             // Preserve the existing one-to-many rows as definition-property mappings.
             // The old property Id is a safe mapping Id because each old property belonged
             // to exactly one definition.
@@ -67,7 +78,7 @@ namespace EntityFramework.Migrations
                 WITH ranked AS (
                     SELECT "Id",
                            FIRST_VALUE("Id") OVER (
-                               PARTITION BY "TenantId", "Name"
+                               PARTITION BY "TenantId", "NameKey"
                                ORDER BY "Id") AS "CanonicalId"
                     FROM "ResDefinitionProperties"
                 )
@@ -80,7 +91,7 @@ namespace EntityFramework.Migrations
                 WITH ranked AS (
                     SELECT "Id",
                            FIRST_VALUE("Id") OVER (
-                               PARTITION BY "TenantId", "Name"
+                               PARTITION BY "TenantId", "NameKey"
                                ORDER BY "Id") AS "CanonicalId"
                     FROM "ResDefinitionProperties"
                 )
@@ -93,7 +104,7 @@ namespace EntityFramework.Migrations
                 WITH ranked AS (
                     SELECT "Id",
                            FIRST_VALUE("Id") OVER (
-                               PARTITION BY "TenantId", "Name"
+                               PARTITION BY "TenantId", "NameKey"
                                ORDER BY "Id") AS "CanonicalId"
                     FROM "ResDefinitionProperties"
                 )
@@ -112,9 +123,9 @@ namespace EntityFramework.Migrations
                 table: "ResDefinitionProperties");
 
             migrationBuilder.CreateIndex(
-                name: "IX_ResDefinitionProperties_TenantId_Name",
+                name: "IX_ResDefinitionProperties_TenantId_NameKey",
                 table: "ResDefinitionProperties",
-                columns: new[] { "TenantId", "Name" },
+                columns: new[] { "TenantId", "NameKey" },
                 unique: true);
 
             migrationBuilder.CreateIndex(
@@ -136,7 +147,11 @@ namespace EntityFramework.Migrations
                 name: "ResDefinitionPropertyMaps");
 
             migrationBuilder.DropIndex(
-                name: "IX_ResDefinitionProperties_TenantId_Name",
+                name: "IX_ResDefinitionProperties_TenantId_NameKey",
+                table: "ResDefinitionProperties");
+
+            migrationBuilder.DropColumn(
+                name: "NameKey",
                 table: "ResDefinitionProperties");
 
             migrationBuilder.AddColumn<Guid>(

@@ -154,7 +154,7 @@ export class ResourceConfigurationService extends BaseService {
    * @param name string
    */
   properties(name: string | null): Observable<ResDefinitionProperty[]> {
-    const _url = `/api/ResourceConfiguration/properties?name=${name ?? ''}`;
+    const _url = `/api/ResourceConfiguration/properties?name=${encodeURIComponent(name ?? '')}`;
     return this.request<ResDefinitionProperty[]>('get', _url);
   }
   /**

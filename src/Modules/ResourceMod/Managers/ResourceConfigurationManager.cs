@@ -2,6 +2,7 @@ using EntityFramework.AppDbFactory;
 using Microsoft.AspNetCore.Http;
 using ResourceMod.Models;
 using Share.Exceptions;
+using System.Text.RegularExpressions;
 
 namespace ResourceMod.Managers;
 
@@ -11,6 +12,10 @@ public class ResourceConfigurationManager(
     IUserContext userContext
 ) : ManagerBase<DefaultDbContext, ResEnvironment>(dbContextFactory, userContext, logger)
 {
+    private static readonly Regex ResourceNameRegex = new(
+        "^[\\p{L}\\p{N}_-]+(?: [\\p{L}\\p{N}_-]+)*$",
+        RegexOptions.Compiled | RegexOptions.CultureInvariant);
+
     public async Task<List<ResEnvironment>> EnvironmentsAsync()
     {
         return await _dbContext.ResEnvironments
@@ -93,6 +98,7 @@ public class ResourceConfigurationManager(
         ResDefinitionProperty entity = new()
         {
             Name = name,
+            NameKey = NormalizeName(name),
             ValueType = input.ValueType,
             IsRequired = input.IsRequired,
             MaxLength = input.MaxLength,
@@ -118,6 +124,7 @@ public class ResourceConfigurationManager(
         string name = input.Name.Trim();
         await EnsurePropertyNameAvailableAsync(name, id);
         entity.Name = name;
+        entity.NameKey = NormalizeName(name);
         entity.ValueType = input.ValueType;
         entity.IsRequired = input.IsRequired;
         entity.MaxLength = input.MaxLength;
@@ -365,6 +372,7 @@ public class ResourceConfigurationManager(
     public async Task<ResDefinition> AddDefinitionAsync(ResDefinitionAddDto input)
     {
         EnsureAdmin();
+        ValidateResourceName(input.Name);
         List<DefinitionPropertySelection> selections =
             await ResolveDefinitionPropertiesAsync(input.Properties, null);
 
@@ -394,6 +402,7 @@ public class ResourceConfigurationManager(
     public async Task<ResDefinition> UpdateDefinitionAsync(Guid id, ResDefinitionUpdateDto input)
     {
         EnsureAdmin();
+        ValidateResourceName(input.Name);
         ResDefinition entity = await _dbContext.ResDefinitions
             .Include(d => d.PropertyMaps)
             .ThenInclude(map => map.Property)
@@ -411,6 +420,14 @@ public class ResourceConfigurationManager(
         List<ResDefinitionPropertyMap> removed = entity.PropertyMaps
             .Where(map => !retainedIds.Contains(map.PropertyId))
             .ToList();
+        bool hasRemovedValues = removed.Count != 0 && await _dbContext.ResValues.AnyAsync(value =>
+            value.TenantId == _userContext.TenantId &&
+            removed.Select(map => map.PropertyId).Contains(value.DefinitionPropertyId));
+        if (hasRemovedValues)
+        {
+            throw new BusinessException("定义属性已被资源值引用，不能移除", StatusCodes.Status409Conflict);
+        }
+
         _dbContext.ResDefinitionPropertyMaps.RemoveRange(removed);
 
         foreach (DefinitionPropertySelection selection in selections)
@@ -488,17 +505,16 @@ public class ResourceConfigurationManager(
 
         HashSet<string> requestedNames = inputs
             .Where(input => !input.Id.HasValue)
-            .Select(input => input.Name.Trim())
+            .Select(input => NormalizeName(input.Name))
             .Where(name => name.Length != 0)
-            .Select(name => name.ToLower())
             .ToHashSet(StringComparer.Ordinal);
         List<ResDefinitionProperty> namedProperties = await _dbContext.ResDefinitionProperties
             .Where(property =>
                 property.TenantId == _userContext.TenantId &&
-                requestedNames.Contains(property.Name.ToLower()))
+                requestedNames.Contains(property.NameKey))
             .ToListAsync();
         Dictionary<string, ResDefinitionProperty> propertiesByName = namedProperties
-            .ToDictionary(property => property.Name, StringComparer.OrdinalIgnoreCase);
+            .ToDictionary(property => property.NameKey, StringComparer.Ordinal);
         HashSet<Guid> currentPropertyIds = definition?.PropertyMaps
             .Select(map => map.PropertyId)
             .ToHashSet() ?? [];
@@ -530,12 +546,13 @@ public class ResourceConfigurationManager(
                     }
 
                     property.Name = input.Name.Trim();
+                    property.NameKey = NormalizeName(input.Name);
                     property.ValueType = input.ValueType;
                     property.IsRequired = input.IsRequired;
                     property.MaxLength = input.MaxLength;
                 }
             }
-            else if (propertiesByName.TryGetValue(input.Name.Trim(), out ResDefinitionProperty? existing))
+            else if (propertiesByName.TryGetValue(NormalizeName(input.Name), out ResDefinitionProperty? existing))
             {
                 if (!MatchesProperty(existing, input))
                 {
@@ -551,13 +568,14 @@ public class ResourceConfigurationManager(
                 property = new ResDefinitionProperty
                 {
                     Name = input.Name.Trim(),
+                    NameKey = NormalizeName(input.Name),
                     ValueType = input.ValueType,
                     IsRequired = input.IsRequired,
                     MaxLength = input.MaxLength,
                     TenantId = _userContext.TenantId
                 };
                 _dbContext.ResDefinitionProperties.Add(property);
-                propertiesByName[property.Name] = property;
+                propertiesByName[property.NameKey] = property;
             }
 
             selections.Add(new DefinitionPropertySelection(property, input.Sort));
@@ -579,7 +597,7 @@ public class ResourceConfigurationManager(
         bool exists = await _dbContext.ResDefinitionProperties.AnyAsync(property =>
             property.TenantId == _userContext.TenantId &&
             (!exceptId.HasValue || property.Id != exceptId.Value) &&
-            property.Name.ToLower() == name.ToLower());
+            property.NameKey == NormalizeName(name));
         if (exists)
         {
             throw new BusinessException("资源属性名称已存在", StatusCodes.Status409Conflict);
@@ -616,10 +634,25 @@ public class ResourceConfigurationManager(
 
     private static void ValidateProperty(string name, int maxLength)
     {
-        if (string.IsNullOrWhiteSpace(name) || maxLength is < 1 or > 1000)
+        ValidateResourceName(name);
+        if (maxLength is < 1 or > 1000)
         {
             throw new BusinessException("资源属性无效", StatusCodes.Status400BadRequest);
         }
+    }
+
+    private static void ValidateResourceName(string? name)
+    {
+        string value = name?.Trim() ?? string.Empty;
+        if (value.Length == 0 || value.Length > 60 || !ResourceNameRegex.IsMatch(value))
+        {
+            throw new BusinessException("资源名称只能包含中文、字母、数字、空格、下划线或连字符", StatusCodes.Status400BadRequest);
+        }
+    }
+
+    private static string NormalizeName(string? name)
+    {
+        return (name?.Trim() ?? string.Empty).ToLowerInvariant();
     }
 
     private sealed record DefinitionPropertySelection(ResDefinitionProperty Property, int Sort);

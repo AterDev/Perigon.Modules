@@ -239,6 +239,11 @@ namespace EntityFramework.Migrations
                         .HasMaxLength(60)
                         .HasColumnType("character varying(60)");
 
+                    b.Property<string>("NameKey")
+                        .IsRequired()
+                        .HasMaxLength(60)
+                        .HasColumnType("character varying(60)");
+
                     b.Property<Guid>("TenantId")
                         .HasColumnType("uuid");
 
@@ -250,7 +255,7 @@ namespace EntityFramework.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("TenantId", "Name")
+                    b.HasIndex("TenantId", "NameKey")
                         .IsUnique();
 
                     b.ToTable("ResDefinitionProperties");

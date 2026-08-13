@@ -273,9 +273,10 @@ public class ResourceManager(
             });
         }
 
-        await _dbContext.ResValues
+        List<ResValue> existingValues = await _dbContext.ResValues
             .Where(value => value.ResourceId == resource.Id && value.TenantId == _userContext.TenantId)
-            .ExecuteDeleteAsync();
+            .ToListAsync();
+        _dbContext.ResValues.RemoveRange(existingValues);
         resource.Values = values;
         await _dbContext.ResValues.AddRangeAsync(values);
     }

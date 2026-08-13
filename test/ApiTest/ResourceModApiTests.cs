@@ -104,6 +104,76 @@ public class ResourceModApiTests
 
     [ClassDataSource<TestHttpClientData>(Shared = SharedType.None)]
     [Test]
+    public async Task PropertyAndDefinitionNames_ShouldRejectSpecialCharactersAndIgnoreCase(
+        TestHttpClientData data)
+    {
+        HttpClient client = data.HttpClient;
+        string suffix = Guid.NewGuid().ToString("N");
+
+        HttpResponseMessage invalidProperty = await client.PostAsJsonAsync(
+            "/api/ResourceConfiguration/properties",
+            new ResDefinitionPropertyAddDto { Name = $"Invalid/{suffix}" });
+        await Assert.That(invalidProperty.StatusCode).IsEqualTo(HttpStatusCode.BadRequest);
+
+        ResDefinitionProperty property = await PostAsync<ResDefinitionProperty>(
+            client,
+            "/api/ResourceConfiguration/properties",
+            new ResDefinitionPropertyAddDto { Name = $"Case-{suffix}" },
+            HttpStatusCode.OK);
+
+        HttpResponseMessage duplicateProperty = await client.PostAsJsonAsync(
+            "/api/ResourceConfiguration/properties",
+            new ResDefinitionPropertyAddDto { Name = $"case-{suffix}" });
+        await Assert.That(duplicateProperty.StatusCode).IsEqualTo(HttpStatusCode.Conflict);
+
+        HttpResponseMessage invalidDefinition = await client.PostAsJsonAsync(
+            "/api/ResourceConfiguration/definitions",
+            new ResDefinitionAddDto { Name = $"Invalid/{suffix}" });
+        await Assert.That(invalidDefinition.StatusCode).IsEqualTo(HttpStatusCode.BadRequest);
+
+        await DeleteAsync(
+            client,
+            $"/api/ResourceConfiguration/properties/{property.Id}",
+            HttpStatusCode.OK);
+    }
+
+    [ClassDataSource<TestHttpClientData>(Shared = SharedType.None)]
+    [Test]
+    public async Task ResourceValues_ShouldAllowSpecialCharacters(TestHttpClientData data)
+    {
+        HttpClient client = data.HttpClient;
+        ResourceFixture fixture = await CreateFixtureAsync(client);
+        List<ResourceValueDto> values = fixture.Values
+            .Select(value =>
+            {
+                Guid labelId = fixture.Definition.Properties.Single(property => property.Name == "Label").Id;
+                return value.DefinitionPropertyId == labelId
+                    ? new ResourceValueDto { DefinitionPropertyId = value.DefinitionPropertyId, Value = "server@host#1" }
+                    : value;
+            })
+            .ToList();
+
+        ResourceCreatedDto created = await PostAsync<ResourceCreatedDto>(
+            client,
+            "/api/Resource",
+            new ResourceAddDto
+            {
+                EnvironmentId = fixture.Environment.Id,
+                CategoryId = fixture.Category.Id,
+                DefinitionId = fixture.Definition.Id,
+                Values = values
+            },
+            HttpStatusCode.Created);
+
+        ResourceDetailDto detail = await GetAsync<ResourceDetailDto>(
+            client,
+            $"/api/Resource/{created.Id}",
+            HttpStatusCode.OK);
+        await Assert.That(detail.Values.Any(value => value.Value == "server@host#1")).IsTrue();
+    }
+
+    [ClassDataSource<TestHttpClientData>(Shared = SharedType.None)]
+    [Test]
     public async Task ConfigurationApis_ShouldMaintainNavigationData(TestHttpClientData data)
     {
         HttpClient client = data.HttpClient;
