@@ -247,6 +247,9 @@ namespace EntityFramework.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("TenantId", "Name")
+                        .IsUnique();
+
                     b.ToTable("ResDefinitionProperties");
                 });
 

@@ -1,11 +1,13 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
+﻿using System;
+using System.Collections.Generic;
+using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
 namespace EntityFramework.Migrations
 {
     /// <inheritdoc />
-    public partial class AddResourceMod : Migration
+    public partial class InitialCreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -51,6 +53,25 @@ namespace EntityFramework.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_ResCategories", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "ResDefinitionProperties",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    Name = table.Column<string>(type: "character varying(60)", maxLength: 60, nullable: false),
+                    ValueType = table.Column<int>(type: "integer", nullable: false),
+                    IsRequired = table.Column<bool>(type: "boolean", nullable: false),
+                    MaxLength = table.Column<int>(type: "integer", nullable: false),
+                    CreatedTime = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    UpdatedTime = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "boolean", nullable: false),
+                    TenantId = table.Column<Guid>(type: "uuid", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ResDefinitionProperties", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -327,16 +348,13 @@ namespace EntityFramework.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "ResDefinitionProperties",
+                name: "ResDefinitionPropertyMaps",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    Name = table.Column<string>(type: "character varying(60)", maxLength: 60, nullable: false),
-                    ValueType = table.Column<int>(type: "integer", nullable: false),
-                    IsRequired = table.Column<bool>(type: "boolean", nullable: false),
-                    MaxLength = table.Column<int>(type: "integer", nullable: false),
-                    Sort = table.Column<int>(type: "integer", nullable: false),
                     DefinitionId = table.Column<Guid>(type: "uuid", nullable: false),
+                    PropertyId = table.Column<Guid>(type: "uuid", nullable: false),
+                    Sort = table.Column<int>(type: "integer", nullable: false),
                     CreatedTime = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
                     UpdatedTime = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
                     IsDeleted = table.Column<bool>(type: "boolean", nullable: false),
@@ -344,9 +362,15 @@ namespace EntityFramework.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_ResDefinitionProperties", x => x.Id);
+                    table.PrimaryKey("PK_ResDefinitionPropertyMaps", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_ResDefinitionProperties_ResDefinitions_DefinitionId",
+                        name: "FK_ResDefinitionPropertyMaps_ResDefinitionProperties_PropertyId",
+                        column: x => x.PropertyId,
+                        principalTable: "ResDefinitionProperties",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_ResDefinitionPropertyMaps_ResDefinitions_DefinitionId",
                         column: x => x.DefinitionId,
                         principalTable: "ResDefinitions",
                         principalColumn: "Id",
@@ -597,9 +621,6 @@ namespace EntityFramework.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    Name = table.Column<string>(type: "character varying(120)", maxLength: 120, nullable: false),
-                    IconUrl = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: true),
-                    Description = table.Column<string>(type: "character varying(2000)", maxLength: 2000, nullable: true),
                     EnvironmentId = table.Column<Guid>(type: "uuid", nullable: false),
                     CategoryId = table.Column<Guid>(type: "uuid", nullable: false),
                     GroupId = table.Column<Guid>(type: "uuid", nullable: true),
@@ -699,10 +720,21 @@ namespace EntityFramework.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_ResDefinitionProperties_DefinitionId_Name",
+                name: "IX_ResDefinitionProperties_TenantId_Name",
                 table: "ResDefinitionProperties",
-                columns: new[] { "DefinitionId", "Name" },
+                columns: new[] { "TenantId", "Name" },
                 unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ResDefinitionPropertyMaps_DefinitionId_PropertyId",
+                table: "ResDefinitionPropertyMaps",
+                columns: new[] { "DefinitionId", "PropertyId" },
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ResDefinitionPropertyMaps_PropertyId",
+                table: "ResDefinitionPropertyMaps",
+                column: "PropertyId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_ResGroups_CategoryId",
@@ -900,6 +932,9 @@ namespace EntityFramework.Migrations
         {
             migrationBuilder.DropTable(
                 name: "Articles");
+
+            migrationBuilder.DropTable(
+                name: "ResDefinitionPropertyMaps");
 
             migrationBuilder.DropTable(
                 name: "ResPermissions");

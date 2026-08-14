@@ -1,6 +1,7 @@
 namespace Entity.ResourceMod;
 
 /// <summary>资源定义中的单个属性配置。</summary>
+[Index(nameof(TenantId), nameof(Name), IsUnique = true)]
 public class ResDefinitionProperty : EntityBase
 {
     /// <summary>属性名称。</summary>

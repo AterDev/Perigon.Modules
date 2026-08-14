@@ -117,7 +117,7 @@ public class ResourceModApiTests
 
     [ClassDataSource<TestHttpClientData>(Shared = SharedType.None)]
     [Test]
-    public async Task PropertyAndDefinitionNames_ShouldRejectSpecialCharactersAndIgnoreCase(
+    public async Task PropertyAndDefinitionNames_ShouldRejectSpecialCharactersAndKeepCaseSensitiveUniqueness(
         TestHttpClientData data)
     {
         HttpClient client = data.HttpClient;
@@ -136,8 +136,15 @@ public class ResourceModApiTests
 
         HttpResponseMessage duplicateProperty = await client.PostAsJsonAsync(
             "/api/ResourceConfiguration/properties",
-            new ResDefinitionPropertyAddDto { Name = $"case-{suffix}" });
+            new ResDefinitionPropertyAddDto { Name = $"Case-{suffix}" });
         await Assert.That(duplicateProperty.StatusCode).IsEqualTo(HttpStatusCode.Conflict);
+
+        ResDefinitionProperty caseVariant = await PostAsync<ResDefinitionProperty>(
+            client,
+            "/api/ResourceConfiguration/properties",
+            new ResDefinitionPropertyAddDto { Name = $"case-{suffix}" },
+            HttpStatusCode.OK);
+        await Assert.That(caseVariant.Id).IsNotEqualTo(property.Id);
 
         HttpResponseMessage invalidDefinition = await client.PostAsJsonAsync(
             "/api/ResourceConfiguration/definitions",
@@ -147,6 +154,10 @@ public class ResourceModApiTests
         await DeleteAsync(
             client,
             $"/api/ResourceConfiguration/properties/{property.Id}",
+            HttpStatusCode.OK);
+        await DeleteAsync(
+            client,
+            $"/api/ResourceConfiguration/properties/{caseVariant.Id}",
             HttpStatusCode.OK);
     }
 

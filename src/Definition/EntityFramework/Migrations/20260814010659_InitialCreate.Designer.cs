@@ -13,15 +13,15 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace EntityFramework.Migrations
 {
     [DbContext(typeof(DefaultDbContext))]
-    [Migration("20260713084321_AddResourceMod")]
-    partial class AddResourceMod
+    [Migration("20260814010659_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "10.0.3")
+                .HasAnnotation("ProductVersion", "10.0.8")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -225,9 +225,6 @@ namespace EntityFramework.Migrations
                     b.Property<DateTimeOffset>("CreatedTime")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<Guid>("DefinitionId")
-                        .HasColumnType("uuid");
-
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
 
@@ -242,9 +239,6 @@ namespace EntityFramework.Migrations
                         .HasMaxLength(60)
                         .HasColumnType("character varying(60)");
 
-                    b.Property<int>("Sort")
-                        .HasColumnType("integer");
-
                     b.Property<Guid>("TenantId")
                         .HasColumnType("uuid");
 
@@ -256,10 +250,47 @@ namespace EntityFramework.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("DefinitionId", "Name")
+                    b.HasIndex("TenantId", "Name")
                         .IsUnique();
 
                     b.ToTable("ResDefinitionProperties");
+                });
+
+            modelBuilder.Entity("Entity.ResourceMod.ResDefinitionPropertyMap", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("CreatedTime")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("DefinitionId")
+                        .HasColumnType("uuid");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<Guid>("PropertyId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("Sort")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("UpdatedTime")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PropertyId");
+
+                    b.HasIndex("DefinitionId", "PropertyId")
+                        .IsUnique();
+
+                    b.ToTable("ResDefinitionPropertyMaps");
                 });
 
             modelBuilder.Entity("Entity.ResourceMod.ResEnvironment", b =>
@@ -483,27 +514,14 @@ namespace EntityFramework.Migrations
                     b.Property<Guid>("DefinitionId")
                         .HasColumnType("uuid");
 
-                    b.Property<string>("Description")
-                        .HasMaxLength(2000)
-                        .HasColumnType("character varying(2000)");
-
                     b.Property<Guid>("EnvironmentId")
                         .HasColumnType("uuid");
 
                     b.Property<Guid?>("GroupId")
                         .HasColumnType("uuid");
 
-                    b.Property<string>("IconUrl")
-                        .HasMaxLength(500)
-                        .HasColumnType("character varying(500)");
-
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(120)
-                        .HasColumnType("character varying(120)");
 
                     b.PrimitiveCollection<List<string>>("TagNames")
                         .IsRequired()
@@ -1151,15 +1169,23 @@ namespace EntityFramework.Migrations
                     b.Navigation("Parent");
                 });
 
-            modelBuilder.Entity("Entity.ResourceMod.ResDefinitionProperty", b =>
+            modelBuilder.Entity("Entity.ResourceMod.ResDefinitionPropertyMap", b =>
                 {
                     b.HasOne("Entity.ResourceMod.ResDefinition", "Definition")
-                        .WithMany("Properties")
+                        .WithMany("PropertyMaps")
                         .HasForeignKey("DefinitionId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("Entity.ResourceMod.ResDefinitionProperty", "Property")
+                        .WithMany("DefinitionMaps")
+                        .HasForeignKey("PropertyId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.Navigation("Definition");
+
+                    b.Navigation("Property");
                 });
 
             modelBuilder.Entity("Entity.ResourceMod.ResGroup", b =>
@@ -1400,13 +1426,15 @@ namespace EntityFramework.Migrations
 
             modelBuilder.Entity("Entity.ResourceMod.ResDefinition", b =>
                 {
-                    b.Navigation("Properties");
+                    b.Navigation("PropertyMaps");
 
                     b.Navigation("Resources");
                 });
 
             modelBuilder.Entity("Entity.ResourceMod.ResDefinitionProperty", b =>
                 {
+                    b.Navigation("DefinitionMaps");
+
                     b.Navigation("Values");
                 });
 

@@ -509,7 +509,7 @@ public class ResourceConfigurationManager(
         List<ResDefinitionProperty> namedProperties = await _dbContext.ResDefinitionProperties
             .Where(property =>
                 property.TenantId == _userContext.TenantId &&
-                requestedNames.Contains(property.Name.Trim().ToLower()))
+                requestedNames.Contains(property.Name))
             .ToListAsync();
         Dictionary<string, ResDefinitionProperty> propertiesByName = namedProperties
             .ToDictionary(property => NormalizeName(property.Name), StringComparer.Ordinal);
@@ -578,7 +578,7 @@ public class ResourceConfigurationManager(
         }
 
         bool hasDuplicateName = selections
-            .GroupBy(selection => selection.Property.Name, StringComparer.OrdinalIgnoreCase)
+            .GroupBy(selection => selection.Property.Name, StringComparer.Ordinal)
             .Any(group => group.Count() > 1);
         if (hasDuplicateName)
         {
@@ -593,7 +593,7 @@ public class ResourceConfigurationManager(
         bool exists = await _dbContext.ResDefinitionProperties.AnyAsync(property =>
             property.TenantId == _userContext.TenantId &&
             (!exceptId.HasValue || property.Id != exceptId.Value) &&
-            property.Name.Trim().ToLower() == NormalizeName(name));
+            property.Name == NormalizeName(name));
         if (exists)
         {
             throw new BusinessException("资源属性名称已存在", StatusCodes.Status409Conflict);
@@ -622,7 +622,7 @@ public class ResourceConfigurationManager(
 
     private static bool MatchesProperty(ResDefinitionProperty property, ResDefinitionPropertyDto input)
     {
-        return string.Equals(property.Name, input.Name.Trim(), StringComparison.OrdinalIgnoreCase) &&
+        return string.Equals(property.Name, input.Name.Trim(), StringComparison.Ordinal) &&
             property.ValueType == input.ValueType &&
             property.IsRequired == input.IsRequired &&
             property.MaxLength == input.MaxLength;
@@ -648,7 +648,7 @@ public class ResourceConfigurationManager(
 
     private static string NormalizeName(string? name)
     {
-        return (name?.Trim() ?? string.Empty).ToLowerInvariant();
+        return name?.Trim() ?? string.Empty;
     }
 
     private sealed record DefinitionPropertySelection(ResDefinitionProperty Property, int Sort);
