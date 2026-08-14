@@ -1,12 +1,12 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
-import { CommonFormModules } from '../../../share/shared-modules';
-import { I18N_KEYS } from '../../../share/i18n-keys';
-import { ResTag } from '../../../../services/admin/models/entity/res-tag.model';
-import { ResTagAddDto } from '../../../../services/admin/models/resource-mod/res-tag-add-dto.model';
-import { ResourceColorPickerComponent } from '../../shared/color-picker/color-picker';
-import { ResourceIconPickerComponent } from '../../shared/icon-picker/icon-picker';
+import { CommonFormModules } from 'src/app/modules/share/shared-modules';
+import { I18N_KEYS } from 'src/app/modules/share/i18n-keys';
+import { ResTag } from 'src/app/services/admin/models/entity/res-tag.model';
+import { ResTagAddDto } from 'src/app/services/admin/models/resource-mod/res-tag-add-dto.model';
+import { ResourceColorPickerComponent } from 'src/app/modules/resource/shared/color-picker/color-picker';
+import { ResourceIconPickerComponent } from 'src/app/modules/resource/shared/icon-picker/icon-picker';
 
 export interface ResourceTagDialogData {
   tag?: ResTag;

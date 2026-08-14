@@ -1,4 +1,4 @@
-import { I18N_KEYS } from '../../../share/i18n-keys';
+import { I18N_KEYS } from 'src/app/modules/share/i18n-keys';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -7,10 +7,10 @@ import {
 } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { MAT_DIALOG_DATA, MatDialog } from '@angular/material/dialog';
-import { CommonListModules } from '../../../share/shared-modules';
-import { AdminClient } from '../../../../services/admin/admin-client';
-import { ResourceDetailDto } from '../../../../services/admin/models/resource-mod/resource-detail-dto.model';
-import { ResourceEditComponent } from '../edit/edit';
+import { CommonListModules } from 'src/app/modules/share/shared-modules';
+import { AdminClient } from 'src/app/services/admin/admin-client';
+import { ResourceDetailDto } from 'src/app/services/admin/models/resource-mod/resource-detail-dto.model';
+import { ResourceEditComponent } from 'src/app/modules/resource/resource/edit/edit';
 
 @Component({
   selector: 'app-resource-detail',

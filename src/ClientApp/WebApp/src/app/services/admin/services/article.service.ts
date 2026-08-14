@@ -1,14 +1,14 @@
-import { BaseService } from '../base.service';
+import { BaseService } from 'src/app/services/admin/base.service';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { PageList } from '../models/perigon/page-list.model';
-import { LanguageType } from '../models/entity/language-type.model';
-import { ContentType } from '../models/entity/content-type.model';
-import { ArticleItemDto } from '../models/cmsmod/article-item-dto.model';
-import { ArticleAddDto } from '../models/cmsmod/article-add-dto.model';
-import { Article } from '../models/entity/article.model';
-import { ArticleDetailDto } from '../models/cmsmod/article-detail-dto.model';
-import { ArticleUpdateDto } from '../models/cmsmod/article-update-dto.model';
+import { PageList } from 'src/app/services/admin/models/perigon/page-list.model';
+import { LanguageType } from 'src/app/services/admin/models/entity/language-type.model';
+import { ContentType } from 'src/app/services/admin/models/entity/content-type.model';
+import { ArticleItemDto } from 'src/app/services/admin/models/cmsmod/article-item-dto.model';
+import { ArticleAddDto } from 'src/app/services/admin/models/cmsmod/article-add-dto.model';
+import { Article } from 'src/app/services/admin/models/entity/article.model';
+import { ArticleDetailDto } from 'src/app/services/admin/models/cmsmod/article-detail-dto.model';
+import { ArticleUpdateDto } from 'src/app/services/admin/models/cmsmod/article-update-dto.model';
 /**
  * 
  */

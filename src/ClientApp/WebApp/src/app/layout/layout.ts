@@ -3,12 +3,12 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { NavigationStart, Router } from '@angular/router';
-import { AuthService } from '../services/auth.service';
-import { NavigationComponent } from "./navigation/navigation";
+import { AuthService } from 'src/app/services/auth.service';
+import { NavigationComponent } from "src/app/layout/navigation/navigation";
 import { TranslateService } from '@ngx-translate/core';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
-import { I18N_KEYS } from '../modules/share/i18n-keys';
-import { BaseMatModules, CommonModules } from '../modules/share/shared-modules';
+import { I18N_KEYS } from 'src/app/modules/share/i18n-keys';
+import { BaseMatModules, CommonModules } from 'src/app/modules/share/shared-modules';
 
 @Component({
   selector: 'app-layout',

@@ -1,26 +1,26 @@
-import { BaseService } from '../base.service';
+import { BaseService } from 'src/app/services/admin/base.service';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { ResEnvironment } from '../models/entity/res-environment.model';
-import { ResEnvironmentAddDto } from '../models/resource-mod/res-environment-add-dto.model';
-import { ResEnvironmentUpdateDto } from '../models/resource-mod/res-environment-update-dto.model';
-import { ResCategory } from '../models/entity/res-category.model';
-import { ResCategoryAddDto } from '../models/resource-mod/res-category-add-dto.model';
-import { ResCategoryUpdateDto } from '../models/resource-mod/res-category-update-dto.model';
-import { ResGroup } from '../models/entity/res-group.model';
-import { ResGroupAddDto } from '../models/resource-mod/res-group-add-dto.model';
-import { ResGroupUpdateDto } from '../models/resource-mod/res-group-update-dto.model';
-import { ResTag } from '../models/entity/res-tag.model';
-import { ResTagAddDto } from '../models/resource-mod/res-tag-add-dto.model';
-import { ResTagUpdateDto } from '../models/resource-mod/res-tag-update-dto.model';
-import { ResDefinitionProperty } from '../models/entity/res-definition-property.model';
-import { ResDefinitionPropertyAddDto } from '../models/resource-mod/res-definition-property-add-dto.model';
-import { ResDefinitionPropertyUpdateDto } from '../models/resource-mod/res-definition-property-update-dto.model';
-import { ResDefinition } from '../models/entity/res-definition.model';
-import { ResDefinitionAddDto } from '../models/resource-mod/res-definition-add-dto.model';
-import { ResDefinitionUpdateDto } from '../models/resource-mod/res-definition-update-dto.model';
-import { ResPermission } from '../models/entity/res-permission.model';
-import { ResPermissionUpdateDto } from '../models/resource-mod/res-permission-update-dto.model';
+import { ResEnvironment } from 'src/app/services/admin/models/entity/res-environment.model';
+import { ResEnvironmentAddDto } from 'src/app/services/admin/models/resource-mod/res-environment-add-dto.model';
+import { ResEnvironmentUpdateDto } from 'src/app/services/admin/models/resource-mod/res-environment-update-dto.model';
+import { ResCategory } from 'src/app/services/admin/models/entity/res-category.model';
+import { ResCategoryAddDto } from 'src/app/services/admin/models/resource-mod/res-category-add-dto.model';
+import { ResCategoryUpdateDto } from 'src/app/services/admin/models/resource-mod/res-category-update-dto.model';
+import { ResGroup } from 'src/app/services/admin/models/entity/res-group.model';
+import { ResGroupAddDto } from 'src/app/services/admin/models/resource-mod/res-group-add-dto.model';
+import { ResGroupUpdateDto } from 'src/app/services/admin/models/resource-mod/res-group-update-dto.model';
+import { ResTag } from 'src/app/services/admin/models/entity/res-tag.model';
+import { ResTagAddDto } from 'src/app/services/admin/models/resource-mod/res-tag-add-dto.model';
+import { ResTagUpdateDto } from 'src/app/services/admin/models/resource-mod/res-tag-update-dto.model';
+import { ResDefinitionProperty } from 'src/app/services/admin/models/entity/res-definition-property.model';
+import { ResDefinitionPropertyAddDto } from 'src/app/services/admin/models/resource-mod/res-definition-property-add-dto.model';
+import { ResDefinitionPropertyUpdateDto } from 'src/app/services/admin/models/resource-mod/res-definition-property-update-dto.model';
+import { ResDefinition } from 'src/app/services/admin/models/entity/res-definition.model';
+import { ResDefinitionAddDto } from 'src/app/services/admin/models/resource-mod/res-definition-add-dto.model';
+import { ResDefinitionUpdateDto } from 'src/app/services/admin/models/resource-mod/res-definition-update-dto.model';
+import { ResPermission } from 'src/app/services/admin/models/entity/res-permission.model';
+import { ResPermissionUpdateDto } from 'src/app/services/admin/models/resource-mod/res-permission-update-dto.model';
 /**
  * 
  */

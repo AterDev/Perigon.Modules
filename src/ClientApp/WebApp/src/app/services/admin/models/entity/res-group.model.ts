@@ -1,5 +1,5 @@
-import { ResCategory } from '../entity/res-category.model';
-import { Resource } from '../entity/resource.model';
+import { ResCategory } from 'src/app/services/admin/models/entity/res-category.model';
+import { Resource } from 'src/app/services/admin/models/entity/resource.model';
 
 /**
  * 资源分组配置。

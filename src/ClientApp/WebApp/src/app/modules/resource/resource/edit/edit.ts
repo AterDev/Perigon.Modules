@@ -1,4 +1,4 @@
-import { I18N_KEYS } from '../../../share/i18n-keys';
+import { I18N_KEYS } from 'src/app/modules/share/i18n-keys';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -16,23 +16,23 @@ import {
 import { ActivatedRoute, Router } from '@angular/router';
 import { forkJoin } from 'rxjs';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { CommonFormModules } from '../../../share/shared-modules';
-import { AdminClient } from '../../../../services/admin/admin-client';
-import { ResEnvironment } from '../../../../services/admin/models/entity/res-environment.model';
-import { ResCategory } from '../../../../services/admin/models/entity/res-category.model';
-import { ResGroup } from '../../../../services/admin/models/entity/res-group.model';
-import { ResTag } from '../../../../services/admin/models/entity/res-tag.model';
-import { ResDefinition } from '../../../../services/admin/models/entity/res-definition.model';
-import { ResValueType } from '../../../../services/admin/models/entity/res-value-type.model';
+import { CommonFormModules } from 'src/app/modules/share/shared-modules';
+import { AdminClient } from 'src/app/services/admin/admin-client';
+import { ResEnvironment } from 'src/app/services/admin/models/entity/res-environment.model';
+import { ResCategory } from 'src/app/services/admin/models/entity/res-category.model';
+import { ResGroup } from 'src/app/services/admin/models/entity/res-group.model';
+import { ResTag } from 'src/app/services/admin/models/entity/res-tag.model';
+import { ResDefinition } from 'src/app/services/admin/models/entity/res-definition.model';
+import { ResValueType } from 'src/app/services/admin/models/entity/res-value-type.model';
 import { TranslateService } from '@ngx-translate/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { ResourceGroupDialogComponent } from '../../dialogs/group-dialog/group-dialog';
-import { ResourceTagDialogComponent } from '../../dialogs/tag-dialog/tag-dialog';
-import { ResGroupAddDto } from '../../../../services/admin/models/resource-mod/res-group-add-dto.model';
-import { ResTagAddDto } from '../../../../services/admin/models/resource-mod/res-tag-add-dto.model';
-import { resourceIconName, resourceIconStyle } from '../../shared/resource-appearance';
-import { resourceValueValidator } from '../../shared/resource-value-validation';
+import { ResourceGroupDialogComponent } from 'src/app/modules/resource/dialogs/group-dialog/group-dialog';
+import { ResourceTagDialogComponent } from 'src/app/modules/resource/dialogs/tag-dialog/tag-dialog';
+import { ResGroupAddDto } from 'src/app/services/admin/models/resource-mod/res-group-add-dto.model';
+import { ResTagAddDto } from 'src/app/services/admin/models/resource-mod/res-tag-add-dto.model';
+import { resourceIconName, resourceIconStyle } from 'src/app/modules/resource/shared/resource-appearance';
+import { resourceValueValidator } from 'src/app/modules/resource/shared/resource-value-validation';
 
 @Component({
   selector: 'app-resource-edit',

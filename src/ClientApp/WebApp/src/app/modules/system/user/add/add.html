@@ -1,81 +1,71 @@
 <section class="page">
   <form [formGroup]="form" (ngSubmit)="save()">
-    <mat-form-field appearance="outline"
-    >
-    <mat-label>用户名</mat-label
-      >
+    <mat-form-field appearance="outline">
+      <mat-label>{{ i18nKeys.systemUser.userName | translate }}</mat-label>
       <input matInput formControlName="userName" />
-    </mat-form-field
-    >
-    <mat-form-field appearance="outline"
-    >
-    <mat-label>初始密码</mat-label
-      >
-      <input
-      matInput
-      type="password"
-      formControlName="password" />
-    </mat-form-field
-    >
-    <mat-form-field appearance="outline"
-    >
-    <mat-label>真实姓名</mat-label
-      >
-      <input matInput formControlName="realName" />
-    </mat-form-field
-    >
-    <mat-form-field appearance="outline"
-    >
-    <mat-label>邮箱</mat-label
-      >
-      <input matInput type="email" formControlName="email" />
-    </mat-form-field
-    >
-    <mat-form-field appearance="outline"
-    >
-    <mat-label>手机号</mat-label
-      >
-      <input matInput formControlName="phoneNumber" />
-    </mat-form-field
-    >
-    <mat-form-field appearance="outline"
-    >
-    <mat-label>性别</mat-label
-      >
-      <mat-select formControlName="sex"
-      >
-      @for (gender of genders; track gender.value) {
-        <mat-option [value]="gender.value">{{ gender.label }}
-        </mat-option>
+      @if (form.controls.userName.hasError('required')) {
+        <mat-error>{{ i18nKeys.validation.required | translate }}</mat-error>
       }
-    </mat-select
-    >
-  </mat-form-field
-  >
-  <mat-form-field appearance="outline"
-  >
-  <mat-label>角色</mat-label
-    >
-    <mat-select formControlName="roleIds" multiple
-    >
-    @for (role of roles(); track role.id) {
-      <mat-option [value]="role.id">{{ role.name }}
-      </mat-option>
-    }
-  </mat-select
-  >
-</mat-form-field
->
-<mat-form-field appearance="outline"
->
-<mat-label>头像 URL</mat-label>
-  <input matInput formControlName="avatar"
-  />
-</mat-form-field>
-<div class="d-flex justify-content-end gap-3">
-  <button mat-button type="button" routerLink="../">取消</button
-    >
-    <button mat-flat-button type="submit" [disabled]="saving">保存</button>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>{{ i18nKeys.systemUser.password | translate }}</mat-label>
+      <input matInput type="password" formControlName="password" />
+      @if (form.controls.password.hasError('required')) {
+        <mat-error>{{ i18nKeys.validation.required | translate }}</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>{{ i18nKeys.systemUser.realName | translate }}</mat-label>
+      <input matInput formControlName="realName" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>{{ i18nKeys.systemUser.email | translate }}</mat-label>
+      <input matInput type="email" formControlName="email" />
+      @if (form.controls.email.hasError('email')) {
+        <mat-error>{{ i18nKeys.validation.email | translate }}</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>{{ i18nKeys.systemUser.phoneNumber | translate }}</mat-label>
+      <input matInput formControlName="phoneNumber" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>{{ i18nKeys.systemUser.gender | translate }}</mat-label>
+      <mat-select formControlName="sex">
+        @for (gender of genders; track gender.value) {
+          <mat-option [value]="gender.value">
+            {{ gender.labelKey | translate }}
+          </mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>{{ i18nKeys.systemUser.role | translate }}</mat-label>
+      <mat-select formControlName="roleIds" multiple>
+        @for (role of roles(); track role.id) {
+          <mat-option [value]="role.id">{{ role.name }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>{{ i18nKeys.systemUser.avatarUrl | translate }}</mat-label>
+      <input matInput formControlName="avatar" />
+    </mat-form-field>
+
+    <div class="d-flex justify-content-end gap-3">
+      <button mat-button type="button" routerLink="../">
+        {{ i18nKeys.common.cancel | translate }}
+      </button>
+      <button mat-flat-button type="submit" [disabled]="saving">
+        {{ i18nKeys.common.save | translate }}
+      </button>
     </div>
   </form>
 </section>

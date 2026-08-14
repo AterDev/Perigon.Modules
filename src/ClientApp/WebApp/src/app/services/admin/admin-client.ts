@@ -1,15 +1,15 @@
 import { inject, Injectable } from '@angular/core';
-import { ArticleService } from './services/article.service';
-import { ArticleCategoryService } from './services/article-category.service';
-import { ResourceService } from './services/resource.service';
-import { ResourceConfigurationService } from './services/resource-configuration.service';
-import { SystemConfigService } from './services/system-config.service';
-import { SystemLogsService } from './services/system-logs.service';
-import { SystemMenuService } from './services/system-menu.service';
-import { SystemPermissionService } from './services/system-permission.service';
-import { SystemPermissionGroupService } from './services/system-permission-group.service';
-import { SystemRoleService } from './services/system-role.service';
-import { SystemUserService } from './services/system-user.service';
+import { ArticleService } from 'src/app/services/admin/services/article.service';
+import { ArticleCategoryService } from 'src/app/services/admin/services/article-category.service';
+import { ResourceService } from 'src/app/services/admin/services/resource.service';
+import { ResourceConfigurationService } from 'src/app/services/admin/services/resource-configuration.service';
+import { SystemConfigService } from 'src/app/services/admin/services/system-config.service';
+import { SystemLogsService } from 'src/app/services/admin/services/system-logs.service';
+import { SystemMenuService } from 'src/app/services/admin/services/system-menu.service';
+import { SystemPermissionService } from 'src/app/services/admin/services/system-permission.service';
+import { SystemPermissionGroupService } from 'src/app/services/admin/services/system-permission-group.service';
+import { SystemRoleService } from 'src/app/services/admin/services/system-role.service';
+import { SystemUserService } from 'src/app/services/admin/services/system-user.service';
 @Injectable({
   providedIn: 'root'
 })

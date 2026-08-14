@@ -3,23 +3,23 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { HttpErrorResponse } from '@angular/common/http';
 import { TranslateService } from '@ngx-translate/core';
-import { AdminClient } from '../../../../services/admin/admin-client';
-import { ResDefinition } from '../../../../services/admin/models/entity/res-definition.model';
-import { ResValueType } from '../../../../services/admin/models/entity/res-value-type.model';
-import { CommonListModules } from '../../../share/shared-modules';
-import { ConfirmDialogComponent } from '../../../share/components/confirm-dialog/confirm-dialog.component';
-import { I18N_KEYS } from '../../../share/i18n-keys';
-import { ResourceDefinitionDialogComponent } from './definition-dialog/definition-dialog';
-import { ResourceDefinitionPropertiesDialogComponent } from './definition-properties-dialog/definition-properties-dialog';
+import { AdminClient } from 'src/app/services/admin/admin-client';
+import { ResDefinition } from 'src/app/services/admin/models/entity/res-definition.model';
+import { ResValueType } from 'src/app/services/admin/models/entity/res-value-type.model';
+import { CommonListModules } from 'src/app/modules/share/shared-modules';
+import { ConfirmDialogComponent } from 'src/app/modules/share/components/confirm-dialog/confirm-dialog.component';
+import { I18N_KEYS } from 'src/app/modules/share/i18n-keys';
+import { ResourceDefinitionDialogComponent } from 'src/app/modules/resource/definition/index/definition-dialog/definition-dialog';
+import { ResourceDefinitionPropertiesDialogComponent } from 'src/app/modules/resource/definition/index/definition-properties-dialog/definition-properties-dialog';
 import {
   ResourcePropertyDialogComponent,
   ResourcePropertyDialogData,
-} from './property-dialog/property-dialog';
-import { ResDefinitionProperty } from '../../../../services/admin/models/entity/res-definition-property.model';
-import { ResDefinitionPropertyAddDto } from '../../../../services/admin/models/resource-mod/res-definition-property-add-dto.model';
-import { ResDefinitionPropertyUpdateDto } from '../../../../services/admin/models/resource-mod/res-definition-property-update-dto.model';
-import { resourceIconName, resourceIconStyle } from '../../shared/resource-appearance';
-import { sortResourceProperties } from '../../shared/resource-property-order';
+} from 'src/app/modules/resource/definition/index/property-dialog/property-dialog';
+import { ResDefinitionProperty } from 'src/app/services/admin/models/entity/res-definition-property.model';
+import { ResDefinitionPropertyAddDto } from 'src/app/services/admin/models/resource-mod/res-definition-property-add-dto.model';
+import { ResDefinitionPropertyUpdateDto } from 'src/app/services/admin/models/resource-mod/res-definition-property-update-dto.model';
+import { resourceIconName, resourceIconStyle } from 'src/app/modules/resource/shared/resource-appearance';
+import { sortResourceProperties } from 'src/app/modules/resource/shared/resource-property-order';
 
 @Component({
   selector: 'app-resource-definition-index',

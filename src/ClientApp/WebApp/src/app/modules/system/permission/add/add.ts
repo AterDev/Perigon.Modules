@@ -1,16 +1,14 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  inject,
-  signal,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { CommonFormModules } from '../../../share/shared-modules';
-import { AdminClient } from '../../../../services/admin/admin-client';
-import { SystemPermissionGroupItemDto } from '../../../../services/admin/models/system-mod/system-permission-group-item-dto.model';
-import { PermissionType } from '../../../../services/admin/models/entity/permission-type.model';
+import { TranslateService } from '@ngx-translate/core';
+import { Router } from '@angular/router';
+import { I18N_KEYS } from 'src/app/modules/share/i18n-keys';
+import { CommonFormModules } from 'src/app/modules/share/shared-modules';
+import { AdminClient } from 'src/app/services/admin/admin-client';
+import { PermissionType } from 'src/app/services/admin/models/entity/permission-type.model';
+import { SystemPermissionGroupItemDto } from 'src/app/services/admin/models/system-mod/system-permission-group-item-dto.model';
+
 @Component({
   selector: 'app-system-permission-add',
   imports: CommonFormModules,
@@ -19,14 +17,22 @@ import { PermissionType } from '../../../../services/admin/models/entity/permiss
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SystemPermissionAddComponent {
+  readonly i18nKeys = I18N_KEYS;
   private readonly fb = inject(FormBuilder);
   private readonly client = inject(AdminClient);
   private readonly router = inject(Router);
   private readonly snackBar = inject(MatSnackBar);
+  private readonly translate = inject(TranslateService);
   readonly groups = signal<SystemPermissionGroupItemDto[]>([]);
-  readonly types = Object.entries(PermissionType).filter(
-    ([, value]) => typeof value === 'number',
-  ) as [string, PermissionType][];
+  readonly types = [
+    { value: PermissionType.None, labelKey: I18N_KEYS.systemPermission.types.none },
+    { value: PermissionType.Read, labelKey: I18N_KEYS.systemPermission.types.read },
+    { value: PermissionType.Audit, labelKey: I18N_KEYS.systemPermission.types.audit },
+    { value: PermissionType.Add, labelKey: I18N_KEYS.systemPermission.types.add },
+    { value: PermissionType.Edit, labelKey: I18N_KEYS.systemPermission.types.edit },
+    { value: PermissionType.Write, labelKey: I18N_KEYS.systemPermission.types.write },
+    { value: PermissionType.AuditWrite, labelKey: I18N_KEYS.systemPermission.types.auditWrite },
+  ] as const;
   saving = false;
   readonly form = this.fb.nonNullable.group({
     name: ['', Validators.required],
@@ -35,11 +41,13 @@ export class SystemPermissionAddComponent {
     permissionType: PermissionType.Read,
     systemPermissionGroupId: ['', Validators.required],
   });
+
   constructor() {
     this.client.systemPermissionGroup
       .filter({ pageIndex: 1, pageSize: 100 })
       .subscribe((page) => this.groups.set(page.data));
   }
+
   save(): void {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
@@ -48,7 +56,11 @@ export class SystemPermissionAddComponent {
     this.saving = true;
     this.client.systemPermission.add(this.form.getRawValue()).subscribe({
       next: () => {
-        this.snackBar.open('权限已创建', '关闭', { duration: 2500 });
+        this.snackBar.open(
+          this.translate.instant(this.i18nKeys.systemPermission.createSuccess),
+          this.translate.instant(this.i18nKeys.common.close),
+          { duration: 2500 },
+        );
         this.router.navigate(['/system/permission']);
       },
       error: () => (this.saving = false),

@@ -1,6 +1,6 @@
-import { SystemUser } from '../entity/system-user.model';
-import { SystemPermissionGroup } from '../entity/system-permission-group.model';
-import { SystemMenu } from '../entity/system-menu.model';
+import { SystemUser } from 'src/app/services/admin/models/entity/system-user.model';
+import { SystemPermissionGroup } from 'src/app/services/admin/models/entity/system-permission-group.model';
+import { SystemMenu } from 'src/app/services/admin/models/entity/system-menu.model';
 
 /**
  * 系统角色

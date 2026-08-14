@@ -1,5 +1,5 @@
-import { Resource } from '../entity/resource.model';
-import { ResPermission } from '../entity/res-permission.model';
+import { Resource } from 'src/app/services/admin/models/entity/resource.model';
+import { ResPermission } from 'src/app/services/admin/models/entity/res-permission.model';
 
 /**
  * 资源运行环境配置。

@@ -1,15 +1,15 @@
-import { BaseService } from '../base.service';
+import { BaseService } from 'src/app/services/admin/base.service';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { SystemLoginDto } from '../models/system-mod/system-login-dto.model';
-import { AccessTokenDto } from '../models/share/access-token-dto.model';
-import { UserInfoDto } from '../models/system-mod/user-info-dto.model';
-import { PageList } from '../models/perigon/page-list.model';
-import { SystemUserItemDto } from '../models/system-mod/system-user-item-dto.model';
-import { SystemUserAddDto } from '../models/system-mod/system-user-add-dto.model';
-import { SystemUser } from '../models/entity/system-user.model';
-import { SystemUserUpdateDto } from '../models/system-mod/system-user-update-dto.model';
-import { SystemUserDetailDto } from '../models/system-mod/system-user-detail-dto.model';
+import { SystemLoginDto } from 'src/app/services/admin/models/system-mod/system-login-dto.model';
+import { AccessTokenDto } from 'src/app/services/admin/models/share/access-token-dto.model';
+import { UserInfoDto } from 'src/app/services/admin/models/system-mod/user-info-dto.model';
+import { PageList } from 'src/app/services/admin/models/perigon/page-list.model';
+import { SystemUserItemDto } from 'src/app/services/admin/models/system-mod/system-user-item-dto.model';
+import { SystemUserAddDto } from 'src/app/services/admin/models/system-mod/system-user-add-dto.model';
+import { SystemUser } from 'src/app/services/admin/models/entity/system-user.model';
+import { SystemUserUpdateDto } from 'src/app/services/admin/models/system-mod/system-user-update-dto.model';
+import { SystemUserDetailDto } from 'src/app/services/admin/models/system-mod/system-user-detail-dto.model';
 /**
  * 系统用户
  */

@@ -1,4 +1,4 @@
-import { I18N_KEYS } from '../../../share/i18n-keys';
+import { I18N_KEYS } from 'src/app/modules/share/i18n-keys';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -6,9 +6,9 @@ import {
   signal,
 } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { CommonListModules } from '../../../share/shared-modules';
-import { AdminClient } from '../../../../services/admin/admin-client';
-import { ArticleCategoryDetailDto } from '../../../../services/admin/models/cmsmod/article-category-detail-dto.model';
+import { CommonListModules } from 'src/app/modules/share/shared-modules';
+import { AdminClient } from 'src/app/services/admin/admin-client';
+import { ArticleCategoryDetailDto } from 'src/app/services/admin/models/cmsmod/article-category-detail-dto.model';
 
 @Component({
   selector: 'app-article-category-detail',

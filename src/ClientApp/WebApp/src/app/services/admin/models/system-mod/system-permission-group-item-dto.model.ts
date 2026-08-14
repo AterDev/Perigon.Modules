@@ -1,4 +1,4 @@
-import { SystemPermission } from '../entity/system-permission.model';
+import { SystemPermission } from 'src/app/services/admin/models/entity/system-permission.model';
 
 export interface SystemPermissionGroupItemDto {
   /** id */

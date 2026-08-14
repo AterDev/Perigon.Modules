@@ -1,17 +1,13 @@
-import { I18N_KEYS } from '../../../share/i18n-keys';
-import {
-  ChangeDetectionStrategy,
-  Component,
-  inject,
-  signal,
-} from '@angular/core';
-import { MatSnackBar } from '@angular/material/snack-bar';
-import { CommonListModules } from '../../../share/shared-modules';
-import { AdminClient } from '../../../../services/admin/admin-client';
-import { SystemUserItemDto } from '../../../../services/admin/models/system-mod/system-user-item-dto.model';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { ConfirmDialogComponent } from '../../../share/components/confirm-dialog/confirm-dialog.component';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { TranslateService } from '@ngx-translate/core';
+import { ConfirmDialogComponent } from 'src/app/modules/share/components/confirm-dialog/confirm-dialog.component';
+import { I18N_KEYS } from 'src/app/modules/share/i18n-keys';
+import { CommonListModules } from 'src/app/modules/share/shared-modules';
+import { AdminClient } from 'src/app/services/admin/admin-client';
+import { SystemUserItemDto } from 'src/app/services/admin/models/system-mod/system-user-item-dto.model';
+
 @Component({
   selector: 'app-system-user-index',
   imports: CommonListModules,
@@ -50,15 +46,21 @@ export class SystemUserIndexComponent {
     this.dialog
       .open(ConfirmDialogComponent, {
         data: {
-          title: this.translate.instant('common.confirmDelete'),
-          content: `确定删除账号“${user.userName}”吗？`,
+          title: this.translate.instant(this.i18nKeys.common.confirmDelete),
+          content: this.translate.instant(this.i18nKeys.systemUser.deleteConfirm, {
+            name: user.userName,
+          }),
         },
       })
       .afterClosed()
       .subscribe((confirmed) => {
         if (!confirmed) return;
         this.client.systemUser.delete(user.id).subscribe(() => {
-          this.snackBar.open('账号已删除', '关闭', { duration: 2500 });
+          this.snackBar.open(
+            this.translate.instant(this.i18nKeys.systemUser.deleteSuccess),
+            this.translate.instant(this.i18nKeys.common.close),
+            { duration: 2500 },
+          );
           this.load();
         });
       });

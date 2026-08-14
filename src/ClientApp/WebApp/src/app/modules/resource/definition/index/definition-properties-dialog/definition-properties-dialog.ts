@@ -1,10 +1,10 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { CommonFormModules } from '../../../../share/shared-modules';
-import { I18N_KEYS } from '../../../../share/i18n-keys';
-import { ResDefinition } from '../../../../../services/admin/models/entity/res-definition.model';
-import { ResValueType } from '../../../../../services/admin/models/entity/res-value-type.model';
-import { sortResourceProperties } from '../../../shared/resource-property-order';
+import { CommonFormModules } from 'src/app/modules/share/shared-modules';
+import { I18N_KEYS } from 'src/app/modules/share/i18n-keys';
+import { ResDefinition } from 'src/app/services/admin/models/entity/res-definition.model';
+import { ResValueType } from 'src/app/services/admin/models/entity/res-value-type.model';
+import { sortResourceProperties } from 'src/app/modules/resource/shared/resource-property-order';
 
 export interface ResourceDefinitionPropertiesDialogData {
   definition: ResDefinition;

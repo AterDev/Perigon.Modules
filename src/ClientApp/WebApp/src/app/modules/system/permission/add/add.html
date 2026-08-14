@@ -1,55 +1,51 @@
 <section class="page">
   <form [formGroup]="form" (ngSubmit)="save()">
-    <mat-form-field appearance="outline"
-    >
-    <mat-label>权限名称</mat-label
-      >
+    <mat-form-field appearance="outline">
+      <mat-label>{{ i18nKeys.systemPermission.name | translate }}</mat-label>
       <input matInput formControlName="name" />
-    </mat-form-field
-    >
-    <mat-form-field appearance="outline"
-    >
-    <mat-label>说明</mat-label
-      >
-      <textarea
-      matInput
-      formControlName="description"
-      >
-    </textarea>
-  </mat-form-field
-  >
-  <mat-form-field appearance="outline"
-  >
-  <mat-label>权限类型</mat-label
-    >
-    <mat-select formControlName="permissionType"
-    >
-    @for (type of types; track type[1]) {
-      <mat-option [value]="type[1]">{{ type[0] }} ({{ type[1] }})</mat-option>
+      @if (form.controls.name.hasError('required')) {
+        <mat-error>{{ i18nKeys.validation.required | translate }}</mat-error>
       }
-    </mat-select
-    >
-  </mat-form-field
-  >
-  <mat-form-field appearance="outline"
-  >
-  <mat-label>权限组</mat-label
-    >
-    <mat-select formControlName="systemPermissionGroupId"
-    >
-    @for (group of groups(); track group.id) {
-      <mat-option [value]="group.id">{{ group.name }}
-      </mat-option>
-    }
-  </mat-select
-  >
-</mat-form-field
->
-<mat-checkbox formControlName="enable">启用</mat-checkbox>
-  <div class="d-flex justify-content-end gap-3">
-    <button mat-button type="button" routerLink="../">取消</button
-      >
-      <button mat-flat-button type="submit" [disabled]="saving">保存</button>
-      </div>
-    </form>
-  </section>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>{{ i18nKeys.systemPermission.description | translate }}</mat-label>
+      <textarea matInput formControlName="description"></textarea>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>{{ i18nKeys.systemPermission.permissionType | translate }}</mat-label>
+      <mat-select formControlName="permissionType">
+        @for (type of types; track type.value) {
+          <mat-option [value]="type.value">
+            {{ type.labelKey | translate }} ({{ type.value }})
+          </mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>{{ i18nKeys.systemPermission.group | translate }}</mat-label>
+      <mat-select formControlName="systemPermissionGroupId">
+        @for (group of groups(); track group.id) {
+          <mat-option [value]="group.id">{{ group.name }}</mat-option>
+        }
+      </mat-select>
+      @if (form.controls.systemPermissionGroupId.hasError('required')) {
+        <mat-error>{{ i18nKeys.validation.required | translate }}</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-checkbox formControlName="enable">
+      {{ i18nKeys.systemPermission.enabled | translate }}
+    </mat-checkbox>
+    <div class="d-flex justify-content-end gap-3">
+      <button mat-button type="button" routerLink="../">
+        {{ i18nKeys.common.cancel | translate }}
+      </button>
+      <button mat-flat-button type="submit" [disabled]="saving">
+        {{ i18nKeys.common.save | translate }}
+      </button>
+    </div>
+  </form>
+</section>

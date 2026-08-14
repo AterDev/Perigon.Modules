@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-import { AccessTokenDto } from './admin/models/share/access-token-dto.model';
-import { UserInfoDto } from './admin/models/system-mod/user-info-dto.model';
+import { AccessTokenDto } from 'src/app/services/admin/models/share/access-token-dto.model';
+import { UserInfoDto } from 'src/app/services/admin/models/system-mod/user-info-dto.model';
 
 @Injectable({
   providedIn: 'root',

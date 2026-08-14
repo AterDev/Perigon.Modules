@@ -1,42 +1,41 @@
 <section class="page">
   <header>
     @if (permission(); as item) {
-      <a mat-flat-button [routerLink]="['../../', item.id, 'edit']"
+      <a
+        mat-flat-button
+        [routerLink]="['../../', item.id, 'edit']"
+        [attr.aria-label]="i18nKeys.common.edit | translate"
       >
-      <mat-icon class="primary">edit</mat-icon>编辑</a
-        >
-      }
-    </header>
-    @if (permission(); as item) {
-      <mat-card
-      >
-      <mat-card-content
-      >
-      <dl>
-        <dt>权限名称</dt>
+        <mat-icon class="primary">edit</mat-icon>
+        {{ i18nKeys.common.edit | translate }}
+      </a>
+    }
+  </header>
+
+  @if (permission(); as item) {
+    <mat-card>
+      <mat-card-content>
+        <dl>
+          <dt>{{ i18nKeys.systemPermission.name | translate }}</dt>
+          <dd><code>{{ item.name }}</code></dd>
+          <dt>{{ i18nKeys.systemPermission.description | translate }}</dt>
+          <dd>{{ item.description || '-' }}</dd>
+          <dt>{{ i18nKeys.systemPermission.typeValue | translate }}</dt>
+          <dd>{{ item.permissionType }}</dd>
+          <dt>{{ i18nKeys.systemPermission.status | translate }}</dt>
           <dd>
-            <code>{{ item.name }}
-            </code>
+            {{
+              item.enable
+                ? (i18nKeys.systemPermission.enabled | translate)
+                : (i18nKeys.systemPermission.disabled | translate)
+            }}
           </dd>
-          <dt>说明</dt>
-            <dd>{{ item.description || '-' }}
-            </dd>
-            <dt>权限类型值</dt>
-              <dd>{{ item.permissionType }}
-              </dd>
-              <dt>状态</dt>
-                <dd>{{ item.enable ? '启用' : '停用' }}
-                </dd>
-                <dt>权限组</dt>
-                  <dd>{{ item.group.name }}
-                  </dd>
-                </dl>
-              </mat-card-content
-              >
-            </mat-card
-            >
-          }
-          @else {
-            <mat-spinner diameter="36" />
-          }
-        </section>
+          <dt>{{ i18nKeys.systemPermission.group | translate }}</dt>
+          <dd>{{ item.group.name }}</dd>
+        </dl>
+      </mat-card-content>
+    </mat-card>
+  } @else {
+    <mat-spinner diameter="36" />
+  }
+</section>

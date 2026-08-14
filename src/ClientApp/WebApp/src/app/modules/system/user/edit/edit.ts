@@ -1,16 +1,14 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  inject,
-  signal,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { CommonFormModules } from '../../../share/shared-modules';
-import { AdminClient } from '../../../../services/admin/admin-client';
-import { SystemRoleItemDto } from '../../../../services/admin/models/system-mod/system-role-item-dto.model';
-import { GenderType } from '../../../../services/admin/models/perigon/gender-type.model';
+import { TranslateService } from '@ngx-translate/core';
+import { I18N_KEYS } from 'src/app/modules/share/i18n-keys';
+import { CommonFormModules } from 'src/app/modules/share/shared-modules';
+import { AdminClient } from 'src/app/services/admin/admin-client';
+import { GenderType } from 'src/app/services/admin/models/perigon/gender-type.model';
+import { SystemRoleItemDto } from 'src/app/services/admin/models/system-mod/system-role-item-dto.model';
+
 @Component({
   selector: 'app-system-user-edit',
   imports: CommonFormModules,
@@ -19,18 +17,20 @@ import { GenderType } from '../../../../services/admin/models/perigon/gender-typ
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SystemUserEditComponent {
+  readonly i18nKeys = I18N_KEYS;
   private readonly fb = inject(FormBuilder);
   private readonly client = inject(AdminClient);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly snackBar = inject(MatSnackBar);
+  private readonly translate = inject(TranslateService);
   readonly id = this.route.snapshot.paramMap.get('id')!;
   readonly roles = signal<SystemRoleItemDto[]>([]);
   readonly genders = [
-    { value: GenderType.Male, label: '男' },
-    { value: GenderType.Female, label: '女' },
-    { value: GenderType.Else, label: '其他' },
-  ];
+    { value: GenderType.Male, labelKey: I18N_KEYS.systemUser.genderTypes.male },
+    { value: GenderType.Female, labelKey: I18N_KEYS.systemUser.genderTypes.female },
+    { value: GenderType.Else, labelKey: I18N_KEYS.systemUser.genderTypes.else },
+  ] as const;
   saving = false;
   readonly form = this.fb.nonNullable.group({
     userName: ['', Validators.required],
@@ -42,6 +42,7 @@ export class SystemUserEditComponent {
     avatar: [''],
     sex: GenderType.Else,
   });
+
   constructor() {
     this.client.systemRole
       .list(null, null, 1, 100, null)
@@ -57,6 +58,7 @@ export class SystemUserEditComponent {
       }),
     );
   }
+
   save(): void {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
@@ -68,7 +70,11 @@ export class SystemUserEditComponent {
       .update(this.id, { ...value, password: value.password || null })
       .subscribe({
         next: () => {
-          this.snackBar.open('账号已更新', '关闭', { duration: 2500 });
+          this.snackBar.open(
+            this.translate.instant(this.i18nKeys.systemUser.updateSuccess),
+            this.translate.instant(this.i18nKeys.common.close),
+            { duration: 2500 },
+          );
           this.router.navigate(['/system/user', this.id, 'detail']);
         },
         error: () => (this.saving = false),

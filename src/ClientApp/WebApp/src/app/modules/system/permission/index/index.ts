@@ -1,16 +1,13 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  inject,
-  signal,
-} from '@angular/core';
-import { MatSnackBar } from '@angular/material/snack-bar';
-import { CommonListModules } from '../../../share/shared-modules';
-import { AdminClient } from '../../../../services/admin/admin-client';
-import { SystemPermissionItemDto } from '../../../../services/admin/models/system-mod/system-permission-item-dto.model';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { ConfirmDialogComponent } from '../../../share/components/confirm-dialog/confirm-dialog.component';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { TranslateService } from '@ngx-translate/core';
+import { ConfirmDialogComponent } from 'src/app/modules/share/components/confirm-dialog/confirm-dialog.component';
+import { I18N_KEYS } from 'src/app/modules/share/i18n-keys';
+import { CommonListModules } from 'src/app/modules/share/shared-modules';
+import { AdminClient } from 'src/app/services/admin/admin-client';
+import { SystemPermissionItemDto } from 'src/app/services/admin/models/system-mod/system-permission-item-dto.model';
+
 @Component({
   selector: 'app-system-permission-index',
   imports: CommonListModules,
@@ -19,6 +16,7 @@ import { TranslateService } from '@ngx-translate/core';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SystemPermissionIndexComponent {
+  readonly i18nKeys = I18N_KEYS;
   private readonly client = inject(AdminClient);
   private readonly snackBar = inject(MatSnackBar);
   private readonly dialog = inject(MatDialog);
@@ -48,15 +46,22 @@ export class SystemPermissionIndexComponent {
     this.dialog
       .open(ConfirmDialogComponent, {
         data: {
-          title: this.translate.instant('common.confirmDelete'),
-          content: `确定删除权限“${item.name}”吗？`,
+          title: this.translate.instant(this.i18nKeys.common.confirmDelete),
+          content: this.translate.instant(
+            this.i18nKeys.systemPermission.deleteConfirm,
+            { name: item.name },
+          ),
         },
       })
       .afterClosed()
       .subscribe((confirmed) => {
         if (!confirmed) return;
         this.client.systemPermission.delete(item.id).subscribe(() => {
-          this.snackBar.open('权限已删除', '关闭', { duration: 2500 });
+          this.snackBar.open(
+            this.translate.instant(this.i18nKeys.systemPermission.deleteSuccess),
+            this.translate.instant(this.i18nKeys.common.close),
+            { duration: 2500 },
+          );
           this.load();
         });
       });

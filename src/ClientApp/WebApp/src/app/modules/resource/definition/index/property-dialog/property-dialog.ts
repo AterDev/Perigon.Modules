@@ -1,10 +1,10 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { CommonFormModules } from '../../../../share/shared-modules';
-import { I18N_KEYS } from '../../../../share/i18n-keys';
-import { ResDefinitionProperty } from '../../../../../services/admin/models/entity/res-definition-property.model';
-import { ResValueType } from '../../../../../services/admin/models/entity/res-value-type.model';
+import { CommonFormModules } from 'src/app/modules/share/shared-modules';
+import { I18N_KEYS } from 'src/app/modules/share/i18n-keys';
+import { ResDefinitionProperty } from 'src/app/services/admin/models/entity/res-definition-property.model';
+import { ResValueType } from 'src/app/services/admin/models/entity/res-value-type.model';
 
 export interface ResourcePropertyDialogData {
   property?: ResDefinitionProperty;

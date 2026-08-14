@@ -1,5 +1,5 @@
-import { SystemPermission } from '../entity/system-permission.model';
-import { SystemRole } from '../entity/system-role.model';
+import { SystemPermission } from 'src/app/services/admin/models/entity/system-permission.model';
+import { SystemRole } from 'src/app/services/admin/models/entity/system-role.model';
 
 /**
  * 系统权限组

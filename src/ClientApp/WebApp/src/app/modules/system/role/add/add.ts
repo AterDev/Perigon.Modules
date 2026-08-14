@@ -1,9 +1,12 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { CommonFormModules } from '../../../share/shared-modules';
-import { AdminClient } from '../../../../services/admin/admin-client';
+import { Router } from '@angular/router';
+import { TranslateService } from '@ngx-translate/core';
+import { I18N_KEYS } from 'src/app/modules/share/i18n-keys';
+import { CommonFormModules } from 'src/app/modules/share/shared-modules';
+import { AdminClient } from 'src/app/services/admin/admin-client';
+
 @Component({
   selector: 'app-system-role-add',
   imports: CommonFormModules,
@@ -12,10 +15,12 @@ import { AdminClient } from '../../../../services/admin/admin-client';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SystemRoleAddComponent {
+  readonly i18nKeys = I18N_KEYS;
   private readonly fb = inject(FormBuilder);
   private readonly client = inject(AdminClient);
   private readonly router = inject(Router);
   private readonly snackBar = inject(MatSnackBar);
+  private readonly translate = inject(TranslateService);
   saving = false;
   readonly form = this.fb.nonNullable.group({
     name: ['', [Validators.required, Validators.maxLength(50)]],
@@ -31,7 +36,11 @@ export class SystemRoleAddComponent {
     this.saving = true;
     this.client.systemRole.add(this.form.getRawValue()).subscribe({
       next: () => {
-        this.snackBar.open('角色已创建', '关闭', { duration: 2500 });
+        this.snackBar.open(
+          this.translate.instant(this.i18nKeys.systemRole.createSuccess),
+          this.translate.instant(this.i18nKeys.common.close),
+          { duration: 2500 },
+        );
         this.router.navigate(['/system/role']);
       },
       error: () => (this.saving = false),

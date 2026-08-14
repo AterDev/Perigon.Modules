@@ -5,15 +5,15 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { TranslateModule } from '@ngx-translate/core';
-import { I18N_KEYS } from '../../../share/i18n-keys';
+import { I18N_KEYS } from 'src/app/modules/share/i18n-keys';
 import {
   resourceIconName,
   resourceIconStyle,
-} from '../resource-appearance';
+} from 'src/app/modules/resource/shared/resource-appearance';
 import {
   ResourceIconPickerDialogComponent,
   ResourceIconPickerDialogData,
-} from './icon-picker-dialog';
+} from 'src/app/modules/resource/shared/icon-picker/icon-picker-dialog';
 
 @Component({
   selector: 'app-resource-icon-picker',

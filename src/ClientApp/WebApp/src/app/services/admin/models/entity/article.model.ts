@@ -1,6 +1,6 @@
-import { LanguageType } from '../entity/language-type.model';
-import { ContentType } from '../entity/content-type.model';
-import { ArticleCategory } from '../entity/article-category.model';
+import { LanguageType } from 'src/app/services/admin/models/entity/language-type.model';
+import { ContentType } from 'src/app/services/admin/models/entity/content-type.model';
+import { ArticleCategory } from 'src/app/services/admin/models/entity/article-category.model';
 
 /**
  * 内容

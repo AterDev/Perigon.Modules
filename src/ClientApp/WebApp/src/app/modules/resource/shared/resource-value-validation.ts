@@ -3,7 +3,7 @@ import {
   ValidationErrors,
   ValidatorFn,
 } from '@angular/forms';
-import { ResValueType } from '../../../services/admin/models/entity/res-value-type.model';
+import { ResValueType } from 'src/app/services/admin/models/entity/res-value-type.model';
 
 const resourceValueFormatError = 'resourceValueFormat';
 const numberPattern = /^[+-]?(?:\d+(?:\.\d*)?|\.\d+)$/;

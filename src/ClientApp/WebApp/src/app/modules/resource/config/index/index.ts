@@ -1,17 +1,17 @@
-import { I18N_KEYS } from '../../../share/i18n-keys';
+import { I18N_KEYS } from 'src/app/modules/share/i18n-keys';
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
-import { CommonListModules } from '../../../share/shared-modules';
-import { AdminClient } from '../../../../services/admin/admin-client';
-import { ResEnvironment } from '../../../../services/admin/models/entity/res-environment.model';
-import { ResCategory } from '../../../../services/admin/models/entity/res-category.model';
-import { SystemRole } from '../../../../services/admin/models/entity/system-role.model';
+import { CommonListModules } from 'src/app/modules/share/shared-modules';
+import { AdminClient } from 'src/app/services/admin/admin-client';
+import { ResEnvironment } from 'src/app/services/admin/models/entity/res-environment.model';
+import { ResCategory } from 'src/app/services/admin/models/entity/res-category.model';
+import { SystemRole } from 'src/app/services/admin/models/entity/system-role.model';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { TranslateService } from '@ngx-translate/core';
 import { MatDialog } from '@angular/material/dialog';
-import { ConfirmDialogComponent } from '../../../share/components/confirm-dialog/confirm-dialog.component';
-import { ResourceInputDialogComponent, ResourceInputDialogData } from '../../dialogs/input-dialog/input-dialog';
-import { SystemRoleItemDto } from '../../../../services/admin/models/system-mod/system-role-item-dto.model';
-import { resourceIconName, resourceIconStyle } from '../../shared/resource-appearance';
+import { ConfirmDialogComponent } from 'src/app/modules/share/components/confirm-dialog/confirm-dialog.component';
+import { ResourceInputDialogComponent, ResourceInputDialogData } from 'src/app/modules/resource/dialogs/input-dialog/input-dialog';
+import { SystemRoleItemDto } from 'src/app/services/admin/models/system-mod/system-role-item-dto.model';
+import { resourceIconName, resourceIconStyle } from 'src/app/modules/resource/shared/resource-appearance';
 
 @Component({
   selector: 'app-resource-config-index',

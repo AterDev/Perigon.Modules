@@ -1,13 +1,13 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { ArticleIndexComponent } from './article/index/index';
-import { ArticleAddComponent } from './article/add/add';
-import { ArticleEditComponent } from './article/edit/edit';
-import { ArticleDetailComponent } from './article/detail/detail';
-import { ArticleCategoryIndexComponent } from './article-category/index/index';
-import { ArticleCategoryAddComponent } from './article-category/add/add';
-import { ArticleCategoryEditComponent } from './article-category/edit/edit';
-import { ArticleCategoryDetailComponent } from './article-category/detail/detail';
+import { ArticleIndexComponent } from 'src/app/modules/cms/article/index/index';
+import { ArticleAddComponent } from 'src/app/modules/cms/article/add/add';
+import { ArticleEditComponent } from 'src/app/modules/cms/article/edit/edit';
+import { ArticleDetailComponent } from 'src/app/modules/cms/article/detail/detail';
+import { ArticleCategoryIndexComponent } from 'src/app/modules/cms/article-category/index/index';
+import { ArticleCategoryAddComponent } from 'src/app/modules/cms/article-category/add/add';
+import { ArticleCategoryEditComponent } from 'src/app/modules/cms/article-category/edit/edit';
+import { ArticleCategoryDetailComponent } from 'src/app/modules/cms/article-category/detail/detail';
 
 const routes: Routes = [
   { path: '', redirectTo: 'article', pathMatch: 'full' },

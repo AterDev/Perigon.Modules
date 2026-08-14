@@ -1,4 +1,4 @@
-import { ArticleCategory } from '../entity/article-category.model';
+import { ArticleCategory } from 'src/app/services/admin/models/entity/article-category.model';
 
 /**
  * 目录概要

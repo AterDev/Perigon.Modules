@@ -1,12 +1,12 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatCheckboxChange } from '@angular/material/checkbox';
-import { AdminClient } from '../../../../../services/admin/admin-client';
-import { ResDefinitionProperty } from '../../../../../services/admin/models/entity/res-definition-property.model';
-import { ResValueType } from '../../../../../services/admin/models/entity/res-value-type.model';
-import { CommonFormModules } from '../../../../share/shared-modules';
-import { I18N_KEYS } from '../../../../share/i18n-keys';
-import { sortResourceProperties } from '../../../shared/resource-property-order';
+import { AdminClient } from 'src/app/services/admin/admin-client';
+import { ResDefinitionProperty } from 'src/app/services/admin/models/entity/res-definition-property.model';
+import { ResValueType } from 'src/app/services/admin/models/entity/res-value-type.model';
+import { CommonFormModules } from 'src/app/modules/share/shared-modules';
+import { I18N_KEYS } from 'src/app/modules/share/i18n-keys';
+import { sortResourceProperties } from 'src/app/modules/resource/shared/resource-property-order';
 
 export interface ResourcePropertySelectDialogData {
   excludeIds?: string[];

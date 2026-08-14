@@ -1,4 +1,4 @@
-import { ResourceValueDetailDto } from '../resource-mod/resource-value-detail-dto.model';
+import { ResourceValueDetailDto } from 'src/app/services/admin/models/resource-mod/resource-value-detail-dto.model';
 
 export interface ResourceDetailDto {
   /** id */

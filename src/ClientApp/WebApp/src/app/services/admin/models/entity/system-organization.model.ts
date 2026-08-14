@@ -1,4 +1,4 @@
-import { SystemUser } from '../entity/system-user.model';
+import { SystemUser } from 'src/app/services/admin/models/entity/system-user.model';
 
 /**
  * 组织结构

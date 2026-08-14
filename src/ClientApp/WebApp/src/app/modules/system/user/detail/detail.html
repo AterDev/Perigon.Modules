@@ -1,47 +1,45 @@
 <section class="page">
   <header>
     @if (user(); as item) {
-      <a mat-flat-button [routerLink]="['../../', item.id, 'edit']"
+      <a
+        mat-flat-button
+        [routerLink]="['../../', item.id, 'edit']"
+        [attr.aria-label]="i18nKeys.common.edit | translate"
       >
-      <mat-icon class="primary">edit</mat-icon>编辑</a
-        >
-      }
-    </header>
-    @if (user(); as item) {
-      <mat-card
-      >
-      <mat-card-content
-      >
-      <dl>
-        <dt>用户名</dt>
-          <dd>{{ item.userName }}
+        <mat-icon class="primary">edit</mat-icon>
+        {{ i18nKeys.common.edit | translate }}
+      </a>
+    }
+  </header>
+
+  @if (user(); as item) {
+    <mat-card>
+      <mat-card-content>
+        <dl>
+          <dt>{{ i18nKeys.systemUser.userName | translate }}</dt>
+          <dd>{{ item.userName }}</dd>
+          <dt>{{ i18nKeys.systemUser.realName | translate }}</dt>
+          <dd>{{ item.realName || '-' }}</dd>
+          <dt>{{ i18nKeys.systemUser.email | translate }}</dt>
+          <dd>{{ item.email || '-' }}</dd>
+          <dt>{{ i18nKeys.systemUser.phoneNumber | translate }}</dt>
+          <dd>{{ item.phoneNumber || '-' }}</dd>
+          <dt>{{ i18nKeys.systemUser.lastLoginTime | translate }}</dt>
+          <dd>{{ item.lastLoginTime ? (item.lastLoginTime | date: 'medium') : '-' }}</dd>
+          <dt>{{ i18nKeys.systemUser.lockoutStatus | translate }}</dt>
+          <dd>
+            {{
+              item.lockoutEnabled
+                ? (i18nKeys.systemUser.locked | translate)
+                : (i18nKeys.systemUser.normal | translate)
+            }}
           </dd>
-          <dt>真实姓名</dt>
-            <dd>{{ item.realName || '-' }}
-            </dd>
-            <dt>邮箱</dt>
-              <dd>{{ item.email || '-' }}
-              </dd>
-              <dt>手机号</dt>
-                <dd>{{ item.phoneNumber || '-' }}
-                </dd>
-                <dt>最后登录</dt>
-                  <dd>
-                    {{ item.lastLoginTime ? (item.lastLoginTime | date:'medium') : '-' }}
-                  </dd>
-                  <dt>锁定状态</dt>
-                    <dd>{{ item.lockoutEnabled ? '已锁定' : '正常' }}
-                    </dd>
-                    <dt>创建时间</dt>
-                      <dd>{{ item.createdTime | date:'medium' }}
-                      </dd>
-                    </dl>
-                  </mat-card-content
-                  >
-                </mat-card
-                >
-              }
-              @else {
-                <mat-spinner diameter="36" />
-              }
-            </section>
+          <dt>{{ i18nKeys.common.createdTime | translate }}</dt>
+          <dd>{{ item.createdTime | date: 'medium' }}</dd>
+        </dl>
+      </mat-card-content>
+    </mat-card>
+  } @else {
+    <mat-spinner diameter="36" />
+  }
+</section>

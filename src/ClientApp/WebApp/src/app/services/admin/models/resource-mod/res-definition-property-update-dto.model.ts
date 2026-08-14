@@ -1,4 +1,4 @@
-import { ResValueType } from '../entity/res-value-type.model';
+import { ResValueType } from 'src/app/services/admin/models/entity/res-value-type.model';
 
 export interface ResDefinitionPropertyUpdateDto {
   /** name */

@@ -1,4 +1,4 @@
-import { MenuType } from '../entity/menu-type.model';
+import { MenuType } from 'src/app/services/admin/models/entity/menu-type.model';
 
 /**
  * 系统菜单添加时请求结构

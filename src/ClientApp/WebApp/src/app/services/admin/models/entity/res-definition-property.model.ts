@@ -1,4 +1,4 @@
-import { ResValueType } from '../entity/res-value-type.model';
+import { ResValueType } from 'src/app/services/admin/models/entity/res-value-type.model';
 
 /**
  * 资源定义中的单个属性配置。

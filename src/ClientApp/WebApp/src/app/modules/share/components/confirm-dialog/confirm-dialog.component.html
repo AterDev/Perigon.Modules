@@ -6,6 +6,8 @@
   </span>
 </mat-dialog-content>
 <mat-dialog-actions class="justify-content-end">
-  <button mat-button mat-dialog-close>取消</button>
-    <button mat-button (click)="confirm()" color="primary">确认</button>
+  <button mat-button mat-dialog-close>{{ i18nKeys.common.cancel | translate }}</button>
+  <button mat-button (click)="confirm()" color="primary">
+    {{ i18nKeys.common.confirm | translate }}
+  </button>
     </mat-dialog-actions>

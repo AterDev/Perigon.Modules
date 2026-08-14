@@ -8,14 +8,14 @@ import { MatInputModule } from '@angular/material/input';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { TranslateModule } from '@ngx-translate/core';
-import { I18N_KEYS } from '../../../share/i18n-keys';
+import { I18N_KEYS } from 'src/app/modules/share/i18n-keys';
 import {
   RESOURCE_ICON_OPTIONS,
   resourceIconName,
   resourceIconStyle,
   resourceIconValue,
   ResourceIconStyle,
-} from '../resource-appearance';
+} from 'src/app/modules/resource/shared/resource-appearance';
 
 export interface ResourceIconPickerDialogData {
   value?: string;

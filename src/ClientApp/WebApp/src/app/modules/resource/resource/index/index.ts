@@ -1,4 +1,4 @@
-import { I18N_KEYS } from '../../../share/i18n-keys';
+import { I18N_KEYS } from 'src/app/modules/share/i18n-keys';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -6,22 +6,22 @@ import {
   inject,
   signal,
 } from '@angular/core';
-import { CommonListModules } from '../../../share/shared-modules';
-import { AdminClient } from '../../../../services/admin/admin-client';
-import { ResourceItemDto } from '../../../../services/admin/models/resource-mod/resource-item-dto.model';
-import { ResEnvironment } from '../../../../services/admin/models/entity/res-environment.model';
-import { ResCategory } from '../../../../services/admin/models/entity/res-category.model';
-import { ResDefinition } from '../../../../services/admin/models/entity/res-definition.model';
-import { ResGroup } from '../../../../services/admin/models/entity/res-group.model';
-import { ResTag } from '../../../../services/admin/models/entity/res-tag.model';
+import { CommonListModules } from 'src/app/modules/share/shared-modules';
+import { AdminClient } from 'src/app/services/admin/admin-client';
+import { ResourceItemDto } from 'src/app/services/admin/models/resource-mod/resource-item-dto.model';
+import { ResEnvironment } from 'src/app/services/admin/models/entity/res-environment.model';
+import { ResCategory } from 'src/app/services/admin/models/entity/res-category.model';
+import { ResDefinition } from 'src/app/services/admin/models/entity/res-definition.model';
+import { ResGroup } from 'src/app/services/admin/models/entity/res-group.model';
+import { ResTag } from 'src/app/services/admin/models/entity/res-tag.model';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { TranslateService } from '@ngx-translate/core';
 import { MatDialog } from '@angular/material/dialog';
-import { ConfirmDialogComponent } from '../../../share/components/confirm-dialog/confirm-dialog.component';
-import { ResourceAddComponent } from '../add/add';
-import { ResourceDetailComponent } from '../detail/detail';
-import { ResourceEditComponent } from '../edit/edit';
-import { resourceIconName, resourceIconStyle } from '../../shared/resource-appearance';
+import { ConfirmDialogComponent } from 'src/app/modules/share/components/confirm-dialog/confirm-dialog.component';
+import { ResourceAddComponent } from 'src/app/modules/resource/resource/add/add';
+import { ResourceDetailComponent } from 'src/app/modules/resource/resource/detail/detail';
+import { ResourceEditComponent } from 'src/app/modules/resource/resource/edit/edit';
+import { resourceIconName, resourceIconStyle } from 'src/app/modules/resource/shared/resource-appearance';
 
 @Component({
   selector: 'app-resource-index',

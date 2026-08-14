@@ -1,4 +1,4 @@
-import { ResDefinitionProperty } from '../../../services/admin/models/entity/res-definition-property.model';
+import { ResDefinitionProperty } from 'src/app/services/admin/models/entity/res-definition-property.model';
 
 export function sortResourceProperties(
   properties: readonly ResDefinitionProperty[],

@@ -1,5 +1,5 @@
-import { UserActionType } from '../perigon/user-action-type.model';
-import { SystemUser } from '../entity/system-user.model';
+import { UserActionType } from 'src/app/services/admin/models/perigon/user-action-type.model';
+import { SystemUser } from 'src/app/services/admin/models/entity/system-user.model';
 
 /**
  * 系统日志

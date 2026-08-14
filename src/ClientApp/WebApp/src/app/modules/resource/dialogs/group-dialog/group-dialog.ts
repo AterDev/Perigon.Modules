@@ -1,15 +1,15 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
-import { CommonFormModules } from '../../../share/shared-modules';
-import { I18N_KEYS } from '../../../share/i18n-keys';
-import { ResCategory } from '../../../../services/admin/models/entity/res-category.model';
-import { ResGroup } from '../../../../services/admin/models/entity/res-group.model';
-import { ResGroupAddDto } from '../../../../services/admin/models/resource-mod/res-group-add-dto.model';
-import { RESOURCE_DEFAULT_COLOR } from '../../shared/resource-appearance';
-import { ResourceColorPickerComponent } from '../../shared/color-picker/color-picker';
-import { ResourceIconPickerComponent } from '../../shared/icon-picker/icon-picker';
-import { resourceIconName, resourceIconStyle } from '../../shared/resource-appearance';
+import { CommonFormModules } from 'src/app/modules/share/shared-modules';
+import { I18N_KEYS } from 'src/app/modules/share/i18n-keys';
+import { ResCategory } from 'src/app/services/admin/models/entity/res-category.model';
+import { ResGroup } from 'src/app/services/admin/models/entity/res-group.model';
+import { ResGroupAddDto } from 'src/app/services/admin/models/resource-mod/res-group-add-dto.model';
+import { RESOURCE_DEFAULT_COLOR } from 'src/app/modules/resource/shared/resource-appearance';
+import { ResourceColorPickerComponent } from 'src/app/modules/resource/shared/color-picker/color-picker';
+import { ResourceIconPickerComponent } from 'src/app/modules/resource/shared/icon-picker/icon-picker';
+import { resourceIconName, resourceIconStyle } from 'src/app/modules/resource/shared/resource-appearance';
 
 export interface ResourceGroupDialogData {
   group?: ResGroup;

@@ -1,19 +1,19 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { SystemRoleIndexComponent } from './role/index/index';
-import { SystemRoleAddComponent } from './role/add/add';
-import { SystemRoleEditComponent } from './role/edit/edit';
-import { SystemRoleDetailComponent } from './role/detail/detail';
-import { SystemUserIndexComponent } from './user/index/index';
-import { SystemUserAddComponent } from './user/add/add';
-import { SystemUserEditComponent } from './user/edit/edit';
-import { SystemUserDetailComponent } from './user/detail/detail';
-import { SystemPermissionIndexComponent } from './permission/index/index';
-import { SystemPermissionAddComponent } from './permission/add/add';
-import { SystemPermissionEditComponent } from './permission/edit/edit';
-import { SystemPermissionDetailComponent } from './permission/detail/detail';
-import { SystemLogIndexComponent } from './log/index/index';
-import { SystemLogDetailComponent } from './log/detail/detail';
+import { SystemRoleIndexComponent } from 'src/app/modules/system/role/index/index';
+import { SystemRoleAddComponent } from 'src/app/modules/system/role/add/add';
+import { SystemRoleEditComponent } from 'src/app/modules/system/role/edit/edit';
+import { SystemRoleDetailComponent } from 'src/app/modules/system/role/detail/detail';
+import { SystemUserIndexComponent } from 'src/app/modules/system/user/index/index';
+import { SystemUserAddComponent } from 'src/app/modules/system/user/add/add';
+import { SystemUserEditComponent } from 'src/app/modules/system/user/edit/edit';
+import { SystemUserDetailComponent } from 'src/app/modules/system/user/detail/detail';
+import { SystemPermissionIndexComponent } from 'src/app/modules/system/permission/index/index';
+import { SystemPermissionAddComponent } from 'src/app/modules/system/permission/add/add';
+import { SystemPermissionEditComponent } from 'src/app/modules/system/permission/edit/edit';
+import { SystemPermissionDetailComponent } from 'src/app/modules/system/permission/detail/detail';
+import { SystemLogIndexComponent } from 'src/app/modules/system/log/index/index';
+import { SystemLogDetailComponent } from 'src/app/modules/system/log/detail/detail';
 
 const routes: Routes = [
   { path: '', redirectTo: 'role', pathMatch: 'full' },

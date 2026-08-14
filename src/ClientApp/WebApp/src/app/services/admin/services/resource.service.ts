@@ -1,12 +1,12 @@
-import { BaseService } from '../base.service';
+import { BaseService } from 'src/app/services/admin/base.service';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { PageList } from '../models/perigon/page-list.model';
-import { ResourceItemDto } from '../models/resource-mod/resource-item-dto.model';
-import { ResourceDetailDto } from '../models/resource-mod/resource-detail-dto.model';
-import { ResourceUpdateDto } from '../models/resource-mod/resource-update-dto.model';
-import { ResourceAddDto } from '../models/resource-mod/resource-add-dto.model';
-import { ResourceCreatedDto } from '../models/resource-mod/resource-created-dto.model';
+import { PageList } from 'src/app/services/admin/models/perigon/page-list.model';
+import { ResourceItemDto } from 'src/app/services/admin/models/resource-mod/resource-item-dto.model';
+import { ResourceDetailDto } from 'src/app/services/admin/models/resource-mod/resource-detail-dto.model';
+import { ResourceUpdateDto } from 'src/app/services/admin/models/resource-mod/resource-update-dto.model';
+import { ResourceAddDto } from 'src/app/services/admin/models/resource-mod/resource-add-dto.model';
+import { ResourceCreatedDto } from 'src/app/services/admin/models/resource-mod/resource-created-dto.model';
 /**
  * 
  */

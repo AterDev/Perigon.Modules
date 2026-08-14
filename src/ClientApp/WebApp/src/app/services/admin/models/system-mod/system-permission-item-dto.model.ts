@@ -1,4 +1,4 @@
-import { PermissionType } from '../entity/permission-type.model';
+import { PermissionType } from 'src/app/services/admin/models/entity/permission-type.model';
 
 /**
  * 权限列表元素

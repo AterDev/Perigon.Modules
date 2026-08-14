@@ -1,13 +1,13 @@
-import { BaseService } from '../base.service';
+import { BaseService } from 'src/app/services/admin/base.service';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { SystemPermissionGroupFilterDto } from '../models/system-mod/system-permission-group-filter-dto.model';
-import { PageList } from '../models/perigon/page-list.model';
-import { SystemPermissionGroupItemDto } from '../models/system-mod/system-permission-group-item-dto.model';
-import { SystemPermissionGroupAddDto } from '../models/system-mod/system-permission-group-add-dto.model';
-import { SystemPermissionGroup } from '../models/entity/system-permission-group.model';
-import { SystemPermissionGroupUpdateDto } from '../models/system-mod/system-permission-group-update-dto.model';
-import { SystemPermissionGroupDetailDto } from '../models/system-mod/system-permission-group-detail-dto.model';
+import { SystemPermissionGroupFilterDto } from 'src/app/services/admin/models/system-mod/system-permission-group-filter-dto.model';
+import { PageList } from 'src/app/services/admin/models/perigon/page-list.model';
+import { SystemPermissionGroupItemDto } from 'src/app/services/admin/models/system-mod/system-permission-group-item-dto.model';
+import { SystemPermissionGroupAddDto } from 'src/app/services/admin/models/system-mod/system-permission-group-add-dto.model';
+import { SystemPermissionGroup } from 'src/app/services/admin/models/entity/system-permission-group.model';
+import { SystemPermissionGroupUpdateDto } from 'src/app/services/admin/models/system-mod/system-permission-group-update-dto.model';
+import { SystemPermissionGroupDetailDto } from 'src/app/services/admin/models/system-mod/system-permission-group-detail-dto.model';
 /**
  * 
  */

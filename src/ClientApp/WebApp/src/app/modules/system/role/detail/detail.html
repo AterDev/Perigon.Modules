@@ -1,42 +1,41 @@
 <section class="page">
   <header>
     @if (role(); as item) {
-      <a mat-flat-button [routerLink]="['../../', item.id, 'edit']"
+      <a
+        mat-flat-button
+        [routerLink]="['../../', item.id, 'edit']"
+        [attr.aria-label]="i18nKeys.common.edit | translate"
       >
-      <mat-icon class="primary">edit</mat-icon>编辑</a
-        >
-      }
-    </header>
-    @if (role(); as item) {
-      <mat-card
-      >
-      <mat-card-content
-      >
-      <dl>
-        <dt>角色名称</dt>
-          <dd>{{ item.name }}
+        <mat-icon class="primary">edit</mat-icon>
+        {{ i18nKeys.common.edit | translate }}
+      </a>
+    }
+  </header>
+
+  @if (role(); as item) {
+    <mat-card>
+      <mat-card-content>
+        <dl>
+          <dt>{{ i18nKeys.systemRole.name | translate }}</dt>
+          <dd>{{ item.name }}</dd>
+          <dt>{{ i18nKeys.systemRole.nameValue | translate }}</dt>
+          <dd><code>{{ item.nameValue }}</code></dd>
+          <dt>{{ i18nKeys.systemRole.type | translate }}</dt>
+          <dd>
+            {{
+              item.isSystem
+                ? (i18nKeys.systemRole.system | translate)
+                : (i18nKeys.systemRole.custom | translate)
+            }}
           </dd>
-          <dt>角色标识</dt>
-            <dd>
-              <code>{{ item.nameValue }}
-              </code>
-            </dd>
-            <dt>角色类型</dt>
-              <dd>{{ item.isSystem ? '系统内置' : '自定义' }}
-              </dd>
-              <dt>创建时间</dt>
-                <dd>{{ item.createdTime | date:'medium' }}
-                </dd>
-                <dt>更新时间</dt>
-                  <dd>{{ item.updatedTime | date:'medium' }}
-                  </dd>
-                </dl>
-              </mat-card-content
-              >
-            </mat-card
-            >
-          }
-          @else {
-            <mat-spinner diameter="36" />
-          }
-        </section>
+          <dt>{{ i18nKeys.common.createdTime | translate }}</dt>
+          <dd>{{ item.createdTime | date: 'medium' }}</dd>
+          <dt>{{ i18nKeys.common.updatedTime | translate }}</dt>
+          <dd>{{ item.updatedTime | date: 'medium' }}</dd>
+        </dl>
+      </mat-card-content>
+    </mat-card>
+  } @else {
+    <mat-spinner diameter="36" />
+  }
+</section>

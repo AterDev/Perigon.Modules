@@ -7,9 +7,9 @@ import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSelectModule } from '@angular/material/select';
 import { TranslateModule } from '@ngx-translate/core';
-import { I18N_KEYS } from '../../../share/i18n-keys';
-import { ResourceColorPickerComponent } from '../../shared/color-picker/color-picker';
-import { ResourceIconPickerComponent } from '../../shared/icon-picker/icon-picker';
+import { I18N_KEYS } from 'src/app/modules/share/i18n-keys';
+import { ResourceColorPickerComponent } from 'src/app/modules/resource/shared/color-picker/color-picker';
+import { ResourceIconPickerComponent } from 'src/app/modules/resource/shared/icon-picker/icon-picker';
 
 export type ResourceInputDialogFieldType = 'text' | 'textarea' | 'color' | 'icon' | 'select';
 

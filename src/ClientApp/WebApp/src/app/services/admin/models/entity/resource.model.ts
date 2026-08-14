@@ -1,8 +1,8 @@
-import { ResEnvironment } from '../entity/res-environment.model';
-import { ResCategory } from '../entity/res-category.model';
-import { ResGroup } from '../entity/res-group.model';
-import { ResDefinition } from '../entity/res-definition.model';
-import { ResValue } from '../entity/res-value.model';
+import { ResEnvironment } from 'src/app/services/admin/models/entity/res-environment.model';
+import { ResCategory } from 'src/app/services/admin/models/entity/res-category.model';
+import { ResGroup } from 'src/app/services/admin/models/entity/res-group.model';
+import { ResDefinition } from 'src/app/services/admin/models/entity/res-definition.model';
+import { ResValue } from 'src/app/services/admin/models/entity/res-value.model';
 
 /**
  * 按环境、分类和定义组织的资源实例。

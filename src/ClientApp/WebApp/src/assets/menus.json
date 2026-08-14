@@ -92,7 +92,7 @@
         "menuType": 0
       },
       {
-        "name": "权限管理",
+        "name": "menu.systemPermission",
         "path": "/system/permission",
         "accessCode": "system-permissions",
         "icon": "policy",

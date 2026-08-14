@@ -1,4 +1,4 @@
-import { UserActionType } from '../perigon/user-action-type.model';
+import { UserActionType } from 'src/app/services/admin/models/perigon/user-action-type.model';
 
 /**
  * 系统日志列表元素

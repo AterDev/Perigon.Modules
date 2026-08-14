@@ -10,7 +10,7 @@ import { Router } from '@angular/router';
 import { CommonFormModules } from 'src/app/modules/share/shared-modules';
 import { AuthService } from 'src/app/services/auth.service';
 import { I18N_KEYS } from 'src/app/modules/share/i18n-keys';
-import { initStarfield } from './starfield';
+import { initStarfield } from 'src/app/pages/login/starfield';
 import { AdminClient } from 'src/app/services/admin/admin-client';
 
 @Component({

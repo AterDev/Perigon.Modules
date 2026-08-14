@@ -2,14 +2,14 @@ import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { FormArray, FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatDialog } from '@angular/material/dialog';
-import { CommonFormModules } from '../../../../share/shared-modules';
-import { I18N_KEYS } from '../../../../share/i18n-keys';
-import { ResDefinition } from '../../../../../services/admin/models/entity/res-definition.model';
-import { ResDefinitionProperty } from '../../../../../services/admin/models/entity/res-definition-property.model';
-import { ResValueType } from '../../../../../services/admin/models/entity/res-value-type.model';
-import { ResDefinitionAddDto } from '../../../../../services/admin/models/resource-mod/res-definition-add-dto.model';
-import { ResourceIconPickerComponent } from '../../../shared/icon-picker/icon-picker';
-import { ResourcePropertySelectDialogComponent } from '../property-select-dialog/property-select-dialog';
+import { CommonFormModules } from 'src/app/modules/share/shared-modules';
+import { I18N_KEYS } from 'src/app/modules/share/i18n-keys';
+import { ResDefinition } from 'src/app/services/admin/models/entity/res-definition.model';
+import { ResDefinitionProperty } from 'src/app/services/admin/models/entity/res-definition-property.model';
+import { ResValueType } from 'src/app/services/admin/models/entity/res-value-type.model';
+import { ResDefinitionAddDto } from 'src/app/services/admin/models/resource-mod/res-definition-add-dto.model';
+import { ResourceIconPickerComponent } from 'src/app/modules/resource/shared/icon-picker/icon-picker';
+import { ResourcePropertySelectDialogComponent } from 'src/app/modules/resource/definition/index/property-select-dialog/property-select-dialog';
 
 export interface ResourceDefinitionDialogData {
   definition?: ResDefinition;

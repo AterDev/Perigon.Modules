@@ -1,13 +1,13 @@
-import { BaseService } from '../base.service';
+import { BaseService } from 'src/app/services/admin/base.service';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { SystemPermissionFilterDto } from '../models/system-mod/system-permission-filter-dto.model';
-import { PageList } from '../models/perigon/page-list.model';
-import { SystemPermissionItemDto } from '../models/system-mod/system-permission-item-dto.model';
-import { SystemPermissionAddDto } from '../models/system-mod/system-permission-add-dto.model';
-import { SystemPermission } from '../models/entity/system-permission.model';
-import { SystemPermissionUpdateDto } from '../models/system-mod/system-permission-update-dto.model';
-import { SystemPermissionDetailDto } from '../models/system-mod/system-permission-detail-dto.model';
+import { SystemPermissionFilterDto } from 'src/app/services/admin/models/system-mod/system-permission-filter-dto.model';
+import { PageList } from 'src/app/services/admin/models/perigon/page-list.model';
+import { SystemPermissionItemDto } from 'src/app/services/admin/models/system-mod/system-permission-item-dto.model';
+import { SystemPermissionAddDto } from 'src/app/services/admin/models/system-mod/system-permission-add-dto.model';
+import { SystemPermission } from 'src/app/services/admin/models/entity/system-permission.model';
+import { SystemPermissionUpdateDto } from 'src/app/services/admin/models/system-mod/system-permission-update-dto.model';
+import { SystemPermissionDetailDto } from 'src/app/services/admin/models/system-mod/system-permission-detail-dto.model';
 /**
  * 权限
  */
