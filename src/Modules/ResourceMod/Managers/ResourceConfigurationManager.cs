@@ -98,7 +98,6 @@ public class ResourceConfigurationManager(
         ResDefinitionProperty entity = new()
         {
             Name = name,
-            NameKey = NormalizeName(name),
             ValueType = input.ValueType,
             IsRequired = input.IsRequired,
             MaxLength = input.MaxLength,
@@ -124,7 +123,6 @@ public class ResourceConfigurationManager(
         string name = input.Name.Trim();
         await EnsurePropertyNameAvailableAsync(name, id);
         entity.Name = name;
-        entity.NameKey = NormalizeName(name);
         entity.ValueType = input.ValueType;
         entity.IsRequired = input.IsRequired;
         entity.MaxLength = input.MaxLength;
@@ -511,10 +509,10 @@ public class ResourceConfigurationManager(
         List<ResDefinitionProperty> namedProperties = await _dbContext.ResDefinitionProperties
             .Where(property =>
                 property.TenantId == _userContext.TenantId &&
-                requestedNames.Contains(property.NameKey))
+                requestedNames.Contains(property.Name.Trim().ToLower()))
             .ToListAsync();
         Dictionary<string, ResDefinitionProperty> propertiesByName = namedProperties
-            .ToDictionary(property => property.NameKey, StringComparer.Ordinal);
+            .ToDictionary(property => NormalizeName(property.Name), StringComparer.Ordinal);
         HashSet<Guid> currentPropertyIds = definition?.PropertyMaps
             .Select(map => map.PropertyId)
             .ToHashSet() ?? [];
@@ -546,7 +544,6 @@ public class ResourceConfigurationManager(
                     }
 
                     property.Name = input.Name.Trim();
-                    property.NameKey = NormalizeName(input.Name);
                     property.ValueType = input.ValueType;
                     property.IsRequired = input.IsRequired;
                     property.MaxLength = input.MaxLength;
@@ -568,14 +565,13 @@ public class ResourceConfigurationManager(
                 property = new ResDefinitionProperty
                 {
                     Name = input.Name.Trim(),
-                    NameKey = NormalizeName(input.Name),
                     ValueType = input.ValueType,
                     IsRequired = input.IsRequired,
                     MaxLength = input.MaxLength,
                     TenantId = _userContext.TenantId
                 };
                 _dbContext.ResDefinitionProperties.Add(property);
-                propertiesByName[property.NameKey] = property;
+                propertiesByName[NormalizeName(property.Name)] = property;
             }
 
             selections.Add(new DefinitionPropertySelection(property, input.Sort));
@@ -597,7 +593,7 @@ public class ResourceConfigurationManager(
         bool exists = await _dbContext.ResDefinitionProperties.AnyAsync(property =>
             property.TenantId == _userContext.TenantId &&
             (!exceptId.HasValue || property.Id != exceptId.Value) &&
-            property.NameKey == NormalizeName(name));
+            property.Name.Trim().ToLower() == NormalizeName(name));
         if (exists)
         {
             throw new BusinessException("资源属性名称已存在", StatusCodes.Status409Conflict);

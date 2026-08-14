@@ -80,6 +80,19 @@ public class ResourceModApiTests
             HttpStatusCode.OK);
         await Assert.That(listed.Select(item => item.Id)).IsEquivalentTo([property.Id]);
 
+        property = await PutAsync<ResDefinitionProperty>(
+            client,
+            $"/api/ResourceConfiguration/properties/{property.Id}",
+            new ResDefinitionPropertyUpdateDto
+            {
+                Name = $"Shared-Updated-{suffix}",
+                ValueType = property.ValueType,
+                IsRequired = property.IsRequired,
+                MaxLength = property.MaxLength
+            },
+            HttpStatusCode.OK);
+        await Assert.That(property.Name).IsEqualTo($"Shared-Updated-{suffix}");
+
         await DeleteAsync(
             client,
             $"/api/ResourceConfiguration/properties/{property.Id}",
@@ -216,6 +229,22 @@ public class ResourceModApiTests
             DefinitionInput(suffix),
             HttpStatusCode.OK);
 
+        List<ResEnvironment> environments = await GetAsync<List<ResEnvironment>>(
+            client,
+            "/api/ResourceConfiguration/environments",
+            HttpStatusCode.OK);
+        await Assert.That(environments.Any(item => item.Id == environment.Id)).IsTrue();
+        List<ResCategory> categories = await GetAsync<List<ResCategory>>(
+            client,
+            "/api/ResourceConfiguration/categories",
+            HttpStatusCode.OK);
+        await Assert.That(categories.Any(item => item.Id == category.Id)).IsTrue();
+        List<ResTag> tags = await GetAsync<List<ResTag>>(
+            client,
+            "/api/ResourceConfiguration/tags",
+            HttpStatusCode.OK);
+        await Assert.That(tags.Any(item => item.Id == tag.Id)).IsTrue();
+
         HttpResponseMessage groupListResponse = await client.GetAsync(
             $"/api/ResourceConfiguration/groups?categoryId={category.Id}");
         await Assert.That(groupListResponse.StatusCode).IsEqualTo(HttpStatusCode.OK);
@@ -302,7 +331,7 @@ public class ResourceModApiTests
             .ToList();
         properties.Add(new ResDefinitionPropertyDto
         {
-            Name = "Host",
+            Name = $"Host-{suffix}",
             ValueType = ResValueType.String,
             IsRequired = false,
             MaxLength = 200,
@@ -320,7 +349,7 @@ public class ResourceModApiTests
             },
             HttpStatusCode.OK);
 
-        await Assert.That(updated.Properties.Any(property => property.Name == "Host")).IsTrue();
+        await Assert.That(updated.Properties.Any(property => property.Name == $"Host-{suffix}")).IsTrue();
         await DeleteAsync(client, $"/api/ResourceConfiguration/definitions/{definition.Id}", HttpStatusCode.OK);
     }
 
@@ -446,8 +475,27 @@ public class ResourceModApiTests
             $"/api/ResourceConfiguration/groups/{fixture.Group.Id}",
             HttpStatusCode.Conflict);
 
-        ResDefinition updatedDefinition = await PutAsync<ResDefinition>(
-            client,
+        HttpResponseMessage removeReferencedProperty = await client.PutAsJsonAsync(
+            $"/api/ResourceConfiguration/definitions/{fixture.Definition.Id}",
+            new ResDefinitionAddDto
+            {
+                Name = fixture.Definition.Name,
+                Properties = fixture.Definition.Properties
+                    .Where(property => property.Id != fixture.AddressProperty.Id)
+                    .Select(property => new ResDefinitionPropertyDto
+                    {
+                        Id = property.Id,
+                        Name = property.Name,
+                        ValueType = property.ValueType,
+                        IsRequired = property.IsRequired,
+                        MaxLength = property.MaxLength,
+                        Sort = property.Sort
+                    })
+                    .ToList()
+            });
+        await Assert.That(removeReferencedProperty.StatusCode).IsEqualTo(HttpStatusCode.Conflict);
+
+        HttpResponseMessage updateSharedProperty = await client.PutAsJsonAsync(
             $"/api/ResourceConfiguration/definitions/{fixture.Definition.Id}",
             new ResDefinitionAddDto
             {
@@ -456,17 +504,15 @@ public class ResourceModApiTests
                     .Select(property => new ResDefinitionPropertyDto
                     {
                         Id = property.Id,
-                        Name = property.Name == "Address" ? "Host" : property.Name,
+                        Name = property.Name == "Address" ? $"Host-{Guid.NewGuid():N}" : property.Name,
                         ValueType = property.ValueType,
                         IsRequired = property.IsRequired,
                         MaxLength = property.MaxLength,
                         Sort = property.Sort
                     })
                     .ToList()
-            },
-            HttpStatusCode.OK);
-        await Assert.That(updatedDefinition.Properties.Single(p => p.Id == fixture.AddressProperty.Id).Name)
-            .IsEqualTo("Host");
+            });
+        await Assert.That(updateSharedProperty.StatusCode).IsEqualTo(HttpStatusCode.Conflict);
 
         await DeleteAsync(client, $"/api/Resource/{created.Id}", HttpStatusCode.OK);
     }

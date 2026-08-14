@@ -1,16 +1,11 @@
 namespace Entity.ResourceMod;
 
 /// <summary>资源定义中的单个属性配置。</summary>
-[Index(nameof(TenantId), nameof(NameKey), IsUnique = true)]
 public class ResDefinitionProperty : EntityBase
 {
     /// <summary>属性名称。</summary>
     [MaxLength(60)]
     public required string Name { get; set; }
-    /// <summary>用于租户内唯一约束的规范化名称。</summary>
-    [MaxLength(60)]
-    [JsonIgnore]
-    public required string NameKey { get; set; }
     /// <summary>属性值类型。</summary>
     public ResValueType ValueType { get; set; }
     /// <summary>是否必填。</summary>
