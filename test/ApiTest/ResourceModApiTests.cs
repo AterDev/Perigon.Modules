@@ -18,6 +18,86 @@ public class ResourceModApiTests
 {
     [ClassDataSource<TestHttpClientData>(Shared = SharedType.None)]
     [Test]
+    public async Task ResourceModuleInitialization_ShouldCreateDefaultConfiguration(TestHttpClientData data)
+    {
+        HttpClient client = data.HttpClient;
+
+        List<ResEnvironment> environments = await GetAsync<List<ResEnvironment>>(
+            client,
+            "/api/ResourceConfiguration/environments",
+            HttpStatusCode.OK);
+        foreach ((string name, string color) in new[]
+        {
+            ("Development", "#4caf50"),
+            ("Test", "#2196f3"),
+            ("Production", "#f44336")
+        })
+        {
+            ResEnvironment environment = environments.Single(item => item.Name == name);
+            await Assert.That(environment.Color).IsEqualTo(color);
+        }
+
+        List<ResTag> tags = await GetAsync<List<ResTag>>(
+            client,
+            "/api/ResourceConfiguration/tags",
+            HttpStatusCode.OK);
+        foreach ((string name, string color) in new[]
+        {
+            ("Mac", "#9e9e9e"),
+            ("Linux", "#ff9800"),
+            ("Windows", "#673ab7")
+        })
+        {
+            ResTag tag = tags.Single(item => item.Name == name);
+            await Assert.That(tag.Color).IsEqualTo(color);
+        }
+
+        List<ResDefinitionProperty> properties = await GetAsync<List<ResDefinitionProperty>>(
+            client,
+            "/api/ResourceConfiguration/properties",
+            HttpStatusCode.OK);
+        Dictionary<string, ResValueType> expectedProperties = new()
+        {
+            ["名称"] = ResValueType.String,
+            ["Url"] = ResValueType.Uri,
+            ["描述"] = ResValueType.String,
+            ["IP"] = ResValueType.IPAddress,
+            ["Port"] = ResValueType.Number,
+            ["用户名"] = ResValueType.String,
+            ["密码"] = ResValueType.String,
+            ["密钥"] = ResValueType.String,
+            ["APIKey"] = ResValueType.String,
+            ["Token"] = ResValueType.String,
+            ["AppId"] = ResValueType.String,
+            ["AppSecret"] = ResValueType.String,
+            ["IconUrl"] = ResValueType.Uri
+        };
+        foreach ((string name, ResValueType valueType) in expectedProperties)
+        {
+            ResDefinitionProperty property = properties.Single(item => item.Name == name);
+            await Assert.That(property.ValueType).IsEqualTo(valueType);
+            await Assert.That(property.IsRequired).IsEqualTo(name == "名称");
+        }
+
+        List<ResDefinition> definitions = await GetAsync<List<ResDefinition>>(
+            client,
+            "/api/ResourceConfiguration/definitions",
+            HttpStatusCode.OK);
+        foreach ((string name, string[] propertyNames) in new[]
+        {
+            ("网站", new[] { "名称", "Url", "IconUrl", "描述", "用户名", "密码" }),
+            ("服务器", new[] { "名称", "IP", "Port", "用户名", "密码" }),
+            ("数据库", new[] { "名称", "IP", "Url", "Port", "用户名", "密码" })
+        })
+        {
+            ResDefinition definition = definitions.Single(item => item.Name == name);
+            await Assert.That(definition.Properties.OrderBy(item => item.Sort).Select(item => item.Name))
+                .IsEquivalentTo(propertyNames);
+        }
+    }
+
+    [ClassDataSource<TestHttpClientData>(Shared = SharedType.None)]
+    [Test]
     public async Task PropertyApi_ShouldReusePropertiesAndProtectReferencedDeletes(TestHttpClientData data)
     {
         HttpClient client = data.HttpClient;
@@ -272,7 +352,7 @@ public class ResourceModApiTests
         await Assert.That(definitions).IsNotNull();
         ResDefinition listed = definitions!.Single(item => item.Id == definition.Id);
         await Assert.That(listed.Properties.OrderBy(item => item.Sort).Select(item => item.Name))
-            .IsEquivalentTo(["Address", "Enabled", "Label", "Port", "Uri", "When"]);
+            .IsEquivalentTo(["Address", "Enabled", "Label", "TestPort", "Uri", "When"]);
 
         environment = await PutAsync<ResEnvironment>(
             client,
@@ -583,7 +663,7 @@ public class ResourceModApiTests
                 new() { Name = "Address", ValueType = ResValueType.IPAddress, IsRequired = true, MaxLength = 40, Sort = 2 },
                 new() { Name = "Enabled", ValueType = ResValueType.Boolean, IsRequired = true, MaxLength = 10, Sort = 3 },
                 new() { Name = "Label", ValueType = ResValueType.String, IsRequired = true, MaxLength = 60, Sort = 6 },
-                new() { Name = "Port", ValueType = ResValueType.Number, IsRequired = true, MaxLength = 10, Sort = 1 },
+                new() { Name = "TestPort", ValueType = ResValueType.Number, IsRequired = true, MaxLength = 10, Sort = 1 },
                 new() { Name = "Uri", ValueType = ResValueType.Uri, IsRequired = true, MaxLength = 200, Sort = 5 },
                 new() { Name = "When", ValueType = ResValueType.Date, IsRequired = true, MaxLength = 20, Sort = 4 }
             ]
@@ -627,7 +707,7 @@ public class ResourceModApiTests
         ResDefinitionProperty address = definition.Properties.Single(property => property.Name == "Address");
         ResDefinitionProperty enabled = definition.Properties.Single(property => property.Name == "Enabled");
         ResDefinitionProperty label = definition.Properties.Single(property => property.Name == "Label");
-        ResDefinitionProperty port = definition.Properties.Single(property => property.Name == "Port");
+        ResDefinitionProperty port = definition.Properties.Single(property => property.Name == "TestPort");
         ResDefinitionProperty uri = definition.Properties.Single(property => property.Name == "Uri");
         ResDefinitionProperty when = definition.Properties.Single(property => property.Name == "When");
 
