@@ -7,4 +7,5 @@ public class ResourceFilterDto : FilterBase
     public Guid? GroupId { get; set; }
     public Guid? DefinitionId { get; set; }
     public string? TagName { get; set; }
+    public string? SearchKey { get; set; }
 }

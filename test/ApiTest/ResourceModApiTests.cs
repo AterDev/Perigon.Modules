@@ -26,31 +26,40 @@ public class ResourceModApiTests
             client,
             "/api/ResourceConfiguration/environments",
             HttpStatusCode.OK);
-        foreach ((string name, string color) in new[]
+        foreach ((string name, string color, string icon) in new[]
         {
-            ("Development", "#4caf50"),
-            ("Test", "#2196f3"),
-            ("Production", "#f44336")
+            ("Development", "#4caf50", "code"),
+            ("Test", "#2196f3", "science"),
+            ("Production", "#f44336", "public")
         })
         {
             ResEnvironment environment = environments.Single(item => item.Name == name);
             await Assert.That(environment.Color).IsEqualTo(color);
+            await Assert.That(environment.Icon).IsEqualTo(icon);
         }
 
         List<ResTag> tags = await GetAsync<List<ResTag>>(
             client,
             "/api/ResourceConfiguration/tags",
             HttpStatusCode.OK);
-        foreach ((string name, string color) in new[]
+        foreach ((string name, string color, string icon) in new[]
         {
-            ("Mac", "#9e9e9e"),
-            ("Linux", "#ff9800"),
-            ("Windows", "#673ab7")
+            ("Mac", "#9e9e9e", "desktop_mac"),
+            ("Linux", "#ff9800", "terminal"),
+            ("Windows", "#673ab7", "desktop_windows")
         })
         {
             ResTag tag = tags.Single(item => item.Name == name);
             await Assert.That(tag.Color).IsEqualTo(color);
+            await Assert.That(tag.Icon).IsEqualTo(icon);
         }
+
+        List<ResCategory> categories = await GetAsync<List<ResCategory>>(
+            client,
+            "/api/ResourceConfiguration/categories",
+            HttpStatusCode.OK);
+        await Assert.That(categories.Single(item => item.CatalogCode == "Default").Icon)
+            .IsEqualTo("category");
 
         List<ResDefinitionProperty> properties = await GetAsync<List<ResDefinitionProperty>>(
             client,
@@ -83,14 +92,15 @@ public class ResourceModApiTests
             client,
             "/api/ResourceConfiguration/definitions",
             HttpStatusCode.OK);
-        foreach ((string name, string[] propertyNames) in new[]
+        foreach ((string name, string icon, string[] propertyNames) in new[]
         {
-            ("网站", new[] { "名称", "Url", "IconUrl", "描述", "用户名", "密码" }),
-            ("服务器", new[] { "名称", "IP", "Port", "用户名", "密码" }),
-            ("数据库", new[] { "名称", "IP", "Url", "Port", "用户名", "密码" })
+            ("网站", "web", new[] { "名称", "Url", "IconUrl", "描述", "用户名", "密码" }),
+            ("服务器", "dns", new[] { "名称", "IP", "Port", "用户名", "密码" }),
+            ("数据库", "database", new[] { "名称", "IP", "Url", "Port", "用户名", "密码" })
         })
         {
             ResDefinition definition = definitions.Single(item => item.Name == name);
+            await Assert.That(definition.Icon).IsEqualTo(icon);
             await Assert.That(definition.Properties.OrderBy(item => item.Sort).Select(item => item.Name))
                 .IsEquivalentTo(propertyNames);
         }
@@ -274,6 +284,96 @@ public class ResourceModApiTests
             $"/api/Resource/{created.Id}",
             HttpStatusCode.OK);
         await Assert.That(detail.Values.Any(value => value.Value == "server@host#1")).IsTrue();
+    }
+
+    [ClassDataSource<TestHttpClientData>(Shared = SharedType.None)]
+    [Test]
+    public async Task ResourceValues_ShouldAllowEmptyOptionalValuesAndIdentifyInvalidProperty(
+        TestHttpClientData data)
+    {
+        HttpClient client = data.HttpClient;
+        ResourceFixture fixture = await CreateFixtureAsync(client);
+        string suffix = Guid.NewGuid().ToString("N");
+        ResDefinition definition = await PostAsync<ResDefinition>(
+            client,
+            "/api/ResourceConfiguration/definitions",
+            new ResDefinitionAddDto
+            {
+                Name = $"Optional-{suffix}",
+                Properties =
+                [
+                    new()
+                    {
+                        Name = $"Name-{suffix}",
+                        ValueType = ResValueType.String,
+                        IsRequired = true,
+                        MaxLength = 60,
+                        Sort = 0
+                    },
+                    new()
+                    {
+                        Name = $"OptionalIp-{suffix}",
+                        ValueType = ResValueType.IPAddress,
+                        IsRequired = false,
+                        MaxLength = 40,
+                        Sort = 1
+                    }
+                ]
+            },
+            HttpStatusCode.OK);
+        ResDefinitionProperty required = definition.Properties.Single(property => property.Name.StartsWith("Name-"));
+        ResDefinitionProperty optional = definition.Properties.Single(property => property.Name.StartsWith("OptionalIp-"));
+
+        HttpResponseMessage optionalEmpty = await client.PostAsJsonAsync(
+            "/api/Resource",
+            new ResourceAddDto
+            {
+                EnvironmentId = fixture.Environment.Id,
+                CategoryId = fixture.Category.Id,
+                DefinitionId = definition.Id,
+                Values =
+                [
+                    new ResourceValueDto { DefinitionPropertyId = required.Id, Value = "server" },
+                    new ResourceValueDto { DefinitionPropertyId = optional.Id, Value = string.Empty }
+                ]
+            });
+        if (optionalEmpty.StatusCode != HttpStatusCode.Created)
+        {
+            string error = await optionalEmpty.Content.ReadAsStringAsync();
+            throw new InvalidOperationException(
+                $"Optional empty resource returned {(int)optionalEmpty.StatusCode}: {error}");
+        }
+        ResourceCreatedDto created = await optionalEmpty.Content.ReadFromJsonAsync<ResourceCreatedDto>()
+            ?? throw new InvalidOperationException("Created resource response was empty.");
+
+        ResourceDetailDto detail = await GetAsync<ResourceDetailDto>(
+            client,
+            $"/api/Resource/{created.Id}",
+            HttpStatusCode.OK);
+        await Assert.That(detail.Values.Select(value => value.DefinitionPropertyId))
+            .IsEquivalentTo([required.Id]);
+
+        HttpResponseMessage invalid = await client.PostAsJsonAsync(
+            "/api/Resource",
+            new ResourceAddDto
+            {
+                EnvironmentId = fixture.Environment.Id,
+                CategoryId = fixture.Category.Id,
+                DefinitionId = definition.Id,
+                Values =
+                [
+                    new ResourceValueDto { DefinitionPropertyId = required.Id, Value = "server" },
+                    new ResourceValueDto { DefinitionPropertyId = optional.Id, Value = "not-an-ip" }
+                ]
+            });
+        await Assert.That(invalid.StatusCode).IsEqualTo(HttpStatusCode.BadRequest);
+        JsonDocument problem = await invalid.Content.ReadFromJsonAsync<JsonDocument>()
+            ?? throw new InvalidOperationException("Invalid resource response was empty.");
+        await Assert.That(problem.RootElement.GetProperty("detail").GetString())
+            .Contains(optional.Name);
+
+        await DeleteAsync(client, $"/api/Resource/{created.Id}", HttpStatusCode.OK);
+        await DeleteAsync(client, $"/api/ResourceConfiguration/definitions/{definition.Id}", HttpStatusCode.OK);
     }
 
     [ClassDataSource<TestHttpClientData>(Shared = SharedType.None)]
@@ -485,6 +585,34 @@ public class ResourceModApiTests
         await Assert.That(list.RootElement.GetProperty("count").GetInt32()).IsEqualTo(1);
         await Assert.That(list.RootElement.GetProperty("data").EnumerateArray().Single()
             .GetProperty("id").GetGuid()).IsEqualTo(resourceId);
+
+        foreach (string searchKey in new[] { fixture.Definition.Name, fixture.Tag.Name })
+        {
+            HttpResponseMessage searchResponse = await client.GetAsync(
+                $"/api/Resource/list?searchKey={Uri.EscapeDataString(searchKey)}");
+            await Assert.That(searchResponse.StatusCode).IsEqualTo(HttpStatusCode.OK);
+            JsonDocument searchResult = await searchResponse.Content.ReadFromJsonAsync<JsonDocument>()
+                ?? throw new InvalidOperationException("Resource search response was empty.");
+            await Assert.That(searchResult.RootElement.GetProperty("count").GetInt32()).IsEqualTo(1);
+            await Assert.That(searchResult.RootElement.GetProperty("data").EnumerateArray().Single()
+                .GetProperty("id").GetGuid()).IsEqualTo(resourceId);
+        }
+
+        HttpResponseMessage valueSearchResponse = await client.GetAsync(
+            $"/api/Resource/list?environmentId={fixture.Environment.Id}&searchKey=server");
+        await Assert.That(valueSearchResponse.StatusCode).IsEqualTo(HttpStatusCode.OK);
+        JsonDocument valueSearchResult = await valueSearchResponse.Content.ReadFromJsonAsync<JsonDocument>()
+            ?? throw new InvalidOperationException("Resource value search response was empty.");
+        await Assert.That(valueSearchResult.RootElement.GetProperty("count").GetInt32()).IsEqualTo(1);
+        await Assert.That(valueSearchResult.RootElement.GetProperty("data").EnumerateArray().Single()
+            .GetProperty("id").GetGuid()).IsEqualTo(resourceId);
+
+        HttpResponseMessage noMatchResponse = await client.GetAsync(
+            "/api/Resource/list?searchKey=resource-search-no-match");
+        await Assert.That(noMatchResponse.StatusCode).IsEqualTo(HttpStatusCode.OK);
+        JsonDocument noMatchResult = await noMatchResponse.Content.ReadFromJsonAsync<JsonDocument>()
+            ?? throw new InvalidOperationException("Resource no-match search response was empty.");
+        await Assert.That(noMatchResult.RootElement.GetProperty("count").GetInt32()).IsEqualTo(0);
 
         HttpResponseMessage updateResponse = await PatchAsync(
             client,

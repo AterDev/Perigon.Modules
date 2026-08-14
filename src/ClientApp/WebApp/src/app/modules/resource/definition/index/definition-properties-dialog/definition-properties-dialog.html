@@ -1,8 +1,10 @@
-<h2 mat-dialog-title>{{ i18nKeys.resource.selectProperty | translate }}</h2>
+<h2 mat-dialog-title>
+  {{ i18nKeys.resource.properties | translate: { name: data.definition.name } }}
+</h2>
 <mat-dialog-content>
-  <div class="property-options">
-    @for (property of properties(); track property.id) {
-      <mat-checkbox (change)="toggle(property.id, $event)">
+  <div class="resource-property-list" role="list">
+    @for (property of properties; track property.id) {
+      <div class="resource-property-row" role="listitem">
         <span class="resource-property-summary">
           @if (property.isRequired) {
             <span class="resource-property-required"
@@ -12,16 +14,13 @@
           <span class="resource-property-type">[{{ valueTypeLabels[property.valueType] | translate }}]</span>
           <span class="resource-property-max-length">({{ property.maxLength }})</span>
         </span>
-      </mat-checkbox>
+      </div>
     }
     @empty {
-      <p class="text-body-secondary">{{ i18nKeys.resource.noAvailableProperties | translate }}</p>
+      <p class="text-body-secondary m-0">{{ i18nKeys.common.noData | translate }}</p>
     }
   </div>
 </mat-dialog-content>
 <mat-dialog-actions align="end">
-  <button mat-button mat-dialog-close>{{ i18nKeys.common.cancel | translate }}</button>
-  <button mat-flat-button color="primary" type="button" (click)="save()">
-    {{ i18nKeys.common.save | translate }}
-  </button>
+  <button mat-button mat-dialog-close>{{ i18nKeys.common.close | translate }}</button>
 </mat-dialog-actions>

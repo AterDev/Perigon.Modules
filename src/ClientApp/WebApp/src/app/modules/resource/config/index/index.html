@@ -1,20 +1,22 @@
 <section class="page">
   <mat-tab-group animationDuration="0ms" (selectedTabChange)="load()">
     <mat-tab [label]="i18nKeys.resource.environments | translate">
-      <div class="d-flex flex-column gap-3 py-3">
-        <div>
+      <div class="resource-compact-list py-2">
+        <div class="d-flex align-items-center justify-content-between gap-2">
+          <p class="m-0 text-body-secondary flex-grow-1">
+            {{ i18nKeys.resource.environmentDescription | translate }}
+          </p>
           <button mat-flat-button (click)="createEnvironment()">
             {{ i18nKeys.resource.addEnvironment | translate }}
           </button>
         </div>
         @for (item of environments(); track item.id) {
           <mat-card>
-            <mat-card-content class="d-flex align-items-center gap-3">
+            <mat-card-content class="d-flex align-items-center gap-2">
               <mat-icon [style.color]="item.color"
                 [class.resource-icon-fill]="iconStyle(item.icon) === 'fill'"
                 [class.resource-icon-outline]="iconStyle(item.icon) === 'outline'">{{ iconName(item.icon, 'cloud') }}</mat-icon>
               <strong>{{ item.name }}</strong>
-              <code>{{ item.color }}</code>
               <span class="ms-auto d-flex gap-2">
                 <button mat-icon-button (click)="editEnvironment(item)"
                   [attr.aria-label]="i18nKeys.common.edit | translate">
@@ -28,27 +30,29 @@
             </mat-card-content>
           </mat-card>
         } @empty {
-          <p>{{ i18nKeys.common.noData | translate }}</p>
+          <p class="empty">{{ i18nKeys.common.noData | translate }}</p>
         }
       </div>
     </mat-tab>
 
     <mat-tab [label]="i18nKeys.resource.categories | translate">
-      <div class="d-flex flex-column gap-3 py-3">
-        <div>
+      <div class="resource-compact-list py-2">
+        <div class="d-flex align-items-center justify-content-between gap-2">
+          <p class="m-0 text-body-secondary flex-grow-1">
+            {{ i18nKeys.resource.categoryDescription | translate }}
+          </p>
           <button mat-flat-button (click)="createCategory()">
             {{ i18nKeys.resource.addCategory | translate }}
           </button>
         </div>
         @for (item of categories(); track item.id) {
           <mat-card>
-            <mat-card-content class="d-flex align-items-center gap-3">
+            <mat-card-content class="d-flex align-items-center gap-2">
               <mat-icon [style.color]="item.color"
                 [class.resource-icon-fill]="iconStyle(item.icon) === 'fill'"
                 [class.resource-icon-outline]="iconStyle(item.icon) === 'outline'">{{ iconName(item.icon, 'category') }}</mat-icon>
               <strong>{{ item.name }}</strong>
               <code>{{ item.catalogCode }}</code>
-              <code>{{ item.color }}</code>
               <span class="ms-auto d-flex gap-2">
                 <button mat-icon-button (click)="editCategory(item)"
                   [attr.aria-label]="i18nKeys.common.edit | translate">
@@ -62,77 +66,7 @@
             </mat-card-content>
           </mat-card>
         } @empty {
-          <p>{{ i18nKeys.common.noData | translate }}</p>
-        }
-      </div>
-    </mat-tab>
-
-    <mat-tab [label]="i18nKeys.resource.groups | translate">
-      <div class="d-flex flex-column gap-3 py-3">
-        <div>
-          <button mat-flat-button [disabled]="categories().length === 0" (click)="createGroup()">
-            {{ i18nKeys.resource.addGroup | translate }}
-          </button>
-        </div>
-        @for (item of groups(); track item.id) {
-          <mat-card>
-            <mat-card-content class="d-flex align-items-center gap-3">
-              <mat-icon [style.color]="item.color"
-                [class.resource-icon-fill]="iconStyle(item.icon) === 'fill'"
-                [class.resource-icon-outline]="iconStyle(item.icon) === 'outline'">{{ iconName(item.icon, 'folder') }}</mat-icon>
-              <strong>{{ item.name }}</strong>
-              <span>{{ categoryNames().get(item.categoryId) ?? '-' }}</span>
-              @if (item.description) {
-                <span class="text-body-secondary">{{ item.description }}</span>
-              }
-              <code>{{ item.color }}</code>
-              <span class="ms-auto d-flex gap-2">
-                <button mat-icon-button (click)="editGroup(item)"
-                  [attr.aria-label]="i18nKeys.common.edit | translate">
-                  <mat-icon class="primary">edit</mat-icon>
-                </button>
-                <button mat-icon-button (click)="deleteGroup(item)"
-                  [attr.aria-label]="i18nKeys.common.delete | translate">
-                  <mat-icon class="error">delete</mat-icon>
-                </button>
-              </span>
-            </mat-card-content>
-          </mat-card>
-        } @empty {
-          <p>{{ i18nKeys.common.noData | translate }}</p>
-        }
-      </div>
-    </mat-tab>
-
-    <mat-tab [label]="i18nKeys.resource.tags | translate">
-      <div class="d-flex flex-column gap-3 py-3">
-        <div>
-          <button mat-flat-button (click)="createTag()">
-            {{ i18nKeys.resource.addTag | translate }}
-          </button>
-        </div>
-        @for (item of tags(); track item.id) {
-          <mat-card>
-            <mat-card-content class="d-flex align-items-center gap-3">
-              <mat-icon [style.color]="item.color"
-                [class.resource-icon-fill]="iconStyle(item.icon) === 'fill'"
-                [class.resource-icon-outline]="iconStyle(item.icon) === 'outline'">{{ iconName(item.icon, 'label') }}</mat-icon>
-              <strong>{{ item.name }}</strong>
-              <code>{{ item.color }}</code>
-              <span class="ms-auto d-flex gap-2">
-                <button mat-icon-button (click)="editTag(item)"
-                  [attr.aria-label]="i18nKeys.common.edit | translate">
-                  <mat-icon class="primary">edit</mat-icon>
-                </button>
-                <button mat-icon-button (click)="deleteTag(item)"
-                  [attr.aria-label]="i18nKeys.common.delete | translate">
-                  <mat-icon class="error">delete</mat-icon>
-                </button>
-              </span>
-            </mat-card-content>
-          </mat-card>
-        } @empty {
-          <p>{{ i18nKeys.common.noData | translate }}</p>
+          <p class="empty">{{ i18nKeys.common.noData | translate }}</p>
         }
       </div>
     </mat-tab>

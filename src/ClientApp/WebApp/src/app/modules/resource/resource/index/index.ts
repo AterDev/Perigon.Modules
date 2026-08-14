@@ -64,6 +64,7 @@ export class ResourceIndexComponent {
   categoryId = '';
   definitionId = '';
   tagName = '';
+  searchKey = '';
 
   constructor() {
     this.client.resourceConfiguration
@@ -85,6 +86,9 @@ export class ResourceIndexComponent {
   }
 
   load(): void {
+    const searchKey = this.searchKey.trim();
+    if (searchKey.length === 1) return;
+
     this.loading.set(true);
     this.client.resource
       .list(
@@ -93,6 +97,7 @@ export class ResourceIndexComponent {
         null,
         this.definitionId || null,
         this.tagName || null,
+        searchKey || null,
         1,
         50,
         null,

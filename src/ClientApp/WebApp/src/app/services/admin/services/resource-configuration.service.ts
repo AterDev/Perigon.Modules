@@ -2,19 +2,25 @@ import { BaseService } from '../base.service';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ResEnvironment } from '../models/entity/res-environment.model';
-import { ResEnvironmentInput } from '../models/resource-mod/res-environment-input.model';
+import { ResEnvironmentAddDto } from '../models/resource-mod/res-environment-add-dto.model';
+import { ResEnvironmentUpdateDto } from '../models/resource-mod/res-environment-update-dto.model';
 import { ResCategory } from '../models/entity/res-category.model';
-import { ResCategoryInput } from '../models/resource-mod/res-category-input.model';
+import { ResCategoryAddDto } from '../models/resource-mod/res-category-add-dto.model';
+import { ResCategoryUpdateDto } from '../models/resource-mod/res-category-update-dto.model';
 import { ResGroup } from '../models/entity/res-group.model';
-import { ResGroupInput } from '../models/resource-mod/res-group-input.model';
+import { ResGroupAddDto } from '../models/resource-mod/res-group-add-dto.model';
+import { ResGroupUpdateDto } from '../models/resource-mod/res-group-update-dto.model';
 import { ResTag } from '../models/entity/res-tag.model';
-import { ResTagInput } from '../models/resource-mod/res-tag-input.model';
-import { ResDefinition } from '../models/entity/res-definition.model';
-import { ResDefinitionInput } from '../models/resource-mod/res-definition-input.model';
+import { ResTagAddDto } from '../models/resource-mod/res-tag-add-dto.model';
+import { ResTagUpdateDto } from '../models/resource-mod/res-tag-update-dto.model';
 import { ResDefinitionProperty } from '../models/entity/res-definition-property.model';
-import { ResDefinitionPropertyInput } from '../models/resource-mod/res-definition-property-input.model';
+import { ResDefinitionPropertyAddDto } from '../models/resource-mod/res-definition-property-add-dto.model';
+import { ResDefinitionPropertyUpdateDto } from '../models/resource-mod/res-definition-property-update-dto.model';
+import { ResDefinition } from '../models/entity/res-definition.model';
+import { ResDefinitionAddDto } from '../models/resource-mod/res-definition-add-dto.model';
+import { ResDefinitionUpdateDto } from '../models/resource-mod/res-definition-update-dto.model';
 import { ResPermission } from '../models/entity/res-permission.model';
-import { ResPermissionInput } from '../models/resource-mod/res-permission-input.model';
+import { ResPermissionUpdateDto } from '../models/resource-mod/res-permission-update-dto.model';
 /**
  * 
  */
@@ -29,18 +35,18 @@ export class ResourceConfigurationService extends BaseService {
   }
   /**
    * addEnvironment
-   * @param data ResEnvironmentInput
+   * @param data ResEnvironmentAddDto
    */
-  addEnvironment(data: ResEnvironmentInput): Observable<ResEnvironment> {
+  addEnvironment(data: ResEnvironmentAddDto): Observable<ResEnvironment> {
     const _url = `/api/ResourceConfiguration/environments`;
     return this.request<ResEnvironment>('post', _url, data);
   }
   /**
    * updateEnvironment
    * @param id string
-   * @param data ResEnvironmentInput
+   * @param data ResEnvironmentUpdateDto
    */
-  updateEnvironment(id: string, data: ResEnvironmentInput): Observable<ResEnvironment> {
+  updateEnvironment(id: string, data: ResEnvironmentUpdateDto): Observable<ResEnvironment> {
     const _url = `/api/ResourceConfiguration/environments/${id}`;
     return this.request<ResEnvironment>('put', _url, data);
   }
@@ -61,18 +67,18 @@ export class ResourceConfigurationService extends BaseService {
   }
   /**
    * addCategory
-   * @param data ResCategoryInput
+   * @param data ResCategoryAddDto
    */
-  addCategory(data: ResCategoryInput): Observable<ResCategory> {
+  addCategory(data: ResCategoryAddDto): Observable<ResCategory> {
     const _url = `/api/ResourceConfiguration/categories`;
     return this.request<ResCategory>('post', _url, data);
   }
   /**
    * updateCategory
    * @param id string
-   * @param data ResCategoryInput
+   * @param data ResCategoryUpdateDto
    */
-  updateCategory(id: string, data: ResCategoryInput): Observable<ResCategory> {
+  updateCategory(id: string, data: ResCategoryUpdateDto): Observable<ResCategory> {
     const _url = `/api/ResourceConfiguration/categories/${id}`;
     return this.request<ResCategory>('put', _url, data);
   }
@@ -94,18 +100,18 @@ export class ResourceConfigurationService extends BaseService {
   }
   /**
    * addGroup
-   * @param data ResGroupInput
+   * @param data ResGroupAddDto
    */
-  addGroup(data: ResGroupInput): Observable<ResGroup> {
+  addGroup(data: ResGroupAddDto): Observable<ResGroup> {
     const _url = `/api/ResourceConfiguration/groups`;
     return this.request<ResGroup>('post', _url, data);
   }
   /**
    * updateGroup
    * @param id string
-   * @param data ResGroupInput
+   * @param data ResGroupUpdateDto
    */
-  updateGroup(id: string, data: ResGroupInput): Observable<ResGroup> {
+  updateGroup(id: string, data: ResGroupUpdateDto): Observable<ResGroup> {
     const _url = `/api/ResourceConfiguration/groups/${id}`;
     return this.request<ResGroup>('put', _url, data);
   }
@@ -126,18 +132,18 @@ export class ResourceConfigurationService extends BaseService {
   }
   /**
    * addTag
-   * @param data ResTagInput
+   * @param data ResTagAddDto
    */
-  addTag(data: ResTagInput): Observable<ResTag> {
+  addTag(data: ResTagAddDto): Observable<ResTag> {
     const _url = `/api/ResourceConfiguration/tags`;
     return this.request<ResTag>('post', _url, data);
   }
   /**
    * updateTag
    * @param id string
-   * @param data ResTagInput
+   * @param data ResTagUpdateDto
    */
-  updateTag(id: string, data: ResTagInput): Observable<ResTag> {
+  updateTag(id: string, data: ResTagUpdateDto): Observable<ResTag> {
     const _url = `/api/ResourceConfiguration/tags/${id}`;
     return this.request<ResTag>('put', _url, data);
   }
@@ -159,18 +165,18 @@ export class ResourceConfigurationService extends BaseService {
   }
   /**
    * addProperty
-   * @param data ResDefinitionPropertyInput
+   * @param data ResDefinitionPropertyAddDto
    */
-  addProperty(data: ResDefinitionPropertyInput): Observable<ResDefinitionProperty> {
+  addProperty(data: ResDefinitionPropertyAddDto): Observable<ResDefinitionProperty> {
     const _url = `/api/ResourceConfiguration/properties`;
     return this.request<ResDefinitionProperty>('post', _url, data);
   }
   /**
    * updateProperty
    * @param id string
-   * @param data ResDefinitionPropertyInput
+   * @param data ResDefinitionPropertyUpdateDto
    */
-  updateProperty(id: string, data: ResDefinitionPropertyInput): Observable<ResDefinitionProperty> {
+  updateProperty(id: string, data: ResDefinitionPropertyUpdateDto): Observable<ResDefinitionProperty> {
     const _url = `/api/ResourceConfiguration/properties/${id}`;
     return this.request<ResDefinitionProperty>('put', _url, data);
   }
@@ -192,18 +198,18 @@ export class ResourceConfigurationService extends BaseService {
   }
   /**
    * addDefinition
-   * @param data ResDefinitionInput
+   * @param data ResDefinitionAddDto
    */
-  addDefinition(data: ResDefinitionInput): Observable<ResDefinition> {
+  addDefinition(data: ResDefinitionAddDto): Observable<ResDefinition> {
     const _url = `/api/ResourceConfiguration/definitions`;
     return this.request<ResDefinition>('post', _url, data);
   }
   /**
    * updateDefinition
    * @param id string
-   * @param data ResDefinitionInput
+   * @param data ResDefinitionUpdateDto
    */
-  updateDefinition(id: string, data: ResDefinitionInput): Observable<ResDefinition> {
+  updateDefinition(id: string, data: ResDefinitionUpdateDto): Observable<ResDefinition> {
     const _url = `/api/ResourceConfiguration/definitions/${id}`;
     return this.request<ResDefinition>('put', _url, data);
   }
@@ -226,9 +232,9 @@ export class ResourceConfigurationService extends BaseService {
   }
   /**
    * setPermissions
-   * @param data ResPermissionInput
+   * @param data ResPermissionUpdateDto
    */
-  setPermissions(data: ResPermissionInput): Observable<any> {
+  setPermissions(data: ResPermissionUpdateDto): Observable<any> {
     const _url = `/api/ResourceConfiguration/permissions`;
     return this.request<any>('put', _url, data);
   }

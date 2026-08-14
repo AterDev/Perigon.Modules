@@ -1,8 +1,6 @@
-export interface ResCategoryInput {
+export interface ResEnvironmentAddDto {
   /** name */
   name: string;
-  /** catalogCode */
-  catalogCode: string;
   /** icon */
   icon?: string | null;
   /** color */

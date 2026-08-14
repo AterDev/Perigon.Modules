@@ -1,4 +1,4 @@
-export interface ResTagInput {
+export interface ResTagAddDto {
   /** name */
   name: string;
   /** color */

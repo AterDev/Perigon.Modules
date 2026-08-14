@@ -2,6 +2,9 @@ import { ResGroup } from '../entity/res-group.model';
 import { Resource } from '../entity/resource.model';
 import { ResPermission } from '../entity/res-permission.model';
 
+/**
+ * 资源分类配置。
+ */
 export interface ResCategory {
   /** id */
   id: string;
@@ -13,18 +16,18 @@ export interface ResCategory {
   isDeleted: boolean;
   /** tenantId */
   tenantId: string;
-  /** name */
+  /** 分类名称。 */
   name: string;
-  /** catalogCode */
+  /** 分类编码。 */
   catalogCode: string;
-  /** icon */
+  /** Material Icons 图标名称，以字符串形式持久化。 */
   icon?: string | null;
-  /** color */
+  /** 显示颜色，例如 CSS 十六进制颜色值。 */
   color: string;
-  /** groups */
+  /** 属于此分类的分组。 */
   groups: ResGroup[];
-  /** resources */
+  /** 属于此分类的资源。 */
   resources: Resource[];
-  /** permissions */
+  /** 此分类下的角色授权。 */
   permissions: ResPermission[];
 }

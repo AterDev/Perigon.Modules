@@ -4,7 +4,7 @@ import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/materia
 import { CommonFormModules } from '../../../share/shared-modules';
 import { I18N_KEYS } from '../../../share/i18n-keys';
 import { ResTag } from '../../../../services/admin/models/entity/res-tag.model';
-import { ResTagInput } from '../../../../services/admin/models/resource-mod/res-tag-input.model';
+import { ResTagAddDto } from '../../../../services/admin/models/resource-mod/res-tag-add-dto.model';
 import { ResourceColorPickerComponent } from '../../shared/color-picker/color-picker';
 import { ResourceIconPickerComponent } from '../../shared/icon-picker/icon-picker';
 
@@ -51,7 +51,7 @@ export class ResourceTagDialogComponent {
     }
 
     const value = this.form.getRawValue();
-    const result: ResTagInput = {
+    const result: ResTagAddDto = {
       name: value.name.trim(),
       color: value.color,
       icon: value.icon || null,

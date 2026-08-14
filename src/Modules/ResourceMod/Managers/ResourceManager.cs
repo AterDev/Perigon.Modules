@@ -4,6 +4,7 @@ using ResourceMod.Models;
 using Share.Exceptions;
 using System.Globalization;
 using System.Net;
+using System.Text.RegularExpressions;
 
 namespace ResourceMod.Managers;
 
@@ -13,6 +14,10 @@ public class ResourceManager(
     IUserContext userContext
 ) : ManagerBase<DefaultDbContext, Resource>(dbContextFactory, userContext, logger)
 {
+    private static readonly Regex NumberRegex = new(
+        @"^[+-]?(?:\d+(?:\.\d*)?|\.\d+)$",
+        RegexOptions.Compiled | RegexOptions.CultureInvariant);
+
     public async Task<PageList<ResourceItemDto>> FilterAsync(ResourceFilterDto filter)
     {
         IQueryable<Resource> query = _dbContext.Resources
@@ -38,6 +43,15 @@ public class ResourceManager(
             .WhereNotNull(filter.GroupId, r => r.GroupId == filter.GroupId)
             .WhereNotNull(filter.DefinitionId, r => r.DefinitionId == filter.DefinitionId)
             .WhereNotNull(filter.TagName, r => r.TagNames.Contains(filter.TagName!));
+
+        string searchKey = filter.SearchKey?.Trim() ?? string.Empty;
+        if (searchKey.Length >= 2)
+        {
+            query = query.Where(r =>
+                r.Definition.Name.Contains(searchKey) ||
+                r.TagNames.Any(tag => tag.Contains(searchKey)) ||
+                r.Values.Any(value => value.Value.Contains(searchKey)));
+        }
 
         int count = await query.CountAsync();
         List<ResourceItemDto> data = await query
@@ -244,17 +258,25 @@ public class ResourceManager(
             throw new BusinessException("资源属性包含重复或未知字段", StatusCodes.Status400BadRequest);
         }
 
-        bool missesRequiredValue = properties.Any(p =>
-            p.IsRequired && inputs.All(v => v.DefinitionPropertyId != p.Id));
-        if (missesRequiredValue)
+        ResDefinitionProperty? missingRequiredProperty = properties.FirstOrDefault(p =>
+            p.IsRequired && inputs.All(v =>
+                v.DefinitionPropertyId != p.Id || string.IsNullOrEmpty(v.Value)));
+        if (missingRequiredProperty != null)
         {
-            throw new BusinessException("缺少必填资源属性", StatusCodes.Status400BadRequest);
+            throw new BusinessException(
+                $"属性 {missingRequiredProperty.Name} 为必填项",
+                StatusCodes.Status400BadRequest);
         }
 
         List<ResValue> values = [];
         foreach (ResourceValueDto input in inputs)
         {
             ResDefinitionProperty property = properties.Single(p => p.Id == input.DefinitionPropertyId);
+            if (string.IsNullOrEmpty(input.Value))
+            {
+                continue;
+            }
+
             if (input.Value.Length > Math.Min(property.MaxLength, 1000))
             {
                 throw new BusinessException(
@@ -266,7 +288,7 @@ public class ResourceManager(
             {
                 ResourceId = resource.Id,
                 DefinitionPropertyId = property.Id,
-                Value = NormalizeValue(input.Value, property.ValueType),
+                Value = NormalizeValue(input.Value, property.ValueType, property.Name),
                 PropertyNameSnapshot = property.Name,
                 ValueTypeSnapshot = property.ValueType,
                 TenantId = _userContext.TenantId
@@ -281,26 +303,30 @@ public class ResourceManager(
         await _dbContext.ResValues.AddRangeAsync(values);
     }
 
-    private static string NormalizeValue(string value, ResValueType type)
+    private static string NormalizeValue(string value, ResValueType type, string propertyName)
     {
+        string trimmedValue = value.Trim();
         return type switch
         {
             ResValueType.String => value,
-            ResValueType.Number when decimal.TryParse(
-                value,
-                NumberStyles.Number,
+            ResValueType.Number when NumberRegex.IsMatch(trimmedValue) && decimal.TryParse(
+                trimmedValue,
+                NumberStyles.AllowLeadingSign | NumberStyles.AllowDecimalPoint,
                 CultureInfo.InvariantCulture,
                 out decimal number) => number.ToString(CultureInfo.InvariantCulture),
-            ResValueType.Boolean when bool.TryParse(value, out bool boolean) =>
+            ResValueType.Boolean when bool.TryParse(trimmedValue, out bool boolean) =>
                 boolean.ToString().ToLowerInvariant(),
-            ResValueType.Date when DateOnly.TryParse(
-                value,
+            ResValueType.Date when DateOnly.TryParseExact(
+                trimmedValue,
+                "yyyy-MM-dd",
                 CultureInfo.InvariantCulture,
                 DateTimeStyles.None,
                 out DateOnly date) => date.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture),
-            ResValueType.Uri when Uri.TryCreate(value, UriKind.Absolute, out Uri? uri) => uri.AbsoluteUri,
-            ResValueType.IPAddress when IPAddress.TryParse(value, out IPAddress? address) => address.ToString(),
-            _ => throw new BusinessException("资源属性值格式无效", StatusCodes.Status400BadRequest)
+            ResValueType.Uri when Uri.TryCreate(trimmedValue, UriKind.Absolute, out Uri? uri) => uri.AbsoluteUri,
+            ResValueType.IPAddress when IPAddress.TryParse(trimmedValue, out IPAddress? address) => address.ToString(),
+            _ => throw new BusinessException(
+                $"属性 {propertyName} 的值格式无效",
+                StatusCodes.Status400BadRequest)
         };
     }
 

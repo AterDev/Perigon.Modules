@@ -1,3 +1,6 @@
+/**
+ * 资源标签配置。
+ */
 export interface ResTag {
   /** id */
   id: string;
@@ -9,10 +12,10 @@ export interface ResTag {
   isDeleted: boolean;
   /** tenantId */
   tenantId: string;
-  /** name */
+  /** 标签名称。 */
   name: string;
-  /** color */
+  /** 显示颜色，例如 CSS 十六进制颜色值。 */
   color: string;
-  /** icon */
+  /** Material Icons 图标名称，以字符串形式持久化。 */
   icon?: string | null;
 }

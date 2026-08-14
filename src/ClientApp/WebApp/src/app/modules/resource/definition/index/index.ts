@@ -10,13 +10,16 @@ import { CommonListModules } from '../../../share/shared-modules';
 import { ConfirmDialogComponent } from '../../../share/components/confirm-dialog/confirm-dialog.component';
 import { I18N_KEYS } from '../../../share/i18n-keys';
 import { ResourceDefinitionDialogComponent } from './definition-dialog/definition-dialog';
+import { ResourceDefinitionPropertiesDialogComponent } from './definition-properties-dialog/definition-properties-dialog';
 import {
   ResourcePropertyDialogComponent,
   ResourcePropertyDialogData,
 } from './property-dialog/property-dialog';
 import { ResDefinitionProperty } from '../../../../services/admin/models/entity/res-definition-property.model';
-import { ResDefinitionPropertyInput } from '../../../../services/admin/models/resource-mod/res-definition-property-input.model';
+import { ResDefinitionPropertyAddDto } from '../../../../services/admin/models/resource-mod/res-definition-property-add-dto.model';
+import { ResDefinitionPropertyUpdateDto } from '../../../../services/admin/models/resource-mod/res-definition-property-update-dto.model';
 import { resourceIconName, resourceIconStyle } from '../../shared/resource-appearance';
+import { sortResourceProperties } from '../../shared/resource-property-order';
 
 @Component({
   selector: 'app-resource-definition-index',
@@ -56,7 +59,7 @@ export class ResourceDefinitionIndexComponent {
       .subscribe((value) => this.definitions.set(value));
     this.client.resourceConfiguration
       .properties(this.propertyName || null)
-      .subscribe((value) => this.properties.set(value));
+      .subscribe((value) => this.properties.set(sortResourceProperties(value)));
   }
 
   createDefinition(): void {
@@ -88,6 +91,15 @@ export class ResourceDefinitionIndexComponent {
           this.load();
         });
       });
+  }
+
+  viewDefinitionProperties(item: ResDefinition): void {
+    this.dialog.open(ResourceDefinitionPropertiesDialogComponent, {
+      width: '700px',
+      maxWidth: '96vw',
+      maxHeight: '96vh',
+      data: { definition: item },
+    });
   }
 
   deleteDefinition(item: ResDefinition): void {
@@ -124,7 +136,7 @@ export class ResourceDefinitionIndexComponent {
         data: {} satisfies ResourcePropertyDialogData,
       })
       .afterClosed()
-      .subscribe((value: ResDefinitionPropertyInput | undefined) => {
+      .subscribe((value: ResDefinitionPropertyAddDto | undefined) => {
         if (!value) return;
         this.client.resourceConfiguration.addProperty(value).subscribe({
           next: () => {
@@ -144,7 +156,7 @@ export class ResourceDefinitionIndexComponent {
         data: { property: item } satisfies ResourcePropertyDialogData,
       })
       .afterClosed()
-      .subscribe((value: ResDefinitionPropertyInput | undefined) => {
+      .subscribe((value: ResDefinitionPropertyUpdateDto | undefined) => {
         if (!value) return;
         this.client.resourceConfiguration.updateProperty(item.id, value).subscribe({
           next: () => {

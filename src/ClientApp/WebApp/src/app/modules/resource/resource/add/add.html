@@ -82,9 +82,14 @@
         <h3>{{ i18nKeys.resource.properties | translate: { name: selected.name } }}</h3>
         <div class="property-grid">
           @for (property of selected.properties; track property.id) {
+            @let control = values.controls[property.id];
             <mat-form-field appearance="outline" subscriptSizing="dynamic">
               <mat-label>
-                {{ property.name }}{{ property.isRequired ? ' *' : '' }}
+                @if (property.isRequired) {
+                  <span class="resource-property-required"
+                    [attr.aria-label]="i18nKeys.resource.propertyRequired | translate">*</span>
+                }
+                {{ property.name }}
               </mat-label>
               @if (property.valueType === valueTypes.Boolean) {
                 <mat-select [formControl]="values.controls[property.id]">
@@ -97,8 +102,21 @@
                   [formControl]="values.controls[property.id]" />
               }
               <mat-hint>
-                {{ valueTypeLabels[property.valueType] | translate }} · {{ i18nKeys.resource.propertyMaxLength | translate }}: {{ property.maxLength }}
+                <span class="resource-property-type">[{{ valueTypeLabels[property.valueType] | translate }}]</span><span class="resource-property-max-length">({{ property.maxLength }})</span>
               </mat-hint>
+              @if (control.touched || control.dirty) {
+                @if (control.hasError('required')) {
+                  <mat-error>{{ i18nKeys.validation.required | translate }}</mat-error>
+                } @else if (control.hasError('maxlength')) {
+                  <mat-error>
+                    {{ i18nKeys.validation.maxlength | translate: { requiredLength: property.maxLength } }}
+                  </mat-error>
+                } @else if (control.hasError('resourceValueFormat')) {
+                  <mat-error>
+                    {{ i18nKeys.resource.propertyValueFormatInvalid | translate: { name: property.name } }}
+                  </mat-error>
+                }
+              }
             </mat-form-field>
           }
         </div>

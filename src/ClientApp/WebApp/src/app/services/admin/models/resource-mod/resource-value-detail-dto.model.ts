@@ -5,7 +5,7 @@ export interface ResourceValueDetailDto {
   definitionPropertyId: string;
   /** name */
   name: string;
-  /** valueType */
+  /** 资源属性值类型。 */
   valueType: ResValueType;
   /** value */
   value: string;

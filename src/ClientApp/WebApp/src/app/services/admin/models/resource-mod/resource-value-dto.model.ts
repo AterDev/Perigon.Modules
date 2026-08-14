@@ -1,4 +1,4 @@
-export interface ResourceValueInput {
+export interface ResourceValueDto {
   /** definitionPropertyId */
   definitionPropertyId: string;
   /** value */

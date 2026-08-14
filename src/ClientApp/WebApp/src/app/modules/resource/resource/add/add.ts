@@ -27,9 +27,10 @@ import { TranslateService } from '@ngx-translate/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ResourceGroupDialogComponent } from '../../dialogs/group-dialog/group-dialog';
 import { ResourceTagDialogComponent } from '../../dialogs/tag-dialog/tag-dialog';
-import { ResGroupInput } from '../../../../services/admin/models/resource-mod/res-group-input.model';
-import { ResTagInput } from '../../../../services/admin/models/resource-mod/res-tag-input.model';
+import { ResGroupAddDto } from '../../../../services/admin/models/resource-mod/res-group-add-dto.model';
+import { ResTagAddDto } from '../../../../services/admin/models/resource-mod/res-tag-add-dto.model';
 import { resourceIconName, resourceIconStyle } from '../../shared/resource-appearance';
+import { resourceValueValidator } from '../../shared/resource-value-validation';
 
 @Component({
   selector: 'app-resource-add',
@@ -135,6 +136,7 @@ export class ResourceAddComponent {
             property.isRequired
               ? Validators.required
               : Validators.nullValidator,
+            resourceValueValidator(property.valueType),
             Validators.maxLength(property.maxLength),
           ],
         }),
@@ -148,7 +150,7 @@ export class ResourceAddComponent {
         maxHeight: '96vh',
       })
       .afterClosed()
-      .subscribe((value: ResTagInput | undefined) => {
+      .subscribe((value: ResTagAddDto | undefined) => {
         if (!value) return;
         this.client.resourceConfiguration
           .addTag(value)
@@ -178,7 +180,7 @@ export class ResourceAddComponent {
         data: { categoryId },
       })
       .afterClosed()
-      .subscribe((value: ResGroupInput | undefined) => {
+      .subscribe((value: ResGroupAddDto | undefined) => {
         if (!value) return;
         this.client.resourceConfiguration
           .addGroup(value)
@@ -200,9 +202,9 @@ export class ResourceAddComponent {
       .add({
         ...base,
         groupId: base.groupId || null,
-        values: Object.entries(this.values.getRawValue()).map(
-          ([definitionPropertyId, value]) => ({ definitionPropertyId, value }),
-        ),
+        values: Object.entries(this.values.getRawValue())
+          .filter(([, value]) => value.length > 0)
+          .map(([definitionPropertyId, value]) => ({ definitionPropertyId, value })),
       })
       .subscribe({
         next: (resource) => {

@@ -1,6 +1,9 @@
 import { ResEnvironment } from '../entity/res-environment.model';
 import { ResCategory } from '../entity/res-category.model';
 
+/**
+ * 资源环境和分类的角色读取授权。
+ */
 export interface ResPermission {
   /** id */
   id: string;
@@ -12,14 +15,14 @@ export interface ResPermission {
   isDeleted: boolean;
   /** tenantId */
   tenantId: string;
-  /** roleId */
+  /** 角色 ID。 */
   roleId: string;
-  /** environmentId */
+  /** 环境 ID。 */
   environmentId: string;
-  /** categoryId */
+  /** 分类 ID。 */
   categoryId: string;
-  /** environment */
+  /** 资源运行环境配置。 */
   environment: ResEnvironment;
-  /** category */
+  /** 资源分类配置。 */
   category: ResCategory;
 }

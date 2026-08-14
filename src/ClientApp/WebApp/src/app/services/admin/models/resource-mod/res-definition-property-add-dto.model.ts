@@ -1,16 +1,12 @@
 import { ResValueType } from '../entity/res-value-type.model';
 
-export interface ResDefinitionPropertyInput {
-  /** id */
-  id?: string | null;
+export interface ResDefinitionPropertyAddDto {
   /** name */
   name: string;
-  /** valueType */
+  /** 资源属性值类型。 */
   valueType: ResValueType;
   /** isRequired */
   isRequired: boolean;
   /** maxLength */
   maxLength: number;
-  /** sort */
-  sort?: number;
 }

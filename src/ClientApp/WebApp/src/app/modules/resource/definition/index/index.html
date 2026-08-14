@@ -1,7 +1,7 @@
 <section class="page">
   <mat-tab-group animationDuration="0ms" (selectedTabChange)="load()">
     <mat-tab [label]="i18nKeys.resource.definitions | translate">
-      <div class="d-flex align-items-center justify-content-between gap-3 py-3">
+      <div class="d-flex align-items-center justify-content-between gap-2 py-2">
         <mat-form-field appearance="outline" subscriptSizing="dynamic">
           <mat-label>{{ i18nKeys.resource.definitionSearch | translate }}</mat-label>
           <input matInput [(ngModel)]="name" (keyup.enter)="load()" />
@@ -15,58 +15,42 @@
         </button>
       </div>
 
-      <mat-accordion multi>
+      <div class="resource-compact-list">
         @for (item of definitions(); track item.id) {
-          <mat-expansion-panel>
-            <mat-expansion-panel-header>
-              <mat-panel-title>
-                <mat-icon
-                  [class.resource-icon-fill]="iconStyle(item.icon) === 'fill'"
-                  [class.resource-icon-outline]="iconStyle(item.icon) === 'outline'">{{ iconName(item.icon, 'schema') }}</mat-icon>
-                <strong>{{ item.name }}</strong>
-                <span class="property-count">
-                  {{ i18nKeys.resource.propertyCount | translate: { count: item.properties.length } }}
-                </span>
-              </mat-panel-title>
-              <mat-panel-description>
-                <button mat-icon-button type="button" (click)="$event.stopPropagation(); editDefinition(item)"
+          <mat-card>
+            <mat-card-content class="d-flex align-items-center flex-wrap gap-2">
+              <mat-icon
+                [class.resource-icon-fill]="iconStyle(item.icon) === 'fill'"
+                [class.resource-icon-outline]="iconStyle(item.icon) === 'outline'">{{ iconName(item.icon, 'schema') }}</mat-icon>
+              <strong>{{ item.name }}</strong>
+              <span class="property-count">
+                {{ i18nKeys.resource.propertyCount | translate: { count: item.properties.length } }}
+              </span>
+              <span class="ms-auto d-flex align-items-center gap-2">
+                <button mat-stroked-button type="button" (click)="viewDefinitionProperties(item)">
+                  <mat-icon>list</mat-icon>
+                  {{ i18nKeys.resource.viewDefinitionProperties | translate }}
+                </button>
+                <button mat-icon-button type="button" (click)="editDefinition(item)"
                   [attr.aria-label]="i18nKeys.common.edit | translate">
                   <mat-icon class="primary">edit</mat-icon>
                 </button>
-                <button mat-icon-button type="button" (click)="$event.stopPropagation(); deleteDefinition(item)"
+                <button mat-icon-button type="button" (click)="deleteDefinition(item)"
                   [attr.aria-label]="i18nKeys.common.delete | translate">
                   <mat-icon class="error">delete</mat-icon>
                 </button>
-              </mat-panel-description>
-            </mat-expansion-panel-header>
-
-            <div class="property-list">
-              @for (property of item.properties; track property.id) {
-                <div class="property-item">
-                  <strong>{{ property.name }}</strong>
-                  <span>{{ valueTypeLabels[property.valueType] | translate }}</span>
-                  @if (property.isRequired) {
-                    <span class="required">{{ i18nKeys.resource.propertyRequired | translate }}</span>
-                  }
-                  <span class="text-body-secondary">
-                    {{ i18nKeys.resource.propertyMaxLength | translate }}: {{ property.maxLength }}
-                  </span>
-                </div>
-              }
-              @empty {
-                <span class="text-body-secondary">{{ i18nKeys.common.noData | translate }}</span>
-              }
-            </div>
-          </mat-expansion-panel>
+              </span>
+            </mat-card-content>
+          </mat-card>
         }
         @empty {
           <p class="empty">{{ i18nKeys.common.noData | translate }}</p>
         }
-      </mat-accordion>
+      </div>
     </mat-tab>
 
     <mat-tab [label]="i18nKeys.resource.propertyDefinitions | translate">
-      <div class="d-flex align-items-center justify-content-between gap-3 py-3">
+      <div class="d-flex align-items-center justify-content-between gap-2 py-2">
         <mat-form-field appearance="outline" subscriptSizing="dynamic">
           <mat-label>{{ i18nKeys.resource.propertySearch | translate }}</mat-label>
           <input matInput [(ngModel)]="propertyName" (keyup.enter)="load()" />
@@ -80,17 +64,18 @@
         </button>
       </div>
 
-      <div class="property-cards">
+      <div class="resource-compact-list resource-property-grid">
         @for (property of properties(); track property.id) {
           <mat-card>
-            <mat-card-content class="d-flex align-items-center gap-3">
-              <strong>{{ property.name }}</strong>
-              <span>{{ valueTypeLabels[property.valueType] | translate }}</span>
-              @if (property.isRequired) {
-                <span class="required">{{ i18nKeys.resource.propertyRequired | translate }}</span>
-              }
-              <span class="text-body-secondary">
-                {{ i18nKeys.resource.propertyMaxLength | translate }}: {{ property.maxLength }}
+            <mat-card-content class="d-flex align-items-center flex-wrap gap-2">
+              <span class="resource-property-summary">
+                @if (property.isRequired) {
+                  <span class="resource-property-required"
+                    [attr.aria-label]="i18nKeys.resource.propertyRequired | translate">*</span>
+                }
+                <strong>{{ property.name }}</strong>
+                <span class="resource-property-type">[{{ valueTypeLabels[property.valueType] | translate }}]</span>
+                <span class="resource-property-max-length">({{ property.maxLength }})</span>
               </span>
               <span class="ms-auto d-flex gap-2">
                 <button mat-icon-button (click)="editProperty(property)"

@@ -1,3 +1,6 @@
+/**
+ * 资源属性值类型。
+ */
 export enum ResValueType {
   /** 字符串 */
   String = 0,

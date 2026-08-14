@@ -6,6 +6,7 @@ import { ResDefinitionProperty } from '../../../../../services/admin/models/enti
 import { ResValueType } from '../../../../../services/admin/models/entity/res-value-type.model';
 import { CommonFormModules } from '../../../../share/shared-modules';
 import { I18N_KEYS } from '../../../../share/i18n-keys';
+import { sortResourceProperties } from '../../../shared/resource-property-order';
 
 export interface ResourcePropertySelectDialogData {
   excludeIds?: string[];
@@ -37,7 +38,9 @@ export class ResourcePropertySelectDialogComponent {
   constructor() {
     const excluded = new Set(this.data?.excludeIds ?? []);
     this.client.resourceConfiguration.properties(null).subscribe((properties) => {
-      this.properties.set(properties.filter((property) => !excluded.has(property.id)));
+      this.properties.set(sortResourceProperties(
+        properties.filter((property) => !excluded.has(property.id)),
+      ));
     });
   }
 

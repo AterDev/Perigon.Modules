@@ -1,4 +1,4 @@
-export interface ResGroupInput {
+export interface ResGroupAddDto {
   /** name */
   name: string;
   /** description */

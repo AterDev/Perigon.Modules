@@ -1,20 +1,16 @@
 import { I18N_KEYS } from '../../../share/i18n-keys';
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { CommonListModules } from '../../../share/shared-modules';
 import { AdminClient } from '../../../../services/admin/admin-client';
 import { ResEnvironment } from '../../../../services/admin/models/entity/res-environment.model';
 import { ResCategory } from '../../../../services/admin/models/entity/res-category.model';
-import { ResTag } from '../../../../services/admin/models/entity/res-tag.model';
 import { SystemRole } from '../../../../services/admin/models/entity/system-role.model';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { TranslateService } from '@ngx-translate/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ConfirmDialogComponent } from '../../../share/components/confirm-dialog/confirm-dialog.component';
 import { ResourceInputDialogComponent, ResourceInputDialogData } from '../../dialogs/input-dialog/input-dialog';
-import { ResourceGroupDialogComponent } from '../../dialogs/group-dialog/group-dialog';
-import { ResourceTagDialogComponent } from '../../dialogs/tag-dialog/tag-dialog';
 import { SystemRoleItemDto } from '../../../../services/admin/models/system-mod/system-role-item-dto.model';
-import { ResGroup } from '../../../../services/admin/models/entity/res-group.model';
 import { resourceIconName, resourceIconStyle } from '../../shared/resource-appearance';
 
 @Component({
@@ -34,12 +30,7 @@ export class ResourceConfigIndexComponent {
   private readonly dialog = inject(MatDialog);
   readonly environments = signal<ResEnvironment[]>([]);
   readonly categories = signal<ResCategory[]>([]);
-  readonly groups = signal<ResGroup[]>([]);
-  readonly tags = signal<ResTag[]>([]);
   readonly roles = signal<SystemRoleItemDto[]>([]);
-  readonly categoryNames = computed(
-    () => new Map(this.categories().map((item) => [item.id, item.name])),
-  );
   permissionEnvironmentId = '';
   permissionCategoryId = '';
   permissionRoleIds: string[] = [];
@@ -54,12 +45,6 @@ export class ResourceConfigIndexComponent {
     this.client.resourceConfiguration
       .categories()
       .subscribe((value) => this.categories.set(value));
-    this.client.resourceConfiguration
-      .groups(null)
-      .subscribe((value) => this.groups.set(value));
-    this.client.resourceConfiguration
-      .tags()
-      .subscribe((value) => this.tags.set(value));
     this.client.systemRole.list(null, null, 1, 100, null)
       .subscribe((value) => this.roles.set(value.data));
   }
@@ -140,37 +125,6 @@ export class ResourceConfigIndexComponent {
           .subscribe(() => this.load()),
     );
   }
-  createGroup(): void {
-    if (this.categories().length === 0) return;
-    this.dialog
-      .open(ResourceGroupDialogComponent, {
-        maxWidth: '96vw',
-        maxHeight: '96vh',
-        data: { categories: this.categories() },
-      })
-      .afterClosed()
-      .subscribe((value) => {
-        if (value) this.client.resourceConfiguration.addGroup(value).subscribe(() => this.load());
-      });
-  }
-  editGroup(item: ResGroup): void {
-    this.dialog
-      .open(ResourceGroupDialogComponent, {
-        maxWidth: '96vw',
-        maxHeight: '96vh',
-        data: { group: item, categories: this.categories() },
-      })
-      .afterClosed()
-      .subscribe((value) => {
-        if (value) this.client.resourceConfiguration.updateGroup(item.id, value).subscribe(() => this.load());
-      });
-  }
-  deleteGroup(item: ResGroup): void {
-    this.confirmDelete(
-      this.translate.instant('resource.deleteGroupConfirm', { name: item.name }),
-      () => this.client.resourceConfiguration.deleteGroup(item.id).subscribe(() => this.load()),
-    );
-  }
   deleteCategory(item: ResCategory): void {
     this.confirmDelete(
       this.translate.instant('resource.deleteCategoryConfirm', {
@@ -179,40 +133,6 @@ export class ResourceConfigIndexComponent {
       () =>
         this.client.resourceConfiguration
           .deleteCategory(item.id)
-          .subscribe(() => this.load()),
-    );
-  }
-  createTag(): void {
-    this.dialog
-      .open(ResourceTagDialogComponent, {
-        maxWidth: '96vw',
-        maxHeight: '96vh',
-      })
-      .afterClosed()
-      .subscribe((value) => {
-        if (value) this.client.resourceConfiguration.addTag(value).subscribe(() => this.load());
-      });
-  }
-  editTag(item: ResTag): void {
-    this.dialog
-      .open(ResourceTagDialogComponent, {
-        maxWidth: '96vw',
-        maxHeight: '96vh',
-        data: { tag: item },
-      })
-      .afterClosed()
-      .subscribe((value) => {
-        if (value) this.client.resourceConfiguration.updateTag(item.id, value).subscribe(() => this.load());
-      });
-  }
-  deleteTag(item: ResTag): void {
-    this.confirmDelete(
-      this.translate.instant('resource.deleteTagConfirm', {
-        name: item.name,
-      }),
-      () =>
-        this.client.resourceConfiguration
-          .deleteTag(item.id)
           .subscribe(() => this.load()),
     );
   }

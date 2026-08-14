@@ -1,6 +1,6 @@
-import { ResourceValueInput } from '../resource-mod/resource-value-input.model';
+import { ResourceValueDto } from '../resource-mod/resource-value-dto.model';
 
-export interface ResourceInput {
+export interface ResourceAddDto {
   /** environmentId */
   environmentId: string;
   /** categoryId */
@@ -12,5 +12,5 @@ export interface ResourceInput {
   /** tagNames */
   tagNames: string[];
   /** values */
-  values: ResourceValueInput[];
+  values: ResourceValueDto[];
 }

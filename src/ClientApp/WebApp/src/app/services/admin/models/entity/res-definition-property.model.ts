@@ -1,5 +1,8 @@
 import { ResValueType } from '../entity/res-value-type.model';
 
+/**
+ * 资源定义中的单个属性配置。
+ */
 export interface ResDefinitionProperty {
   /** id */
   id: string;
@@ -11,14 +14,14 @@ export interface ResDefinitionProperty {
   isDeleted: boolean;
   /** tenantId */
   tenantId: string;
-  /** name */
+  /** 属性名称。 */
   name: string;
-  /** valueType */
+  /** 资源属性值类型。 */
   valueType: ResValueType;
-  /** isRequired */
+  /** 是否必填。 */
   isRequired: boolean;
-  /** maxLength */
+  /** 属性值最大长度。 */
   maxLength: number;
-  /** sort */
+  /** 显示排序。排序属于定义与属性的关联，属性本身不持久化该值。 */
   sort: number;
 }

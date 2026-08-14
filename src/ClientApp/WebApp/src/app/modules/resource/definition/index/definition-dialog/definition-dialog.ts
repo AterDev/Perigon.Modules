@@ -7,7 +7,7 @@ import { I18N_KEYS } from '../../../../share/i18n-keys';
 import { ResDefinition } from '../../../../../services/admin/models/entity/res-definition.model';
 import { ResDefinitionProperty } from '../../../../../services/admin/models/entity/res-definition-property.model';
 import { ResValueType } from '../../../../../services/admin/models/entity/res-value-type.model';
-import { ResDefinitionInput } from '../../../../../services/admin/models/resource-mod/res-definition-input.model';
+import { ResDefinitionAddDto } from '../../../../../services/admin/models/resource-mod/res-definition-add-dto.model';
 import { ResourceIconPickerComponent } from '../../../shared/icon-picker/icon-picker';
 import { ResourcePropertySelectDialogComponent } from '../property-select-dialog/property-select-dialog';
 
@@ -97,7 +97,7 @@ export class ResourceDefinitionDialogComponent {
     }
 
     const value = this.form.getRawValue();
-    const result: ResDefinitionInput = {
+    const result: ResDefinitionAddDto = {
       name: value.name.trim(),
       icon: value.icon || null,
       properties: value.properties.map((property, index) => ({

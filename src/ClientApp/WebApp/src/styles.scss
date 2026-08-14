@@ -124,3 +124,89 @@ mat-panel-title .mat-icon {
 .page dd {
   margin: 0;
 }
+
+.resource-compact-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.resource-compact-list > .mat-mdc-card {
+  margin: 0;
+}
+
+.resource-compact-list > .mat-mdc-card > .mat-mdc-card-content {
+  padding: 8px 12px;
+}
+
+.resource-compact-list > .empty {
+  margin: 0;
+}
+
+.resource-property-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  align-items: start;
+}
+
+.resource-property-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: 0.4rem;
+  background: rgba(128, 150, 180, 0.08);
+}
+
+.resource-property-summary {
+  display: inline-flex;
+  align-items: baseline;
+  min-width: 0;
+}
+
+.resource-property-required {
+  margin-right: 0.25rem;
+  color: theme.$dark-error-color;
+  font-weight: 700;
+
+  @media (prefers-color-scheme: light) {
+    color: theme.$light-error-color;
+  }
+}
+
+.resource-property-type {
+  margin-left: 0.25rem;
+  color: theme.$dark-secondary-color;
+
+  @media (prefers-color-scheme: light) {
+    color: theme.$light-secondary-color;
+  }
+}
+
+.resource-property-max-length {
+  margin-left: 0.25rem;
+  color: theme.$dark-secondary-color;
+  opacity: 0.72;
+
+  @media (prefers-color-scheme: light) {
+    color: theme.$light-secondary-color;
+  }
+}
+
+.resource-property-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+@media (min-width: 720px) {
+  .resource-property-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1120px) {
+  .resource-property-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}

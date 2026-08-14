@@ -1,6 +1,9 @@
 import { ResCategory } from '../entity/res-category.model';
 import { Resource } from '../entity/resource.model';
 
+/**
+ * 资源分组配置。
+ */
 export interface ResGroup {
   /** id */
   id: string;
@@ -12,18 +15,18 @@ export interface ResGroup {
   isDeleted: boolean;
   /** tenantId */
   tenantId: string;
-  /** name */
+  /** 分组名称。 */
   name: string;
-  /** description */
+  /** 分组描述。 */
   description?: string | null;
-  /** icon */
+  /** Material Icons 图标名称，以字符串形式持久化。 */
   icon?: string | null;
-  /** color */
+  /** 显示颜色，例如 CSS 十六进制颜色值。 */
   color: string;
-  /** categoryId */
+  /** 所属分类 ID。 */
   categoryId: string;
-  /** category */
+  /** 资源分类配置。 */
   category: ResCategory;
-  /** resources */
+  /** 属于此分组的资源。 */
   resources: Resource[];
 }

@@ -10,18 +10,18 @@ public class InitResourceModService(
     ILogger<InitResourceModService> logger
 ) : BackgroundService
 {
-    private static readonly (string Name, string Color)[] DefaultEnvironments =
+    private static readonly (string Name, string Color, string Icon)[] DefaultEnvironments =
     [
-        ("Development", "#4caf50"),
-        ("Test", "#2196f3"),
-        ("Production", "#f44336")
+        ("Development", "#4caf50", "code"),
+        ("Test", "#2196f3", "science"),
+        ("Production", "#f44336", "public")
     ];
 
-    private static readonly (string Name, string Color)[] DefaultTags =
+    private static readonly (string Name, string Color, string Icon)[] DefaultTags =
     [
-        ("Mac", "#9e9e9e"),
-        ("Linux", "#ff9800"),
-        ("Windows", "#673ab7")
+        ("Mac", "#9e9e9e", "desktop_mac"),
+        ("Linux", "#ff9800", "terminal"),
+        ("Windows", "#673ab7", "desktop_windows")
     ];
 
     private static readonly (string Name, ResValueType ValueType)[] DefaultProperties =
@@ -41,11 +41,11 @@ public class InitResourceModService(
         ("IconUrl", ResValueType.Uri)
     ];
 
-    private static readonly (string Name, string[] Properties)[] DefaultDefinitions =
+    private static readonly (string Name, string Icon, string[] Properties)[] DefaultDefinitions =
     [
-        ("网站", ["名称", "Url", "IconUrl", "描述", "用户名", "密码"]),
-        ("服务器", ["名称", "IP", "Port", "用户名", "密码"]),
-        ("数据库", ["名称", "IP", "Url", "Port", "用户名", "密码"])
+        ("网站", "web", ["名称", "Url", "IconUrl", "描述", "用户名", "密码"]),
+        ("服务器", "dns", ["名称", "IP", "Port", "用户名", "密码"]),
+        ("数据库", "database", ["名称", "IP", "Url", "Port", "用户名", "密码"])
     ];
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -79,21 +79,27 @@ public class InitResourceModService(
         Guid tenantId,
         CancellationToken cancellationToken)
     {
-        List<string> existingNames = await context.ResEnvironments
+        List<ResEnvironment> existingEnvironments = await context.ResEnvironments
             .Where(environment => environment.TenantId == tenantId)
-            .Select(environment => environment.Name)
             .ToListAsync(cancellationToken);
 
-        foreach ((string name, string color) in DefaultEnvironments)
+        foreach ((string name, string color, string icon) in DefaultEnvironments)
         {
-            if (existingNames.Contains(name, StringComparer.Ordinal))
+            ResEnvironment? existing = existingEnvironments.FirstOrDefault(environment =>
+                string.Equals(environment.Name, name, StringComparison.Ordinal));
+            if (existing != null)
             {
+                if (string.IsNullOrWhiteSpace(existing.Icon))
+                {
+                    existing.Icon = icon;
+                }
                 continue;
             }
 
             context.ResEnvironments.Add(new ResEnvironment
             {
                 Name = name,
+                Icon = icon,
                 Color = color,
                 TenantId = tenantId
             });
@@ -105,10 +111,14 @@ public class InitResourceModService(
         Guid tenantId,
         CancellationToken cancellationToken)
     {
-        bool exists = await context.ResCategories.AnyAsync(category =>
+        ResCategory? existing = await context.ResCategories.FirstOrDefaultAsync(category =>
             category.TenantId == tenantId && category.CatalogCode == "Default", cancellationToken);
-        if (exists)
+        if (existing != null)
         {
+            if (string.IsNullOrWhiteSpace(existing.Icon))
+            {
+                existing.Icon = "category";
+            }
             return;
         }
 
@@ -127,21 +137,27 @@ public class InitResourceModService(
         Guid tenantId,
         CancellationToken cancellationToken)
     {
-        List<string> existingNames = await context.ResTags
+        List<ResTag> existingTags = await context.ResTags
             .Where(tag => tag.TenantId == tenantId)
-            .Select(tag => tag.Name)
             .ToListAsync(cancellationToken);
 
-        foreach ((string name, string color) in DefaultTags)
+        foreach ((string name, string color, string icon) in DefaultTags)
         {
-            if (existingNames.Contains(name, StringComparer.Ordinal))
+            ResTag? existing = existingTags.FirstOrDefault(tag =>
+                string.Equals(tag.Name, name, StringComparison.Ordinal));
+            if (existing != null)
             {
+                if (string.IsNullOrWhiteSpace(existing.Icon))
+                {
+                    existing.Icon = icon;
+                }
                 continue;
             }
 
             context.ResTags.Add(new ResTag
             {
                 Name = name,
+                Icon = icon,
                 Color = color,
                 TenantId = tenantId
             });
@@ -153,11 +169,22 @@ public class InitResourceModService(
         Guid tenantId,
         CancellationToken cancellationToken)
     {
-        bool hasDefinitions = await context.ResDefinitions.AnyAsync(definition =>
-            definition.TenantId == tenantId, cancellationToken);
+        List<ResDefinition> existingDefinitions = await context.ResDefinitions
+            .Where(definition => definition.TenantId == tenantId)
+            .ToListAsync(cancellationToken);
+        foreach ((string name, string icon, _) in DefaultDefinitions)
+        {
+            ResDefinition? existing = existingDefinitions.FirstOrDefault(definition =>
+                string.Equals(definition.Name, name, StringComparison.Ordinal));
+            if (existing != null && string.IsNullOrWhiteSpace(existing.Icon))
+            {
+                existing.Icon = icon;
+            }
+        }
+
         bool hasProperties = await context.ResDefinitionProperties.AnyAsync(property =>
             property.TenantId == tenantId, cancellationToken);
-        if (hasDefinitions || hasProperties)
+        if (existingDefinitions.Count != 0 || hasProperties)
         {
             return;
         }
@@ -178,11 +205,12 @@ public class InitResourceModService(
 
         List<ResDefinition> definitions = [];
         List<ResDefinitionPropertyMap> maps = [];
-        foreach ((string name, string[] propertyNames) in DefaultDefinitions)
+        foreach ((string name, string icon, string[] propertyNames) in DefaultDefinitions)
         {
             ResDefinition definition = new()
             {
                 Name = name,
+                Icon = icon,
                 TenantId = tenantId
             };
             definitions.Add(definition);

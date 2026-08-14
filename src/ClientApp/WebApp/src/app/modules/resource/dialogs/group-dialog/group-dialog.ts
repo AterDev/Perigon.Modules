@@ -5,7 +5,7 @@ import { CommonFormModules } from '../../../share/shared-modules';
 import { I18N_KEYS } from '../../../share/i18n-keys';
 import { ResCategory } from '../../../../services/admin/models/entity/res-category.model';
 import { ResGroup } from '../../../../services/admin/models/entity/res-group.model';
-import { ResGroupInput } from '../../../../services/admin/models/resource-mod/res-group-input.model';
+import { ResGroupAddDto } from '../../../../services/admin/models/resource-mod/res-group-add-dto.model';
 import { RESOURCE_DEFAULT_COLOR } from '../../shared/resource-appearance';
 import { ResourceColorPickerComponent } from '../../shared/color-picker/color-picker';
 import { ResourceIconPickerComponent } from '../../shared/icon-picker/icon-picker';
@@ -62,7 +62,7 @@ export class ResourceGroupDialogComponent {
     }
 
     const value = this.form.getRawValue();
-    const result: ResGroupInput = {
+    const result: ResGroupAddDto = {
       name: value.name.trim(),
       description: value.description.trim() || null,
       categoryId: value.categoryId,

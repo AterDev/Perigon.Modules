@@ -1,6 +1,9 @@
 import { ResDefinitionProperty } from '../entity/res-definition-property.model';
 import { Resource } from '../entity/resource.model';
 
+/**
+ * 资源属性定义配置。
+ */
 export interface ResDefinition {
   /** id */
   id: string;
@@ -12,12 +15,12 @@ export interface ResDefinition {
   isDeleted: boolean;
   /** tenantId */
   tenantId: string;
-  /** name */
+  /** 资源定义名称。 */
   name: string;
-  /** icon */
+  /** Material Icons 图标名称，以字符串形式持久化。 */
   icon?: string | null;
-  /** properties */
+  /** 定义包含的属性。由管理器按关联排序后填充，用于 API 响应。 */
   properties: ResDefinitionProperty[];
-  /** resources */
+  /** 使用此定义的资源。 */
   resources: Resource[];
 }
