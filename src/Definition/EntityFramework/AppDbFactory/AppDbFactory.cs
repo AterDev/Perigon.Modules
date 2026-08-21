@@ -7,14 +7,12 @@ using Perigon.AspNetCore.Services;
 namespace EntityFramework.AppDbFactory;
 
 /// <summary>
-/// factory for create TenantDbContext
+/// Factory for creating tenant-aware database contexts.
 /// </summary>
 /// <param name="cache"></param>
 /// <param name="configuration"></param>
 public class AppDbFactory(IOptions<ComponentOption> options, CacheService cache, IConfiguration configuration)
 {
-    public bool IsMultiTenant => options.Value.IsMultiTenant;
-
     public DefaultDbContext CreateDbContext(Guid? tenantId)
     {
         var (connectionString, _) = GetConnectionStrings(tenantId);
@@ -29,7 +27,9 @@ public class AppDbFactory(IOptions<ComponentOption> options, CacheService cache,
                 builder.UseSqlServer(connectionString);
                 break;
         }
-        return new DefaultDbContext(builder.Options);
+        var context = new DefaultDbContext(builder.Options);
+        context.SetTenantId(tenantId);
+        return context;
     }
 
     public Task<DefaultDbContext> CreateDbContextAsync(Guid? tenantId = null)
@@ -50,7 +50,9 @@ public class AppDbFactory(IOptions<ComponentOption> options, CacheService cache,
                 builder.UseSqlServer(analysisConnectionString);
                 break;
         }
-        return new AnalysisDbContext(builder.Options);
+        var context = new AnalysisDbContext(builder.Options);
+        context.SetTenantId(tenantId);
+        return context;
     }
 
     public Task<AnalysisDbContext> CreateAnalysisDbContextAsync(Guid? tenantId = null)
@@ -65,7 +67,7 @@ public class AppDbFactory(IOptions<ComponentOption> options, CacheService cache,
         var defaultAnalysisConnectionString = configuration.GetConnectionString(AppConst.Analysis)
             ?? defaultConnectionString;
 
-        if (!IsMultiTenant || !tenantId.HasValue || tenantId.Value == Guid.Empty)
+        if (!tenantId.HasValue || tenantId.Value == Guid.Empty)
         {
             return (defaultConnectionString, defaultAnalysisConnectionString);
         }

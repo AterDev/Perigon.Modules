@@ -1,6 +1,8 @@
 using EntityFramework.AppDbFactory;
+using Entity;
 using Share.Models.Auth;
 using System.Security.Claims;
+using System.Text.Json;
 using System.Text.RegularExpressions;
 using SystemMod.Models.SystemUserDtos;
 
@@ -10,19 +12,27 @@ public class SystemUserManager(
     AppDbFactory dbContextFactory,
     CacheService cache,
     JwtService jwtService,
-    SystemConfigManager systemConfig,
     SystemLogService logService,
     ILogger<SystemUserManager> logger,
     IUserContext userContext,
     Localizer localizer,
-    SystemUserRoleManager userRoleManager
-) : ManagerBase<DefaultDbContext, SystemUser>(dbContextFactory, userContext, logger)
+    IConfiguration configuration,
+    IServiceProvider serviceProvider
+) : ManagerBase<DefaultDbContext, SystemUser>(
+    dbContextFactory,
+    userContext,
+    logger,
+    allowUnboundTenantContext: true
+)
 {
-    private readonly SystemConfigManager _systemConfig = systemConfig;
     private readonly CacheService _cache = cache;
     private readonly SystemLogService _logService = logService;
     private readonly Localizer _localizer = localizer;
-    private readonly SystemUserRoleManager _userRoleManager = userRoleManager;
+    private readonly IConfiguration _configuration = configuration;
+    private readonly IServiceProvider _serviceProvider = serviceProvider;
+
+    private SystemUserRoleManager UserRoleManager =>
+        _serviceProvider.GetRequiredService<SystemUserRoleManager>();
 
     /// <summary>
     /// 获取验证码
@@ -206,6 +216,7 @@ public class SystemUserManager(
     /// <returns></returns>
     public async Task<bool> IsExistAsync(string email)
     {
+        await ResolveTenantAsync(email);
         return await Queryable.AnyAsync(q => q.Email == email);
     }
 
@@ -238,7 +249,7 @@ public class SystemUserManager(
     /// <returns></returns>
     public async Task<bool> ValidatePasswordAsync(string password)
     {
-        var loginPolicy = await _systemConfig.GetLoginSecurityPolicyAsync();
+        var loginPolicy = await GetLoginSecurityPolicyAsync();
         // 密码复杂度校验
         var pwdReg = loginPolicy.PasswordLevel switch
         {
@@ -266,13 +277,7 @@ public class SystemUserManager(
 
     public async Task<AccessTokenDto> LoginAsync(SystemLoginDto dto, string client)
     {
-        var domain = dto.Email.Split("@").Last();
-        var tenant =
-            await _dbContext.Tenants.Where(t => t.Domain == domain).FirstOrDefaultAsync()
-            ?? throw new BusinessException(Localizer.TenantNotExist);
-
-        _userContext.TenantId = tenant.Id;
-        _userContext.TenantType = tenant.Type.ToString();
+        var tenant = await ResolveTenantAsync(dto.Email);
 
         // 查询用户
         var user = await _dbSet
@@ -281,7 +286,7 @@ public class SystemUserManager(
             .FirstOrDefaultAsync() ?? throw new BusinessException(Localizer.UserNotExists);
         try
         {
-            var loginPolicy = await _systemConfig.GetLoginSecurityPolicyAsync();
+            var loginPolicy = await GetLoginSecurityPolicyAsync();
             await ValidateLoginAsync(dto, user, loginPolicy);
 
             // 验证成功，生成token
@@ -348,7 +353,7 @@ public class SystemUserManager(
             if (roles != null && roles.Count > 0)
             {
                 var roleIds = roles.Select(r => r.Id).ToList();
-                await _userRoleManager.SetUserRolesAsync(entity.Id, roleIds);
+                await UserRoleManager.SetUserRolesAsync(entity.Id, roleIds);
             }
 
             return entity;
@@ -405,7 +410,7 @@ public class SystemUserManager(
             if (roles != null)
             {
                 var roleIds = roles.Select(r => r.Id).ToList();
-                await _userRoleManager.SetUserRolesAsync(current.Id, roleIds);
+                await UserRoleManager.SetUserRolesAsync(current.Id, roleIds);
             }
 
             return current;
@@ -427,5 +432,41 @@ public class SystemUserManager(
     {
         var query = _dbSet.Where(q => q.Id == id && q.TenantId == _userContext.TenantId);
         return await query.AnyAsync();
+    }
+
+    private async Task<Tenant> ResolveTenantAsync(string email)
+    {
+        var domain = email.Split("@").Last();
+        var tenant = await _dbContext.Tenants
+            .Where(t => t.Domain == domain && !t.Disabled)
+            .FirstOrDefaultAsync()
+            ?? throw new BusinessException(Localizer.TenantNotExist);
+
+        _dbContext.SetTenantId(tenant.Id);
+        _userContext.TenantId = tenant.Id;
+        _userContext.TenantType = tenant.Type.ToString();
+        _cache.SetMemory(
+            $"{WebConst.TenantId}__{tenant.Id}",
+            tenant,
+            TimeSpan.FromDays(1)
+        );
+        return tenant;
+    }
+
+    private async Task<LoginSecurityPolicyOption> GetLoginSecurityPolicyAsync()
+    {
+        var configString = await _cache.GetValueAsync<string>(
+            SystemConfigManager.GetLoginSecurityPolicyCacheKey(_userContext.TenantId)
+        );
+        if (configString is not null)
+        {
+            return JsonSerializer.Deserialize<LoginSecurityPolicyOption>(configString)
+                ?? new LoginSecurityPolicyOption();
+        }
+
+        return _configuration
+                .GetSection(LoginSecurityPolicyOption.ConfigPath)
+                .Get<LoginSecurityPolicyOption>()
+            ?? new LoginSecurityPolicyOption();
     }
 }

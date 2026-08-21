@@ -1,4 +1,5 @@
 using System.Reflection;
+using EntityFramework.AppDbFactory;
 using Perigon.AspNetCore.Attributes;
 using Microsoft.Extensions.Hosting;
 
@@ -56,7 +57,9 @@ public class SystemLogTaskHostedService(
     private async Task InsertLogsAsync(List<SystemLogs> logs, CancellationToken stoppingToken)
     {
         using IServiceScope scope = _serviceProvider.CreateScope();
-        var context = scope.ServiceProvider.GetRequiredService<DefaultDbContext>();
+        var catalogContext = scope.ServiceProvider.GetRequiredService<DefaultDbContext>();
+        var dbContextFactory = scope.ServiceProvider.GetRequiredService<AppDbFactory>();
+        var cache = scope.ServiceProvider.GetRequiredService<CacheService>();
 
         foreach (var log in logs)
         {
@@ -85,24 +88,54 @@ public class SystemLogTaskHostedService(
             }
         }
 
-        try
+        foreach (var tenantLogs in logs.GroupBy(log => log.TenantId))
         {
-            context.AddRange(logs);
-            await context.SaveChangesAsync(stoppingToken);
-            foreach (var log in logs)
+            if (tenantLogs.Key == Guid.Empty)
             {
-                _logger.LogInformation(
-                    "✍️ New Log:[{object}] {actionUser} {action} {name}",
-                    log.Description,
-                    log.ActionUserName,
-                    log.ActionType,
-                    log.TargetName
+                _logger.LogWarning("Skip {Count} system logs without a TenantId", tenantLogs.Count());
+                continue;
+            }
+
+            try
+            {
+                var tenant = await catalogContext.Tenants
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync(t => t.Id == tenantLogs.Key, stoppingToken);
+                if (tenant is null)
+                {
+                    _logger.LogWarning("Skip logs for unknown tenant {TenantId}", tenantLogs.Key);
+                    continue;
+                }
+
+                cache.SetMemory(
+                    $"{WebConst.TenantId}__{tenant.Id}",
+                    tenant,
+                    TimeSpan.FromDays(1)
+                );
+                await using var context = dbContextFactory.CreateDbContext(tenantLogs.Key);
+                var tenantLogList = tenantLogs.ToList();
+                context.AddRange(tenantLogList);
+                await context.SaveChangesAsync(stoppingToken);
+                foreach (var log in tenantLogList)
+                {
+                    _logger.LogInformation(
+                        "✍️ New Log:[{object}] {actionUser} {action} {name}",
+                        log.Description,
+                        log.ActionUserName,
+                        log.ActionType,
+                        log.TargetName
+                    );
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(
+                    ex,
+                    "Error occurred executing batch logs for tenant {TenantId}. Count: {count}",
+                    tenantLogs.Key,
+                    tenantLogs.Count()
                 );
             }
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error occurred executing batch logs. Count: {count}", logs.Count);
         }
     }
 

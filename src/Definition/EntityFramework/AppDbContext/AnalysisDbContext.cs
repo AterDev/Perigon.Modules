@@ -1,11 +1,11 @@
 ﻿namespace EntityFramework.AppDbContext;
 
 /// <summary>
-///  analysis-related readonly data access.
+/// Analysis-related read/write data access.
 /// </summary>
 /// <param name="options">The options to be used by the context. Must not be null.</param>
 public class AnalysisDbContext(DbContextOptions<AnalysisDbContext> options)
-    : ReadonlyDbContext(options)
+    : ContextBase(options)
 {
     protected override void OnModelCreating(ModelBuilder builder)
     {

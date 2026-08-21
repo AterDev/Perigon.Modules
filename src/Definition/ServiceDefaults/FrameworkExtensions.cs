@@ -1,5 +1,6 @@
 using EntityFramework.AppDbFactory;
 using Mapster;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Caching.Hybrid;
 using Microsoft.Extensions.Logging;
@@ -23,6 +24,7 @@ public static class FrameworkExtensions
 
             builder.Services.AddHttpContextAccessor();
             builder.Services.AddScoped<IUserContext, UserContext>();
+            builder.Services.AddTransient<IClaimsTransformation, LocalUserClaimsTransformation>();
 
             var components = builder.Configuration.GetSection(ComponentOption.ConfigPath)
                 .Get<ComponentOption>() ?? new ComponentOption();
@@ -81,11 +83,17 @@ public static class FrameworkExtensions
             switch (components.Database)
             {
                 case DatabaseType.SqlServer:
-                    builder.AddSqlServerDbContext<DefaultDbContext>(AppConst.Default);
+                    builder.AddSqlServerDbContext<DefaultDbContext>(
+                        AppConst.Default,
+                        configureDbContextOptions: options => options.UseDefaultDbContextSeeding()
+                    );
                     break;
 
                 case DatabaseType.PostgreSql:
-                    builder.AddNpgsqlDbContext<DefaultDbContext>(AppConst.Default);
+                    builder.AddNpgsqlDbContext<DefaultDbContext>(
+                        AppConst.Default,
+                        configureDbContextOptions: options => options.UseDefaultDbContextSeeding()
+                    );
                     break;
             }
             return builder;

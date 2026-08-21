@@ -1,54 +1,55 @@
-# 生成迁移脚本
-# 参数
+# 生成 EF Core 迁移
 param (
     [Parameter()]
-    [string]
-    $Name = $null,
+    [string] $Name = $null,
     [Parameter()]
-    [string]
-    $DatabaseType = "PostgreSQL"
+    [string] $DatabaseType = "PostgreSQL"
 )
 
-dotnet tool restore
-# 从 appsettings.Development.json 读取数据库类型
-$appSettingsPath = "../src/AppHost/appsettings.Development.json"
-$IsMultiTenant = $true
+$scriptRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
+$repoRoot = [System.IO.Path]::GetFullPath((Join-Path $scriptRoot ".."))
+$appSettingsPath = Join-Path $repoRoot "src\AppHost\appsettings.Development.json"
+$adminServicePath = Join-Path $repoRoot "src\Services\AdminService"
+$adminServiceProjectPath = Join-Path $adminServicePath "AdminService.csproj"
+$entityFrameworkProjectPath = Join-Path $repoRoot "src\Definition\EntityFramework\EntityFramework.csproj"
 
+$toolManifestPath = @(
+    (Join-Path $repoRoot ".config\dotnet-tools.json"),
+    (Join-Path $repoRoot "dotnet-tools.json")
+) | Where-Object { Test-Path $_ } | Select-Object -First 1
+
+if ($toolManifestPath) {
+    Push-Location $repoRoot
+    try { dotnet tool restore } finally { Pop-Location }
+}
+
+$isMultiTenant = $true
 if (Test-Path $appSettingsPath) {
     try {
         $config = Get-Content $appSettingsPath | ConvertFrom-Json
-        if ($null -ne $config.Components.Database) {
-            $DatabaseType = $config.Components.Database
-            Write-Host "✅ Database type from appsettings: $DatabaseType"
-        }
-        if ($null -ne $config.Components.IsMultiTenant) {
-            $IsMultiTenant = $config.Components.IsMultiTenant
-            Write-Host "✅ IsMultiTenant from appsettings: $IsMultiTenant"
-        }
+        if ($null -ne $config.Components.Database) { $DatabaseType = $config.Components.Database }
+        if ($null -ne $config.Components.IsMultiTenant) { $isMultiTenant = $config.Components.IsMultiTenant }
     }
     catch {
-        Write-Warning "Failed to read or parse $appSettingsPath. Using default database type: $DatabaseType"
+        Write-Warning "Failed to read $appSettingsPath. Using default database type: $DatabaseType"
     }
 }
 
 $env:Components__Database = $DatabaseType
-Write-Host "✅ Set environment variable 'Components__Database' to '$DatabaseType' for this session."
+$env:Components__IsMultiTenant = $isMultiTenant
 
-$env:Components__IsMultiTenant = $IsMultiTenant
-Write-Host "✅ Set environment variable 'Components__IsMultiTenant' to '$IsMultiTenant' for this session."
+if (-not (Test-Path $adminServiceProjectPath)) { throw "AdminService project not found: $adminServiceProjectPath" }
+if (-not (Test-Path $entityFrameworkProjectPath)) { throw "EntityFramework project not found: $entityFrameworkProjectPath" }
 
-$location = Get-Location
-
-Set-Location ../src/Services/MigrationService
-if ([string]::IsNullOrWhiteSpace($Name)) {
-    $Name = [DateTime]::Now.ToString("yyyyMMdd-HHmmss")
+Push-Location $adminServicePath
+try {
+    if ([string]::IsNullOrWhiteSpace($Name)) { $Name = [DateTime]::Now.ToString("yyyyMMdd-HHmmss") }
+    dotnet build
+    if ($Name -eq "Remove") {
+        dotnet ef migrations remove -c DefaultDbContext --no-build --project $entityFrameworkProjectPath --startup-project $adminServiceProjectPath
+    }
+    else {
+        dotnet ef migrations add $Name -c DefaultDbContext --no-build --project $entityFrameworkProjectPath --startup-project $adminServiceProjectPath
+    }
 }
-dotnet build
-if ($Name -eq "Remove") {
-    dotnet ef migrations remove -c DefaultDbContext --no-build --project ../../Definition/EntityFramework
-}
-else {
-    dotnet ef migrations add $Name -c DefaultDbContext --no-build --project ../../Definition/EntityFramework 
-}
-
-Set-Location $location
+finally { Pop-Location }

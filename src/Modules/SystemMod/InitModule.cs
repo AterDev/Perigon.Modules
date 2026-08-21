@@ -1,96 +1,109 @@
 using System.Text.Json;
+using Entity;
+using EntityFramework.AppDbFactory;
+using SystemMod.Managers;
 
 namespace SystemMod;
 
 public class InitModule
 {
     /// <summary>
-    /// 模块初始化方法
+    /// Initializes module data with a context explicitly bound to each tenant.
     /// </summary>
-    /// <param name="provider"></param>
-    /// <returns></returns>
     public static async Task InitializeAsync(IServiceProvider provider)
     {
         var loggerFactory = provider.GetRequiredService<ILoggerFactory>();
-        var context = provider.GetRequiredService<DefaultDbContext>();
+        var catalogContext = provider.GetRequiredService<DefaultDbContext>();
+        var dbContextFactory = provider.GetRequiredService<AppDbFactory>();
         var logger = loggerFactory.CreateLogger<InitModule>();
         var configuration = provider.GetRequiredService<IConfiguration>();
         var cache = provider.GetRequiredService<CacheService>();
 
         try
         {
-            if (!await context.SystemUsers.AnyAsync())
+            var tenants = await catalogContext.Tenants
+                .AsNoTracking()
+                .ToListAsync();
+            if (tenants.Count == 0)
             {
-                logger.LogInformation("⛏️ Start init [System] Module");
-                await InitTenantAdminAccountAsync(context);
+                throw new InvalidOperationException("No tenant was found after database seeding.");
             }
 
-            if (!await context.SystemConfigs.AnyAsync())
+            foreach (var tenant in tenants)
             {
-                await InitConfigAsync(context, configuration, logger);
+                cache.SetMemory(
+                    $"{WebConst.TenantId}__{tenant.Id}",
+                    tenant,
+                    TimeSpan.FromDays(1)
+                );
+
+                await using var context = dbContextFactory.CreateDbContext(tenant.Id);
+                if (!await context.SystemUsers.AnyAsync())
+                {
+                    logger.LogInformation("⛏️ Start init [System] Module for tenant {TenantId}", tenant.Id);
+                    await InitTenantAdminAccountAsync(context, tenant);
+                }
+
+                if (!await context.SystemConfigs.AnyAsync())
+                {
+                    await InitConfigAsync(context, configuration, logger);
+                }
+
+                await InitCacheAsync(context, cache, tenant.Id, logger);
             }
 
-            logger.LogInformation("✅ Database check!");
-            await InitCacheAsync(context, cache, logger);
-            logger.LogInformation("✅ Cache check!");
+            logger.LogInformation("✅ Database and cache check completed for {TenantCount} tenants", tenants.Count);
         }
         catch (Exception ex)
         {
-            var conn = context.Database.GetConnectionString();
-            logger.LogError("Failed to initialize system configuration! {message}. ", ex.Message);
+            var conn = catalogContext.Database.GetConnectionString();
+            logger.LogError(ex, "Failed to initialize system configuration for {ConnectionString}", conn);
+            throw;
         }
     }
 
-    private static async Task InitTenantAdminAccountAsync(DefaultDbContext context)
+    private static async Task InitTenantAdminAccountAsync(
+        DefaultDbContext context,
+        Tenant tenant
+    )
     {
         var defaultPassword = "Perigon.2026";
-        var tenant = context.Tenants.FirstOrDefault();
-        var tenantId = tenant?.Id ?? Guid.Empty;
-        var domain = tenant?.Domain ?? "default.com";
-        var superRole = new SystemRole()
+        var superRole = new SystemRole
         {
             Name = WebConst.SuperAdmin,
             NameValue = WebConst.SuperAdmin,
-            TenantId = tenantId,
+            TenantId = tenant.Id,
         };
 
-        var adminRole = new SystemRole()
+        var adminRole = new SystemRole
         {
             Name = WebConst.AdminUser,
             NameValue = WebConst.AdminUser,
-            TenantId = tenantId,
+            TenantId = tenant.Id,
         };
         var salt = HashCrypto.BuildSalt();
-        var adminUser = new SystemUser()
+        var adminUser = new SystemUser
         {
             UserName = "admin",
-            Email = $"admin@{domain}",
+            Email = $"admin@{tenant.Domain}",
             PasswordSalt = salt,
             PasswordHash = HashCrypto.GeneratePwd(defaultPassword, salt),
             SystemRoles = [superRole, adminRole],
-            TenantId = tenantId,
+            TenantId = tenant.Id,
         };
 
         context.Add(adminUser);
         await context.SaveChangesAsync();
 
-        Console.WriteLine($"✨ Created admin for {domain} : {adminUser.Email}/{defaultPassword}");
+        Console.WriteLine($"✨ Created admin for {tenant.Domain} : {adminUser.Email}/{defaultPassword}");
     }
 
-    /// <summary>
-    /// 初始化配置
-    /// </summary>
-    /// <param name="context"></param>
-    /// <param name="configuration"></param>
-    /// <param name="logger"></param>
-    /// <returns></returns>
     private static async Task InitConfigAsync(
         DefaultDbContext context,
         IConfiguration configuration,
         ILogger logger
     )
     {
-        // 初始化配置信息
         var initConfig = SystemConfig.NewSystemConfig(
             WebConst.SystemGroup,
             WebConst.IsInit,
@@ -114,29 +127,28 @@ public class InitModule
         logger.LogInformation("写入登录安全策略成功");
     }
 
-    /// <summary>
-    /// 加载配置缓存
-    /// </summary>
-    /// <param name="context"></param>
-    /// <param name="cache"></param>
-    /// <param name="logger"></param>
-    /// <returns></returns>
     private static async Task InitCacheAsync(
         DefaultDbContext context,
         CacheService cache,
+        Guid tenantId,
         ILogger logger
     )
     {
-        logger.LogInformation("加载配置缓存");
-        var securityPolicy = context
-            .SystemConfigs.Where(c => c.Key.Equals(WebConst.LoginSecurityPolicy))
-            .Where(c => c.GroupName.Equals(WebConst.SystemGroup))
+        logger.LogInformation("加载租户 {TenantId} 配置缓存", tenantId);
+        var securityPolicy = await context
+            .SystemConfigs
+            .Where(c => c.Key == WebConst.LoginSecurityPolicy)
+            .Where(c => c.GroupName == WebConst.SystemGroup)
             .Select(c => c.Value)
-            .FirstOrDefault();
+            .FirstOrDefaultAsync();
 
         if (securityPolicy != null)
         {
-            await cache.SetValueAsync(WebConst.LoginSecurityPolicy, securityPolicy, null);
+            await cache.SetValueAsync(
+                SystemConfigManager.GetLoginSecurityPolicyCacheKey(tenantId),
+                securityPolicy,
+                null
+            );
         }
     }
 }

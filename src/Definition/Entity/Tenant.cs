@@ -5,7 +5,7 @@ namespace Entity;
 /// The tenant entity
 /// </summary>
 [Index(nameof(Domain), IsUnique = true)]
-public class Tenant : EntityBase
+public sealed class Tenant : EntityBase
 {
     [MaxLength(100)]
     public required string Name { get; set; }

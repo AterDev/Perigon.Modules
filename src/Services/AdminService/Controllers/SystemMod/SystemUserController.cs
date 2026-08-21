@@ -11,17 +11,19 @@ namespace AdminService.Controllers.SystemMod;
 /// </summary>
 public class SystemUserController(
         Localizer localizer,
-        SystemConfigManager systemConfig,
         CacheService cache,
-        SystemRoleManager roleManager,
         SystemUserManager manager,
         IUserContext user,
-        ILogger<SystemUserController> logger
+        ILogger<SystemUserController> logger,
+        IServiceProvider serviceProvider
 ) : RestControllerBase<SystemUserManager>(localizer, manager, user, logger)
 {
-    private readonly SystemConfigManager _systemConfig = systemConfig;
+    private readonly IServiceProvider _serviceProvider = serviceProvider;
     private readonly CacheService _cache = cache;
-    private readonly SystemRoleManager _roleManager = roleManager;
+    private SystemConfigManager SystemConfig =>
+        _serviceProvider.GetRequiredService<SystemConfigManager>();
+    private SystemRoleManager RoleManager =>
+        _serviceProvider.GetRequiredService<SystemRoleManager>();
 
     /// <summary>
     /// 登录时，发送邮箱验证码 ✅
@@ -97,8 +99,8 @@ public class SystemUserController(
         var permissionGroups = new List<SystemPermissionGroup>();
         if (user.SystemRoles != null)
         {
-            menus = await _roleManager.GetSystemMenusAsync([.. user.SystemRoles]);
-            permissionGroups = await _roleManager.GetPermissionGroupsAsync([.. user.SystemRoles]);
+            menus = await RoleManager.GetSystemMenusAsync([.. user.SystemRoles]);
+            permissionGroups = await RoleManager.GetPermissionGroupsAsync([.. user.SystemRoles]);
         }
 
         return new UserInfoDto
@@ -135,7 +137,7 @@ public class SystemUserController(
         }
         AccessTokenDto jwtToken = _manager.GenerateJwtToken(user);
         // 更新缓存
-        var loginPolicy = await _systemConfig.GetLoginSecurityPolicyAsync();
+        var loginPolicy = await SystemConfig.GetLoginSecurityPolicyAsync();
         var client = HttpContext.Request.Headers[WebConst.ClientHeader].FirstOrDefault() ?? WebConst.Web;
         if (loginPolicy.SessionLevel == SessionLevel.OnlyOne)
         {
@@ -189,7 +191,7 @@ public class SystemUserController(
         List<SystemRole>? roles = null;
         if (dto.RoleIds != null && dto.RoleIds.Count != 0)
         {
-            roles = await _roleManager.ListAsync(r => dto
+            roles = await RoleManager.ListAsync(r => dto
                 .RoleIds
                 .Contains(r.Id));
         }
@@ -214,7 +216,7 @@ public class SystemUserController(
         List<SystemRole>? roles = null;
         if (dto.RoleIds != null)
         {
-            roles = await _roleManager.ListAsync(r => dto
+            roles = await RoleManager.ListAsync(r => dto
                 .RoleIds
                 .Contains(r.Id));
         }

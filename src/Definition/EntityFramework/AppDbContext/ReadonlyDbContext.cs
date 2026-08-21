@@ -18,12 +18,25 @@ public abstract class ReadonlyDbContext : ContextBase
         base.OnConfiguring(optionsBuilder);
     }
 
+    public override int SaveChanges()
+    {
+        throw new InvalidOperationException("read-only context can't save data");
+    }
+
+    public override int SaveChanges(bool acceptAllChangesOnSuccess)
+    {
+        throw new InvalidOperationException("read-only context can't save data");
+    }
+
     public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {
         throw new InvalidOperationException("read-only context can't save data");
     }
 
-    public override int SaveChanges()
+    public override Task<int> SaveChangesAsync(
+        bool acceptAllChangesOnSuccess,
+        CancellationToken cancellationToken = default
+    )
     {
         throw new InvalidOperationException("read-only context can't save data");
     }

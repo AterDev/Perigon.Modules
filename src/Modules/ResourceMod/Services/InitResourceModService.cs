@@ -1,4 +1,7 @@
 using Microsoft.Extensions.Hosting;
+using EntityFramework.AppDbFactory;
+using Perigon.AspNetCore.Constants;
+using Perigon.AspNetCore.Services;
 
 namespace ResourceMod.Services;
 
@@ -53,19 +56,28 @@ public class InitResourceModService(
         try
         {
             using IServiceScope scope = serviceProvider.CreateScope();
-            DefaultDbContext context = scope.ServiceProvider.GetRequiredService<DefaultDbContext>();
-            List<Guid> tenantIds = await context.Tenants
-                .Select(t => t.Id)
+            DefaultDbContext catalogContext = scope.ServiceProvider.GetRequiredService<DefaultDbContext>();
+            AppDbFactory dbContextFactory = scope.ServiceProvider.GetRequiredService<AppDbFactory>();
+            CacheService cache = scope.ServiceProvider.GetRequiredService<CacheService>();
+            List<Tenant> tenants = await catalogContext.Tenants
+                .AsNoTracking()
                 .ToListAsync(stoppingToken);
-            foreach (Guid tenantId in tenantIds)
+            foreach (Tenant tenant in tenants)
             {
+                Guid tenantId = tenant.Id;
+                cache.SetMemory(
+                    $"{WebConst.TenantId}__{tenantId}",
+                    tenant,
+                    TimeSpan.FromDays(1)
+                );
+                await using DefaultDbContext context = dbContextFactory.CreateDbContext(tenantId);
                 await InitializeEnvironmentsAsync(context, tenantId, stoppingToken);
                 await InitializeCategoryAsync(context, tenantId, stoppingToken);
                 await InitializeTagsAsync(context, tenantId, stoppingToken);
                 await InitializeDefinitionsAsync(context, tenantId, stoppingToken);
+                await context.SaveChangesAsync(stoppingToken);
             }
-            await context.SaveChangesAsync(stoppingToken);
-            logger.LogInformation("ResourceMod initialized for {TenantCount} tenants", tenantIds.Count);
+            logger.LogInformation("ResourceMod initialized for {TenantCount} tenants", tenants.Count);
         }
         catch (Exception ex)
         {

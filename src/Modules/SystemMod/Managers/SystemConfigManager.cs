@@ -57,7 +57,9 @@ public class SystemConfigManager(
     {
         // 优先级：缓存>配置文件
         var policy = new LoginSecurityPolicyOption();
-        var configString = await _cache.GetValueAsync<string>(WebConst.LoginSecurityPolicy);
+        var configString = await _cache.GetValueAsync<string>(
+            GetLoginSecurityPolicyCacheKey(_userContext.TenantId)
+        );
         if (configString != null)
         {
             policy = JsonSerializer.Deserialize<LoginSecurityPolicyOption>(configString);
@@ -71,6 +73,11 @@ public class SystemConfigManager(
             }
         }
         return policy ?? new LoginSecurityPolicyOption();
+    }
+
+    public static string GetLoginSecurityPolicyCacheKey(Guid tenantId)
+    {
+        return $"{WebConst.LoginSecurityPolicy}__{tenantId}";
     }
 
     /// <summary>

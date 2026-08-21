@@ -9,12 +9,14 @@
 
 	<ItemGroup>
 		<PackageReference Include="Aspire.Hosting.Testing" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" />
 		<PackageReference Include="TUnit" />
 	</ItemGroup>
 
 	<ItemGroup>
 	  <ProjectReference Include="..\..\src\AppHost\AppHost.csproj" />
 	  <ProjectReference Include="..\..\src\Services\AdminService\AdminService.csproj" />
+	  <ProjectReference Include="..\..\src\Definition\EntityFramework\EntityFramework.csproj" IsAspireProjectResource="false" />
 	</ItemGroup>
 
 	<ItemGroup>

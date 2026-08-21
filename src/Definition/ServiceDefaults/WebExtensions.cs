@@ -86,6 +86,7 @@ public static class WebExtensions
         //app.UseMiddleware<JwtMiddleware>();
         app.UseMiddleware<GlobalExceptionMiddleware>();
         app.UseAuthentication();
+        app.UseMiddleware<TenantResolutionMiddleware>();
         app.UseAuthorization();
         app.MapControllers();
         return app;

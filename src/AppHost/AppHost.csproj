@@ -1,5 +1,6 @@
-<Project Sdk="Aspire.AppHost.Sdk/13.4.6">
+<Project Sdk="Aspire.AppHost.Sdk/13.5.0">
     <PropertyGroup>
+        <AspireUseCliBundle>true</AspireUseCliBundle>
         <OutputType>Exe</OutputType>
         <TargetFramework>net10.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
@@ -13,12 +14,14 @@
         <PackageReference Include="Aspire.Hosting.Redis" />
         <PackageReference Include="Aspire.Hosting.SqlServer" />
         <PackageReference Include="Aspire.Hosting.PostgreSQL" />
+        <PackageReference Include="Aspire.Hosting.EntityFrameworkCore" />
+        <PackageReference Include="Aspire.Hosting.Kubernetes" />
     </ItemGroup>
     <ItemGroup>
         <ProjectReference Include="..\Perigon\Perigon.AspNetCore\Perigon.AspNetCore.csproj" IsAspireProjectResource="false" />
         <ProjectReference Include="..\Services\AdminService\AdminService.csproj" />
         <ProjectReference Include="..\Services\ApiService\ApiService.csproj" />
-        <ProjectReference Include="..\Services\MigrationService\MigrationService.csproj" />
+        <ProjectReference Include="..\Definition\EntityFramework\EntityFramework.csproj" IsAspireProjectResource="false" />
     </ItemGroup>
 </Project>
 

@@ -4,7 +4,7 @@ using Microsoft.Extensions.Logging;
 using Perigon.AspNetCore.Abstraction;
 using Perigon.AspNetCore.Services;
 
-namespace Services.Middleware;
+namespace ServiceDefaults.Middleware;
 
 /// <summary>
 /// Middleware to resolve tenant metadata and cache it in memory.
@@ -34,8 +34,14 @@ public class TenantResolutionMiddleware
         {
             if (userContext.TenantId == Guid.Empty)
             {
-                _logger.LogDebug("Skip tenant resolve because TenantId is empty");
-                await _next(context);
+                if (context.User.Identity?.IsAuthenticated != true)
+                {
+                    await _next(context);
+                    return;
+                }
+
+                _logger.LogWarning("Authenticated user has no TenantId claim");
+                context.Response.StatusCode = StatusCodes.Status403Forbidden;
                 return;
             }
 
@@ -46,7 +52,10 @@ public class TenantResolutionMiddleware
             {
                 tenant = await dbContext.Tenants
                     .AsNoTracking()
-                    .FirstOrDefaultAsync(t => t.TenantId == userContext.TenantId);
+                    .FirstOrDefaultAsync(
+                        t => t.Id == userContext.TenantId && !t.Disabled,
+                        context.RequestAborted
+                    );
 
                 if (tenant is not null)
                 {
@@ -62,16 +71,18 @@ public class TenantResolutionMiddleware
                 _logger.LogDebug("Tenant {TenantId} loaded from memory cache", userContext.TenantId);
             }
 
-            if (tenant is not null)
+            if (tenant is not null && (!tenant.Disabled && !tenant.IsDeleted))
             {
                 userContext.TenantType = tenant.Type.ToString();
             }
             else
             {
                 _logger.LogWarning(
-                    "Tenant {TenantId} not found; fallback to default connection strings",
+                    "Tenant {TenantId} not found; rejecting the authenticated request",
                     userContext.TenantId
                 );
+                context.Response.StatusCode = StatusCodes.Status403Forbidden;
+                return;
             }
         }
         catch (Exception ex)

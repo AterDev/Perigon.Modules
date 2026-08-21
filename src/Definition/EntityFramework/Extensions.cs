@@ -7,7 +7,8 @@ public static class Extensions
         Guid id,
         TUpdateDto dto,
         bool updateUpdatedTime = true,
-        CancellationToken cancellationToken = default
+        CancellationToken cancellationToken = default,
+        Guid? tenantId = null
     )
         where TEntity : class, IEntityBase
         where TUpdateDto : class
@@ -18,7 +19,18 @@ public static class Extensions
         var keyProp = Expression.Property(eParam, nameof(EntityBase.Id));
         var idConst = Expression.Constant(id, typeof(Guid));
         var equal = Expression.Equal(keyProp, idConst);
-        var whereLambda = Expression.Lambda<Func<TEntity, bool>>(equal, eParam);
+        Expression whereExpression = equal;
+        if (tenantId.HasValue && typeof(ITenantEntityBase).IsAssignableFrom(typeof(TEntity)))
+        {
+            var tenantProp = Expression.Property(eParam, nameof(ITenantEntityBase.TenantId));
+            var tenantConst = Expression.Constant(tenantId.Value, typeof(Guid));
+            whereExpression = Expression.AndAlso(
+                whereExpression,
+                Expression.Equal(tenantProp, tenantConst)
+            );
+        }
+
+        var whereLambda = Expression.Lambda<Func<TEntity, bool>>(whereExpression, eParam);
 
         return await set.Where(whereLambda).ExecuteUpdateAsync(updater =>
         {
