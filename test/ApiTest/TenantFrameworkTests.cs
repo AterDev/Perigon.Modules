@@ -185,6 +185,45 @@ public sealed class TenantFrameworkTests
     }
 
     [Test]
+    public async Task TenantOwnership_WhenUpdatingAnotherTenantEntity_Throws()
+    {
+        var tenantA = Guid.CreateVersion7();
+        var tenantB = Guid.CreateVersion7();
+        await using var connection = new SqliteConnection("Data Source=:memory:");
+        await connection.OpenAsync();
+
+        TenantFrameworkTestEntity entity;
+        await using (var context = CreateConventionContext(connection, tenantA))
+        {
+            await context.Database.EnsureCreatedAsync();
+            entity = new TenantFrameworkTestEntity { Code = "tenant-a" };
+            context.Add(entity);
+            await context.SaveChangesAsync();
+            context.ChangeTracker.Clear();
+        }
+
+        await using (var context = CreateConventionContext(connection, tenantB))
+        {
+            entity.Code = "cross-tenant-update";
+            context.Attach(entity);
+            context.Entry(entity).State = EntityState.Modified;
+
+            Exception? exception = null;
+            try
+            {
+                await context.SaveChangesAsync();
+            }
+            catch (Exception caught)
+            {
+                exception = caught;
+            }
+
+            await Assert.That(exception).IsTypeOf<InvalidOperationException>();
+            await Assert.That(exception!.Message).Contains("does not belong to the current tenant");
+        }
+    }
+
+    [Test]
     public async Task TenantModel_ShouldIgnoreTenantIdAndKeepTenantVisibleToCatalogQueries()
     {
         await using var context = CreateContext();
