@@ -80,7 +80,7 @@ if (!string.Equals(builder.Environment.EnvironmentName, "Production", StringComp
             "frontend",
             "../ClientApp/WebApp",
             runScriptName: "start")
-        .WithPnpm()
+        .WithPnpm(installArgs: ["--frozen-lockfile"])
         .WithUrl("http://localhost:4200")
         .WithReference(adminService)
         .WaitFor(adminService)
