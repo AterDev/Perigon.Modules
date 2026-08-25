@@ -7,6 +7,8 @@ import { I18N_KEYS } from 'src/app/modules/share/i18n-keys';
 import { CommonListModules } from 'src/app/modules/share/shared-modules';
 import { AdminClient } from 'src/app/services/admin/admin-client';
 import { SystemPermissionItemDto } from 'src/app/services/admin/models/system-mod/system-permission-item-dto.model';
+import { SystemPermissionAddComponent } from 'src/app/modules/system/permission/add/add';
+import { SystemPermissionEditComponent } from 'src/app/modules/system/permission/edit/edit';
 
 @Component({
   selector: 'app-system-permission-index',
@@ -39,6 +41,33 @@ export class SystemPermissionIndexComponent {
           this.loading.set(false);
         },
         error: () => this.loading.set(false),
+      });
+  }
+
+  add(): void {
+    this.dialog
+      .open(SystemPermissionAddComponent, {
+        width: '620px',
+        maxWidth: '96vw',
+        maxHeight: '96vh',
+      })
+      .afterClosed()
+      .subscribe((result) => {
+        if (result?.saved) this.load();
+      });
+  }
+
+  edit(permission: SystemPermissionItemDto): void {
+    this.dialog
+      .open(SystemPermissionEditComponent, {
+        width: '620px',
+        maxWidth: '96vw',
+        maxHeight: '96vh',
+        data: { id: permission.id },
+      })
+      .afterClosed()
+      .subscribe((result) => {
+        if (result?.saved) this.load();
       });
   }
 

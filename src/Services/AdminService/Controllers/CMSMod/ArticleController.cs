@@ -1,5 +1,6 @@
 using CMSMod.Managers;
 using CMSMod.Models.ArticleDtos;
+using CMSMod.Services;
 using Entity.CMSMod;
 using Perigon.AspNetCore.Models;
 
@@ -9,7 +10,8 @@ public class ArticleController(
     Localizer localizer,
     IUserContext user,
     ILogger<ArticleManager> logger,
-    ArticleManager manager
+    ArticleManager manager,
+    ArticleImageStorageService imageStorage
 ) : RestControllerBase<ArticleManager>(localizer, manager, user, logger)
 {
     [HttpGet("list")]
@@ -24,6 +26,15 @@ public class ArticleController(
     {
         Article entity = await _manager.AddAsync(dto);
         return Created($"/api/Article/{entity.Id}", entity);
+    }
+
+    [HttpPost("images")]
+    [Consumes("multipart/form-data")]
+    public Task<ArticleImageUploadDto> UploadImageAsync(
+        IFormFile file,
+        CancellationToken cancellationToken)
+    {
+        return imageStorage.SaveAsync(file, cancellationToken);
     }
 
     [HttpGet("{id:guid}")]

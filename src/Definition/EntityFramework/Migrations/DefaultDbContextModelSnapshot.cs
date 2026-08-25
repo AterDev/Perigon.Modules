@@ -39,8 +39,8 @@ namespace EntityFramework.Migrations
 
                     b.Property<string>("Content")
                         .IsRequired()
-                        .HasMaxLength(10000)
-                        .HasColumnType("character varying(10000)");
+                        .HasMaxLength(200000)
+                        .HasColumnType("character varying(200000)");
 
                     b.Property<int>("ContentType")
                         .HasColumnType("integer");

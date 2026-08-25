@@ -1,3 +1,10 @@
 :host {
   display: block;
 }
+
+.dialog-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: min(440px, 78vw);
+}

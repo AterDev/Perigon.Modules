@@ -1,5 +1,5 @@
-import { PermissionType } from 'src/app/services/admin/models/entity/permission-type.model';
-import { SystemPermissionGroup } from 'src/app/services/admin/models/entity/system-permission-group.model';
+import { PermissionType } from '../entity/permission-type.model';
+import { SystemPermissionGroup } from '../entity/system-permission-group.model';
 
 /**
  * 权限

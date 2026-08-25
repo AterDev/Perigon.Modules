@@ -4,5 +4,10 @@
       "changeOrigin": true,
         "secure": false
   },
+  "/article/": {
+    "target": "https://localhost:17001",
+    "changeOrigin": true,
+    "secure": false
+  },
   "logLevel": "debug"
 }

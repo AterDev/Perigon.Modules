@@ -1,15 +1,15 @@
-import { BaseService } from 'src/app/services/admin/base.service';
+import { BaseService } from '../base.service';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { SystemLoginDto } from 'src/app/services/admin/models/system-mod/system-login-dto.model';
-import { AccessTokenDto } from 'src/app/services/admin/models/share/access-token-dto.model';
-import { UserInfoDto } from 'src/app/services/admin/models/system-mod/user-info-dto.model';
-import { PageList } from 'src/app/services/admin/models/perigon/page-list.model';
-import { SystemUserItemDto } from 'src/app/services/admin/models/system-mod/system-user-item-dto.model';
-import { SystemUserAddDto } from 'src/app/services/admin/models/system-mod/system-user-add-dto.model';
-import { SystemUser } from 'src/app/services/admin/models/entity/system-user.model';
-import { SystemUserUpdateDto } from 'src/app/services/admin/models/system-mod/system-user-update-dto.model';
-import { SystemUserDetailDto } from 'src/app/services/admin/models/system-mod/system-user-detail-dto.model';
+import { SystemLoginDto } from '../models/system-mod/system-login-dto.model';
+import { AccessTokenDto } from '../models/share/access-token-dto.model';
+import { UserInfoDto } from '../models/system-mod/user-info-dto.model';
+import { PageList } from '../models/perigon/page-list.model';
+import { SystemUserItemDto } from '../models/system-mod/system-user-item-dto.model';
+import { SystemUserAddDto } from '../models/system-mod/system-user-add-dto.model';
+import { SystemUser } from '../models/entity/system-user.model';
+import { SystemUserUpdateDto } from '../models/system-mod/system-user-update-dto.model';
+import { SystemUserDetailDto } from '../models/system-mod/system-user-detail-dto.model';
 /**
  * 系统用户
  */
@@ -19,16 +19,16 @@ export class SystemUserService extends BaseService {
    * 登录时，发送邮箱验证码 ✅
    * @param email
    */
-  sendVerifyCode(email: string | null): Observable<any> {
+  sendVerifyCode(email: string | null): Observable<void> {
     const _url = `/api/SystemUser/verifyCode?email=${email ?? ''}`;
-    return this.request<any>('post', _url);
+    return this.request<void>('post', _url);
   }
   /**
    * 获取图形验证码 ✅
    */
-  getCaptchaImage(): Observable<any> {
+  getCaptchaImage(): Observable<void> {
     const _url = `/api/SystemUser/captcha`;
-    return this.request<any>('get', _url);
+    return this.request<void>('get', _url);
   }
   /**
    * Get AccessToken ✅
@@ -102,9 +102,9 @@ export class SystemUserService extends BaseService {
    * ⚠删除 ✅
    * @param id
    */
-  delete(id: string): Observable<any> {
+  delete(id: string): Observable<void> {
     const _url = `/api/SystemUser/${id}`;
-    return this.request<any>('delete', _url);
+    return this.request<void>('delete', _url);
   }
   /**
    * 修改密码 ✅

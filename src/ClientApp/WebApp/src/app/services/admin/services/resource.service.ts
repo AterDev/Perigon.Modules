@@ -1,12 +1,12 @@
-import { BaseService } from 'src/app/services/admin/base.service';
+import { BaseService } from '../base.service';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { PageList } from 'src/app/services/admin/models/perigon/page-list.model';
-import { ResourceItemDto } from 'src/app/services/admin/models/resource-mod/resource-item-dto.model';
-import { ResourceDetailDto } from 'src/app/services/admin/models/resource-mod/resource-detail-dto.model';
-import { ResourceUpdateDto } from 'src/app/services/admin/models/resource-mod/resource-update-dto.model';
-import { ResourceAddDto } from 'src/app/services/admin/models/resource-mod/resource-add-dto.model';
-import { ResourceCreatedDto } from 'src/app/services/admin/models/resource-mod/resource-created-dto.model';
+import { PageList } from '../models/perigon/page-list.model';
+import { ResourceItemDto } from '../models/resource-mod/resource-item-dto.model';
+import { ResourceDetailDto } from '../models/resource-mod/resource-detail-dto.model';
+import { ResourceUpdateDto } from '../models/resource-mod/resource-update-dto.model';
+import { ResourceAddDto } from '../models/resource-mod/resource-add-dto.model';
+import { ResourceCreatedDto } from '../models/resource-mod/resource-created-dto.model';
 /**
  * 
  */
@@ -25,7 +25,7 @@ export class ResourceService extends BaseService {
    * @param orderBy Record<string, boolean>
    */
   list(environmentId: string | null, categoryId: string | null, groupId: string | null, definitionId: string | null, tagName: string | null, searchKey: string | null, pageIndex: number | null, pageSize: number | null, orderBy: Record<string, boolean> | null): Observable<PageList<ResourceItemDto>> {
-    const _url = `/api/Resource/list?environmentId=${environmentId ?? ''}&categoryId=${categoryId ?? ''}&groupId=${groupId ?? ''}&definitionId=${definitionId ?? ''}&tagName=${tagName ?? ''}&searchKey=${encodeURIComponent(searchKey ?? '')}&pageIndex=${pageIndex ?? ''}&pageSize=${pageSize ?? ''}&orderBy=${orderBy ?? ''}`;
+    const _url = `/api/Resource/list?environmentId=${environmentId ?? ''}&categoryId=${categoryId ?? ''}&groupId=${groupId ?? ''}&definitionId=${definitionId ?? ''}&tagName=${tagName ?? ''}&searchKey=${searchKey ?? ''}&pageIndex=${pageIndex ?? ''}&pageSize=${pageSize ?? ''}&orderBy=${orderBy ?? ''}`;
     return this.request<PageList<ResourceItemDto>>('get', _url);
   }
   /**

@@ -21,14 +21,8 @@ public class ArticleUpdateDto
     /// <summary>
     /// 内容
     /// </summary>
-    [MaxLength(10000)]
+    [MaxLength(200000)]
     public string Content { get; set; } = default!;
-
-    /// <summary>
-    /// 作者
-    /// </summary>
-    [MaxLength(200)]
-    public string Authors { get; set; } = default!;
 
     /// <summary>
     /// 标题
@@ -53,11 +47,6 @@ public class ArticleUpdateDto
     public ContentType? BlogType { get; set; }
 
     /// <summary>
-    /// 是否审核
-    /// </summary>
-    public bool? IsAudit { get; set; }
-
-    /// <summary>
     /// 是否公开
     /// </summary>
     public bool? IsPublic { get; set; }
@@ -66,11 +55,5 @@ public class ArticleUpdateDto
     /// 是否原创
     /// </summary>
     public bool? IsOriginal { get; set; }
-    public Guid? UserId { get; set; }
     public Guid? CatalogId { get; set; }
-
-    /// <summary>
-    /// 浏览量
-    /// </summary>
-    public int? ViewCount { get; set; }
 }

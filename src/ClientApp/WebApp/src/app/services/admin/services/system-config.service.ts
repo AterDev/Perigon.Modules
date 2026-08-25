@@ -1,14 +1,14 @@
-import { BaseService } from 'src/app/services/admin/base.service';
+import { BaseService } from '../base.service';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { SystemConfigFilterDto } from 'src/app/services/admin/models/system-mod/system-config-filter-dto.model';
-import { PageList } from 'src/app/services/admin/models/perigon/page-list.model';
-import { SystemConfigItemDto } from 'src/app/services/admin/models/system-mod/system-config-item-dto.model';
-import { EnumDictionary } from 'src/app/services/admin/models/perigon/enum-dictionary.model';
-import { SystemConfigAddDto } from 'src/app/services/admin/models/system-mod/system-config-add-dto.model';
-import { SystemConfig } from 'src/app/services/admin/models/entity/system-config.model';
-import { SystemConfigUpdateDto } from 'src/app/services/admin/models/system-mod/system-config-update-dto.model';
-import { SystemConfigDetailDto } from 'src/app/services/admin/models/system-mod/system-config-detail-dto.model';
+import { SystemConfigFilterDto } from '../models/system-mod/system-config-filter-dto.model';
+import { PageList } from '../models/perigon/page-list.model';
+import { SystemConfigItemDto } from '../models/system-mod/system-config-item-dto.model';
+import { EnumDictionary } from '../models/perigon/enum-dictionary.model';
+import { SystemConfigAddDto } from '../models/system-mod/system-config-add-dto.model';
+import { SystemConfig } from '../models/entity/system-config.model';
+import { SystemConfigUpdateDto } from '../models/system-mod/system-config-update-dto.model';
+import { SystemConfigDetailDto } from '../models/system-mod/system-config-detail-dto.model';
 /**
  * 系统配置
  */

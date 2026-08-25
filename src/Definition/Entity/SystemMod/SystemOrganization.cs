@@ -25,4 +25,3 @@ public class SystemOrganization : EntityBase, ITreeNode<SystemOrganization>
     public Guid? ParentId { get; set; }
     public ICollection<SystemUser> Users { get; set; } = [];
 }
-

@@ -70,9 +70,9 @@ export class ArticleIndexComponent {
     this.dialog
       .open(ConfirmDialogComponent, {
         data: {
-          title: this.translate.instant('common.confirmDelete'),
+          title: this.translate.instant(this.i18nKeys.common.confirmDelete),
           content:
-        this.translate.instant('cms.article.deleteConfirm', {
+        this.translate.instant(this.i18nKeys.cms.article.deleteConfirm, {
           title: item.title,
         }),
         },
@@ -82,8 +82,8 @@ export class ArticleIndexComponent {
         if (!confirmed) return;
         this.client.article.delete(item.id).subscribe(() => {
           this.snackBar.open(
-            this.translate.instant('cms.article.deleteSuccess'),
-            this.translate.instant('common.close'),
+            this.translate.instant(this.i18nKeys.cms.article.deleteSuccess),
+            this.translate.instant(this.i18nKeys.common.close),
             { duration: 2500 },
           );
           this.load();

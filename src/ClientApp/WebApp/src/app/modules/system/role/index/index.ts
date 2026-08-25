@@ -7,6 +7,8 @@ import { I18N_KEYS } from 'src/app/modules/share/i18n-keys';
 import { CommonListModules } from 'src/app/modules/share/shared-modules';
 import { AdminClient } from 'src/app/services/admin/admin-client';
 import { SystemRoleItemDto } from 'src/app/services/admin/models/system-mod/system-role-item-dto.model';
+import { SystemRoleAddComponent } from 'src/app/modules/system/role/add/add';
+import { SystemRoleEditComponent } from 'src/app/modules/system/role/edit/edit';
 
 @Component({
   selector: 'app-system-role-index',
@@ -38,6 +40,33 @@ export class SystemRoleIndexComponent {
       },
       error: () => this.loading.set(false),
     });
+  }
+
+  add(): void {
+    this.dialog
+      .open(SystemRoleAddComponent, {
+        width: '520px',
+        maxWidth: '96vw',
+        maxHeight: '96vh',
+      })
+      .afterClosed()
+      .subscribe((result) => {
+        if (result?.saved) this.load();
+      });
+  }
+
+  edit(role: SystemRoleItemDto): void {
+    this.dialog
+      .open(SystemRoleEditComponent, {
+        width: '520px',
+        maxWidth: '96vw',
+        maxHeight: '96vh',
+        data: { id: role.id },
+      })
+      .afterClosed()
+      .subscribe((result) => {
+        if (result?.saved) this.load();
+      });
   }
 
   remove(role: SystemRoleItemDto): void {

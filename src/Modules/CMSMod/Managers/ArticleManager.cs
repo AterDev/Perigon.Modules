@@ -40,15 +40,15 @@ public class ArticleManager(
             Title = dto.Title,
             Description = dto.Description,
             Content = dto.Content,
-            Authors = dto.Authors,
+            Authors = GetCurrentAuthorName(),
             LanguageType = dto.LanguageType,
             ContentType = dto.BlogType,
-            IsAudit = dto.IsAudit,
+            IsAudit = false,
             IsPublic = dto.IsPublic,
             IsOriginal = dto.IsOriginal,
             UserId = _userContext.UserId,
             CatalogId = dto.CatalogId,
-            ViewCount = dto.ViewCount,
+            ViewCount = 0,
             TenantId = _userContext.TenantId,
         };
         await InsertAsync(entity);
@@ -92,14 +92,11 @@ public class ArticleManager(
         entity.Title = dto.Title;
         entity.Description = dto.Description;
         entity.Content = dto.Content;
-        entity.Authors = dto.Authors;
         entity.LanguageType = dto.LanguageType ?? entity.LanguageType;
         entity.ContentType = dto.BlogType ?? entity.ContentType;
-        entity.IsAudit = dto.IsAudit ?? entity.IsAudit;
         entity.IsPublic = dto.IsPublic ?? entity.IsPublic;
         entity.IsOriginal = dto.IsOriginal ?? entity.IsOriginal;
         entity.CatalogId = catalogId;
-        entity.ViewCount = dto.ViewCount ?? entity.ViewCount;
         await _dbContext.SaveChangesAsync();
         return entity;
     }
@@ -133,5 +130,16 @@ public class ArticleManager(
             && (_userContext.IsAdmin || c.UserId == _userContext.UserId));
         if (!exists)
             throw new BusinessException("文章分类不存在", StatusCodes.Status400BadRequest);
+    }
+
+    private string GetCurrentAuthorName()
+    {
+        if (!string.IsNullOrWhiteSpace(_userContext.UserName))
+            return _userContext.UserName!;
+
+        if (!string.IsNullOrWhiteSpace(_userContext.Email))
+            return _userContext.Email!;
+
+        return _userContext.UserId.ToString();
     }
 }

@@ -1,9 +1,9 @@
 <section class="page">
   <header>
-    <a mat-flat-button [routerLink]="['../../', id, 'edit']"
+    <button mat-flat-button type="button" (click)="edit()"
     >
     <mat-icon class="primary">edit</mat-icon>{{ i18nKeys.common.edit | translate }}
-    </a
+    </button
     >
   </header>
   @if (category(); as item) {

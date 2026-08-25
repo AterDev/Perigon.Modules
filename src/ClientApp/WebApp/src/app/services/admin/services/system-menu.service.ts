@@ -1,11 +1,11 @@
-import { BaseService } from 'src/app/services/admin/base.service';
+import { BaseService } from '../base.service';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { SystemMenuFilterDto } from 'src/app/services/admin/models/system-mod/system-menu-filter-dto.model';
-import { PageList } from 'src/app/services/admin/models/perigon/page-list.model';
-import { SystemMenu } from 'src/app/services/admin/models/entity/system-menu.model';
-import { SystemMenuAddDto } from 'src/app/services/admin/models/system-mod/system-menu-add-dto.model';
-import { SystemMenuUpdateDto } from 'src/app/services/admin/models/system-mod/system-menu-update-dto.model';
+import { SystemMenuFilterDto } from '../models/system-mod/system-menu-filter-dto.model';
+import { PageList } from '../models/perigon/page-list.model';
+import { SystemMenu } from '../models/entity/system-menu.model';
+import { SystemMenuAddDto } from '../models/system-mod/system-menu-add-dto.model';
+import { SystemMenuUpdateDto } from '../models/system-mod/system-menu-update-dto.model';
 /**
  * 系统菜单
  */

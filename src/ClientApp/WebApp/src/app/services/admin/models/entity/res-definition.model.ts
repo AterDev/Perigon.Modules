@@ -1,5 +1,5 @@
-import { ResDefinitionProperty } from 'src/app/services/admin/models/entity/res-definition-property.model';
-import { Resource } from 'src/app/services/admin/models/entity/resource.model';
+import { ResDefinitionProperty } from '../entity/res-definition-property.model';
+import { Resource } from '../entity/resource.model';
 
 /**
  * 资源属性定义配置。

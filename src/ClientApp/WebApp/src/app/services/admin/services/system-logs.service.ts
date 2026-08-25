@@ -1,9 +1,9 @@
-import { BaseService } from 'src/app/services/admin/base.service';
+import { BaseService } from '../base.service';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { SystemLogsFilterDto } from 'src/app/services/admin/models/system-mod/system-logs-filter-dto.model';
-import { PageList } from 'src/app/services/admin/models/perigon/page-list.model';
-import { SystemLogsItemDto } from 'src/app/services/admin/models/system-mod/system-logs-item-dto.model';
+import { SystemLogsFilterDto } from '../models/system-mod/system-logs-filter-dto.model';
+import { PageList } from '../models/perigon/page-list.model';
+import { SystemLogsItemDto } from '../models/system-mod/system-logs-item-dto.model';
 /**
  * 系统日志
  */

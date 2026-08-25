@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace EntityFramework.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialCreate : Migration
+    public partial class Init : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -697,10 +697,16 @@ namespace EntityFramework.Migrations
                 column: "ParentId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_ArticleCategories_UserId_Name",
+                name: "IX_ArticleCategories_TenantId_ParentId",
                 table: "ArticleCategories",
-                columns: new[] { "UserId", "Name" },
-                unique: true);
+                columns: new[] { "TenantId", "ParentId" });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ArticleCategories_TenantId_UserId_Name",
+                table: "ArticleCategories",
+                columns: new[] { "TenantId", "UserId", "Name" },
+                unique: true,
+                filter: "\"IsDeleted\" = false");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Articles_CatalogId",
@@ -708,10 +714,16 @@ namespace EntityFramework.Migrations
                 column: "CatalogId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Articles_UserId_Title",
+                name: "IX_Articles_TenantId_CatalogId",
                 table: "Articles",
-                columns: new[] { "UserId", "Title" },
-                unique: true);
+                columns: new[] { "TenantId", "CatalogId" });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Articles_TenantId_UserId_Title",
+                table: "Articles",
+                columns: new[] { "TenantId", "UserId", "Title" },
+                unique: true,
+                filter: "\"IsDeleted\" = false");
 
             migrationBuilder.CreateIndex(
                 name: "IX_ResCategories_TenantId_CatalogCode",
@@ -726,10 +738,9 @@ namespace EntityFramework.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_ResDefinitionPropertyMaps_DefinitionId_PropertyId",
+                name: "IX_ResDefinitionPropertyMaps_DefinitionId",
                 table: "ResDefinitionPropertyMaps",
-                columns: new[] { "DefinitionId", "PropertyId" },
-                unique: true);
+                column: "DefinitionId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_ResDefinitionPropertyMaps_PropertyId",
@@ -737,9 +748,26 @@ namespace EntityFramework.Migrations
                 column: "PropertyId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_ResDefinitionPropertyMaps_TenantId_DefinitionId_PropertyId",
+                table: "ResDefinitionPropertyMaps",
+                columns: new[] { "TenantId", "DefinitionId", "PropertyId" },
+                unique: true,
+                filter: "\"IsDeleted\" = false");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ResDefinitionPropertyMaps_TenantId_PropertyId",
+                table: "ResDefinitionPropertyMaps",
+                columns: new[] { "TenantId", "PropertyId" });
+
+            migrationBuilder.CreateIndex(
                 name: "IX_ResGroups_CategoryId",
                 table: "ResGroups",
                 column: "CategoryId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ResGroups_TenantId_CategoryId",
+                table: "ResGroups",
+                columns: new[] { "TenantId", "CategoryId" });
 
             migrationBuilder.CreateIndex(
                 name: "IX_Resources_CategoryId",
@@ -762,6 +790,26 @@ namespace EntityFramework.Migrations
                 column: "GroupId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Resources_TenantId_CategoryId",
+                table: "Resources",
+                columns: new[] { "TenantId", "CategoryId" });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Resources_TenantId_DefinitionId",
+                table: "Resources",
+                columns: new[] { "TenantId", "DefinitionId" });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Resources_TenantId_EnvironmentId",
+                table: "Resources",
+                columns: new[] { "TenantId", "EnvironmentId" });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Resources_TenantId_GroupId",
+                table: "Resources",
+                columns: new[] { "TenantId", "GroupId" });
+
+            migrationBuilder.CreateIndex(
                 name: "IX_ResPermissions_CategoryId",
                 table: "ResPermissions",
                 column: "CategoryId");
@@ -770,6 +818,16 @@ namespace EntityFramework.Migrations
                 name: "IX_ResPermissions_EnvironmentId",
                 table: "ResPermissions",
                 column: "EnvironmentId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ResPermissions_TenantId_CategoryId",
+                table: "ResPermissions",
+                columns: new[] { "TenantId", "CategoryId" });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ResPermissions_TenantId_EnvironmentId",
+                table: "ResPermissions",
+                columns: new[] { "TenantId", "EnvironmentId" });
 
             migrationBuilder.CreateIndex(
                 name: "IX_ResPermissions_TenantId_RoleId_EnvironmentId_CategoryId",
@@ -783,31 +841,28 @@ namespace EntityFramework.Migrations
                 column: "DefinitionPropertyId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_ResValues_ResourceId_DefinitionPropertyId",
+                name: "IX_ResValues_ResourceId",
                 table: "ResValues",
-                columns: new[] { "ResourceId", "DefinitionPropertyId" },
-                unique: true);
+                column: "ResourceId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_SystemConfigs_GroupName_Key",
+                name: "IX_ResValues_TenantId_DefinitionPropertyId",
+                table: "ResValues",
+                columns: new[] { "TenantId", "DefinitionPropertyId" });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ResValues_TenantId_ResourceId_DefinitionPropertyId",
+                table: "ResValues",
+                columns: new[] { "TenantId", "ResourceId", "DefinitionPropertyId" },
+                unique: true,
+                filter: "\"IsDeleted\" = false");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_SystemConfigs_TenantId_GroupName_Key",
                 table: "SystemConfigs",
-                columns: new[] { "GroupName", "Key" },
-                unique: true);
-
-            migrationBuilder.CreateIndex(
-                name: "IX_SystemLogs_ActionType_CreatedTime",
-                table: "SystemLogs",
-                columns: new[] { "ActionType", "CreatedTime" });
-
-            migrationBuilder.CreateIndex(
-                name: "IX_SystemLogs_ActionUserName_CreatedTime",
-                table: "SystemLogs",
-                columns: new[] { "ActionUserName", "CreatedTime" });
-
-            migrationBuilder.CreateIndex(
-                name: "IX_SystemLogs_CreatedTime",
-                table: "SystemLogs",
-                column: "CreatedTime");
+                columns: new[] { "TenantId", "GroupName", "Key" },
+                unique: true,
+                filter: "\"IsDeleted\" = false");
 
             migrationBuilder.CreateIndex(
                 name: "IX_SystemLogs_SystemUserId",
@@ -815,10 +870,24 @@ namespace EntityFramework.Migrations
                 column: "SystemUserId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_SystemMenuRoles_RoleId_MenuId",
-                table: "SystemMenuRoles",
-                columns: new[] { "RoleId", "MenuId" },
-                unique: true);
+                name: "IX_SystemLogs_TenantId_ActionType_CreatedTime",
+                table: "SystemLogs",
+                columns: new[] { "TenantId", "ActionType", "CreatedTime" });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_SystemLogs_TenantId_ActionUserName_CreatedTime",
+                table: "SystemLogs",
+                columns: new[] { "TenantId", "ActionUserName", "CreatedTime" });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_SystemLogs_TenantId_CreatedTime",
+                table: "SystemLogs",
+                columns: new[] { "TenantId", "CreatedTime" });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_SystemLogs_TenantId_SystemUserId",
+                table: "SystemLogs",
+                columns: new[] { "TenantId", "SystemUserId" });
 
             migrationBuilder.CreateIndex(
                 name: "IX_SystemMenuRoles_SystemMenuId",
@@ -831,10 +900,21 @@ namespace EntityFramework.Migrations
                 column: "SystemRoleId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_SystemMenus_AccessCode",
-                table: "SystemMenus",
-                column: "AccessCode",
-                unique: true);
+                name: "IX_SystemMenuRoles_TenantId_RoleId_MenuId",
+                table: "SystemMenuRoles",
+                columns: new[] { "TenantId", "RoleId", "MenuId" },
+                unique: true,
+                filter: "\"IsDeleted\" = false");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_SystemMenuRoles_TenantId_SystemMenuId",
+                table: "SystemMenuRoles",
+                columns: new[] { "TenantId", "SystemMenuId" });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_SystemMenuRoles_TenantId_SystemRoleId",
+                table: "SystemMenuRoles",
+                columns: new[] { "TenantId", "SystemRoleId" });
 
             migrationBuilder.CreateIndex(
                 name: "IX_SystemMenus_ParentId",
@@ -842,14 +922,21 @@ namespace EntityFramework.Migrations
                 column: "ParentId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_SystemMenus_TenantId_AccessCode",
+                table: "SystemMenus",
+                columns: new[] { "TenantId", "AccessCode" },
+                unique: true,
+                filter: "\"IsDeleted\" = false");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_SystemMenus_TenantId_ParentId",
+                table: "SystemMenus",
+                columns: new[] { "TenantId", "ParentId" });
+
+            migrationBuilder.CreateIndex(
                 name: "IX_SystemMenuSystemRole_SystemRolesId",
                 table: "SystemMenuSystemRole",
                 column: "SystemRolesId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_SystemOrganizations_Name",
-                table: "SystemOrganizations",
-                column: "Name");
 
             migrationBuilder.CreateIndex(
                 name: "IX_SystemOrganizations_ParentId",
@@ -857,14 +944,24 @@ namespace EntityFramework.Migrations
                 column: "ParentId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_SystemOrganizations_TenantId_Name",
+                table: "SystemOrganizations",
+                columns: new[] { "TenantId", "Name" });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_SystemOrganizations_TenantId_ParentId",
+                table: "SystemOrganizations",
+                columns: new[] { "TenantId", "ParentId" });
+
+            migrationBuilder.CreateIndex(
                 name: "IX_SystemOrganizationSystemUser_UsersId",
                 table: "SystemOrganizationSystemUser",
                 column: "UsersId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_SystemPermissionGroups_Name",
+                name: "IX_SystemPermissionGroups_TenantId_Name",
                 table: "SystemPermissionGroups",
-                column: "Name");
+                columns: new[] { "TenantId", "Name" });
 
             migrationBuilder.CreateIndex(
                 name: "IX_SystemPermissionGroupSystemRole_RolesId",
@@ -877,20 +974,26 @@ namespace EntityFramework.Migrations
                 column: "GroupId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_SystemPermissions_Name",
+                name: "IX_SystemPermissions_TenantId_GroupId",
                 table: "SystemPermissions",
-                column: "Name");
+                columns: new[] { "TenantId", "GroupId" });
 
             migrationBuilder.CreateIndex(
-                name: "IX_SystemRoles_Name",
-                table: "SystemRoles",
-                column: "Name");
+                name: "IX_SystemPermissions_TenantId_Name",
+                table: "SystemPermissions",
+                columns: new[] { "TenantId", "Name" });
 
             migrationBuilder.CreateIndex(
-                name: "IX_SystemRoles_NameValue",
+                name: "IX_SystemRoles_TenantId_Name",
                 table: "SystemRoles",
-                column: "NameValue",
-                unique: true);
+                columns: new[] { "TenantId", "Name" });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_SystemRoles_TenantId_NameValue",
+                table: "SystemRoles",
+                columns: new[] { "TenantId", "NameValue" },
+                unique: true,
+                filter: "\"IsDeleted\" = false");
 
             migrationBuilder.CreateIndex(
                 name: "IX_SystemRoleSystemUser_UsersId",
@@ -903,22 +1006,35 @@ namespace EntityFramework.Migrations
                 column: "RoleId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_SystemUserRoles_UserId_RoleId",
+                name: "IX_SystemUserRoles_TenantId_RoleId",
                 table: "SystemUserRoles",
-                columns: new[] { "UserId", "RoleId" },
-                unique: true);
+                columns: new[] { "TenantId", "RoleId" });
 
             migrationBuilder.CreateIndex(
-                name: "IX_SystemUsers_Email",
-                table: "SystemUsers",
-                column: "Email",
-                unique: true);
+                name: "IX_SystemUserRoles_TenantId_UserId_RoleId",
+                table: "SystemUserRoles",
+                columns: new[] { "TenantId", "UserId", "RoleId" },
+                unique: true,
+                filter: "\"IsDeleted\" = false");
 
             migrationBuilder.CreateIndex(
-                name: "IX_SystemUsers_PhoneNumber",
+                name: "IX_SystemUserRoles_UserId",
+                table: "SystemUserRoles",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_SystemUsers_TenantId_Email",
                 table: "SystemUsers",
-                column: "PhoneNumber",
-                unique: true);
+                columns: new[] { "TenantId", "Email" },
+                unique: true,
+                filter: "\"IsDeleted\" = false");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_SystemUsers_TenantId_PhoneNumber",
+                table: "SystemUsers",
+                columns: new[] { "TenantId", "PhoneNumber" },
+                unique: true,
+                filter: "\"IsDeleted\" = false");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Tenants_Domain",

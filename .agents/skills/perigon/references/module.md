@@ -1,62 +1,33 @@
-# Module Development Reference
+# 模块开发与分发
 
-Read `../../../../AGENTS.md` and the relevant user story. Use `CMSMod` for a small CRUD example and `SystemMod` for initialization, workers, services, and complex module behavior.
+本 reference 主要适用于 ApiStandard；MiniApi 默认没有 Modules 层，只有用户明确引入模块化结构且当前 CLI/源码支持时才采用。
 
-## Define the module contract
+## 创建模块
 
-Before generating code, confirm:
+- 模块按业务领域划分，名称必须以 `Mod` 结尾；CLI 允许的简写以实时帮助为准。
+- 实体放 `src/Definition/Entity/{Name}Mod`。
+- 模块项目放 `src/Modules/{Name}Mod`，通常包含 `Models`、`Managers`、模块专属 `Services` 和 `ModuleExtensions.cs`。
+- Controller 放到目标 Service 的模块目录，不放入模块项目。
+- `Add{Name}Mod` 只注册模块专属服务；服务多时拆到私有扩展方法。源生成器负责聚合模块注册，不要重复调用或手写生成的 `AddModules()`。
+- 模块程序集被目标 Service 引用后才可被发现。发现失败时检查项目引用、程序集后缀、扩展类/方法可访问性和当前源生成器约定。
 
-- the `{Name}Mod` name and user-facing purpose;
-- whether endpoints belong to `AdminService`, `ApiService`, or both;
-- entities and relationships owned by the module;
-- required permissions, tenant behavior, initialization, workers, and external dependencies;
-- whether UI is only for repository validation or is expected to be distributed separately.
+## 保持可复用边界
 
-Keep the portable boundary explicit. Current zip packages contain `Entity/{Name}Mod`, `Modules/{Name}Mod`, `Controllers/{Name}Mod`, and `metadata.json`; they do not contain host configuration, migrations, Angular sources, or shared Perigon framework code.
+可打包模块除实体和 Controller 外的代码应位于模块项目中。不要让模块依赖某个 Service 宿主、HttpContext、主应用私有类型或无法随包提供的代码。
 
-## Create and wire a module
+- 跨模块契约放到真正共享的 Definition/Share；模块专用依赖留在模块。
+- 模块 Manager 不互相循环依赖。
+- 宿主配置、迁移、Angular 外壳和共享框架代码不应被误认为模块包的一部分。
+- 前端模块包只携带指定模块目录和约定的 share 内容，不会自动携带根 package.json、锁文件或 npm 依赖；安装后需验证依赖和构建。
 
-1. Prefer the currently available Perigon CLI or MCP generators. Inspect live help/tool schemas first; never invent a command or tool name from old documentation.
-2. Require the module assembly name to end in `Mod`.
-3. Add entities under `src/Definition/Entity/{Name}Mod` and register them in the appropriate DbContext.
-4. Add `src/Modules/{Name}Mod/{Name}Mod.csproj`, DTOs, Managers, and optional services/workers/initialization.
-5. Add a public static `ModuleExtensions` with public `Add{Name}Mod(IHostApplicationBuilder)` matching the assembly name exactly. Put module-owned DI in that method.
-6. Apply `[DisplayName("Perigon::{Name}Mod")]` and `[Description("...")]` consistently because packaging derives module identity from the module assembly.
-7. Reference the module project from every target service. The source generator discovers referenced `*Mod` assemblies, generates `AddModules()`, and registers `ManagerBase` implementations.
-8. Add Controllers under the target service's `Controllers/{Name}Mod` directory.
-9. Add migrations, initialization, tests, and optional host UI only when required by the contract.
-10. Add the project to `Perigon.Modules.slnx` and verify there are no stale paths.
+## 元数据与打包
 
-Do not duplicate generated `AddModules()` or manager registration manually. If discovery fails, inspect `ManagerSourceGen.cs`, the service's analyzer reference, the project reference, assembly name, `ModuleExtensions` accessibility, and `Add{AssemblyName}` signature.
+在当前 CLI 帮助确认语法后，从解决方案根目录执行模块 pack/install。打包扩展通常需要：
 
-## Generate and review code
+- `[DisplayName("作者::包名")]` 描述作者和显示名。
+- `[Description("...")]` 说明模块用途。
+- 公共 `Add{Name}Mod(IHostApplicationBuilder)` 与程序集名一致。
 
-Use generator output as a starting point. After generation, review namespaces, nullable annotations, DTO shapes, authorization, tenant boundaries, query size, service ownership, and package portability. Do not let a host-only dependency leak into the module project.
+打包前确认目标 Service 和可选前端路径；打包后打开产物检查 metadata、Entity、Module、Controller 和前端路径，确保没有宿主私有文件。安装后重新加载解决方案，检查项目引用、服务注册、配置、迁移、菜单、前端依赖和构建结果。
 
-When adding a dependency, decide whether it is available to consumers of the module. Prefer existing `Definition/Share` contracts; only reference `Perigon.AspNetCore.Toolkit` when the module genuinely needs it.
-
-## Package
-
-For a single module, the repository's current contract is:
-
-```powershell
-perigon module pack <ModuleName> AdminService
-```
-
-For all `*Mod` directories, use `scripts/PackModules.ps1`. Packaging mutates `package_modules` and writes a metadata summary according to the script's current configured path, so inspect the script and working tree before running it.
-
-After packaging:
-
-1. Open the produced zip and verify `metadata.json` plus the expected Entity, Modules, and Controllers paths.
-2. Check `ModuleName`, author, display name, description, version, package type, and service mode.
-3. Ensure unrelated host or framework files were not included.
-4. Compare the package and catalog diff; do not hand-edit zip contents.
-
-Do not package for an instructions-only or source-only task unless release artifacts are explicitly in scope.
-
-## Validate
-
-- For structural changes, inspect project references, source-generator conventions, solution entries, and package paths.
-- For backend behavior, follow `backend.md` and add focused tests from the repository's test skill.
-- For migrations, run repository scripts from their expected working directory only after confirming database configuration.
-- Treat CLI/container/runtime failures separately from module regressions and retain the original diagnostic.
+生成或安装模块不是授权业务正确性的证明；仍需审查 DTO、授权、租户隔离、数据库索引、查询成本和包的跨项目可移植性。

@@ -20,6 +20,9 @@
             "browser": "src/main.ts",
             "tsConfig": "tsconfig.app.json",
             "inlineStyleLanguage": "scss",
+            "allowedCommonJsDependencies": [
+              "vditor"
+            ],
             "stylePreprocessorOptions": {
               "includePaths": ["src"]
             },
@@ -31,11 +34,18 @@
               },
               {
                 "glob": "**/*",
+                "input": "node_modules/vditor/dist",
+                "output": "/assets/vditor/dist"
+              },
+              {
+                "glob": "**/*",
                 "input": "public"
               }
             ],
             "styles": [
-              "src/styles.scss"
+              "src/styles.scss",
+              "node_modules/vditor/dist/index.css",
+              "node_modules/vditor/dist/css/content-theme/light.css"
             ]
           },
           "configurations": {
@@ -93,11 +103,18 @@
               },
               {
                 "glob": "**/*",
+                "input": "node_modules/vditor/dist",
+                "output": "/assets/vditor/dist"
+              },
+              {
+                "glob": "**/*",
                 "input": "public"
               }
             ],
             "styles": [
-              "src/styles.scss"
+              "src/styles.scss",
+              "node_modules/vditor/dist/index.css",
+              "node_modules/vditor/dist/css/content-theme/light.css"
             ]
           }
         }

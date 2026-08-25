@@ -1,4 +1,4 @@
-import { GenderType } from 'src/app/services/admin/models/perigon/gender-type.model';
+import { GenderType } from '../perigon/gender-type.model';
 
 /**
  * 系统用户更新时请求结构

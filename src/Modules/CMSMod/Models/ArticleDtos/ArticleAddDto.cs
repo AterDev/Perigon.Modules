@@ -21,14 +21,8 @@ public class ArticleAddDto
     /// <summary>
     /// 内容
     /// </summary>
-    [MaxLength(10000)]
+    [MaxLength(200000)]
     public required string Content { get; set; }
-
-    /// <summary>
-    /// 作者
-    /// </summary>
-    [MaxLength(200)]
-    public required string Authors { get; set; }
 
     /// <summary>
     /// 标题
@@ -53,11 +47,6 @@ public class ArticleAddDto
     public ContentType BlogType { get; set; }
 
     /// <summary>
-    /// 是否审核
-    /// </summary>
-    public bool IsAudit { get; set; }
-
-    /// <summary>
     /// 是否公开
     /// </summary>
     public bool IsPublic { get; set; } = true;
@@ -66,11 +55,5 @@ public class ArticleAddDto
     /// 是否原创
     /// </summary>
     public bool IsOriginal { get; set; }
-    public Guid UserId { get; set; }
     public Guid CatalogId { get; set; }
-
-    /// <summary>
-    /// 浏览量
-    /// </summary>
-    public int ViewCount { get; set; }
 }

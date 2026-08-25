@@ -1,3 +1,35 @@
 :host {
   display: block;
 }
+
+.article-form {
+  max-width: 900px;
+}
+
+.article-content-field {
+  margin: 8px 0 24px;
+}
+
+.article-content-field h2 {
+  font-size: 1rem;
+  font-weight: 500;
+  margin: 0 0 8px;
+}
+
+.article-selection-row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.article-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+@media (max-width: 700px) {
+  .article-selection-row {
+    grid-template-columns: 1fr;
+  }
+}

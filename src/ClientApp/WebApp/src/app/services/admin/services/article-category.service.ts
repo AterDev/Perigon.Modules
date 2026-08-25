@@ -1,12 +1,12 @@
-import { BaseService } from 'src/app/services/admin/base.service';
+import { BaseService } from '../base.service';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { PageList } from 'src/app/services/admin/models/perigon/page-list.model';
-import { ArticleCategoryItemDto } from 'src/app/services/admin/models/cmsmod/article-category-item-dto.model';
-import { ArticleCategoryAddDto } from 'src/app/services/admin/models/cmsmod/article-category-add-dto.model';
-import { ArticleCategory } from 'src/app/services/admin/models/entity/article-category.model';
-import { ArticleCategoryUpdateDto } from 'src/app/services/admin/models/cmsmod/article-category-update-dto.model';
-import { ArticleCategoryDetailDto } from 'src/app/services/admin/models/cmsmod/article-category-detail-dto.model';
+import { PageList } from '../models/perigon/page-list.model';
+import { ArticleCategoryItemDto } from '../models/cmsmod/article-category-item-dto.model';
+import { ArticleCategoryAddDto } from '../models/cmsmod/article-category-add-dto.model';
+import { ArticleCategory } from '../models/entity/article-category.model';
+import { ArticleCategoryUpdateDto } from '../models/cmsmod/article-category-update-dto.model';
+import { ArticleCategoryDetailDto } from '../models/cmsmod/article-category-detail-dto.model';
 /**
  * 
  */

@@ -1,4 +1,4 @@
-import { ResourceValueDto } from 'src/app/services/admin/models/resource-mod/resource-value-dto.model';
+import { ResourceValueDto } from '../resource-mod/resource-value-dto.model';
 
 export interface ResourceUpdateDto {
   /** environmentId */

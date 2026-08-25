@@ -1,4 +1,4 @@
-import { PermissionType } from 'src/app/services/admin/models/entity/permission-type.model';
+import { PermissionType } from '../entity/permission-type.model';
 
 /**
  * 权限添加时请求结构

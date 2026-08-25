@@ -1,14 +1,15 @@
 <section class="page">
   <header>
     @if (role(); as item) {
-      <a
+      <button
         mat-flat-button
-        [routerLink]="['../../', item.id, 'edit']"
+        type="button"
+        (click)="edit()"
         [attr.aria-label]="i18nKeys.common.edit | translate"
       >
         <mat-icon class="primary">edit</mat-icon>
         {{ i18nKeys.common.edit | translate }}
-      </a>
+      </button>
     }
   </header>
 

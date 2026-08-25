@@ -1,7 +1,7 @@
-import { SystemRole } from 'src/app/services/admin/models/entity/system-role.model';
-import { SystemLogs } from 'src/app/services/admin/models/entity/system-logs.model';
-import { SystemOrganization } from 'src/app/services/admin/models/entity/system-organization.model';
-import { Sex } from 'src/app/services/admin/models/entity/sex.model';
+import { SystemRole } from '../entity/system-role.model';
+import { SystemLogs } from '../entity/system-logs.model';
+import { SystemOrganization } from '../entity/system-organization.model';
+import { Sex } from '../entity/sex.model';
 
 /**
  * 系统用户

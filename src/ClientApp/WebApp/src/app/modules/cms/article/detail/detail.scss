@@ -1,4 +1,8 @@
-.content {
+:host ::ng-deep .content {
   line-height: 1.7;
-  white-space: pre-wrap;
+
+  img {
+    max-width: 100%;
+    height: auto;
+  }
 }

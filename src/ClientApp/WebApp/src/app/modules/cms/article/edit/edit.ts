@@ -14,10 +14,11 @@ import { ArticleCategoryItemDto } from 'src/app/services/admin/models/cmsmod/art
 import { LanguageType } from 'src/app/services/admin/models/entity/language-type.model';
 import { ContentType } from 'src/app/services/admin/models/entity/content-type.model';
 import { TranslateService } from '@ngx-translate/core';
+import { MarkdownEditorComponent } from 'src/app/modules/share/components/markdown-editor/markdown-editor.component';
 
 @Component({
   selector: 'app-article-edit',
-  imports: CommonFormModules,
+  imports: [...CommonFormModules, MarkdownEditorComponent],
   templateUrl: './edit.html',
   styleUrl: './edit.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -32,25 +33,27 @@ export class ArticleEditComponent {
   private readonly translate = inject(TranslateService);
   readonly id = this.route.snapshot.paramMap.get('id')!;
   readonly categories = signal<ArticleCategoryItemDto[]>([]);
-  readonly languages = Object.entries(LanguageType).filter(
-    ([, value]) => typeof value === 'number',
-  ) as [string, LanguageType][];
-  readonly types = Object.entries(ContentType).filter(
-    ([, value]) => typeof value === 'number',
-  ) as [string, ContentType][];
+  readonly languages = [
+    { value: LanguageType.CN, labelKey: I18N_KEYS.cms.languageTypes.CN },
+    { value: LanguageType.EN, labelKey: I18N_KEYS.cms.languageTypes.EN },
+  ] as const;
+  readonly types = [
+    { value: ContentType.News, labelKey: I18N_KEYS.cms.contentTypes.News },
+    { value: ContentType.ViewPoint, labelKey: I18N_KEYS.cms.contentTypes.ViewPoint },
+    { value: ContentType.Knowledge, labelKey: I18N_KEYS.cms.contentTypes.Knowledge },
+    { value: ContentType.Documentary, labelKey: I18N_KEYS.cms.contentTypes.Documentary },
+    { value: ContentType.Private, labelKey: I18N_KEYS.cms.contentTypes.Private },
+  ] as const;
   saving = false;
   readonly form = this.fb.nonNullable.group({
     title: ['', Validators.required],
     description: [''],
     content: ['', Validators.required],
-    authors: ['', Validators.required],
     languageType: LanguageType.CN,
     blogType: ContentType.News,
-    isAudit: false,
     isPublic: true,
     isOriginal: true,
     catalogId: ['', Validators.required],
-    viewCount: 0,
   });
   constructor() {
     this.client.articleCategory
@@ -61,28 +64,31 @@ export class ArticleEditComponent {
         title: value.title,
         description: value.description ?? '',
         content: value.content,
-        authors: value.authors,
         languageType: value.languageType,
         blogType: value.blogType,
-        isAudit: value.isAudit,
         isPublic: value.isPublic,
         isOriginal: value.isOriginal,
         catalogId: value.catalogId,
-        viewCount: value.viewCount,
       }),
     );
   }
   save(): void {
-    if (this.form.invalid) return;
+    if (this.form.invalid) {
+      this.form.markAllAsTouched();
+      return;
+    }
     const value = this.form.getRawValue();
     this.saving = true;
     this.client.article
-      .update(this.id, { ...value, description: value.description || null })
+      .update(this.id, {
+        ...value,
+        description: value.description || null,
+      })
       .subscribe({
         next: () => {
           this.snackBar.open(
-            this.translate.instant('cms.article.updateSuccess'),
-            this.translate.instant('common.close'),
+            this.translate.instant(this.i18nKeys.cms.article.updateSuccess),
+            this.translate.instant(this.i18nKeys.common.close),
             { duration: 2500 },
           );
           this.router.navigate(['/cms/article', this.id, 'detail']);

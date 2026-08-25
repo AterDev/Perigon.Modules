@@ -13,15 +13,15 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace EntityFramework.Migrations
 {
     [DbContext(typeof(DefaultDbContext))]
-    [Migration("20260814010659_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20260825082359_ArticleMarkdownContent")]
+    partial class ArticleMarkdownContent
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "10.0.8")
+                .HasAnnotation("ProductVersion", "10.0.11")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -42,8 +42,8 @@ namespace EntityFramework.Migrations
 
                     b.Property<string>("Content")
                         .IsRequired()
-                        .HasMaxLength(10000)
-                        .HasColumnType("character varying(10000)");
+                        .HasMaxLength(200000)
+                        .HasColumnType("character varying(200000)");
 
                     b.Property<int>("ContentType")
                         .HasColumnType("integer");
@@ -91,8 +91,11 @@ namespace EntityFramework.Migrations
 
                     b.HasIndex("CatalogId");
 
-                    b.HasIndex("UserId", "Title")
-                        .IsUnique();
+                    b.HasIndex("TenantId", "CatalogId");
+
+                    b.HasIndex("TenantId", "UserId", "Title")
+                        .IsUnique()
+                        .HasFilter("\"IsDeleted\" = false");
 
                     b.ToTable("Articles");
                 });
@@ -133,8 +136,11 @@ namespace EntityFramework.Migrations
 
                     b.HasIndex("ParentId");
 
-                    b.HasIndex("UserId", "Name")
-                        .IsUnique();
+                    b.HasIndex("TenantId", "ParentId");
+
+                    b.HasIndex("TenantId", "UserId", "Name")
+                        .IsUnique()
+                        .HasFilter("\"IsDeleted\" = false");
 
                     b.ToTable("ArticleCategories");
                 });
@@ -285,10 +291,15 @@ namespace EntityFramework.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("DefinitionId");
+
                     b.HasIndex("PropertyId");
 
-                    b.HasIndex("DefinitionId", "PropertyId")
-                        .IsUnique();
+                    b.HasIndex("TenantId", "PropertyId");
+
+                    b.HasIndex("TenantId", "DefinitionId", "PropertyId")
+                        .IsUnique()
+                        .HasFilter("\"IsDeleted\" = false");
 
                     b.ToTable("ResDefinitionPropertyMaps");
                 });
@@ -373,6 +384,8 @@ namespace EntityFramework.Migrations
 
                     b.HasIndex("CategoryId");
 
+                    b.HasIndex("TenantId", "CategoryId");
+
                     b.ToTable("ResGroups");
                 });
 
@@ -408,6 +421,10 @@ namespace EntityFramework.Migrations
                     b.HasIndex("CategoryId");
 
                     b.HasIndex("EnvironmentId");
+
+                    b.HasIndex("TenantId", "CategoryId");
+
+                    b.HasIndex("TenantId", "EnvironmentId");
 
                     b.HasIndex("TenantId", "RoleId", "EnvironmentId", "CategoryId")
                         .IsUnique();
@@ -493,8 +510,13 @@ namespace EntityFramework.Migrations
 
                     b.HasIndex("DefinitionPropertyId");
 
-                    b.HasIndex("ResourceId", "DefinitionPropertyId")
-                        .IsUnique();
+                    b.HasIndex("ResourceId");
+
+                    b.HasIndex("TenantId", "DefinitionPropertyId");
+
+                    b.HasIndex("TenantId", "ResourceId", "DefinitionPropertyId")
+                        .IsUnique()
+                        .HasFilter("\"IsDeleted\" = false");
 
                     b.ToTable("ResValues");
                 });
@@ -542,6 +564,14 @@ namespace EntityFramework.Migrations
                     b.HasIndex("EnvironmentId");
 
                     b.HasIndex("GroupId");
+
+                    b.HasIndex("TenantId", "CategoryId");
+
+                    b.HasIndex("TenantId", "DefinitionId");
+
+                    b.HasIndex("TenantId", "EnvironmentId");
+
+                    b.HasIndex("TenantId", "GroupId");
 
                     b.ToTable("Resources");
                 });
@@ -591,8 +621,9 @@ namespace EntityFramework.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("GroupName", "Key")
-                        .IsUnique();
+                    b.HasIndex("TenantId", "GroupName", "Key")
+                        .IsUnique()
+                        .HasFilter("\"IsDeleted\" = false");
 
                     b.ToTable("SystemConfigs");
                 });
@@ -641,13 +672,15 @@ namespace EntityFramework.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CreatedTime");
-
                     b.HasIndex("SystemUserId");
 
-                    b.HasIndex("ActionType", "CreatedTime");
+                    b.HasIndex("TenantId", "CreatedTime");
 
-                    b.HasIndex("ActionUserName", "CreatedTime");
+                    b.HasIndex("TenantId", "SystemUserId");
+
+                    b.HasIndex("TenantId", "ActionType", "CreatedTime");
+
+                    b.HasIndex("TenantId", "ActionUserName", "CreatedTime");
 
                     b.ToTable("SystemLogs");
                 });
@@ -705,10 +738,13 @@ namespace EntityFramework.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("AccessCode")
-                        .IsUnique();
-
                     b.HasIndex("ParentId");
+
+                    b.HasIndex("TenantId", "AccessCode")
+                        .IsUnique()
+                        .HasFilter("\"IsDeleted\" = false");
+
+                    b.HasIndex("TenantId", "ParentId");
 
                     b.ToTable("SystemMenus");
                 });
@@ -749,8 +785,13 @@ namespace EntityFramework.Migrations
 
                     b.HasIndex("SystemRoleId");
 
-                    b.HasIndex("RoleId", "MenuId")
-                        .IsUnique();
+                    b.HasIndex("TenantId", "SystemMenuId");
+
+                    b.HasIndex("TenantId", "SystemRoleId");
+
+                    b.HasIndex("TenantId", "RoleId", "MenuId")
+                        .IsUnique()
+                        .HasFilter("\"IsDeleted\" = false");
 
                     b.ToTable("SystemMenuRoles");
                 });
@@ -783,9 +824,11 @@ namespace EntityFramework.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("Name");
-
                     b.HasIndex("ParentId");
+
+                    b.HasIndex("TenantId", "Name");
+
+                    b.HasIndex("TenantId", "ParentId");
 
                     b.ToTable("SystemOrganizations");
                 });
@@ -830,7 +873,9 @@ namespace EntityFramework.Migrations
 
                     b.HasIndex("GroupId");
 
-                    b.HasIndex("Name");
+                    b.HasIndex("TenantId", "GroupId");
+
+                    b.HasIndex("TenantId", "Name");
 
                     b.ToTable("SystemPermissions");
                 });
@@ -864,7 +909,7 @@ namespace EntityFramework.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("Name");
+                    b.HasIndex("TenantId", "Name");
 
                     b.ToTable("SystemPermissionGroups");
                 });
@@ -906,10 +951,11 @@ namespace EntityFramework.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("Name");
+                    b.HasIndex("TenantId", "Name");
 
-                    b.HasIndex("NameValue")
-                        .IsUnique();
+                    b.HasIndex("TenantId", "NameValue")
+                        .IsUnique()
+                        .HasFilter("\"IsDeleted\" = false");
 
                     b.ToTable("SystemRoles");
                 });
@@ -995,11 +1041,13 @@ namespace EntityFramework.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("Email")
-                        .IsUnique();
+                    b.HasIndex("TenantId", "Email")
+                        .IsUnique()
+                        .HasFilter("\"IsDeleted\" = false");
 
-                    b.HasIndex("PhoneNumber")
-                        .IsUnique();
+                    b.HasIndex("TenantId", "PhoneNumber")
+                        .IsUnique()
+                        .HasFilter("\"IsDeleted\" = false");
 
                     b.ToTable("SystemUsers");
                 });
@@ -1032,8 +1080,13 @@ namespace EntityFramework.Migrations
 
                     b.HasIndex("RoleId");
 
-                    b.HasIndex("UserId", "RoleId")
-                        .IsUnique();
+                    b.HasIndex("UserId");
+
+                    b.HasIndex("TenantId", "RoleId");
+
+                    b.HasIndex("TenantId", "UserId", "RoleId")
+                        .IsUnique()
+                        .HasFilter("\"IsDeleted\" = false");
 
                     b.ToTable("SystemUserRoles");
                 });

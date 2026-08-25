@@ -1,6 +1,6 @@
-import { ResGroup } from 'src/app/services/admin/models/entity/res-group.model';
-import { Resource } from 'src/app/services/admin/models/entity/resource.model';
-import { ResPermission } from 'src/app/services/admin/models/entity/res-permission.model';
+import { ResGroup } from '../entity/res-group.model';
+import { Resource } from '../entity/resource.model';
+import { ResPermission } from '../entity/res-permission.model';
 
 /**
  * 资源分类配置。

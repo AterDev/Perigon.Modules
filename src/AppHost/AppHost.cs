@@ -19,7 +19,7 @@ IResourceBuilder<IResourceWithConnectionString>? cache = null;
 // qdrant = builder.AddConnectionString("qdrant");
 
 #region infrastructure
-var defaultName = isTesting ? "Perigon.Modules_test" : "Perigon.Modules_dev";
+var defaultName = isTesting ? "PerigonModulesTest" : "PerigonModulesDev";
 var devPassword = builder.AddParameter(
     "dev-password",
     value: aspireSetting.DevPassword,
@@ -99,10 +99,7 @@ if (cache != null)
 }
 
 var adminMigrations = adminService
-    .AddEFMigrations(
-        "AdminService-Migrations",
-        "EntityFramework.AppDbContext.DefaultDbContext"
-    )
+    .AddEFMigrations("AdminService-Migrations","EntityFramework.AppDbContext.DefaultDbContext")
     .WithEnvironment("Components__Database", aspireSetting.DatabaseType)
     .WithEnvironment("Components__IsMultiTenant", isMultiTenant)
     .WithMigrationsProject("..\\Definition\\EntityFramework\\EntityFramework.csproj")
@@ -133,8 +130,6 @@ var adminMigrations = adminService
             "BeforeHookCreation,HookSucceeded";
         job.Spec.Template.Spec.RestartPolicy = "OnFailure";
 
-        // Migration bundles are finite workloads. Remove Aspire's default Deployment
-        // and publish the Job as an additional Kubernetes resource.
         resource.Workload = null;
         resource.AdditionalResources.Add(job);
     })

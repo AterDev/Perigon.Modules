@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { TranslateService } from '@ngx-translate/core';
 import { I18N_KEYS } from 'src/app/modules/share/i18n-keys';
@@ -18,11 +18,11 @@ export class SystemRoleEditComponent {
   readonly i18nKeys = I18N_KEYS;
   private readonly fb = inject(FormBuilder);
   private readonly client = inject(AdminClient);
-  private readonly route = inject(ActivatedRoute);
-  private readonly router = inject(Router);
+  private readonly dialogRef = inject(MatDialogRef<SystemRoleEditComponent>);
+  private readonly data = inject<{ id: string }>(MAT_DIALOG_DATA);
   private readonly snackBar = inject(MatSnackBar);
   private readonly translate = inject(TranslateService);
-  readonly id = this.route.snapshot.paramMap.get('id')!;
+  readonly id = this.data.id;
   readonly form = this.fb.nonNullable.group({
     name: ['', Validators.required],
     nameValue: ['', Validators.required],
@@ -49,7 +49,7 @@ export class SystemRoleEditComponent {
           this.translate.instant(this.i18nKeys.common.close),
           { duration: 2500 },
         );
-        this.router.navigate(['/system/role', this.id, 'detail']);
+        this.dialogRef.close({ saved: true });
       },
       error: () => (this.saving = false),
     });

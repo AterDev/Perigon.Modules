@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/cor
 import { FormBuilder, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { TranslateService } from '@ngx-translate/core';
-import { Router } from '@angular/router';
+import { MatDialogRef } from '@angular/material/dialog';
 import { I18N_KEYS } from 'src/app/modules/share/i18n-keys';
 import { CommonFormModules } from 'src/app/modules/share/shared-modules';
 import { AdminClient } from 'src/app/services/admin/admin-client';
@@ -20,7 +20,7 @@ export class SystemPermissionAddComponent {
   readonly i18nKeys = I18N_KEYS;
   private readonly fb = inject(FormBuilder);
   private readonly client = inject(AdminClient);
-  private readonly router = inject(Router);
+  private readonly dialogRef = inject(MatDialogRef<SystemPermissionAddComponent>);
   private readonly snackBar = inject(MatSnackBar);
   private readonly translate = inject(TranslateService);
   readonly groups = signal<SystemPermissionGroupItemDto[]>([]);
@@ -61,7 +61,7 @@ export class SystemPermissionAddComponent {
           this.translate.instant(this.i18nKeys.common.close),
           { duration: 2500 },
         );
-        this.router.navigate(['/system/permission']);
+        this.dialogRef.close({ saved: true });
       },
       error: () => (this.saving = false),
     });

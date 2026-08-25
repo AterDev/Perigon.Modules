@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { TranslateService } from '@ngx-translate/core';
 import { I18N_KEYS } from 'src/app/modules/share/i18n-keys';
@@ -20,11 +20,11 @@ export class SystemPermissionEditComponent {
   readonly i18nKeys = I18N_KEYS;
   private readonly fb = inject(FormBuilder);
   private readonly client = inject(AdminClient);
-  private readonly route = inject(ActivatedRoute);
-  private readonly router = inject(Router);
+  private readonly dialogRef = inject(MatDialogRef<SystemPermissionEditComponent>);
+  private readonly data = inject<{ id: string }>(MAT_DIALOG_DATA);
   private readonly snackBar = inject(MatSnackBar);
   private readonly translate = inject(TranslateService);
-  readonly id = this.route.snapshot.paramMap.get('id')!;
+  readonly id = this.data.id;
   readonly groups = signal<SystemPermissionGroupItemDto[]>([]);
   readonly types = [
     { value: PermissionType.None, labelKey: I18N_KEYS.systemPermission.types.none },
@@ -74,7 +74,7 @@ export class SystemPermissionEditComponent {
             this.translate.instant(this.i18nKeys.common.close),
             { duration: 2500 },
           );
-          this.router.navigate(['/system/permission', this.id, 'detail']);
+          this.dialogRef.close({ saved: true });
         },
         error: () => (this.saving = false),
       });

@@ -10,10 +10,10 @@
         {{ i18nKeys.common.search | translate }}
       </button>
     </div>
-    <a mat-flat-button routerLink="add">
+    <button mat-flat-button type="button" (click)="add()">
       <mat-icon>person_add</mat-icon>
       {{ i18nKeys.systemUser.add | translate }}
-    </a>
+    </button>
   </div>
 
   @if (loading()) {
@@ -66,14 +66,15 @@
             >
               <mat-icon>visibility</mat-icon>
             </a>
-            <a
+            <button
               mat-icon-button
-              [routerLink]="[row.id, 'edit']"
+              type="button"
+              (click)="edit(row)"
               [matTooltip]="i18nKeys.common.edit | translate"
               [attr.aria-label]="i18nKeys.common.edit | translate"
             >
               <mat-icon class="primary">edit</mat-icon>
-            </a>
+            </button>
             <button
               mat-icon-button
               (click)="remove(row)"

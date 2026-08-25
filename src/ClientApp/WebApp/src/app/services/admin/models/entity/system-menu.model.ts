@@ -1,5 +1,5 @@
-import { SystemRole } from 'src/app/services/admin/models/entity/system-role.model';
-import { MenuType } from 'src/app/services/admin/models/entity/menu-type.model';
+import { SystemRole } from '../entity/system-role.model';
+import { MenuType } from '../entity/menu-type.model';
 
 /**
  * 系统菜单

@@ -13,12 +13,12 @@ import { AdminClient } from 'src/app/services/admin/admin-client';
 import { ArticleCategoryItemDto } from 'src/app/services/admin/models/cmsmod/article-category-item-dto.model';
 import { LanguageType } from 'src/app/services/admin/models/entity/language-type.model';
 import { ContentType } from 'src/app/services/admin/models/entity/content-type.model';
-import { AuthService } from 'src/app/services/auth.service';
 import { TranslateService } from '@ngx-translate/core';
+import { MarkdownEditorComponent } from 'src/app/modules/share/components/markdown-editor/markdown-editor.component';
 
 @Component({
   selector: 'app-article-add',
-  imports: CommonFormModules,
+  imports: [...CommonFormModules, MarkdownEditorComponent],
   templateUrl: './add.html',
   styleUrl: './add.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -27,26 +27,28 @@ export class ArticleAddComponent {
   readonly i18nKeys = I18N_KEYS;
   private readonly fb = inject(FormBuilder);
   private readonly client = inject(AdminClient);
-  private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
   private readonly snackBar = inject(MatSnackBar);
   private readonly translate = inject(TranslateService);
   readonly categories = signal<ArticleCategoryItemDto[]>([]);
-  readonly languages = Object.entries(LanguageType).filter(
-    ([, value]) => typeof value === 'number',
-  ) as [string, LanguageType][];
-  readonly types = Object.entries(ContentType).filter(
-    ([, value]) => typeof value === 'number',
-  ) as [string, ContentType][];
+  readonly languages = [
+    { value: LanguageType.CN, labelKey: I18N_KEYS.cms.languageTypes.CN },
+    { value: LanguageType.EN, labelKey: I18N_KEYS.cms.languageTypes.EN },
+  ] as const;
+  readonly types = [
+    { value: ContentType.News, labelKey: I18N_KEYS.cms.contentTypes.News },
+    { value: ContentType.ViewPoint, labelKey: I18N_KEYS.cms.contentTypes.ViewPoint },
+    { value: ContentType.Knowledge, labelKey: I18N_KEYS.cms.contentTypes.Knowledge },
+    { value: ContentType.Documentary, labelKey: I18N_KEYS.cms.contentTypes.Documentary },
+    { value: ContentType.Private, labelKey: I18N_KEYS.cms.contentTypes.Private },
+  ] as const;
   saving = false;
   readonly form = this.fb.nonNullable.group({
     title: ['', Validators.required],
     description: [''],
     content: ['', Validators.required],
-    authors: ['', Validators.required],
     languageType: LanguageType.CN,
     blogType: ContentType.News,
-    isAudit: false,
     isPublic: true,
     isOriginal: true,
     catalogId: ['', Validators.required],
@@ -67,16 +69,14 @@ export class ArticleAddComponent {
       .add({
         ...value,
         description: value.description || null,
-        userId: this.auth.id ?? '00000000-0000-0000-0000-000000000000',
-        viewCount: 0,
         translateTitle: null,
         translateContent: null,
       })
       .subscribe({
         next: (article) => {
           this.snackBar.open(
-            this.translate.instant('cms.article.createSuccess'),
-            this.translate.instant('common.close'),
+            this.translate.instant(this.i18nKeys.cms.article.createSuccess),
+            this.translate.instant(this.i18nKeys.common.close),
             { duration: 2500 },
           );
           this.router.navigate(['/cms/article', article.id, 'detail']);

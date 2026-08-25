@@ -1,5 +1,5 @@
-import { ResEnvironment } from 'src/app/services/admin/models/entity/res-environment.model';
-import { ResCategory } from 'src/app/services/admin/models/entity/res-category.model';
+import { ResEnvironment } from '../entity/res-environment.model';
+import { ResCategory } from '../entity/res-category.model';
 
 /**
  * 资源环境和分类的角色读取授权。

@@ -5,8 +5,6 @@ import { ArticleAddComponent } from 'src/app/modules/cms/article/add/add';
 import { ArticleEditComponent } from 'src/app/modules/cms/article/edit/edit';
 import { ArticleDetailComponent } from 'src/app/modules/cms/article/detail/detail';
 import { ArticleCategoryIndexComponent } from 'src/app/modules/cms/article-category/index/index';
-import { ArticleCategoryAddComponent } from 'src/app/modules/cms/article-category/add/add';
-import { ArticleCategoryEditComponent } from 'src/app/modules/cms/article-category/edit/edit';
 import { ArticleCategoryDetailComponent } from 'src/app/modules/cms/article-category/detail/detail';
 
 const routes: Routes = [
@@ -16,11 +14,6 @@ const routes: Routes = [
   { path: 'article/:id/edit', component: ArticleEditComponent },
   { path: 'article/:id/detail', component: ArticleDetailComponent },
   { path: 'article-category', component: ArticleCategoryIndexComponent },
-  { path: 'article-category/add', component: ArticleCategoryAddComponent },
-  {
-    path: 'article-category/:id/edit',
-    component: ArticleCategoryEditComponent,
-  },
   {
     path: 'article-category/:id/detail',
     component: ArticleCategoryDetailComponent,
@@ -35,8 +28,6 @@ const routes: Routes = [
     ArticleEditComponent,
     ArticleDetailComponent,
     ArticleCategoryIndexComponent,
-    ArticleCategoryAddComponent,
-    ArticleCategoryEditComponent,
     ArticleCategoryDetailComponent,
   ],
 })

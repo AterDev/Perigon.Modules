@@ -13,10 +13,10 @@
       {{ i18nKeys.common.search | translate }}
     </button>
   </div>
-  <a mat-flat-button routerLink="add"
+  <button mat-flat-button type="button" (click)="add()"
   >
   <mat-icon>create_new_folder</mat-icon>{{ i18nKeys.cms.category.addAction | translate }}
-  </a
+  </button
   >
 </div>
 <div class="table-wrap">
@@ -60,10 +60,10 @@
   <mat-icon>visibility</mat-icon>
   </a
   >
-  <a mat-icon-button [routerLink]="[row.id, 'edit']"
+  <button mat-icon-button type="button" (click)="edit(row)"
   >
   <mat-icon class="primary">edit</mat-icon>
-  </a
+  </button
   >
   <button mat-icon-button (click)="remove(row)">
     <mat-icon class="error">delete</mat-icon>

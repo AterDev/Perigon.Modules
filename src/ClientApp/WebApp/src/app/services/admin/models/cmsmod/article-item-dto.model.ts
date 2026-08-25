@@ -1,5 +1,5 @@
-import { LanguageType } from 'src/app/services/admin/models/entity/language-type.model';
-import { ContentType } from 'src/app/services/admin/models/entity/content-type.model';
+import { LanguageType } from '../entity/language-type.model';
+import { ContentType } from '../entity/content-type.model';
 
 /**
  * 博客列表元素

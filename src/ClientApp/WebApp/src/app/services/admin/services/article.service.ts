@@ -1,14 +1,15 @@
-import { BaseService } from 'src/app/services/admin/base.service';
+import { BaseService } from '../base.service';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { PageList } from 'src/app/services/admin/models/perigon/page-list.model';
-import { LanguageType } from 'src/app/services/admin/models/entity/language-type.model';
-import { ContentType } from 'src/app/services/admin/models/entity/content-type.model';
-import { ArticleItemDto } from 'src/app/services/admin/models/cmsmod/article-item-dto.model';
-import { ArticleAddDto } from 'src/app/services/admin/models/cmsmod/article-add-dto.model';
-import { Article } from 'src/app/services/admin/models/entity/article.model';
-import { ArticleDetailDto } from 'src/app/services/admin/models/cmsmod/article-detail-dto.model';
-import { ArticleUpdateDto } from 'src/app/services/admin/models/cmsmod/article-update-dto.model';
+import { PageList } from '../models/perigon/page-list.model';
+import { LanguageType } from '../models/entity/language-type.model';
+import { ContentType } from '../models/entity/content-type.model';
+import { ArticleItemDto } from '../models/cmsmod/article-item-dto.model';
+import { ArticleAddDto } from '../models/cmsmod/article-add-dto.model';
+import { Article } from '../models/entity/article.model';
+import { ArticleImageUploadDto } from '../models/cmsmod/article-image-upload-dto.model';
+import { ArticleDetailDto } from '../models/cmsmod/article-detail-dto.model';
+import { ArticleUpdateDto } from '../models/cmsmod/article-update-dto.model';
 /**
  * 
  */
@@ -45,6 +46,16 @@ export class ArticleService extends BaseService {
     return this.request<Article>('post', _url, data);
   }
   /**
+   * uploadImage
+   * @param file IFile
+   */
+  uploadImage(file: File | null): Observable<ArticleImageUploadDto> {
+    const formData = new FormData();
+    if (file !== null && file !== undefined) formData.append('file', file, file.name);
+    const _url = `/api/Article/images`;
+    return this.request<ArticleImageUploadDto>('post', _url, formData);
+  }
+  /**
    * detail
    * @param id string
    */
@@ -65,8 +76,8 @@ export class ArticleService extends BaseService {
    * delete
    * @param id string
    */
-  delete(id: string): Observable<any> {
+  delete(id: string): Observable<void> {
     const _url = `/api/Article/${id}`;
-    return this.request<any>('delete', _url);
+    return this.request<void>('delete', _url);
   }
 }

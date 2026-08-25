@@ -7,6 +7,8 @@ import { I18N_KEYS } from 'src/app/modules/share/i18n-keys';
 import { CommonListModules } from 'src/app/modules/share/shared-modules';
 import { AdminClient } from 'src/app/services/admin/admin-client';
 import { SystemUserItemDto } from 'src/app/services/admin/models/system-mod/system-user-item-dto.model';
+import { SystemUserAddComponent } from 'src/app/modules/system/user/add/add';
+import { SystemUserEditComponent } from 'src/app/modules/system/user/edit/edit';
 
 @Component({
   selector: 'app-system-user-index',
@@ -39,6 +41,33 @@ export class SystemUserIndexComponent {
           this.loading.set(false);
         },
         error: () => this.loading.set(false),
+      });
+  }
+
+  add(): void {
+    this.dialog
+      .open(SystemUserAddComponent, {
+        width: '640px',
+        maxWidth: '96vw',
+        maxHeight: '96vh',
+      })
+      .afterClosed()
+      .subscribe((result) => {
+        if (result?.saved) this.load();
+      });
+  }
+
+  edit(user: SystemUserItemDto): void {
+    this.dialog
+      .open(SystemUserEditComponent, {
+        width: '640px',
+        maxWidth: '96vw',
+        maxHeight: '96vh',
+        data: { id: user.id },
+      })
+      .afterClosed()
+      .subscribe((result) => {
+        if (result?.saved) this.load();
       });
   }
 

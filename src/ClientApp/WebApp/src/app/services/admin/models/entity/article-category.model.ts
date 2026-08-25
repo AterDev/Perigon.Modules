@@ -1,4 +1,4 @@
-import { Article } from 'src/app/services/admin/models/entity/article.model';
+import { Article } from '../entity/article.model';
 
 /**
  * 目录

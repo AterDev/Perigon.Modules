@@ -5,7 +5,12 @@ import { HTTP_INTERCEPTORS, provideHttpClient, withInterceptorsFromDi } from '@a
 import { CustomerHttpInterceptor } from 'src/app/customer-http.interceptor';
 import { provideTranslateService } from '@ngx-translate/core';
 import { provideTranslateHttpLoader } from '@ngx-translate/http-loader';
+import { MARKED_OPTIONS, provideMarkdown } from 'ngx-markdown';
 import { environment } from 'src/environments/environment';
+import {
+  ArticleAssetUrlService,
+  articleMarkedOptionsFactory,
+} from 'src/app/modules/share/services/article-asset-url.service';
 
 export function getBaseUrl() {
   return document.getElementsByTagName('base')[0].href;
@@ -17,6 +22,13 @@ export const appConfig: ApplicationConfig = {
     provideZonelessChangeDetection(),
     provideRouter(routes),
     provideHttpClient(withInterceptorsFromDi()),
+    provideMarkdown({
+      markedOptions: {
+        provide: MARKED_OPTIONS,
+        useFactory: articleMarkedOptionsFactory,
+        deps: [ArticleAssetUrlService],
+      },
+    }),
     provideTranslateService({
       fallbackLang: 'en-US',
       lang: 'zh-CN',

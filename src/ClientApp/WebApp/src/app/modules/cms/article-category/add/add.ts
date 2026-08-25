@@ -6,7 +6,7 @@ import {
   signal,
 } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
+import { MatDialogRef } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { CommonFormModules } from 'src/app/modules/share/shared-modules';
 import { AdminClient } from 'src/app/services/admin/admin-client';
@@ -24,7 +24,7 @@ export class ArticleCategoryAddComponent {
   readonly i18nKeys = I18N_KEYS;
   private readonly fb = inject(FormBuilder);
   private readonly client = inject(AdminClient);
-  private readonly router = inject(Router);
+  private readonly dialogRef = inject(MatDialogRef<ArticleCategoryAddComponent>);
   private readonly snackBar = inject(MatSnackBar);
   private readonly translate = inject(TranslateService);
   readonly categories = signal<ArticleCategoryItemDto[]>([]);
@@ -39,7 +39,10 @@ export class ArticleCategoryAddComponent {
       .subscribe((page) => this.categories.set(page.data));
   }
   save(): void {
-    if (this.form.invalid) return;
+    if (this.form.invalid) {
+      this.form.markAllAsTouched();
+      return;
+    }
     const value = this.form.getRawValue();
     this.saving = true;
     this.client.articleCategory
@@ -47,11 +50,11 @@ export class ArticleCategoryAddComponent {
       .subscribe({
         next: () => {
           this.snackBar.open(
-            this.translate.instant('cms.category.createSuccess'),
-            this.translate.instant('common.close'),
+            this.translate.instant(this.i18nKeys.cms.category.createSuccess),
+            this.translate.instant(this.i18nKeys.common.close),
             { duration: 2500 },
           );
-          this.router.navigate(['/cms/article-category']);
+          this.dialogRef.close({ saved: true });
         },
         error: () => (this.saving = false),
       });

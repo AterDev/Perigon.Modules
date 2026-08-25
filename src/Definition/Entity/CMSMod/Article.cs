@@ -21,7 +21,7 @@ public class Article : EntityBase
     /// <summary>
     /// 内容
     /// </summary>
-    [MaxLength(10000)]
+    [MaxLength(200000)]
     public required string Content { get; set; }
 
     /// <summary>

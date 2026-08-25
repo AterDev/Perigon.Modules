@@ -1,5 +1,6 @@
-<section class="page">
-  <form [formGroup]="form" (ngSubmit)="save()">
+<h2 mat-dialog-title>{{ i18nKeys.common.edit | translate }}</h2>
+<mat-dialog-content>
+  <form [formGroup]="form" (ngSubmit)="save()" class="dialog-form">
     <mat-form-field appearance="outline">
       <mat-label>{{ i18nKeys.systemUser.userName | translate }}</mat-label>
       <input matInput formControlName="userName" />
@@ -56,13 +57,13 @@
       <input matInput formControlName="avatar" />
     </mat-form-field>
 
-    <div class="d-flex justify-content-end gap-3">
-      <button mat-button type="button" routerLink="../../">
-        {{ i18nKeys.common.cancel | translate }}
-      </button>
-      <button mat-flat-button type="submit" [disabled]="saving">
-        {{ i18nKeys.common.save | translate }}
-      </button>
-    </div>
   </form>
-</section>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button type="button" mat-dialog-close>
+    {{ i18nKeys.common.cancel | translate }}
+  </button>
+  <button mat-flat-button type="button" [disabled]="saving" (click)="save()">
+    {{ i18nKeys.common.save | translate }}
+  </button>
+</mat-dialog-actions>

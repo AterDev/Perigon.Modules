@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System.ComponentModel;
+using CMSMod.Services;
 
 namespace CMSMod;
 /// <summary>
@@ -22,6 +24,7 @@ public static class ModuleExtensions
 
     private static IHostApplicationBuilder AddModServices(this IHostApplicationBuilder builder)
     {
+        builder.Services.AddScoped<ArticleImageStorageService>();
         return builder;
     }
 }

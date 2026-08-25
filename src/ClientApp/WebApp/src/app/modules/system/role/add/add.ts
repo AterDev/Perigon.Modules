@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { Router } from '@angular/router';
+import { MatDialogRef } from '@angular/material/dialog';
 import { TranslateService } from '@ngx-translate/core';
 import { I18N_KEYS } from 'src/app/modules/share/i18n-keys';
 import { CommonFormModules } from 'src/app/modules/share/shared-modules';
@@ -18,7 +18,7 @@ export class SystemRoleAddComponent {
   readonly i18nKeys = I18N_KEYS;
   private readonly fb = inject(FormBuilder);
   private readonly client = inject(AdminClient);
-  private readonly router = inject(Router);
+  private readonly dialogRef = inject(MatDialogRef<SystemRoleAddComponent>);
   private readonly snackBar = inject(MatSnackBar);
   private readonly translate = inject(TranslateService);
   saving = false;
@@ -41,7 +41,7 @@ export class SystemRoleAddComponent {
           this.translate.instant(this.i18nKeys.common.close),
           { duration: 2500 },
         );
-        this.router.navigate(['/system/role']);
+        this.dialogRef.close({ saved: true });
       },
       error: () => (this.saving = false),
     });

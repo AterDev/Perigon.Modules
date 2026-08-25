@@ -1,14 +1,14 @@
-import { BaseService } from 'src/app/services/admin/base.service';
+import { BaseService } from '../base.service';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { PageList } from 'src/app/services/admin/models/perigon/page-list.model';
-import { SystemRoleItemDto } from 'src/app/services/admin/models/system-mod/system-role-item-dto.model';
-import { SystemRoleAddDto } from 'src/app/services/admin/models/system-mod/system-role-add-dto.model';
-import { SystemRole } from 'src/app/services/admin/models/entity/system-role.model';
-import { SystemRoleUpdateDto } from 'src/app/services/admin/models/system-mod/system-role-update-dto.model';
-import { SystemRoleDetailDto } from 'src/app/services/admin/models/system-mod/system-role-detail-dto.model';
-import { SystemRoleSetMenusDto } from 'src/app/services/admin/models/system-mod/system-role-set-menus-dto.model';
-import { SystemRoleSetPermissionGroupsDto } from 'src/app/services/admin/models/system-mod/system-role-set-permission-groups-dto.model';
+import { PageList } from '../models/perigon/page-list.model';
+import { SystemRoleItemDto } from '../models/system-mod/system-role-item-dto.model';
+import { SystemRoleAddDto } from '../models/system-mod/system-role-add-dto.model';
+import { SystemRole } from '../models/entity/system-role.model';
+import { SystemRoleUpdateDto } from '../models/system-mod/system-role-update-dto.model';
+import { SystemRoleDetailDto } from '../models/system-mod/system-role-detail-dto.model';
+import { SystemRoleSetMenusDto } from '../models/system-mod/system-role-set-menus-dto.model';
+import { SystemRoleSetPermissionGroupsDto } from '../models/system-mod/system-role-set-permission-groups-dto.model';
 /**
  * 系统角色
 SystemMod.Managers.SystemRoleManager
@@ -56,9 +56,9 @@ export class SystemRoleService extends BaseService {
    * ⚠删除 ✅
    * @param id
    */
-  delete(id: string): Observable<any> {
+  delete(id: string): Observable<void> {
     const _url = `/api/SystemRole/${id}`;
-    return this.request<any>('delete', _url);
+    return this.request<void>('delete', _url);
   }
   /**
    * 角色菜单 ✅
