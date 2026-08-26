@@ -1,4 +1,8 @@
-using SkiaSharp;
+using SixLabors.Fonts;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Drawing.Processing;
+using SixLabors.ImageSharp.PixelFormats;
+using SixLabors.ImageSharp.Processing;
 
 namespace Perigon.AspNetCore.Toolkit.Helpers;
 
@@ -8,12 +12,8 @@ namespace Perigon.AspNetCore.Toolkit.Helpers;
 public class ImageHelper
 {
     /// <summary>
-    ///  生成图形验证码
+    /// 生成图形验证码
     /// </summary>
-    /// <param name="captchaText"></param>
-    /// <param name="width"></param>
-    /// <param name="height"></param>
-    /// <param name="fontSize"></param>
     /// <returns>png文件的bytes</returns>
     public static byte[] GenerateImageCaptcha(
         string captchaText,
@@ -22,64 +22,44 @@ public class ImageHelper
         int fontSize = 24
     )
     {
-        using var surface = SKSurface.Create(new SKImageInfo(width, height));
-        // 获取画布
-        SKCanvas canvas = surface.Canvas;
-        // 填充背景色
-        canvas.Clear(SKColors.White);
+        ArgumentException.ThrowIfNullOrWhiteSpace(captchaText);
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(width);
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(height);
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(fontSize);
 
-        // 创建字体
-        using var font = new SKFont(SKTypeface.Default, fontSize);
-        // 创建文本画笔
-        var textPaint = new SKPaint { Color = SKColors.Black, IsAntialias = true };
-        // 计算文本位置
-        var textX = width / 2;
-        var textY = height * 3 / 4;
+        var fontFamily = SystemFonts.Collection.Families.First();
+        var font = fontFamily.CreateFont(fontSize);
+        var random = Random.Shared;
 
-        // 绘制文本
-        canvas.DrawText(captchaText, textX, textY, SKTextAlign.Center, font, textPaint);
-
-        // 添加干扰线条
-        var random = new Random();
-        for (var i = 0; i < 8; i++)
+        using var image = new Image<Rgba32>(width, height, Color.White);
+        image.Mutate(context =>
         {
-            var startX = random.Next(width);
-            var startY = random.Next(height);
-            var endX = random.Next(width);
-            var endY = random.Next(height);
-            var linePaint = new SKPaint
-            {
-                Color = new SKColor(
-                    (byte)random.Next(256),
-                    (byte)random.Next(256),
-                    (byte)random.Next(256)
-                ),
-                StrokeWidth = 1,
-                IsAntialias = true,
-            };
-            canvas.DrawLine(startX, startY, endX, endY, linePaint);
-        }
+            context.DrawText(captchaText, font, Color.Black, new PointF(width * 0.2f, height * 0.2f));
 
-        // 随机生成干扰点
-        for (var i = 0; i < 100; i++)
-        {
-            var paint = new SKPaint
+            for (var i = 0; i < 8; i++)
             {
-                Color = new SKColor(
-                    (byte)random.Next(256),
-                    (byte)random.Next(256),
-                    (byte)random.Next(256)
-                ),
-            };
-            var point = new SKPoint(random.Next(width), random.Next(height));
-            canvas.DrawPoint(point, paint);
-        }
+                context.DrawLine(
+                    GetRandomColor(random),
+                    1,
+                    new PointF(random.Next(width), random.Next(height)),
+                    new PointF(random.Next(width), random.Next(height))
+                );
+            }
 
-        // 将绘制的内容保存为图片
-        using SKImage image = surface.Snapshot();
-        using SKData data = image.Encode(SKEncodedImageFormat.Png, 100);
+            for (var i = 0; i < 100; i++)
+            {
+                context.Fill(GetRandomColor(random), new Rectangle(random.Next(width), random.Next(height), 1, 1));
+            }
+        });
+
         using var stream = new MemoryStream();
-        data.SaveTo(stream);
+        image.SaveAsPng(stream);
         return stream.ToArray();
     }
+
+    private static Color GetRandomColor(Random random) => Color.FromRgb(
+        (byte)random.Next(256),
+        (byte)random.Next(256),
+        (byte)random.Next(256)
+    );
 }

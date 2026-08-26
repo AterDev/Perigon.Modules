@@ -82,6 +82,7 @@ public static class WebExtensions
         app.UseRouting();
         app.UseOutputCache();
         app.MapSwagger().CacheOutput("openapi");
+        app.UseSwaggerUI(options => options.SwaggerEndpoint("./v1/swagger.json", "v1"));
 
         //app.UseMiddleware<JwtMiddleware>();
         app.UseMiddleware<GlobalExceptionMiddleware>();

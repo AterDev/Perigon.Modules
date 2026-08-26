@@ -48,6 +48,7 @@ public enum CacheType
 public enum MQType
 {
     None,
+    Nats,
     RabbitMQ,
-    Kafka,
+    KafKa
 }

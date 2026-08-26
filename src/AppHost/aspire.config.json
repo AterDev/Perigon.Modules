@@ -1,5 +1,8 @@
 {
   "appHost": {
     "path": "AppHost.csproj"
+  },
+  "features": {
+    "defaultWatchEnabled": true
   }
 }

@@ -27,7 +27,7 @@ public class ManagerSourceGen : IIncrementalGenerator
                     if (
                         ctx.SemanticModel.GetDeclaredSymbol(classDecl, cancellationToken)
                             is INamedTypeSymbol symbol
-                        && InheritsFromManagerBase(symbol)
+                        && CanRegisterLocalManager(symbol)
                     )
                     {
                         // 转换为纯数据，避免持有符号引用
@@ -66,7 +66,7 @@ public class ManagerSourceGen : IIncrementalGenerator
                             if (type is INamedTypeSymbol namedType)
                             {
                                 // 检查是否是 Manager 类
-                                if (InheritsFromManagerBase(namedType))
+                                if (CanRegisterReferencedManager(namedType))
                                 {
                                     managers.Add(new ManagerInfo(namedType.ToDisplayString()));
                                 }
@@ -202,6 +202,19 @@ public class ManagerSourceGen : IIncrementalGenerator
             baseType = baseType.BaseType;
         }
         return false;
+    }
+
+    private static bool CanRegisterLocalManager(INamedTypeSymbol symbol)
+    {
+        return !symbol.IsAbstract
+            && !symbol.IsGenericType
+            && InheritsFromManagerBase(symbol);
+    }
+
+    private static bool CanRegisterReferencedManager(INamedTypeSymbol symbol)
+    {
+        return symbol.DeclaredAccessibility == Accessibility.Public
+            && CanRegisterLocalManager(symbol);
     }
 
     /// <summary>

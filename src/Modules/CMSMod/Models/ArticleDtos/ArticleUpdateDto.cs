@@ -1,59 +1,63 @@
 namespace CMSMod.Models.ArticleDtos;
 
 /// <summary>
-/// 博客更新时请求结构
+/// 文章更新时请求结构。
 /// </summary>
 /// <inheritdoc cref="Article"/>
 public class ArticleUpdateDto
 {
     /// <summary>
-    /// 标题
+    /// 文章标题。
     /// </summary>
     [MaxLength(100)]
     public string Title { get; set; } = default!;
 
     /// <summary>
-    /// 描述
+    /// 文章描述。
     /// </summary>
     [MaxLength(300)]
     public string? Description { get; set; }
 
     /// <summary>
-    /// 内容
+    /// 文章正文内容。
     /// </summary>
     [MaxLength(200000)]
     public string Content { get; set; } = default!;
 
     /// <summary>
-    /// 标题
+    /// 翻译后的文章标题。
     /// </summary>
     [MaxLength(200)]
     public string? TranslateTitle { get; set; }
 
     /// <summary>
-    /// 翻译内容
+    /// 翻译后的文章正文内容。
     /// </summary>
     [MaxLength(12000)]
     public string? TranslateContent { get; set; }
 
     /// <summary>
-    /// 语言类型
+    /// 文章语言类型；未提供时保留原值。
     /// </summary>
     public LanguageType? LanguageType { get; set; }
 
     /// <summary>
-    /// 全站类别
+    /// 文章内容类型；未提供时保留原值。
     /// </summary>
     public ContentType? BlogType { get; set; }
 
     /// <summary>
-    /// 是否公开
+    /// 是否公开文章；未提供时保留原值。
     /// </summary>
     public bool? IsPublic { get; set; }
 
     /// <summary>
-    /// 是否原创
+    /// 是否为原创文章；未提供时保留原值。
     /// </summary>
     public bool? IsOriginal { get; set; }
+
+    /// <summary>
+    /// 所属目录 ID；未提供时保留原目录。
+    /// </summary>
     public Guid? CatalogId { get; set; }
 }
