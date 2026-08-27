@@ -1,7 +1,5 @@
 using Microsoft.Extensions.Hosting;
 using EntityFramework.AppDbFactory;
-using Perigon.AspNetCore.Constants;
-using Perigon.AspNetCore.Services;
 
 namespace ResourceMod.Services;
 
@@ -58,18 +56,12 @@ public class InitResourceModService(
             using IServiceScope scope = serviceProvider.CreateScope();
             DefaultDbContext catalogContext = scope.ServiceProvider.GetRequiredService<DefaultDbContext>();
             AppDbFactory dbContextFactory = scope.ServiceProvider.GetRequiredService<AppDbFactory>();
-            CacheService cache = scope.ServiceProvider.GetRequiredService<CacheService>();
             List<Tenant> tenants = await catalogContext.Tenants
                 .AsNoTracking()
                 .ToListAsync(stoppingToken);
             foreach (Tenant tenant in tenants)
             {
                 Guid tenantId = tenant.Id;
-                cache.SetMemory(
-                    $"{WebConst.TenantId}__{tenantId}",
-                    tenant,
-                    TimeSpan.FromDays(1)
-                );
                 await using DefaultDbContext context = dbContextFactory.CreateDbContext(tenantId);
                 await InitializeEnvironmentsAsync(context, tenantId, stoppingToken);
                 await InitializeCategoryAsync(context, tenantId, stoppingToken);

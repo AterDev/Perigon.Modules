@@ -1,17 +1,21 @@
 using EntityFramework.AppDbContext;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Perigon.AspNetCore.Constants;
-using Perigon.AspNetCore.Services;
 
 namespace EntityFramework.AppDbFactory;
 
 /// <summary>
 /// Factory for creating tenant-aware database contexts.
 /// </summary>
-/// <param name="cache"></param>
 /// <param name="configuration"></param>
-public class AppDbFactory(IOptions<ComponentOption> options, CacheService cache, IConfiguration configuration)
+/// <param name="tenantScopeFactory"></param>
+public class AppDbFactory(
+    IOptions<ComponentOption> options,
+    IConfiguration configuration,
+    IServiceScopeFactory tenantScopeFactory
+)
 {
     public DefaultDbContext CreateDbContext(Guid? tenantId)
     {
@@ -72,8 +76,10 @@ public class AppDbFactory(IOptions<ComponentOption> options, CacheService cache,
             return (defaultConnectionString, defaultAnalysisConnectionString);
         }
 
-        var cacheKey = $"{WebConst.TenantId}__{tenantId.Value}";
-        var tenant = cache.GetMemory<Tenant>(cacheKey);
+        using IServiceScope scope = tenantScopeFactory.CreateScope();
+        var tenant = scope.ServiceProvider
+            .GetRequiredService<ITenantResolver>()
+            .GetById(tenantId.Value);
         if (tenant is null)
         {
             return (defaultConnectionString, defaultAnalysisConnectionString);

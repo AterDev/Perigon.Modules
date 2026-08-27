@@ -150,7 +150,10 @@ public class LocalizerConstGen : IIncrementalGenerator
             return ClassName == other.ClassName && Keys.SequenceEqual(other.Keys);
         }
 
-        public override bool Equals(object obj) => obj is ResxData other && Equals(other);
+        public override bool Equals(object obj)
+        {
+            return obj is ResxData other && Equals(other);
+        }
 
         public override int GetHashCode()
         {
@@ -179,7 +182,10 @@ public class LocalizerConstGen : IIncrementalGenerator
             return ClassName == other.ClassName && Namespace == other.Namespace;
         }
 
-        public override bool Equals(object obj) => obj is ClassInfo other && Equals(other);
+        public override bool Equals(object obj)
+        {
+            return obj is ClassInfo other && Equals(other);
+        }
 
         public override int GetHashCode()
         {

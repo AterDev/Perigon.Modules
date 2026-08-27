@@ -22,6 +22,7 @@ using Perigon.AspNetCore.Options;
 using Perigon.AspNetCore.Services;
 using ServiceDefaults;
 using Share.Implement;
+using Share.Services;
 
 namespace ApiTest;
 
@@ -284,17 +285,12 @@ public sealed class TenantFrameworkTests
 
         var tenant = await context.Tenants
             .SingleAsync(t => t.Domain == DefaultDbContextSeeding.DefaultTenantDomain);
-        var services = new ServiceCollection();
-        services.Configure<CacheOption>(_ => { });
-        services.Configure<ComponentOption>(_ => { });
-        services.AddMemoryCache();
-        services.AddHybridCache();
-        using var serviceProvider = services.BuildServiceProvider();
-        var cache = new CacheService(
-            serviceProvider.GetRequiredService<HybridCache>(),
-            serviceProvider.GetRequiredService<IMemoryCache>(),
-            serviceProvider.GetRequiredService<IOptions<CacheOption>>(),
-            serviceProvider.GetRequiredService<IOptions<ComponentOption>>()
+        using var serviceProvider = CreateCacheServiceProvider();
+        var cache = CreateCacheService(serviceProvider);
+        var tenantService = new TenantService(
+            context,
+            cache,
+            NullLogger<TenantService>.Instance
         );
         var principal = new ClaimsPrincipal(
             new ClaimsIdentity(
@@ -303,7 +299,7 @@ public sealed class TenantFrameworkTests
             )
         );
 
-        var transformed = await new LocalUserClaimsTransformation(context, cache)
+        var transformed = await new UserClaimsTransformation(tenantService, cache)
             .TransformAsync(principal);
 
         await Assert.That(transformed.FindFirst(CustomClaimTypes.TenantId)?.Value)
@@ -314,12 +310,263 @@ public sealed class TenantFrameworkTests
             .IsEqualTo(tenant.Name);
     }
 
+    [Test]
+    public async Task TenantService_WhenTenantIsCached_DoesNotReadCatalogAgain()
+    {
+        await using var connection = new SqliteConnection("Data Source=:memory:");
+        await connection.OpenAsync();
+
+        await using var context = CreateSqliteContext(connection);
+        await context.Database.EnsureCreatedAsync();
+
+        var tenant = new Tenant
+        {
+            Domain = "cached-tenant.example",
+            Name = "Cached Tenant",
+        };
+        context.Tenants.Add(tenant);
+        await context.SaveChangesAsync();
+
+        using var serviceProvider = CreateCacheServiceProvider();
+        var tenantService = new TenantService(
+            context,
+            CreateCacheService(serviceProvider),
+            NullLogger<TenantService>.Instance
+        );
+
+        var loadedTenant = await tenantService.GetByIdAsync(tenant.Id);
+        await Assert.That(loadedTenant).IsNotNull();
+
+        context.Tenants.Remove(tenant);
+        await context.SaveChangesAsync();
+
+        var cachedTenant = await tenantService.GetByIdAsync(tenant.Id);
+        await Assert.That(cachedTenant).IsNotNull();
+        await Assert.That(cachedTenant!.Name).IsEqualTo("Cached Tenant");
+    }
+
+    [Test]
+    public async Task TenantService_WhenTenantIsDisabled_PreservesMetadataForConnectionSelection()
+    {
+        await using var connection = new SqliteConnection("Data Source=:memory:");
+        await connection.OpenAsync();
+
+        await using var context = CreateSqliteContext(connection);
+        using var serviceProvider = CreateCacheServiceProvider();
+        var tenant = new Tenant
+        {
+            Domain = "disabled-cache-tenant.example",
+            Name = "Disabled Cache Tenant",
+            Disabled = true,
+        };
+        var tenantService = new TenantService(
+            context,
+            CreateCacheService(serviceProvider),
+            NullLogger<TenantService>.Instance
+        );
+
+        tenantService.SetCache(tenant);
+        var cachedTenant = await tenantService.GetByIdAsync(tenant.Id);
+
+        await Assert.That(cachedTenant).IsNotNull();
+        await Assert.That(cachedTenant!.Disabled).IsTrue();
+    }
+
+    [Test]
+    public async Task UserClaimsTransformation_WhenTenantIdIsCached_UsesCachedTenant()
+    {
+        await using var connection = new SqliteConnection("Data Source=:memory:");
+        await connection.OpenAsync();
+
+        await using var context = CreateSqliteContext(connection);
+        await context.Database.EnsureCreatedAsync();
+
+        var tenant = new Tenant
+        {
+            Domain = "claims-cache-tenant.example",
+            Name = "Claims Cache Tenant",
+        };
+        context.Tenants.Add(tenant);
+        await context.SaveChangesAsync();
+
+        using var serviceProvider = CreateCacheServiceProvider();
+        var cache = CreateCacheService(serviceProvider);
+        var tenantService = new TenantService(
+            context,
+            cache,
+            NullLogger<TenantService>.Instance
+        );
+        var transformation = new UserClaimsTransformation(tenantService, cache);
+
+        var firstPrincipal = new ClaimsPrincipal(
+            new ClaimsIdentity(
+                [new Claim(CustomClaimTypes.TenantId, tenant.Id.ToString())],
+                authenticationType: "test"
+            )
+        );
+        _ = await transformation.TransformAsync(firstPrincipal);
+
+        context.Tenants.Remove(tenant);
+        await context.SaveChangesAsync();
+
+        var secondPrincipal = new ClaimsPrincipal(
+            new ClaimsIdentity(
+                [new Claim(CustomClaimTypes.TenantId, tenant.Id.ToString())],
+                authenticationType: "test"
+            )
+        );
+        var transformed = await transformation.TransformAsync(secondPrincipal);
+
+        await Assert.That(transformed.FindFirst(CustomClaimTypes.TenantName)?.Value)
+            .IsEqualTo(tenant.Name);
+    }
+
+    [Test]
+    public async Task TenantService_RefreshCacheAsync_ReplacesCachedTenant()
+    {
+        await using var connection = new SqliteConnection("Data Source=:memory:");
+        await connection.OpenAsync();
+
+        await using var context = CreateSqliteContext(connection);
+        await context.Database.EnsureCreatedAsync();
+
+        var tenant = new Tenant
+        {
+            Domain = "refresh-tenant.example",
+            Name = "Before Refresh",
+        };
+        context.Tenants.Add(tenant);
+        await context.SaveChangesAsync();
+
+        using var serviceProvider = CreateCacheServiceProvider();
+        var tenantService = new TenantService(
+            context,
+            CreateCacheService(serviceProvider),
+            NullLogger<TenantService>.Instance
+        );
+
+        _ = await tenantService.GetByIdAsync(tenant.Id);
+        await context.Tenants
+            .Where(item => item.Id == tenant.Id)
+            .ExecuteUpdateAsync(updater => updater
+                .SetProperty(item => item.Name, "After Refresh")
+                .SetProperty(item => item.Disabled, true));
+
+        var refreshedTenant = await tenantService.RefreshCacheAsync(tenant.Id);
+        await Assert.That(refreshedTenant).IsNotNull();
+        await Assert.That(refreshedTenant!.Name).IsEqualTo("After Refresh");
+        await Assert.That(refreshedTenant.Disabled).IsTrue();
+
+        var cachedTenant = await tenantService.GetByIdAsync(tenant.Id);
+        await Assert.That(cachedTenant).IsNotNull();
+        await Assert.That(cachedTenant!.Name).IsEqualTo("After Refresh");
+        await Assert.That(cachedTenant.Disabled).IsTrue();
+    }
+
+    [Test]
+    public async Task AppDbFactory_WhenTenantCacheIsMissing_LoadsAndCachesTenant()
+    {
+        await using var connection = new SqliteConnection("Data Source=:memory:");
+        await connection.OpenAsync();
+
+        await using var catalogContext = CreateSqliteContext(connection);
+        await catalogContext.Database.EnsureCreatedAsync();
+
+        var tenant = new Tenant
+        {
+            Domain = "connection-cache-tenant.example",
+            Name = "Connection Cache Tenant",
+            DbConnectionString = "Host=tenant-db;Database=tenant",
+            AnalysisConnectionString = "Host=tenant-analysis;Database=analysis",
+        };
+        catalogContext.Tenants.Add(tenant);
+        await catalogContext.SaveChangesAsync();
+
+        using var cacheProvider = CreateCacheServiceProvider();
+        var cache = CreateCacheService(cacheProvider);
+        using var tenantProvider = CreateTenantResolverProvider(connection, cache);
+
+        var configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection(
+                new Dictionary<string, string?>
+                {
+                    [$"ConnectionStrings:{AppConst.Default}"] =
+                        "Host=default-db;Database=default",
+                    [$"ConnectionStrings:{AppConst.Analysis}"] =
+                        "Host=default-analysis;Database=analysis",
+                }
+            )
+            .Build();
+        var factory = new AppDbFactory(
+            Options.Create(new ComponentOption { Database = DatabaseType.PostgreSql }),
+            configuration,
+            tenantProvider.GetRequiredService<IServiceScopeFactory>()
+        );
+
+        await using var defaultContext = factory.CreateDbContext(tenant.Id);
+
+        await Assert.That(defaultContext.Database.GetConnectionString())
+            .IsEqualTo(tenant.DbConnectionString);
+
+        await catalogContext.Tenants.ExecuteDeleteAsync();
+
+        await using var analysisContext = factory.CreateAnalysisDbContext(tenant.Id);
+        await Assert.That(analysisContext.Database.GetConnectionString())
+            .IsEqualTo(tenant.AnalysisConnectionString);
+        await Assert.That(cache.GetMemory<Tenant>(TenantService.GetCacheKey(tenant.Id)))
+            .IsNotNull();
+    }
+
     private static DefaultDbContext CreateContext()
     {
         var options = new DbContextOptionsBuilder<DefaultDbContext>()
             .UseNpgsql("Host=localhost;Database=model_metadata_test;Username=postgres;Password=postgres")
             .Options;
         return new DefaultDbContext(options);
+    }
+
+    private static DefaultDbContext CreateSqliteContext(SqliteConnection connection)
+    {
+        var options = new DbContextOptionsBuilder<DefaultDbContext>()
+            .UseSqlite(connection)
+            .Options;
+        return new DefaultDbContext(options);
+    }
+
+    private static ServiceProvider CreateCacheServiceProvider()
+    {
+        var services = new ServiceCollection();
+        services.Configure<CacheOption>(_ => { });
+        services.Configure<ComponentOption>(_ => { });
+        services.AddMemoryCache();
+        services.AddHybridCache();
+        return services.BuildServiceProvider();
+    }
+
+    private static CacheService CreateCacheService(IServiceProvider serviceProvider)
+    {
+        return new CacheService(
+            serviceProvider.GetRequiredService<HybridCache>(),
+            serviceProvider.GetRequiredService<IMemoryCache>(),
+            serviceProvider.GetRequiredService<IOptions<CacheOption>>(),
+            serviceProvider.GetRequiredService<IOptions<ComponentOption>>()
+        );
+    }
+
+    private static ServiceProvider CreateTenantResolverProvider(
+        SqliteConnection connection,
+        CacheService cache
+    )
+    {
+        var services = new ServiceCollection();
+        services.AddLogging();
+        services.AddSingleton(cache);
+        services.AddScoped<DefaultDbContext>(_ => CreateSqliteContext(connection));
+        services.AddScoped<TenantService>();
+        services.AddScoped<ITenantResolver>(serviceProvider =>
+            serviceProvider.GetRequiredService<TenantService>()
+        );
+        return services.BuildServiceProvider();
     }
 
     private static ConventionTestDbContext CreateConventionContext()
@@ -355,10 +602,20 @@ public sealed class TenantFrameworkTests
 
         return new AppDbFactory(
             Options.Create(new ComponentOption { Database = DatabaseType.PostgreSql }),
-            cache: null!,
-            configuration
+            configuration,
+            EmptyTenantScopeFactory
         );
     }
+
+    private static IServiceScopeFactory CreateEmptyTenantScopeFactory()
+    {
+        var services = new ServiceCollection();
+        services.AddScoped<ITenantResolver, EmptyTenantResolver>();
+        return services.BuildServiceProvider().GetRequiredService<IServiceScopeFactory>();
+    }
+
+    private static readonly IServiceScopeFactory EmptyTenantScopeFactory =
+        CreateEmptyTenantScopeFactory();
 
     private sealed class TestUserContext : IUserContext
     {
@@ -383,6 +640,11 @@ public sealed class TenantFrameworkTests
     ) : ManagerBase<DefaultDbContext, Tenant>(dbContextFactory, userContext, logger)
     {
         public override Task<bool> HasPermissionAsync(Guid id) => Task.FromResult(true);
+    }
+
+    private sealed class EmptyTenantResolver : ITenantResolver
+    {
+        public Tenant? GetById(Guid tenantId) => null;
     }
 
     private sealed class TenantFrameworkTestEntityManager(

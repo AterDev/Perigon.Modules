@@ -1,12 +1,12 @@
 using System.Security.Claims;
 using Entity;
 using Microsoft.AspNetCore.Authentication;
-using Microsoft.EntityFrameworkCore;
 using Perigon.AspNetCore.Services;
+using Share.Services;
 
 namespace ServiceDefaults;
 
-public class LocalUserClaimsTransformation(DefaultDbContext context, CacheService cache)
+public class UserClaimsTransformation(TenantService tenantService, CacheService cache)
     : IClaimsTransformation
 {
     public async Task<ClaimsPrincipal> TransformAsync(ClaimsPrincipal principal)
@@ -46,15 +46,13 @@ public class LocalUserClaimsTransformation(DefaultDbContext context, CacheServic
         if (tenantIdValue is not null)
         {
             return Guid.TryParse(tenantIdValue, out var tenantId) && tenantId != Guid.Empty
-                ? await context.Tenants
-                    .AsNoTracking()
-                    .FirstOrDefaultAsync(t => t.Id == tenantId)
+                ? await tenantService.GetByIdAsync(tenantId)
                 : null;
         }
 
-        var tenant = await context.Tenants
-            .AsNoTracking()
-            .FirstOrDefaultAsync(t => t.Domain == EntityFramework.AppDbContext.DefaultDbContextSeeding.DefaultTenantDomain);
+        var tenant = await tenantService.GetByDomainAsync(
+            EntityFramework.AppDbContext.DefaultDbContextSeeding.DefaultTenantDomain
+        );
 
         return tenant
             ?? throw new InvalidOperationException(

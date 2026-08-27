@@ -1,8 +1,6 @@
-using Entity;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Perigon.AspNetCore.Abstraction;
-using Perigon.AspNetCore.Services;
+using Share.Services;
 
 namespace ServiceDefaults.Middleware;
 
@@ -26,8 +24,7 @@ public class TenantResolutionMiddleware
     public async Task InvokeAsync(
         HttpContext context,
         IUserContext userContext,
-        DefaultDbContext dbContext,
-        CacheService cache
+        TenantService tenantService
     )
     {
         try
@@ -45,31 +42,10 @@ public class TenantResolutionMiddleware
                 return;
             }
 
-            var cacheKey = $"{WebConst.TenantId}__{userContext.TenantId}";
-            var tenant = cache.GetMemory<Tenant>(cacheKey);
-
-            if (tenant is null)
-            {
-                tenant = await dbContext.Tenants
-                    .AsNoTracking()
-                    .FirstOrDefaultAsync(
-                        t => t.Id == userContext.TenantId && !t.Disabled,
-                        context.RequestAborted
-                    );
-
-                if (tenant is not null)
-                {
-                    cache.SetMemory(cacheKey, tenant, TimeSpan.FromDays(1));
-                    _logger.LogInformation(
-                        "Tenant {TenantId} loaded from database and cached",
-                        userContext.TenantId
-                    );
-                }
-            }
-            else
-            {
-                _logger.LogDebug("Tenant {TenantId} loaded from memory cache", userContext.TenantId);
-            }
+            var tenant = await tenantService.GetByIdAsync(
+                userContext.TenantId,
+                context.RequestAborted
+            );
 
             if (tenant is not null && (!tenant.Disabled && !tenant.IsDeleted))
             {
@@ -87,7 +63,7 @@ public class TenantResolutionMiddleware
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error resolving tenant connection strings");
+            _logger.LogError(ex, "Error resolving tenant");
             throw;
         }
 

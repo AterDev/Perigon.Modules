@@ -1,6 +1,7 @@
 using System.Text.Json;
 using Entity;
 using EntityFramework.AppDbFactory;
+using Share.Services;
 using SystemMod.Managers;
 
 namespace SystemMod;
@@ -18,6 +19,7 @@ public class InitModule
         var logger = loggerFactory.CreateLogger<InitModule>();
         var configuration = provider.GetRequiredService<IConfiguration>();
         var cache = provider.GetRequiredService<CacheService>();
+        var tenantService = provider.GetRequiredService<TenantService>();
 
         try
         {
@@ -31,11 +33,9 @@ public class InitModule
 
             foreach (var tenant in tenants)
             {
-                cache.SetMemory(
-                    $"{WebConst.TenantId}__{tenant.Id}",
-                    tenant,
-                    TimeSpan.FromDays(1)
-                );
+                // AppDbFactory selects an independent tenant connection synchronously
+                // from this cache before creating the tenant context.
+                tenantService.SetCache(tenant);
 
                 await using var context = dbContextFactory.CreateDbContext(tenant.Id);
                 if (!await context.SystemUsers.AnyAsync())

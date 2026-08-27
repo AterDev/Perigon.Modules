@@ -2,6 +2,7 @@ using System.Reflection;
 using EntityFramework.AppDbFactory;
 using Perigon.AspNetCore.Attributes;
 using Microsoft.Extensions.Hosting;
+using Share.Services;
 
 namespace SystemMod.Worker;
 
@@ -57,9 +58,8 @@ public class SystemLogTaskHostedService(
     private async Task InsertLogsAsync(List<SystemLogs> logs, CancellationToken stoppingToken)
     {
         using IServiceScope scope = _serviceProvider.CreateScope();
-        var catalogContext = scope.ServiceProvider.GetRequiredService<DefaultDbContext>();
         var dbContextFactory = scope.ServiceProvider.GetRequiredService<AppDbFactory>();
-        var cache = scope.ServiceProvider.GetRequiredService<CacheService>();
+        var tenantService = scope.ServiceProvider.GetRequiredService<TenantService>();
 
         foreach (var log in logs)
         {
@@ -98,20 +98,13 @@ public class SystemLogTaskHostedService(
 
             try
             {
-                var tenant = await catalogContext.Tenants
-                    .AsNoTracking()
-                    .FirstOrDefaultAsync(t => t.Id == tenantLogs.Key, stoppingToken);
+                var tenant = await tenantService.GetByIdAsync(tenantLogs.Key, stoppingToken);
                 if (tenant is null)
                 {
                     _logger.LogWarning("Skip logs for unknown tenant {TenantId}", tenantLogs.Key);
                     continue;
                 }
 
-                cache.SetMemory(
-                    $"{WebConst.TenantId}__{tenant.Id}",
-                    tenant,
-                    TimeSpan.FromDays(1)
-                );
                 await using var context = dbContextFactory.CreateDbContext(tenantLogs.Key);
                 var tenantLogList = tenantLogs.ToList();
                 context.AddRange(tenantLogList);

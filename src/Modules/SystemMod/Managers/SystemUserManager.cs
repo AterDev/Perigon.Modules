@@ -4,6 +4,7 @@ using Share.Models.Auth;
 using System.Security.Claims;
 using System.Text.Json;
 using System.Text.RegularExpressions;
+using Share.Services;
 using SystemMod.Models.SystemUserDtos;
 
 namespace SystemMod.Managers;
@@ -11,6 +12,7 @@ namespace SystemMod.Managers;
 public class SystemUserManager(
     AppDbFactory dbContextFactory,
     CacheService cache,
+    TenantService tenantService,
     JwtService jwtService,
     SystemLogService logService,
     ILogger<SystemUserManager> logger,
@@ -26,6 +28,7 @@ public class SystemUserManager(
 )
 {
     private readonly CacheService _cache = cache;
+    private readonly TenantService _tenantService = tenantService;
     private readonly SystemLogService _logService = logService;
     private readonly Localizer _localizer = localizer;
     private readonly IConfiguration _configuration = configuration;
@@ -440,19 +443,15 @@ public class SystemUserManager(
     private async Task<Tenant> ResolveTenantAsync(string email)
     {
         var domain = email.Split("@").Last();
-        var tenant = await _dbContext.Tenants
-            .Where(t => t.Domain == domain && !t.Disabled)
-            .FirstOrDefaultAsync()
-            ?? throw new BusinessException(Localizer.TenantNotExist);
+        var tenant = await _tenantService.GetByDomainAsync(domain);
+        if (tenant is null || tenant.Disabled)
+        {
+            throw new BusinessException(Localizer.TenantNotExist);
+        }
 
         _dbContext.SetTenantId(tenant.Id);
         _userContext.TenantId = tenant.Id;
         _userContext.TenantType = tenant.Type.ToString();
-        _cache.SetMemory(
-            $"{WebConst.TenantId}__{tenant.Id}",
-            tenant,
-            TimeSpan.FromDays(1)
-        );
         return tenant;
     }
 
