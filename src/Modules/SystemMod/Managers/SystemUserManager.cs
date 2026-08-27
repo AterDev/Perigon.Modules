@@ -126,7 +126,10 @@ public class SystemUserManager(
         if (!HashCrypto.Validate(dto.Password, user.PasswordSalt, user.PasswordHash))
         {
             user.RetryCount++;
-            throw new BusinessException(Localizer.PasswordInvalid);
+            throw new BusinessException(
+                Localizer.PasswordInvalid,
+                StatusCodes.Status401Unauthorized
+            );
         }
     }
 

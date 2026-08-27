@@ -52,7 +52,7 @@ public class GlobalHooks
             await conn.OpenAsync();
 
             // 强制断开所有连接并删除库
-            var dropSql = $"DROP DATABASE IF EXISTS \"Perigon.Modules_test\" WITH (FORCE);";
+            var dropSql = "DROP DATABASE IF EXISTS \"PerigonModulesTest\" WITH (FORCE);";
             using var cmd = new Npgsql.NpgsqlCommand(dropSql, conn);
             await cmd.ExecuteNonQueryAsync();
 
