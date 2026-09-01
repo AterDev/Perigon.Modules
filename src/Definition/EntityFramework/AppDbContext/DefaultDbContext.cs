@@ -15,6 +15,7 @@ public partial class DefaultDbContext(DbContextOptions<DefaultDbContext> options
     public DbSet<ResDefinitionProperty> ResDefinitionProperties { get; set; }
     public DbSet<ResDefinitionPropertyMap> ResDefinitionPropertyMaps { get; set; }
     public DbSet<Resource> Resources { get; set; }
+    public DbSet<PersonalResource> PersonalResources { get; set; }
     public DbSet<ResValue> ResValues { get; set; }
     public DbSet<ResPermission> ResPermissions { get; set; }
     public DbSet<SystemConfig> SystemConfigs { get; set; }

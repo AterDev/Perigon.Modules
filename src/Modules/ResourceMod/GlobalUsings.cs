@@ -18,3 +18,4 @@ global using ResourceMod.Models.ResGroupDtos;
 global using ResourceMod.Models.ResPermissionDtos;
 global using ResourceMod.Models.ResTagDtos;
 global using ResourceMod.Models.ResourceDtos;
+global using ResourceMod.Models.PersonalResourceDtos;
