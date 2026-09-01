@@ -143,7 +143,13 @@ public class ResourceConfigurationManager(
             map.TenantId == _userContext.TenantId && map.PropertyId == id);
         bool hasValues = await _dbContext.ResValues.AnyAsync(value =>
             value.TenantId == _userContext.TenantId && value.DefinitionPropertyId == id);
-        if (isReferenced || hasValues)
+        bool hasPersonalValues = await _dbContext.PersonalResources.AnyAsync(resource =>
+            resource.TenantId == _userContext.TenantId &&
+            _dbContext.ResDefinitionPropertyMaps.Any(map =>
+                map.TenantId == _userContext.TenantId &&
+                map.DefinitionId == resource.DefinitionId &&
+                map.PropertyId == id));
+        if (isReferenced || hasValues || hasPersonalValues)
         {
             throw new BusinessException("资源属性正在被使用，不能删除", StatusCodes.Status409Conflict);
         }
@@ -460,7 +466,9 @@ public class ResourceConfigurationManager(
         ResDefinition entity = await GetTenantEntityAsync(_dbContext.ResDefinitions, id, "资源定义不存在");
         bool isReferenced = await _dbContext.Resources.AnyAsync(r =>
             r.TenantId == _userContext.TenantId && r.DefinitionId == id);
-        if (isReferenced)
+        bool hasPersonalResources = await _dbContext.PersonalResources.AnyAsync(resource =>
+            resource.TenantId == _userContext.TenantId && resource.DefinitionId == id);
+        if (isReferenced || hasPersonalResources)
         {
             throw new BusinessException("资源定义已被资源引用，不能删除", StatusCodes.Status409Conflict);
         }

@@ -234,6 +234,21 @@ public class ResourceManager(
             throw new BusinessException("资源分组不属于所选分类", StatusCodes.Status400BadRequest);
         }
 
+        List<ResourceValueDto> normalizedValues =
+            await ValidateAndNormalizeValuesAsync(resource.DefinitionId, inputs);
+
+        List<ResValue> values = normalizedValues
+            .Select(input => new ResValue
+            {
+                ResourceId = resource.Id,
+                DefinitionPropertyId = input.DefinitionPropertyId,
+                Value = input.Value,
+                PropertyNameSnapshot = string.Empty,
+                ValueTypeSnapshot = default,
+                TenantId = _userContext.TenantId
+            })
+            .ToList();
+
         List<ResDefinitionProperty> properties = await _dbContext.ResDefinitionPropertyMaps
             .Where(map =>
                 map.DefinitionId == resource.DefinitionId &&
@@ -241,18 +256,46 @@ public class ResourceManager(
             .OrderBy(map => map.Sort)
             .Select(map => map.Property)
             .ToListAsync();
+        Dictionary<Guid, ResDefinitionProperty> propertiesById = properties.ToDictionary(p => p.Id);
+        foreach (ResValue value in values)
+        {
+            ResDefinitionProperty property = propertiesById[value.DefinitionPropertyId];
+            value.PropertyNameSnapshot = property.Name;
+            value.ValueTypeSnapshot = property.ValueType;
+        }
+
+        List<ResValue> existingValues = await _dbContext.ResValues
+            .Where(value => value.ResourceId == resource.Id && value.TenantId == _userContext.TenantId)
+            .ToListAsync();
+        _dbContext.ResValues.RemoveRange(existingValues);
+        resource.Values = values;
+        await _dbContext.ResValues.AddRangeAsync(values);
+    }
+
+    public async Task<List<ResourceValueDto>> ValidateAndNormalizeValuesAsync(
+        Guid definitionId,
+        List<ResourceValueDto> inputs)
+    {
+        List<ResDefinitionProperty> properties = await _dbContext.ResDefinitionPropertyMaps
+            .Where(map =>
+                map.DefinitionId == definitionId &&
+                map.TenantId == _userContext.TenantId)
+            .OrderBy(map => map.Sort)
+            .Select(map => map.Property)
+            .ToListAsync();
         bool definitionDoesNotExist = properties.Count == 0 && !await _dbContext.ResDefinitions.AnyAsync(d =>
-            d.Id == resource.DefinitionId && d.TenantId == _userContext.TenantId);
+            d.Id == definitionId && d.TenantId == _userContext.TenantId);
         if (definitionDoesNotExist)
         {
             throw new BusinessException("资源定义不存在", StatusCodes.Status400BadRequest);
         }
 
+        Dictionary<Guid, ResDefinitionProperty> propertiesById = properties.ToDictionary(p => p.Id);
         bool containsDuplicateOrUnknownValue = inputs
             .Select(v => v.DefinitionPropertyId)
             .Distinct()
             .Count() != inputs.Count ||
-            inputs.Any(v => !properties.Any(p => p.Id == v.DefinitionPropertyId));
+            inputs.Any(v => !propertiesById.ContainsKey(v.DefinitionPropertyId));
         if (containsDuplicateOrUnknownValue)
         {
             throw new BusinessException("资源属性包含重复或未知字段", StatusCodes.Status400BadRequest);
@@ -268,10 +311,10 @@ public class ResourceManager(
                 StatusCodes.Status400BadRequest);
         }
 
-        List<ResValue> values = [];
+        List<ResourceValueDto> normalizedValues = [];
         foreach (ResourceValueDto input in inputs)
         {
-            ResDefinitionProperty property = properties.Single(p => p.Id == input.DefinitionPropertyId);
+            ResDefinitionProperty property = propertiesById[input.DefinitionPropertyId];
             if (string.IsNullOrEmpty(input.Value))
             {
                 continue;
@@ -284,23 +327,14 @@ public class ResourceManager(
                     StatusCodes.Status400BadRequest);
             }
 
-            values.Add(new ResValue
+            normalizedValues.Add(new ResourceValueDto
             {
-                ResourceId = resource.Id,
                 DefinitionPropertyId = property.Id,
-                Value = NormalizeValue(input.Value, property.ValueType, property.Name),
-                PropertyNameSnapshot = property.Name,
-                ValueTypeSnapshot = property.ValueType,
-                TenantId = _userContext.TenantId
+                Value = NormalizeValue(input.Value, property.ValueType, property.Name)
             });
         }
 
-        List<ResValue> existingValues = await _dbContext.ResValues
-            .Where(value => value.ResourceId == resource.Id && value.TenantId == _userContext.TenantId)
-            .ToListAsync();
-        _dbContext.ResValues.RemoveRange(existingValues);
-        resource.Values = values;
-        await _dbContext.ResValues.AddRangeAsync(values);
+        return normalizedValues;
     }
 
     private static string NormalizeValue(string value, ResValueType type, string propertyName)
