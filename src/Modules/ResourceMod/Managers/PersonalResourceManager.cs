@@ -33,7 +33,9 @@ public class PersonalResourceManager(
 
         IQueryable<PersonalResource> query = _dbSet
             .Include(resource => resource.Definition)
-            .Where(resource => resource.Status == PersonalResourceStatus.ApplyPublic);
+            .Where(resource =>
+                resource.Status == PersonalResourceStatus.ApplyPublic &&
+                resource.AuditStatus == PersonalResourceAuditStatus.Pending);
         return PageAsync(query, filter);
     }
 
