@@ -1,0 +1,72 @@
+<h2 mat-dialog-title>{{ i18nKeys.resource.personalReviewTitle | translate }}</h2>
+<mat-dialog-content>
+  @if (loading()) {
+    <mat-spinner diameter="36" />
+  } @else if (detail(); as item) {
+    <section class="submitted-values">
+      <h3>{{ item.definitionName }}</h3>
+      <div class="values-grid">
+        @for (value of item.values; track value.definitionPropertyId) {
+          <div>
+            <span>{{ value.name }}</span>
+            <strong>{{ value.value }}</strong>
+          </div>
+        } @empty {
+          <span>{{ i18nKeys.common.noData | translate }}</span>
+        }
+      </div>
+    </section>
+    <form [formGroup]="form" class="review-form">
+      <div class="form-row">
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+          <mat-label>{{ i18nKeys.resource.environment | translate }}</mat-label>
+          <mat-select formControlName="environmentId">
+            @for (item of environments(); track item.id) {
+              <mat-option [value]="item.id">{{ item.name }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+          <mat-label>{{ i18nKeys.resource.category | translate }}</mat-label>
+          <mat-select formControlName="categoryId" (selectionChange)="categoryChanged()">
+            @for (item of categories(); track item.id) {
+              <mat-option [value]="item.id">{{ item.name }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+      </div>
+      <div class="form-row">
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+          <mat-label>{{ i18nKeys.resource.group | translate }}</mat-label>
+          <mat-select formControlName="groupId">
+            <mat-option value="">{{ i18nKeys.resource.ungrouped | translate }}</mat-option>
+            @for (item of groups(); track item.id) {
+              <mat-option [value]="item.id">{{ item.name }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+          <mat-label>{{ i18nKeys.resource.tag | translate }}</mat-label>
+          <mat-select formControlName="tagNames" multiple>
+            @for (item of tags(); track item.id) {
+              <mat-option [value]="item.name">{{ item.name }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+      </div>
+      <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <mat-label>{{ i18nKeys.resource.reviewComment | translate }}</mat-label>
+        <textarea matInput formControlName="reviewComment" rows="3"></textarea>
+      </mat-form-field>
+    </form>
+  }
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button mat-dialog-close [disabled]="saving">{{ i18nKeys.common.cancel | translate }}</button>
+  <button mat-stroked-button color="warn" [disabled]="saving || loading()" (click)="reject()">
+    {{ i18nKeys.resource.reject | translate }}
+  </button>
+  <button mat-flat-button color="primary" [disabled]="saving || loading()" (click)="approve()">
+    {{ i18nKeys.resource.approve | translate }}
+  </button>
+</mat-dialog-actions>

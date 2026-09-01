@@ -1,0 +1,31 @@
+.resource-detail-grid,
+.values-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.resource-detail-grid span,
+.values-grid span {
+  display: block;
+  color: var(--bs-secondary-color);
+  margin-bottom: 0.25rem;
+}
+
+.full-width {
+  grid-column: 1 / -1;
+}
+
+.values-section {
+  border-top: 1px solid rgba(128, 150, 180, 0.24);
+  margin-top: 1rem;
+  padding-top: 1rem;
+}
+
+@media (max-width: 600px) {
+  .resource-detail-grid,
+  .values-grid {
+    display: flex;
+    flex-direction: column;
+  }
+}

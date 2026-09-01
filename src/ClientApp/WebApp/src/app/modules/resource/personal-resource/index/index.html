@@ -1,0 +1,65 @@
+<section class="page">
+  <div class="d-flex align-items-center justify-content-between gap-3">
+    <h2>{{ i18nKeys.resource.personalTitle | translate }}</h2>
+    <button mat-flat-button color="primary" (click)="add()">
+      <mat-icon>add</mat-icon>{{ i18nKeys.common.add | translate }}
+    </button>
+  </div>
+
+  @if (loading()) {
+    <mat-spinner diameter="32" />
+  } @else if (resources().length === 0) {
+    <p>{{ i18nKeys.common.noData | translate }}</p>
+  } @else {
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>{{ i18nKeys.resource.definition | translate }}</th>
+            <th>{{ i18nKeys.resource.personalVisibility | translate }}</th>
+            <th>{{ i18nKeys.resource.auditStatus | translate }}</th>
+            <th>{{ i18nKeys.resource.reviewComment | translate }}</th>
+            <th>{{ i18nKeys.common.updatedTime | translate }}</th>
+            <th>{{ i18nKeys.common.actions | translate }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (resource of resources(); track resource.id) {
+            <tr>
+              <td>{{ resource.definitionName }}</td>
+              <td>{{ statusLabel(resource.status) | translate }}</td>
+              <td>{{ auditLabel(resource.auditStatus) | translate }}</td>
+              <td>{{ resource.reviewComment || '-' }}</td>
+              <td>{{ resource.updatedTime | date: 'yyyy-MM-dd HH:mm' }}</td>
+              <td>
+                <button
+                  mat-icon-button
+                  (click)="detail(resource)"
+                  [attr.aria-label]="i18nKeys.common.view | translate"
+                >
+                  <mat-icon>visibility</mat-icon>
+                </button>
+                @if (resource.auditStatus !== auditStatuses.Approved) {
+                  <button
+                    mat-icon-button
+                    (click)="edit(resource)"
+                    [attr.aria-label]="i18nKeys.common.edit | translate"
+                  >
+                    <mat-icon class="primary">edit</mat-icon>
+                  </button>
+                  <button
+                    mat-icon-button
+                    (click)="remove(resource)"
+                    [attr.aria-label]="i18nKeys.common.delete | translate"
+                  >
+                    <mat-icon class="error">delete</mat-icon>
+                  </button>
+                }
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</section>
