@@ -5,7 +5,7 @@ description: Perigon 项目模板开发入口。用于选择并使用 Perigon CL
 
 # Perigon
 
-先确认当前仓库是 `ApiStandard` 还是 `MiniApi`，再按任务读取相关 reference。以当前仓库代码、CLI 实时帮助和脚本实现为准；文档示例只提供决策依据，不覆盖实际版本。
+先确认当前仓库是 `ApiStandard`（MVC API）还是 `MiniApi`（Minimal API + Native AOT），再按任务读取相关 reference。以当前仓库代码、CLI 实时帮助和脚本实现为准；文档示例只提供决策依据，不覆盖实际版本。
 
 ## 核心原则
 
@@ -42,3 +42,4 @@ description: Perigon 项目模板开发入口。用于选择并使用 Perigon CL
 3. 按架构边界补齐业务代码，并审查所有生成内容。
 4. 若实体或公开接口变化，依次处理迁移/OpenAPI/客户端，不跳过契约同步。
 5. 运行最小充分验证，并报告未执行的基础设施或发布验证。
+6. 任何 AI coding 后使用 `docs` 和 `delivery-loop` 同步当前迭代 PT 的实现结果/验证证据、`ProjectTracking.md` 总进度和受影响 PD；文档未同步不属于完成。

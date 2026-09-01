@@ -42,6 +42,7 @@ internal sealed class TenantIndexConvention : IModelFinalizingConvention
 
                 var properties = new[] { tenantProperty }.Concat(index.Properties).ToArray();
                 var isUnique = index.IsUnique;
+                var databaseName = index.GetDatabaseName();
                 var filter = index.GetFilter();
                 var descending = index.IsDescending is null
                     ? null
@@ -62,6 +63,11 @@ internal sealed class TenantIndexConvention : IModelFinalizingConvention
 
                 indexBuilder.IsUnique(isUnique);
                 indexBuilder.IsDescending(descending);
+                if (databaseName is not null)
+                {
+                    indexBuilder.HasDatabaseName(databaseName);
+                }
+
                 if (isUnique)
                 {
                     filter ??= GetUniqueIndexFilter();

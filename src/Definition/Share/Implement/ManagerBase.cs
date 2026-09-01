@@ -46,13 +46,12 @@ public abstract class ManagerBase<TDbContext, TEntity>
     public ManagerBase(
         AppDbFactory dbContextFactory,
         IUserContext userContext,
-        ILogger logger,
-        bool allowUnboundTenantContext = false
+        ILogger logger
     )
     {
         _logger = logger;
         _userContext = userContext;
-        if (IsTenantScoped && _userContext.TenantId == Guid.Empty && !allowUnboundTenantContext)
+        if (IsTenantScoped && _userContext.TenantId == Guid.Empty)
         {
             throw new InvalidOperationException(
                 $"A TenantId is required to create a manager for {typeof(TEntity).Name}."
@@ -104,7 +103,7 @@ public abstract class ManagerBase<TDbContext, TEntity>
     /// <returns>True if exists; otherwise, false.</returns>
     public async Task<bool> ExistAsync(Guid id, CancellationToken cancellationToken = default)
     {
-        return await _dbSet.AnyAsync(q => q.Id == id, cancellationToken);
+        return await _dbSet.AnyAsync(entity => entity.Id == id, cancellationToken);
     }
 
     /// <summary>

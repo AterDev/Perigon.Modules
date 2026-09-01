@@ -1,5 +1,5 @@
-using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 
 namespace EntityFramework.AppDbContext;
 
@@ -33,7 +33,7 @@ internal sealed class TenantQueryFilterConvention(ContextBase dbContext) : IMode
                 );
             }
 
-            // Tenant is the root catalog and must remain visible to middleware,
+            // Tenant is the root catalog and must remain visible to the middleware,
             // claims transformation, and migration seeding code.
             if (
                 entityType.ClrType == typeof(Tenant)

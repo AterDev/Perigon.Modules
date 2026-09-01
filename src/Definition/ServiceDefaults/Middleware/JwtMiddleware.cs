@@ -1,14 +1,14 @@
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.Extensions.Logging;
+using Perigon.AspNetCore.Services;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text.Json;
-using Perigon.AspNetCore.Services;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.Extensions.Logging;
 
 namespace ServiceDefaults.Middleware;
 
 /// <summary>
-/// 在进入验证前，对token进行额外验证
+/// Example: addition login Policy validator.
 /// </summary>
 public class JwtMiddleware(RequestDelegate next, CacheService cache, ILogger<JwtMiddleware> logger)
 {

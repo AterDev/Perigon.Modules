@@ -17,16 +17,23 @@ public class UserClaimsTransformation(TenantService tenantService, CacheService 
         }
 
         var tenant = await ResolveTenantAsync(identity);
-        if (tenant is not null)
+        if (tenant is null)
         {
-            ReplaceTenantClaims(identity, tenant);
+            // TenantId is mandatory for authenticated requests. Leave the
+            // principal untouched here so the tenant middleware can reject it
+            // with a 403 instead of silently selecting the default tenant.
+            return principal;
         }
+
+        ReplaceTenantClaims(identity, tenant);
 
         var userIdentity = FindUserIdentity(principal);
         if (!string.IsNullOrWhiteSpace(userIdentity)
             && !identity.HasClaim(claim => claim.Type == ClaimTypes.Role))
         {
-            var cacheKey = $"local-user-info:{userIdentity}";
+            var cacheKey = $"local-user-info:{tenant.Id}:{userIdentity}";
+
+            // the sample of get user roles from local system, you can replace this with your own implementation, such as query from database or call external service.
             var roles = await cache.GetOrCreateAsync(
                 cacheKey,
                 cancellation => new ValueTask<string[]>(
@@ -43,21 +50,9 @@ public class UserClaimsTransformation(TenantService tenantService, CacheService 
     private async Task<Tenant?> ResolveTenantAsync(ClaimsIdentity identity)
     {
         var tenantIdValue = identity.FindFirst(CustomClaimTypes.TenantId)?.Value;
-        if (tenantIdValue is not null)
-        {
-            return Guid.TryParse(tenantIdValue, out var tenantId) && tenantId != Guid.Empty
-                ? await tenantService.GetByIdAsync(tenantId)
-                : null;
-        }
-
-        var tenant = await tenantService.GetByDomainAsync(
-            EntityFramework.AppDbContext.DefaultDbContextSeeding.DefaultTenantDomain
-        );
-
-        return tenant
-            ?? throw new InvalidOperationException(
-                "The default tenant is not initialized. Apply the database migrations and seed data before authenticating users."
-            );
+        return Guid.TryParse(tenantIdValue, out var tenantId) && tenantId != Guid.Empty
+            ? await tenantService.GetByIdAsync(tenantId)
+            : null;
     }
 
     private static void ReplaceTenantClaims(ClaimsIdentity identity, Tenant tenant)
@@ -80,6 +75,9 @@ public class UserClaimsTransformation(TenantService tenantService, CacheService 
         identity.AddClaim(new Claim(CustomClaimTypes.TenantName, tenant.Name));
     }
 
+    /// <summary>
+    /// get user identity from claims, use 
+    /// </summary>
     private static string? FindUserIdentity(ClaimsPrincipal principal)
     {
         return principal.FindFirstValue(ClaimTypes.Email)
@@ -93,10 +91,12 @@ public class UserClaimsTransformation(TenantService tenantService, CacheService 
     )
     {
         _ = cancellation;
+
         return Task.FromResult(
             userIdentity.Equals("admin", StringComparison.OrdinalIgnoreCase)
                 ? new[] { WebConst.User, WebConst.AdminUser }
                 : new[] { WebConst.User }
         );
     }
+
 }

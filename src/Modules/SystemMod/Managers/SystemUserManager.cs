@@ -23,8 +23,7 @@ public class SystemUserManager(
 ) : ManagerBase<DefaultDbContext, SystemUser>(
     dbContextFactory,
     userContext,
-    logger,
-    allowUnboundTenantContext: true
+    logger
 )
 {
     private readonly CacheService _cache = cache;

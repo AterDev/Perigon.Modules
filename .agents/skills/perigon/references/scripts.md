@@ -19,7 +19,7 @@ pwsh ./scripts/CleanBinObj.ps1 -WhatIf
 发布单个 Service 并用其 Dockerfile 构建镜像；不编排数据库、缓存、迁移、连接字符串或服务顺序。
 
 ```powershell
-pwsh ./scripts/PublishDocker.ps1 -Service ApiService -ImageName myprojectname-api-service -Tag v1
+pwsh ./scripts/PublishDocker.ps1 -Service ApiService -ImageName perigon.modules-api-service -Tag v1
 ```
 
 - ApiStandard：framework-dependent，明确关闭 Trim/AOT。

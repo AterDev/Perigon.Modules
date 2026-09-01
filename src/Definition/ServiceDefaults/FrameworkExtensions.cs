@@ -1,7 +1,8 @@
+using EntityFramework.AppDbContext;
 using EntityFramework.AppDbFactory;
 using Mapster;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.Caching.Hybrid;
 using Microsoft.Extensions.Logging;
 using Perigon.AspNetCore.Abstraction;
@@ -85,19 +86,27 @@ public static class FrameworkExtensions
             ComponentOption components
         )
         {
+            var analysisConnectionString = builder.Configuration.GetConnectionString(
+                AppConst.Analysis
+            );
+
             switch (components.Database)
             {
                 case DatabaseType.SqlServer:
                     builder.AddSqlServerDbContext<DefaultDbContext>(
                         AppConst.Default,
-                        configureDbContextOptions: options => options.UseDefaultDbContextSeeding()
+                        configureDbContextOptions: options => options.UseDefaultDbContextSeeding(
+                            analysisConnectionString
+                        )
                     );
                     break;
 
                 case DatabaseType.PostgreSql:
                     builder.AddNpgsqlDbContext<DefaultDbContext>(
                         AppConst.Default,
-                        configureDbContextOptions: options => options.UseDefaultDbContextSeeding()
+                        configureDbContextOptions: options => options.UseDefaultDbContextSeeding(
+                            analysisConnectionString
+                        )
                     );
                     break;
             }

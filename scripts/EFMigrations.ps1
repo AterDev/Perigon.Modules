@@ -1,9 +1,12 @@
-# 生成 EF Core 迁移
+# 生成迁移脚本
+# 参数
 param (
     [Parameter()]
-    [string] $Name = $null,
+    [string]
+    $Name = $null,
     [Parameter()]
-    [string] $DatabaseType = "PostgreSQL"
+    [string]
+    $DatabaseType = "PostgreSQL"
 )
 
 $scriptRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
@@ -20,30 +23,61 @@ $toolManifestPath = @(
 
 if ($toolManifestPath) {
     Push-Location $repoRoot
-    try { dotnet tool restore } finally { Pop-Location }
+    try {
+        dotnet tool restore
+    }
+    finally {
+        Pop-Location
+    }
+}
+else {
+    Write-Host "ℹ️ No dotnet tool manifest found under repo root, skipping 'dotnet tool restore'."
 }
 
-$isMultiTenant = $true
+# 从 appsettings.Development.json 读取数据库类型
+$IsMultiTenant = $true
+
 if (Test-Path $appSettingsPath) {
     try {
         $config = Get-Content $appSettingsPath | ConvertFrom-Json
-        if ($null -ne $config.Components.Database) { $DatabaseType = $config.Components.Database }
-        if ($null -ne $config.Components.IsMultiTenant) { $isMultiTenant = $config.Components.IsMultiTenant }
+        if ($null -ne $config.Components.Database) {
+            $DatabaseType = $config.Components.Database
+            Write-Host "✅ Database type from appsettings: $DatabaseType"
+        }
+        if ($null -ne $config.Components.IsMultiTenant) {
+            $IsMultiTenant = $config.Components.IsMultiTenant
+            Write-Host "✅ IsMultiTenant from appsettings: $IsMultiTenant"
+        }
     }
     catch {
-        Write-Warning "Failed to read $appSettingsPath. Using default database type: $DatabaseType"
+        Write-Warning "Failed to read or parse $appSettingsPath. Using default database type: $DatabaseType"
     }
 }
 
 $env:Components__Database = $DatabaseType
-$env:Components__IsMultiTenant = $isMultiTenant
+Write-Host "✅ Set environment variable 'Components__Database' to '$DatabaseType' for this session."
 
-if (-not (Test-Path $adminServiceProjectPath)) { throw "AdminService project not found: $adminServiceProjectPath" }
-if (-not (Test-Path $entityFrameworkProjectPath)) { throw "EntityFramework project not found: $entityFrameworkProjectPath" }
+$env:Components__IsMultiTenant = $IsMultiTenant
+Write-Host "✅ Set environment variable 'Components__IsMultiTenant' to '$IsMultiTenant' for this session."
+
+if (-not (Test-Path $adminServicePath)) {
+    throw "AdminService path not found: $adminServicePath"
+}
+
+if (-not (Test-Path $adminServiceProjectPath)) {
+    throw "AdminService project path not found: $adminServiceProjectPath"
+}
+
+if (-not (Test-Path $entityFrameworkProjectPath)) {
+    throw "EntityFramework project path not found: $entityFrameworkProjectPath"
+}
 
 Push-Location $adminServicePath
 try {
-    if ([string]::IsNullOrWhiteSpace($Name)) { $Name = [DateTime]::Now.ToString("yyyyMMdd-HHmmss") }
+    if ([string]::IsNullOrWhiteSpace($Name)) {
+        $Name = [DateTime]::Now.ToString("yyyyMMdd-HHmmss")
+    }
+
     dotnet build
     if ($Name -eq "Remove") {
         dotnet ef migrations remove -c DefaultDbContext --no-build --project $entityFrameworkProjectPath --startup-project $adminServiceProjectPath
@@ -52,4 +86,6 @@ try {
         dotnet ef migrations add $Name -c DefaultDbContext --no-build --project $entityFrameworkProjectPath --startup-project $adminServiceProjectPath
     }
 }
-finally { Pop-Location }
+finally {
+    Pop-Location
+}

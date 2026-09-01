@@ -19,10 +19,7 @@ public class GlobalExceptionMiddleware(RequestDelegate next, Localizer localizer
             // 并发冲突提示
             ctx.Response.StatusCode = StatusCodes.Status409Conflict;
             await ctx.Response.WriteAsJsonAsync(
-                new ErrorResult(
-                    localizer.Get(Localizer.AlreadyUpdated),
-                    ctx.TraceIdentifier,
-                    status: StatusCodes.Status409Conflict)
+                new ErrorResult(localizer.Get(Localizer.AlreadyUpdated), ctx.TraceIdentifier)
             );
         }
         catch (DbUpdateException ex) when (EfCoreErrorHelper.IsUniqueConstraintViolation(ex))
@@ -44,7 +41,7 @@ public class GlobalExceptionMiddleware(RequestDelegate next, Localizer localizer
         }
         catch (BusinessException ex)
         {
-            ctx.Response.StatusCode = ex.StatusCodes;
+            ctx.Response.StatusCode = StatusCodes.Status500InternalServerError;
             await ctx.Response.WriteAsJsonAsync(
                 new ErrorResult(localizer.Get(ex.LanguageKey), ctx.TraceIdentifier, status: ex.StatusCodes)
             );

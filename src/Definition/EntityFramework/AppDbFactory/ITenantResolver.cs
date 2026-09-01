@@ -8,7 +8,7 @@ namespace EntityFramework.AppDbFactory;
 public interface ITenantResolver
 {
     /// <summary>
-    /// Gets a tenant from cache, falling back to the catalog database when necessary.
+    /// Gets tenant metadata from cache or the tenant catalog.
     /// </summary>
     Tenant? GetById(Guid tenantId);
 }

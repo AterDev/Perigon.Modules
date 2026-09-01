@@ -7,7 +7,7 @@ using Perigon.AspNetCore.Constants;
 namespace EntityFramework.AppDbFactory;
 
 /// <summary>
-/// Factory for creating tenant-aware database contexts.
+/// factory for create TenantDbContext
 /// </summary>
 /// <param name="configuration"></param>
 /// <param name="tenantScopeFactory"></param>
@@ -71,9 +71,17 @@ public class AppDbFactory(
         var defaultAnalysisConnectionString = configuration.GetConnectionString(AppConst.Analysis)
             ?? defaultConnectionString;
 
-        if (!tenantId.HasValue || tenantId.Value == Guid.Empty)
+        // A null tenant id is reserved for the system tenant catalog context.
+        if (!tenantId.HasValue)
         {
             return (defaultConnectionString, defaultAnalysisConnectionString);
+        }
+
+        if (tenantId.Value == Guid.Empty)
+        {
+            throw new InvalidOperationException(
+                "A non-empty TenantId is required for tenant-scoped database access."
+            );
         }
 
         using IServiceScope scope = tenantScopeFactory.CreateScope();
@@ -82,7 +90,9 @@ public class AppDbFactory(
             .GetById(tenantId.Value);
         if (tenant is null)
         {
-            return (defaultConnectionString, defaultAnalysisConnectionString);
+            throw new InvalidOperationException(
+                $"Tenant '{tenantId.Value}' was not found in the tenant catalog."
+            );
         }
 
         var tenantDbConnectionString = tenant.DbConnectionString ?? defaultConnectionString;
