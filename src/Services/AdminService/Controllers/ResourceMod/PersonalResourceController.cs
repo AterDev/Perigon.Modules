@@ -1,5 +1,6 @@
 using ResourceMod.Managers;
 using ResourceMod.Models.PersonalResourceDtos;
+using Perigon.AspNetCore.Models;
 
 namespace AdminService.Controllers.ResourceMod;
 
