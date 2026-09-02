@@ -3,6 +3,7 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { FormBuilder, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { TranslateService } from '@ngx-translate/core';
+import { finalize, forkJoin } from 'rxjs';
 import { CommonFormModules } from 'src/app/modules/share/shared-modules';
 import { I18N_KEYS } from 'src/app/modules/share/i18n-keys';
 import { AdminClient } from 'src/app/services/admin/admin-client';
@@ -42,24 +43,24 @@ export class PersonalResourceReviewDialogComponent {
   saving = false;
 
   constructor() {
-    Promise.all([
-      this.client.personalResource.detail(this.data.id).toPromise(),
-      this.client.resourceConfiguration.environments().toPromise(),
-      this.client.resourceConfiguration.categories().toPromise(),
-      this.client.resourceConfiguration.tags().toPromise(),
-    ]).then(([detail, environments, categories, tags]) => {
-      if (!detail || !environments || !categories || !tags) return;
-      this.detail.set(detail);
-      this.environments.set(environments);
-      this.categories.set(categories);
-      this.tags.set(tags);
-      this.form.patchValue({
-        environmentId: environments[0]?.id ?? '',
-        categoryId: categories[0]?.id ?? '',
+    forkJoin({
+      detail: this.client.personalResource.detail(this.data.id),
+      environments: this.client.resourceConfiguration.environments(),
+      categories: this.client.resourceConfiguration.categories(),
+      tags: this.client.resourceConfiguration.tags(),
+    })
+      .pipe(finalize(() => this.loading.set(false)))
+      .subscribe((result) => {
+        this.detail.set(result.detail);
+        this.environments.set(result.environments);
+        this.categories.set(result.categories);
+        this.tags.set(result.tags);
+        this.form.patchValue({
+          environmentId: result.environments[0]?.id ?? '',
+          categoryId: result.categories[0]?.id ?? '',
+        });
+        this.categoryChanged();
       });
-      this.categoryChanged();
-      this.loading.set(false);
-    });
   }
 
   categoryChanged(): void {

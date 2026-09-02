@@ -45,9 +45,21 @@ export class PersonalResourceService extends BaseService {
   }
 
   private listUrl(path: string, filter: PersonalResourceFilterDto): string {
-    const status = filter.status === undefined || filter.status === null ? '' : filter.status;
-    const auditStatus =
-      filter.auditStatus === undefined || filter.auditStatus === null ? '' : filter.auditStatus;
-    return `/api/PersonalResource/${path}?status=${status}&auditStatus=${auditStatus}&pageIndex=${filter.pageIndex ?? ''}&pageSize=${filter.pageSize ?? ''}`;
+    const params = new URLSearchParams();
+    if (filter.status !== undefined && filter.status !== null) {
+      params.set('status', String(filter.status));
+    }
+    if (filter.auditStatus !== undefined && filter.auditStatus !== null) {
+      params.set('auditStatus', String(filter.auditStatus));
+    }
+    if (filter.pageIndex !== undefined && filter.pageIndex !== null) {
+      params.set('pageIndex', String(filter.pageIndex));
+    }
+    if (filter.pageSize !== undefined && filter.pageSize !== null) {
+      params.set('pageSize', String(filter.pageSize));
+    }
+
+    const query = params.toString();
+    return query.length > 0 ? `/api/PersonalResource/${path}?${query}` : `/api/PersonalResource/${path}`;
   }
 }

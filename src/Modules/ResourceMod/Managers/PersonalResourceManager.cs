@@ -126,25 +126,58 @@ public class PersonalResourceManager(
     public async Task<bool> ApproveAsync(Guid id, PersonalResourceReviewDto input)
     {
         EnsureAdmin();
-        PersonalResource resource = await GetPendingAsync(id);
-        List<ResourceValueDto> values = DeserializeValues(resource.ValuesJson);
-        Resource created = await _resourceManager.AddAsync(new ResourceAddDto
+        string lockToken = $"__review_lock__:{Guid.NewGuid():N}";
+        bool claimed = await TryClaimPendingAsync(id, lockToken);
+        if (!claimed)
         {
-            EnvironmentId = input.EnvironmentId,
-            CategoryId = input.CategoryId,
-            GroupId = input.GroupId,
-            DefinitionId = resource.DefinitionId,
-            TagNames = input.TagNames,
-            Values = values
-        });
+            PersonalResource current = await _dbSet.FirstOrDefaultAsync(resource => resource.Id == id)
+                ?? throw new BusinessException("公开申请不存在", StatusCodes.Status404NotFound);
+            if (current.AuditStatus == PersonalResourceAuditStatus.Approved)
+            {
+                return true;
+            }
 
-        resource.Status = PersonalResourceStatus.ApplyPublic;
-        resource.AuditStatus = PersonalResourceAuditStatus.Approved;
-        resource.ApprovedResourceId = created.Id;
-        resource.ReviewComment = input.ReviewComment;
-        resource.UpdatedTime = DateTimeOffset.UtcNow;
-        await _dbContext.SaveChangesAsync();
-        return true;
+            throw new BusinessException("公开申请不存在或已审核", StatusCodes.Status409Conflict);
+        }
+
+        PersonalResource resource = await _dbSet.FirstOrDefaultAsync(item =>
+                                       item.Id == id &&
+                                       item.Status == PersonalResourceStatus.ApplyPublic &&
+                                       item.AuditStatus == PersonalResourceAuditStatus.Pending &&
+                                       item.ReviewComment == lockToken)
+                                   ?? throw new BusinessException("公开申请不存在或已审核", StatusCodes.Status409Conflict);
+        List<ResourceValueDto> values = DeserializeValues(resource.ValuesJson);
+        Resource? created = null;
+        try
+        {
+            created = await _resourceManager.AddAsync(new ResourceAddDto
+            {
+                EnvironmentId = input.EnvironmentId,
+                CategoryId = input.CategoryId,
+                GroupId = input.GroupId,
+                DefinitionId = resource.DefinitionId,
+                TagNames = input.TagNames,
+                Values = values
+            });
+
+            resource.Status = PersonalResourceStatus.ApplyPublic;
+            resource.AuditStatus = PersonalResourceAuditStatus.Approved;
+            resource.ApprovedResourceId = created.Id;
+            resource.ReviewComment = input.ReviewComment;
+            resource.UpdatedTime = DateTimeOffset.UtcNow;
+            await _dbContext.SaveChangesAsync();
+            return true;
+        }
+        catch
+        {
+            await ReleaseReviewLockAsync(id, lockToken);
+            if (created != null)
+            {
+                await _resourceManager.DeleteAsync(created.Id);
+            }
+
+            throw;
+        }
     }
 
     public async Task<bool> RejectAsync(Guid id, PersonalResourceRejectDto input)
@@ -215,6 +248,33 @@ public class PersonalResourceManager(
                    resource.Status == PersonalResourceStatus.ApplyPublic &&
                    resource.AuditStatus == PersonalResourceAuditStatus.Pending)
                ?? throw new BusinessException("公开申请不存在或已审核", StatusCodes.Status409Conflict);
+    }
+
+    private Task<int> ReleaseReviewLockAsync(Guid id, string lockToken)
+    {
+        return _dbSet
+            .Where(resource =>
+                resource.Id == id &&
+                resource.Status == PersonalResourceStatus.ApplyPublic &&
+                resource.AuditStatus == PersonalResourceAuditStatus.Pending &&
+                resource.ReviewComment == lockToken)
+            .ExecuteUpdateAsync(setter => setter
+                .SetProperty(resource => resource.ReviewComment, (string?)null)
+                .SetProperty(resource => resource.UpdatedTime, DateTimeOffset.UtcNow));
+    }
+
+    private async Task<bool> TryClaimPendingAsync(Guid id, string lockToken)
+    {
+        int affected = await _dbSet
+            .Where(resource =>
+                resource.Id == id &&
+                resource.Status == PersonalResourceStatus.ApplyPublic &&
+                resource.AuditStatus == PersonalResourceAuditStatus.Pending &&
+                resource.ReviewComment == null)
+            .ExecuteUpdateAsync(setter => setter
+                .SetProperty(resource => resource.ReviewComment, lockToken)
+                .SetProperty(resource => resource.UpdatedTime, DateTimeOffset.UtcNow));
+        return affected == 1;
     }
 
     private async Task<List<ResourceValueDetailDto>> BuildValueDetailsAsync(
