@@ -8,9 +8,9 @@ namespace SystemMod.Services;
 public class InitSystemModService(
     IServiceProvider serviceProvider,
     ILogger<InitSystemModService> logger
-) : BackgroundService
+) : IHostedService
 {
-    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+    public async Task StartAsync(CancellationToken cancellationToken)
     {
         try
         {
@@ -20,6 +20,9 @@ public class InitSystemModService(
         catch (Exception ex)
         {
             logger.LogError(ex, "SystemMod initialization failed");
+            throw;
         }
     }
+
+    public Task StopAsync(CancellationToken cancellationToken) => Task.CompletedTask;
 }

@@ -1,9 +1,9 @@
 namespace Entity.ResourceMod;
 
 /// <summary>
-/// 个人资源公开申请的审核状态。
+/// 用户资源公开申请的审核状态。
 /// </summary>
-public enum PersonalResourceAuditStatus
+public enum UserResourceAuditStatus
 {
     /// <summary>
     /// 私有资源无需审核。

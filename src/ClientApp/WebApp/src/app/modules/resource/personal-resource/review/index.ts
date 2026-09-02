@@ -3,20 +3,21 @@ import { MatDialog } from '@angular/material/dialog';
 import { CommonListModules } from 'src/app/modules/share/shared-modules';
 import { I18N_KEYS } from 'src/app/modules/share/i18n-keys';
 import { AdminClient } from 'src/app/services/admin/admin-client';
-import { PersonalResourceItemDto } from 'src/app/services/admin/models/resource-mod/personal-resource-item-dto.model';
-import { PersonalResourceReviewDialogComponent } from 'src/app/modules/resource/personal-resource/review/review-dialog';
+import { UserResourceItemDto } from 'src/app/services/admin/models/resource-mod/user-resource-item-dto.model';
+import { UserResourceReviewDialogComponent } from 'src/app/modules/resource/personal-resource/review/review-dialog';
 
 @Component({
-  selector: 'app-personal-resource-review',
+  selector: 'app-user-resource-review',
   imports: CommonListModules,
   templateUrl: './index.html',
   styleUrl: './index.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class PersonalResourceReviewComponent {
+export class UserResourceReviewComponent {
   readonly i18nKeys = I18N_KEYS;
-  readonly resources = signal<PersonalResourceItemDto[]>([]);
+  readonly resources = signal<UserResourceItemDto[]>([]);
   readonly loading = signal(false);
+  readonly loadError = signal(false);
   private readonly client = inject(AdminClient);
   private readonly dialog = inject(MatDialog);
 
@@ -26,18 +27,22 @@ export class PersonalResourceReviewComponent {
 
   load(): void {
     this.loading.set(true);
-    this.client.personalResource.review({ pageIndex: 1, pageSize: 100 }).subscribe({
+    this.loadError.set(false);
+    this.client.userResource.review(null, null, 1, 100, null).subscribe({
       next: (page) => {
         this.resources.set(page.data);
         this.loading.set(false);
       },
-      error: () => this.loading.set(false),
+      error: () => {
+        this.loading.set(false);
+        this.loadError.set(true);
+      },
     });
   }
 
-  review(resource: PersonalResourceItemDto): void {
+  review(resource: UserResourceItemDto): void {
     this.dialog
-      .open(PersonalResourceReviewDialogComponent, {
+      .open(UserResourceReviewDialogComponent, {
         width: '900px',
         maxWidth: '96vw',
         maxHeight: '96vh',

@@ -1,4 +1,4 @@
-<h2 mat-dialog-title>{{ i18nKeys.resource.personalDetailTitle | translate }}</h2>
+<h2 mat-dialog-title>{{ i18nKeys.resource.userDetailTitle | translate }}</h2>
 <mat-dialog-content>
   @if (resource(); as item) {
     <div class="resource-detail-grid">
@@ -7,7 +7,7 @@
         <strong>{{ item.definitionName }}</strong>
       </div>
       <div>
-        <span>{{ i18nKeys.resource.personalVisibility | translate }}</span>
+        <span>{{ i18nKeys.resource.userVisibility | translate }}</span>
         <strong>{{ statusLabel(item.status) | translate }}</strong>
       </div>
       <div>
@@ -32,6 +32,8 @@
         }
       </div>
     </section>
+  } @else if (loadError()) {
+    <p>{{ i18nKeys.common.loadFail | translate }}</p>
   } @else {
     <mat-spinner diameter="36" />
   }

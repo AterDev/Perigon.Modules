@@ -12,6 +12,7 @@ import { ConfirmDialogComponent } from 'src/app/modules/share/components/confirm
 import { ResourceInputDialogComponent, ResourceInputDialogData } from 'src/app/modules/resource/dialogs/input-dialog/input-dialog';
 import { SystemRoleItemDto } from 'src/app/services/admin/models/system-mod/system-role-item-dto.model';
 import { resourceIconName, resourceIconStyle } from 'src/app/modules/resource/shared/resource-appearance';
+import { forkJoin } from 'rxjs';
 
 @Component({
   selector: 'app-resource-config-index',
@@ -39,14 +40,15 @@ export class ResourceConfigIndexComponent {
   }
 
   load(): void {
-    this.client.resourceConfiguration
-      .environments()
-      .subscribe((value) => this.environments.set(value));
-    this.client.resourceConfiguration
-      .categories()
-      .subscribe((value) => this.categories.set(value));
-    this.client.systemRole.list(null, null, 1, 100, null)
-      .subscribe((value) => this.roles.set(value.data));
+    forkJoin({
+      environments: this.client.resourceConfiguration.environments(),
+      categories: this.client.resourceConfiguration.categories(),
+      roles: this.client.systemRole.list(null, null, 1, 100, null),
+    }).subscribe((result) => {
+      this.environments.set(result.environments);
+      this.categories.set(result.categories);
+      this.roles.set(result.roles.data);
+    });
   }
   createEnvironment(): void {
     this.openInputDialog(

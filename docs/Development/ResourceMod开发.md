@@ -4,7 +4,7 @@
 
 `ResourceMod` 是面向租户的通用资源管理模块。资源由环境、分类、可选分组、标签和资源定义组成；资源定义驱动动态属性录入。模块在 `AdminService` 提供管理 API，并在 `src/ClientApp/WebApp` 提供验证用的后台界面。
 
-首版只实现后台端到端能力，不为 `ApiService` 新增接口。Angular 代码是验证宿主的一部分，不进入模块 zip；模块包仅包含 `Entity/ResourceMod`、`Modules/ResourceMod`、`Controllers/ResourceMod` 和 `metadata.json`。迁移、AppHost 配置、测试和 Angular 源码均不进入包。
+本模块继续只在 `AdminService` 提供端到端能力，不为 `ApiService` 新增接口；其中常规资源和配置由管理员管理，用户资源提交接口面向登录用户，公开申请审核接口仅面向管理员。Angular 代码是验证宿主的一部分，不进入模块 zip；模块包仅包含 `Entity/ResourceMod`、`Modules/ResourceMod`、`Controllers/ResourceMod` 和 `metadata.json`。迁移、AppHost 配置、测试和 Angular 源码均不进入包。
 
 模块名称、程序集、命名空间、实体目录和控制器目录均使用 `ResourceMod`。目标服务为 `AdminService`；模块程序集必须提供公共静态 `ModuleExtensions.AddResourceMod(IHostApplicationBuilder)`，由现有源生成器发现和注册。
 
@@ -23,6 +23,8 @@
 | `ResDefinitionPropertyMap` | `DefinitionId`、`PropertyId`、`Sort` 必填。 | 多对一资源定义和资源属性；同一资源定义内属性唯一，`Sort` 属于关联。 |
 | `Resource` | `EnvironmentId`、`CategoryId`、`DefinitionId` 必填；`GroupId` 可空；`TagNames` 必填，默认空数组。 | 资源本身不保存名称、图标 URL 或描述；展示名称和说明由 `ResDefinition` 及其属性定义提供。分别多对一环境、分类、定义和可选分组；一对多 `ResValue`。建立常用筛选索引：`EnvironmentId`、`CategoryId`、`GroupId`、`DefinitionId`。 |
 | `ResValue` | `ResourceId`、`DefinitionPropertyId` 必填；`Value` 必填，最大 1000；`PropertyNameSnapshot` 必填，最大 60；`ValueTypeSnapshot` 必填枚举。 | 多对一资源和定义属性；同一资源的 `DefinitionPropertyId` 唯一。快照保证定义属性日后重命名或类型变更时，历史详情仍可正确显示。 |
+| `UserResource` | `UserId`、`DefinitionId`、`Status`、`AuditStatus` 必填；`ApprovedResourceId` 可空；`ReviewComment` 最大 500。仅保存用户资源自身信息，不保存环境、分类、分组或标签。 | 通过 `UserId` 标识创建者，不建立用户实体导航；多对一资源定义。`Status=Private` 仅创建者可见；`Status=ApplyPublic` 且待审核时进入管理员审核队列。 |
+| `UserResValue` | `UserResourceId`、`DefinitionPropertyId`、`Value` 必填；值最大 1000；保存属性名称和类型快照。 | 多对一用户资源和定义属性；同一用户资源的 `DefinitionPropertyId` 唯一。公开申请通过时，将快照值复用为常规 `ResValue`。 |
 | `ResPermission` | `RoleId`、`EnvironmentId`、`CategoryId` 均必填。 | `RoleId + EnvironmentId + CategoryId` 建立租户内唯一索引；角色 ID 指向 `SystemMod` 的 `SystemRole`，环境和分类为本模块外键。删除环境或分类前必须先清理授权。 |
 
 `ValueType` 使用带 `Description` 的枚举：`String`、`Number`、`Boolean`、`Date`、`Uri`、`IPAddress`。`ResValue.Value` 始终存储字符串；其规范格式为：数字使用不受区域影响的十进制文本、布尔值为小写 `true`/`false`、日期为 ISO 8601 `yyyy-MM-dd`、URI 为绝对 URI 的规范文本、IP 地址为 `IPAddress.ToString()` 结果。
@@ -63,6 +65,13 @@
 - 删除环境、分类、分组、定义或定义属性遇到引用时返回 409 `ProblemDetails`；资源删除采用仓库既有软删除语义。删除标签不影响历史资源名称。
 - 初始化逻辑必须幂等地为每个适用租户建立 `Development`、`Test`、`Production` 环境和 `Mac`、`Linux`、`Windows` 标签，并在该租户没有资源定义和资源属性时创建补充文档规定的共享属性及网站、服务器、数据库定义。保留 `Default` 分类初始化；重跑不得重复插入，也不得覆盖用户已修改的默认数据。
 
+### 3.5 用户资源与公开审核
+
+- `UserResource` 提供 `mine`、详情、创建、编辑和删除接口；所有者只能查询和修改自己的记录，管理员审核查询使用 `review` 接口。
+- 私有资源创建时 `AuditStatus=NotRequired`；公开申请创建或重新提交时 `AuditStatus=Pending`。审核通过和驳回仅允许管理员执行，已通过的用户资源不可再编辑或删除。
+- 审核通过请求补充 `EnvironmentId`、`CategoryId`、可选 `GroupId`、`TagNames` 和审核意见。审核流程在同一 `DefaultDbContext` 事务中复用常规资源属性校验/规范化逻辑创建 `Resource`，成功后回写 `ApprovedResourceId`；任一校验或写入失败都会回滚申请状态和常规资源。
+- 用户属性以 `UserResValue` 独立行保存，不序列化为 JSON。这样可以在用户资源详情中返回值快照，也能阻止定义属性被仍有用户值引用时删除。私有资源表结构不包含环境、分类、分组或标签字段。
+
 ## 4. Angular 验证端交互
 
 所有页面使用 Angular 21 standalone 组件、严格类型、`OnPush`、signals 和 Material 组件。请求客户端以 AdminService Swagger 契约为准，通过 `scripts/NgRequestSync.ps1` 的既有流程生成后再封装页面调用；不手写服务 URL。路由、`src/assets/menus.json`、中英文 i18n 键和 `i18n-keys.ts` 必须同步。
@@ -72,9 +81,11 @@
 新增两个菜单/路由入口：
 
 - `resource`：资源列表、详情及编辑。
+- `resource-user`：我的资源列表、创建、详情和编辑。
+- `resource-review`：管理员公开申请审核列表和审核对话框。
 - `resource-config`：配置页，包含环境、分类、分组、标签、资源定义和资源权限六个标签页。
 
-非管理员可进入资源只读页，且只展示服务端返回的数据；配置入口、新增、编辑、删除和内联创建控件对其隐藏并禁用。即使前端状态错误或手工构造请求，服务端仍必须返回 403。管理员路由与菜单的可见性使用登录用户的现有角色/菜单信息；不能以浏览器本地标记作为授权依据。
+非管理员可进入资源只读页，且只展示服务端返回的数据；配置入口、新增、编辑、删除和内联创建控件对其隐藏并禁用。即使前端状态错误或手工构造请求，服务端仍必须返回 403。管理员路由与菜单的可见性使用登录状态中的角色/菜单信息；前端状态只改善体验，服务端授权仍是最终依据。
 
 ### 4.2 资源列表、详情和编辑
 
@@ -97,6 +108,12 @@
 - 权限标签页先选择环境和分类，再加载该组合的授权角色和系统角色候选项；使用多选角色控件，保存采用完整替换。页面展示当前组合、已授权角色数、加载/空态/保存反馈；切换环境或分类前未保存修改需确认。
 - 图标输入使用 Material Icons 名称搜索与选择，保存名称而非 SVG；颜色提供灰、蓝、绿、黄、紫、橙、青、粉八个预设和原生颜色选择器。提交统一保存 CSS 颜色值，API 仍按最大 20 字符约束校验。
 
+### 4.4 我的资源与公开申请审核
+
+- `/resource/mine` 提供我的资源列表、创建、详情、编辑和删除；表单先选择资源定义，再按定义属性动态生成控件，并选择私有或申请公开。
+- `/resource/review` 为管理员专用路由和菜单。审核对话框并行加载申请详情、环境、分类和标签；选定分类后再加载分组，审核通过前必须完成环境、分类和分组依赖加载。
+- Angular 请求模型和服务由最新 AdminService Swagger 使用 `perigon generate request ... -t angular` 生成。页面只调用生成的 `AdminClient.userResource`，不保留旧的 `PersonalResource` 客户端契约；环境、分类、标签、定义等互不依赖的初始化请求使用 `forkJoin` 并行执行。
+
 ## 5. 验收与测试
 
 | 场景 | 前置与操作 | 预期结果 |
@@ -109,7 +126,10 @@
 | 标签历史 | 创建带标签的资源后改名或删除该标签。 | 资源的 `TagNames` 不改变，按历史名称仍可筛选。 |
 | 资源授权 | 为角色 A 授权环境 E、分类 C；角色 A 查询不同环境、不同分类及匹配资源。 | 仅匹配 E+C 的资源可见；列表在数据库过滤，详情越权返回 403。 |
 | 管理员授权 | 管理员查询未配置 `ResPermission` 的资源并执行配置/资源写入。 | 可读取本租户全部资源并成功写入；普通用户访问同一写入接口返回 403。 |
+| 用户资源可见性 | 用户创建私有资源，并由另一用户查询；再创建公开申请。 | 私有资源仅创建者详情可见；公开申请进入管理员待审核列表，普通用户不能访问审核接口。 |
+| 用户资源属性持久化 | 创建、编辑用户资源并提交合法及非法属性值。 | `UserResValue` 按行保存规范化值和属性快照；非法值返回 400；不产生 `ValuesJson`，私有资源不产生环境/分类/分组/标签关联。 |
+| 公开申请转换 | 管理员补充环境、分类、分组和标签并通过申请；重复审核或常规资源校验失败。 | 事务内创建一条常规 `Resource` 并回写 `ApprovedResourceId`；重复审核幂等，失败时申请保持待审核且不遗留常规资源。 |
 | 引用删除 | 依次尝试删除被资源、分组、授权或资源值引用的对象。 | 返回 409，原数据完整保留；删除无引用对象成功。 |
 | 前端流程 | 管理员完成资源新建、内联建分组/标签、定义切换、授权配置；普通用户访问只读资源页。 | 路由、菜单、i18n、生成客户端调用和页面反馈正确；普通用户无写控件且只看见 API 允许的数据。 |
 
-后端行为通过 `test/ApiTest` 的 Aspire 集成路径验证，覆盖 HTTP 状态码、响应契约和持久化结果；测试数据库必须保持既有测试专用清理条件。Angular 改动在 `src/ClientApp/WebApp` 使用 `pnpm` 运行最小相关检查。实际开发时仅在数据库/API 改动已完成后生成迁移、请求客户端或模块包，并分别审查其差异；本实施文档本身不触发这些操作。
+本轮实现通过 `dotnet build Perigon.Modules.slnx --no-restore`、清空迁移目录后执行 `scripts/EFMigrations.ps1 -Name Initial`、`scripts/GenSwagger.ps1 -ServiceName AdminService -DocumentName v1`、`perigon generate request <swagger.json> <WebApp/src/app> -t angular`、`pnpm build` 和 `dotnet test --project test/ApiTest/ApiTest.csproj --no-restore --maximum-parallel-tests 1` 验证；集成测试 28 项全部通过。由于验证宿主默认只初始化管理员账号，用户资源 API 测试通过现有 `SystemUser` 管理接口创建带 `User` 角色的测试用户并走真实登录流程，再验证普通用户的 `UserContext`、租户和授权行为。生成的 Swagger 文件是请求代码生成的临时输入，不作为模块运行时契约手工维护。

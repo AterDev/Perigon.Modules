@@ -11,24 +11,24 @@ import { ArticleImageUploadDto } from '../models/cmsmod/article-image-upload-dto
 import { ArticleDetailDto } from '../models/cmsmod/article-detail-dto.model';
 import { ArticleUpdateDto } from '../models/cmsmod/article-update-dto.model';
 /**
- * 
+ * 文章管理。
  */
 @Injectable({ providedIn: 'root' })
 export class ArticleService extends BaseService {
   /**
-   * list
-   * @param title 标题
-   * @param description 描述
-   * @param authors 作者
-   * @param translateTitle 标题
-   * @param languageType 语言类型
-   * @param blogType 全站类别
-   * @param isAudit 是否审核
-   * @param isPublic 是否公开
-   * @param isOriginal 是否原创
-   * @param userId string
-   * @param catalogId string
-   * @param viewCount 浏览量
+   * 分页查询文章列表。
+   * @param title 按文章标题筛选。
+   * @param description 按文章描述筛选。
+   * @param authors 按作者名称筛选。
+   * @param translateTitle 按翻译后的文章标题筛选。
+   * @param languageType 按文章语言类型筛选。
+   * @param blogType 按文章内容类型筛选。
+   * @param isAudit 按是否审核筛选。
+   * @param isPublic 按是否公开筛选。
+   * @param isOriginal 按是否原创筛选。
+   * @param userId 按作者用户 ID 筛选。
+   * @param catalogId 按所属目录 ID 筛选。
+   * @param viewCount 按浏览量筛选。
    * @param pageIndex number
    * @param pageSize number
    * @param orderBy Record<string, boolean>
@@ -38,7 +38,7 @@ export class ArticleService extends BaseService {
     return this.request<PageList<ArticleItemDto>>('get', _url);
   }
   /**
-   * add
+   * 新增文章。
    * @param data ArticleAddDto
    */
   add(data: ArticleAddDto): Observable<Article> {
@@ -46,8 +46,8 @@ export class ArticleService extends BaseService {
     return this.request<Article>('post', _url, data);
   }
   /**
-   * uploadImage
-   * @param file IFile
+   * 上传文章图片。
+   * @param file 要上传的图片文件。
    */
   uploadImage(file: File | null): Observable<ArticleImageUploadDto> {
     const formData = new FormData();
@@ -56,16 +56,16 @@ export class ArticleService extends BaseService {
     return this.request<ArticleImageUploadDto>('post', _url, formData);
   }
   /**
-   * detail
-   * @param id string
+   * 获取文章详情。
+   * @param id 文章唯一标识。
    */
   detail(id: string): Observable<ArticleDetailDto> {
     const _url = `/api/Article/${id}`;
     return this.request<ArticleDetailDto>('get', _url);
   }
   /**
-   * update
-   * @param id string
+   * 更新文章。
+   * @param id 文章唯一标识。
    * @param data ArticleUpdateDto
    */
   update(id: string, data: ArticleUpdateDto): Observable<Article> {
@@ -73,8 +73,8 @@ export class ArticleService extends BaseService {
     return this.request<Article>('patch', _url, data);
   }
   /**
-   * delete
-   * @param id string
+   * 删除文章。
+   * @param id 文章唯一标识。
    */
   delete(id: string): Observable<void> {
     const _url = `/api/Article/${id}`;

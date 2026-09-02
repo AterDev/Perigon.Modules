@@ -1,7 +1,9 @@
-<h2 mat-dialog-title>{{ i18nKeys.resource.personalReviewTitle | translate }}</h2>
+<h2 mat-dialog-title>{{ i18nKeys.resource.userReviewTitle | translate }}</h2>
 <mat-dialog-content>
   @if (loading()) {
     <mat-spinner diameter="36" />
+  } @else if (loadError()) {
+    <p>{{ i18nKeys.common.loadFail | translate }}</p>
   } @else if (detail(); as item) {
     <section class="submitted-values">
       <h3>{{ item.definitionName }}</h3>
@@ -63,10 +65,10 @@
 </mat-dialog-content>
 <mat-dialog-actions align="end">
   <button mat-button mat-dialog-close [disabled]="saving">{{ i18nKeys.common.cancel | translate }}</button>
-  <button mat-stroked-button color="warn" [disabled]="saving || loading()" (click)="reject()">
+  <button mat-stroked-button color="warn" [disabled]="saving || loading() || loadError()" (click)="reject()">
     {{ i18nKeys.resource.reject | translate }}
   </button>
-  <button mat-flat-button color="primary" [disabled]="saving || loading()" (click)="approve()">
+  <button mat-flat-button color="primary" [disabled]="saving || loading() || groupsLoading() || loadError()" (click)="approve()">
     {{ i18nKeys.resource.approve | translate }}
   </button>
 </mat-dialog-actions>

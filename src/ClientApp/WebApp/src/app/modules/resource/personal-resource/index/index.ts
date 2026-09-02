@@ -5,26 +5,27 @@ import { TranslateService } from '@ngx-translate/core';
 import { CommonListModules } from 'src/app/modules/share/shared-modules';
 import { I18N_KEYS } from 'src/app/modules/share/i18n-keys';
 import { AdminClient } from 'src/app/services/admin/admin-client';
-import { PersonalResourceAuditStatus } from 'src/app/services/admin/models/resource-mod/personal-resource-audit-status.model';
-import { PersonalResourceItemDto } from 'src/app/services/admin/models/resource-mod/personal-resource-item-dto.model';
-import { PersonalResourceStatus } from 'src/app/services/admin/models/resource-mod/personal-resource-status.model';
+import { UserResourceAuditStatus } from 'src/app/services/admin/models/entity/user-resource-audit-status.model';
+import { UserResourceItemDto } from 'src/app/services/admin/models/resource-mod/user-resource-item-dto.model';
+import { UserResourceStatus } from 'src/app/services/admin/models/entity/user-resource-status.model';
 import { ConfirmDialogComponent } from 'src/app/modules/share/components/confirm-dialog/confirm-dialog.component';
-import { PersonalResourceAddComponent } from 'src/app/modules/resource/personal-resource/add/add';
-import { PersonalResourceDetailComponent } from 'src/app/modules/resource/personal-resource/detail/detail';
+import { UserResourceAddComponent } from 'src/app/modules/resource/personal-resource/add/add';
+import { UserResourceDetailComponent } from 'src/app/modules/resource/personal-resource/detail/detail';
 
 @Component({
-  selector: 'app-personal-resource-index',
+  selector: 'app-user-resource-index',
   imports: CommonListModules,
   templateUrl: './index.html',
   styleUrl: './index.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class PersonalResourceIndexComponent {
+export class UserResourceIndexComponent {
   readonly i18nKeys = I18N_KEYS;
-  readonly statuses = PersonalResourceStatus;
-  readonly auditStatuses = PersonalResourceAuditStatus;
-  readonly resources = signal<PersonalResourceItemDto[]>([]);
+  readonly statuses = UserResourceStatus;
+  readonly auditStatuses = UserResourceAuditStatus;
+  readonly resources = signal<UserResourceItemDto[]>([]);
   readonly loading = signal(false);
+  readonly loadError = signal(false);
   private readonly client = inject(AdminClient);
   private readonly dialog = inject(MatDialog);
   private readonly snackBar = inject(MatSnackBar);
@@ -36,18 +37,22 @@ export class PersonalResourceIndexComponent {
 
   load(): void {
     this.loading.set(true);
-    this.client.personalResource.mine({ pageIndex: 1, pageSize: 100 }).subscribe({
+    this.loadError.set(false);
+    this.client.userResource.mine(null, null, 1, 100, null).subscribe({
       next: (page) => {
         this.resources.set(page.data);
         this.loading.set(false);
       },
-      error: () => this.loading.set(false),
+      error: () => {
+        this.loading.set(false);
+        this.loadError.set(true);
+      },
     });
   }
 
   add(): void {
     this.dialog
-      .open(PersonalResourceAddComponent, {
+      .open(UserResourceAddComponent, {
         width: '800px',
         maxWidth: '96vw',
         maxHeight: '96vh',
@@ -58,8 +63,8 @@ export class PersonalResourceIndexComponent {
       });
   }
 
-  detail(resource: PersonalResourceItemDto): void {
-    this.dialog.open(PersonalResourceDetailComponent, {
+  detail(resource: UserResourceItemDto): void {
+    this.dialog.open(UserResourceDetailComponent, {
       width: '760px',
       maxWidth: '96vw',
       maxHeight: '96vh',
@@ -67,9 +72,9 @@ export class PersonalResourceIndexComponent {
     });
   }
 
-  edit(resource: PersonalResourceItemDto): void {
+  edit(resource: UserResourceItemDto): void {
     this.dialog
-      .open(PersonalResourceAddComponent, {
+      .open(UserResourceAddComponent, {
         width: '800px',
         maxWidth: '96vw',
         maxHeight: '96vh',
@@ -81,12 +86,12 @@ export class PersonalResourceIndexComponent {
       });
   }
 
-  remove(resource: PersonalResourceItemDto): void {
+  remove(resource: UserResourceItemDto): void {
     this.dialog
       .open(ConfirmDialogComponent, {
         data: {
-          title: this.translate.instant('common.confirmDelete'),
-          content: this.translate.instant('resource.personalDeleteConfirm', {
+          title: this.translate.instant(this.i18nKeys.common.confirmDelete),
+          content: this.translate.instant(this.i18nKeys.resource.userDeleteConfirm, {
             name: resource.definitionName,
           }),
         },
@@ -94,30 +99,38 @@ export class PersonalResourceIndexComponent {
       .afterClosed()
       .subscribe((confirmed) => {
         if (!confirmed) return;
-        this.client.personalResource.delete(resource.id).subscribe(() => {
-          this.snackBar.open(
-            this.translate.instant('resource.personalDeleteSuccess'),
-            this.translate.instant('common.close'),
-            { duration: 2500 },
-          );
-          this.load();
+        this.client.userResource.delete(resource.id).subscribe({
+          next: () => {
+            this.snackBar.open(
+              this.translate.instant(this.i18nKeys.resource.userDeleteSuccess),
+              this.translate.instant(this.i18nKeys.common.close),
+              { duration: 2500 },
+            );
+            this.load();
+          },
+          error: () =>
+            this.snackBar.open(
+              this.translate.instant(this.i18nKeys.common.deleteFail),
+              this.translate.instant(this.i18nKeys.common.close),
+              { duration: 2500 },
+            ),
         });
       });
   }
 
-  statusLabel(status: PersonalResourceStatus): string {
-    return status === PersonalResourceStatus.Private
-      ? this.i18nKeys.resource.personalPrivate
-      : this.i18nKeys.resource.personalApplyPublic;
+  statusLabel(status: UserResourceStatus): string {
+    return status === UserResourceStatus.Private
+      ? this.i18nKeys.resource.userPrivate
+      : this.i18nKeys.resource.userApplyPublic;
   }
 
-  auditLabel(status: PersonalResourceAuditStatus): string {
+  auditLabel(status: UserResourceAuditStatus): string {
     const keys = {
-      [PersonalResourceAuditStatus.NotRequired]: this.i18nKeys.resource.auditNotRequired,
-      [PersonalResourceAuditStatus.Pending]: this.i18nKeys.resource.auditPending,
-      [PersonalResourceAuditStatus.Approved]: this.i18nKeys.resource.auditApproved,
-      [PersonalResourceAuditStatus.Rejected]: this.i18nKeys.resource.auditRejected,
+      [UserResourceAuditStatus.NotRequired]: this.i18nKeys.resource.auditNotRequired,
+      [UserResourceAuditStatus.Pending]: this.i18nKeys.resource.auditPending,
+      [UserResourceAuditStatus.Approved]: this.i18nKeys.resource.auditApproved,
+      [UserResourceAuditStatus.Rejected]: this.i18nKeys.resource.auditRejected,
     };
-    return keys[status];
+    return keys[status] ?? this.i18nKeys.resource.auditPending;
   }
 }

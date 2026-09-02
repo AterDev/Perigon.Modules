@@ -46,19 +46,22 @@ public abstract class ManagerBase<TDbContext, TEntity>
     public ManagerBase(
         AppDbFactory dbContextFactory,
         IUserContext userContext,
-        ILogger logger
+        ILogger logger,
+        bool allowCatalogContext = false
     )
     {
         _logger = logger;
         _userContext = userContext;
-        if (IsTenantScoped && _userContext.TenantId == Guid.Empty)
+        if (IsTenantScoped && _userContext.TenantId == Guid.Empty && !allowCatalogContext)
         {
             throw new InvalidOperationException(
                 $"A TenantId is required to create a manager for {typeof(TEntity).Name}."
             );
         }
 
-        Guid? tenantId = IsTenantScoped ? _userContext.TenantId : null;
+        Guid? tenantId = IsTenantScoped && _userContext.TenantId != Guid.Empty
+            ? _userContext.TenantId
+            : null;
         _dbContext = (dbContextFactory.CreateDbContext(tenantId) as TDbContext)!;
         _dbSet = _dbContext.Set<TEntity>();
         Queryable = _dbSet.AsNoTracking().AsQueryable();

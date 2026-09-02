@@ -1,6 +1,6 @@
 <section class="page">
   <div class="d-flex align-items-center justify-content-between gap-3">
-    <h2>{{ i18nKeys.resource.personalReviewTitle | translate }}</h2>
+    <h2>{{ i18nKeys.resource.userReviewTitle | translate }}</h2>
     <button mat-stroked-button (click)="load()">
       <mat-icon>refresh</mat-icon>{{ i18nKeys.resource.refresh | translate }}
     </button>
@@ -8,6 +8,11 @@
 
   @if (loading()) {
     <mat-spinner diameter="32" />
+  } @else if (loadError()) {
+    <p>
+      {{ i18nKeys.common.loadFail | translate }}
+      <button mat-button (click)="load()">{{ i18nKeys.common.retry | translate }}</button>
+    </p>
   } @else if (resources().length === 0) {
     <p>{{ i18nKeys.resource.noPendingReviews | translate }}</p>
   } @else {

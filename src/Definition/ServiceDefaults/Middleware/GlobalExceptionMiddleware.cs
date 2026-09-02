@@ -41,7 +41,7 @@ public class GlobalExceptionMiddleware(RequestDelegate next, Localizer localizer
         }
         catch (BusinessException ex)
         {
-            ctx.Response.StatusCode = StatusCodes.Status500InternalServerError;
+            ctx.Response.StatusCode = ex.StatusCodes;
             await ctx.Response.WriteAsJsonAsync(
                 new ErrorResult(localizer.Get(ex.LanguageKey), ctx.TraceIdentifier, status: ex.StatusCodes)
             );

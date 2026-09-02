@@ -1,9 +1,9 @@
-namespace ResourceMod.Models.PersonalResourceDtos;
+namespace ResourceMod.Models.UserResourceDtos;
 
 /// <summary>
 /// 公开申请审核通过时补充的常规资源信息。
 /// </summary>
-public class PersonalResourceReviewDto
+public class UserResourceReviewDto
 {
     /// <summary>
     /// 资源所属环境 ID。

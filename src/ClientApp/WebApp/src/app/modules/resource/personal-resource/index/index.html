@@ -1,6 +1,6 @@
 <section class="page">
   <div class="d-flex align-items-center justify-content-between gap-3">
-    <h2>{{ i18nKeys.resource.personalTitle | translate }}</h2>
+    <h2>{{ i18nKeys.resource.userTitle | translate }}</h2>
     <button mat-flat-button color="primary" (click)="add()">
       <mat-icon>add</mat-icon>{{ i18nKeys.common.add | translate }}
     </button>
@@ -8,6 +8,11 @@
 
   @if (loading()) {
     <mat-spinner diameter="32" />
+  } @else if (loadError()) {
+    <p>
+      {{ i18nKeys.common.loadFail | translate }}
+      <button mat-button (click)="load()">{{ i18nKeys.common.retry | translate }}</button>
+    </p>
   } @else if (resources().length === 0) {
     <p>{{ i18nKeys.common.noData | translate }}</p>
   } @else {
@@ -16,7 +21,7 @@
         <thead>
           <tr>
             <th>{{ i18nKeys.resource.definition | translate }}</th>
-            <th>{{ i18nKeys.resource.personalVisibility | translate }}</th>
+            <th>{{ i18nKeys.resource.userVisibility | translate }}</th>
             <th>{{ i18nKeys.resource.auditStatus | translate }}</th>
             <th>{{ i18nKeys.resource.reviewComment | translate }}</th>
             <th>{{ i18nKeys.common.updatedTime | translate }}</th>

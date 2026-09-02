@@ -1,11 +1,11 @@
 namespace Entity.ResourceMod;
 
 /// <summary>
-/// 用户提交的个人资源。个人资源在审核通过前不会关联环境、分类、分组或标签。
+/// 用户提交的资源。个人资源在转换为常规资源前不关联环境、分类、分组或标签。
 /// </summary>
 [Index(nameof(UserId))]
 [Index(nameof(AuditStatus))]
-public class PersonalResource : EntityBase
+public class UserResource : EntityBase
 {
     /// <summary>
     /// 资源所有者用户 ID。
@@ -18,20 +18,14 @@ public class PersonalResource : EntityBase
     public Guid DefinitionId { get; set; }
 
     /// <summary>
-    /// 个人资源状态。
+    /// 资源可见性。私有资源仅所有者可见，公开申请由管理员审核后转换为常规资源。
     /// </summary>
-    public PersonalResourceStatus Status { get; set; }
+    public UserResourceStatus Status { get; set; }
 
     /// <summary>
     /// 公开申请审核状态。
     /// </summary>
-    public PersonalResourceAuditStatus AuditStatus { get; set; }
-
-    /// <summary>
-    /// 按资源定义规范化后的属性值 JSON。
-    /// </summary>
-    [MaxLength(100000)]
-    public required string ValuesJson { get; set; }
+    public UserResourceAuditStatus AuditStatus { get; set; }
 
     /// <summary>
     /// 审核通过后创建的常规资源 ID。
@@ -49,4 +43,9 @@ public class PersonalResource : EntityBase
     /// </summary>
     [ForeignKey(nameof(DefinitionId))]
     public ResDefinition Definition { get; set; } = null!;
+
+    /// <summary>
+    /// 用户填写的资源属性值。
+    /// </summary>
+    public ICollection<UserResValue> Values { get; set; } = [];
 }

@@ -10,23 +10,25 @@ import { I18N_KEYS } from 'src/app/modules/share/i18n-keys';
 import { AdminClient } from 'src/app/services/admin/admin-client';
 import { ResDefinition } from 'src/app/services/admin/models/entity/res-definition.model';
 import { ResValueType } from 'src/app/services/admin/models/entity/res-value-type.model';
-import { PersonalResourceStatus } from 'src/app/services/admin/models/resource-mod/personal-resource-status.model';
+import { UserResourceStatus } from 'src/app/services/admin/models/entity/user-resource-status.model';
+import { UserResourceAddDto } from 'src/app/services/admin/models/resource-mod/user-resource-add-dto.model';
+import { UserResourceUpdateDto } from 'src/app/services/admin/models/resource-mod/user-resource-update-dto.model';
 import { resourceValueValidator } from 'src/app/modules/resource/shared/resource-value-validation';
 
-interface PersonalResourceDialogData {
+interface UserResourceDialogData {
   id?: string;
 }
 
 @Component({
-  selector: 'app-personal-resource-add',
+  selector: 'app-user-resource-add',
   imports: CommonFormModules,
   templateUrl: './add.html',
   styleUrl: './add.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class PersonalResourceAddComponent {
+export class UserResourceAddComponent {
   readonly i18nKeys = I18N_KEYS;
-  readonly statuses = PersonalResourceStatus;
+  readonly statuses = UserResourceStatus;
   readonly valueTypes = ResValueType;
   readonly valueTypeLabels = {
     [ResValueType.String]: I18N_KEYS.resource.propertyTypes.string,
@@ -40,17 +42,17 @@ export class PersonalResourceAddComponent {
   private readonly client = inject(AdminClient);
   private readonly snackBar = inject(MatSnackBar);
   private readonly translate = inject(TranslateService);
-  private readonly dialogRef = inject(MatDialogRef<PersonalResourceAddComponent>, {
+  private readonly dialogRef = inject(MatDialogRef<UserResourceAddComponent>, {
     optional: true,
   });
-  private readonly data = inject<PersonalResourceDialogData>(MAT_DIALOG_DATA, {
+  private readonly data = inject<UserResourceDialogData>(MAT_DIALOG_DATA, {
     optional: true,
   });
   readonly id = this.data?.id ?? null;
   readonly definitions = signal<ResDefinition[]>([]);
   readonly form = this.fb.nonNullable.group({
     definitionId: ['', Validators.required],
-    status: [PersonalResourceStatus.Private, Validators.required],
+    status: [UserResourceStatus.Private, Validators.required],
   });
   private readonly selectedDefinitionId = toSignal(
     this.form.controls.definitionId.valueChanges,
@@ -64,8 +66,10 @@ export class PersonalResourceAddComponent {
       ) ?? null,
   );
   readonly title = computed(() =>
-    this.id ? this.i18nKeys.resource.personalEditTitle : this.i18nKeys.resource.personalAddTitle,
+    this.id ? this.i18nKeys.resource.userEditTitle : this.i18nKeys.resource.userAddTitle,
   );
+  readonly loading = signal(true);
+  readonly loadError = signal(false);
   saving = false;
 
   constructor() {
@@ -73,26 +77,48 @@ export class PersonalResourceAddComponent {
     if (this.id) {
       forkJoin({
         definitions,
-        detail: this.client.personalResource.detail(this.id),
-      }).subscribe((result) => {
-        this.definitions.set(result.definitions);
-        this.form.patchValue({
-          definitionId: result.detail.definitionId,
-          status: result.detail.status,
-        });
-        this.definitionChanged();
-        for (const value of result.detail.values) {
-          this.values.controls[value.definitionPropertyId]?.setValue(value.value);
-        }
+        detail: this.client.userResource.detail(this.id),
+      }).subscribe({
+        next: (result) => {
+          this.setDefinitions(result.definitions);
+          this.form.patchValue({
+            definitionId: result.detail.definitionId,
+            status: result.detail.status,
+          });
+          this.definitionChanged();
+          for (const value of result.detail.values) {
+            this.values.controls[value.definitionPropertyId]?.setValue(value.value);
+          }
+          this.loading.set(false);
+        },
+        error: () => {
+          this.loading.set(false);
+          this.loadError.set(true);
+        },
       });
     } else {
-      definitions.subscribe((items) => {
-        this.definitions.set(items);
-        if (items.length > 0) {
-          this.form.controls.definitionId.setValue(items[0].id);
-          this.definitionChanged();
-        }
+      definitions.subscribe({
+        next: (items) => {
+          this.setDefinitions(items);
+          this.loading.set(false);
+          if (items.length > 0) {
+            this.form.controls.definitionId.setValue(items[0].id);
+            this.definitionChanged();
+          }
+        },
+        error: () => {
+          this.loading.set(false);
+          this.loadError.set(true);
+        },
       });
+    }
+  }
+
+  private setDefinitions(items: ResDefinition[]): void {
+    this.definitions.set(items);
+    if (!this.form.controls.definitionId.value && items.length > 0) {
+      this.form.controls.definitionId.setValue(items[0].id);
+      this.definitionChanged();
     }
   }
 
@@ -120,32 +146,41 @@ export class PersonalResourceAddComponent {
       return;
     }
 
-    const data = {
+    const payload = {
       ...this.form.getRawValue(),
       values: Object.entries(this.values.getRawValue())
-        .filter(([, value]) => value.length > 0)
+        .filter(([, value]) => value.trim().length > 0)
         .map(([definitionPropertyId, value]) => ({ definitionPropertyId, value })),
     };
     this.saving = true;
-    const saved = () => {
+    const onSuccess = (id: string): void => {
       this.snackBar.open(
         this.translate.instant(
-          this.id ? 'resource.personalUpdateSuccess' : 'resource.personalCreateSuccess',
+          this.id ? this.i18nKeys.resource.userUpdateSuccess : this.i18nKeys.resource.userCreateSuccess,
         ),
-        this.translate.instant('common.close'),
+        this.translate.instant(this.i18nKeys.common.close),
         { duration: 2500 },
       );
-      this.dialogRef?.close({ saved: true, id: this.id ?? '' });
+      this.dialogRef?.close({ saved: true, id });
     };
+    const onError = (): void => {
+      this.saving = false;
+      this.snackBar.open(
+        this.translate.instant(this.i18nKeys.common.saveFail),
+        this.translate.instant(this.i18nKeys.common.close),
+        { duration: 2500 },
+      );
+    };
+
     if (this.id) {
-      this.client.personalResource.update(this.id, data).subscribe({
-        next: saved,
-        error: () => (this.saving = false),
+      this.client.userResource.update(this.id, payload as UserResourceUpdateDto).subscribe({
+        next: () => onSuccess(this.id!),
+        error: onError,
       });
     } else {
-      this.client.personalResource.add(data).subscribe({
-        next: saved,
-        error: () => (this.saving = false),
+      this.client.userResource.add(payload as UserResourceAddDto).subscribe({
+        next: (result) => onSuccess(result.id),
+        error: onError,
       });
     }
   }

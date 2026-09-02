@@ -1,9 +1,9 @@
-namespace ResourceMod.Models.PersonalResourceDtos;
+namespace ResourceMod.Models.UserResourceDtos;
 
 /// <summary>
-/// 个人资源更新请求结构。
+/// 用户资源更新结构。
 /// </summary>
-public class PersonalResourceUpdateDto
+public class UserResourceUpdateDto
 {
     /// <summary>
     /// 资源定义 ID。
@@ -11,9 +11,9 @@ public class PersonalResourceUpdateDto
     public Guid DefinitionId { get; set; }
 
     /// <summary>
-    /// 个人资源状态。
+    /// 用户资源可见性。
     /// </summary>
-    public PersonalResourceStatus Status { get; set; }
+    public UserResourceStatus Status { get; set; }
 
     /// <summary>
     /// 按资源定义填写的属性值。

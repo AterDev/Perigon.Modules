@@ -1,8 +1,11 @@
+/**
+ * 资源环境更新请求结构。
+ */
 export interface ResEnvironmentUpdateDto {
-  /** name */
+  /** 环境名称。 */
   name?: string | null;
-  /** icon */
+  /** Material Icons 图标名称，可选。 */
   icon?: string | null;
-  /** color */
+  /** 显示颜色，例如 CSS 十六进制颜色值。 */
   color?: string | null;
 }

@@ -1,9 +1,9 @@
-namespace ResourceMod.Models.PersonalResourceDtos;
+namespace ResourceMod.Models.UserResourceDtos;
 
 /// <summary>
-/// 公开申请驳回请求结构。
+/// 公开申请驳回结构。
 /// </summary>
-public class PersonalResourceRejectDto
+public class UserResourceRejectDto
 {
     /// <summary>
     /// 驳回原因。

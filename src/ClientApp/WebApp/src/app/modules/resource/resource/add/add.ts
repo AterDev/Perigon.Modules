@@ -31,6 +31,7 @@ import { ResGroupAddDto } from 'src/app/services/admin/models/resource-mod/res-g
 import { ResTagAddDto } from 'src/app/services/admin/models/resource-mod/res-tag-add-dto.model';
 import { resourceIconName, resourceIconStyle } from 'src/app/modules/resource/shared/resource-appearance';
 import { resourceValueValidator } from 'src/app/modules/resource/shared/resource-value-validation';
+import { forkJoin } from 'rxjs';
 
 @Component({
   selector: 'app-resource-add',
@@ -84,34 +85,27 @@ export class ResourceAddComponent {
   saving = false;
 
   constructor() {
-    this.client.resourceConfiguration
-      .environments()
-      .subscribe((value) => {
-        this.environments.set(value);
-        if (!this.form.controls.environmentId.value && value.length > 0) {
-          this.form.controls.environmentId.setValue(value[0].id);
-        }
-      });
-    this.client.resourceConfiguration
-      .categories()
-      .subscribe((value) => {
-        this.categories.set(value);
-        if (!this.form.controls.categoryId.value && value.length > 0) {
-          this.form.controls.categoryId.setValue(value[0].id);
-          this.categoryChanged();
-        }
-      });
-    this.client.resourceConfiguration
-      .tags()
-      .subscribe((value) => this.tags.set(value));
-    this.client.resourceConfiguration
-      .definitions(null)
-      .subscribe((value) => {
-        this.definitions.set(value);
-        if (!this.form.controls.definitionId.value && value.length > 0) {
-          this.form.controls.definitionId.setValue(value[0].id);
-          this.definitionChanged();
-        }
+    forkJoin({
+      environments: this.client.resourceConfiguration.environments(),
+      categories: this.client.resourceConfiguration.categories(),
+      tags: this.client.resourceConfiguration.tags(),
+      definitions: this.client.resourceConfiguration.definitions(null),
+    }).subscribe((result) => {
+      this.environments.set(result.environments);
+      this.categories.set(result.categories);
+      this.tags.set(result.tags);
+      this.definitions.set(result.definitions);
+      if (result.environments.length > 0) {
+        this.form.controls.environmentId.setValue(result.environments[0].id);
+      }
+      if (result.categories.length > 0) {
+        this.form.controls.categoryId.setValue(result.categories[0].id);
+        this.categoryChanged();
+      }
+      if (result.definitions.length > 0) {
+        this.form.controls.definitionId.setValue(result.definitions[0].id);
+        this.definitionChanged();
+      }
       });
   }
   categoryChanged(): void {

@@ -273,7 +273,7 @@ public sealed class TenantFrameworkTests
     }
 
     [Test]
-    public async Task ClaimsTransformation_WhenTenantClaimIsMissing_AddsDefaultTenantClaims()
+    public async Task ClaimsTransformation_WhenTenantClaimIsMissing_LeavesPrincipalUnbound()
     {
         await using var connection = new SqliteConnection("Data Source=:memory:");
         await connection.OpenAsync();
@@ -283,8 +283,6 @@ public sealed class TenantFrameworkTests
         await using var context = new DefaultDbContext(optionsBuilder.Options);
         await context.Database.EnsureCreatedAsync();
 
-        var tenant = await context.Tenants
-            .SingleAsync(t => t.Domain == DefaultDbContextSeeding.DefaultTenantDomain);
         using var serviceProvider = CreateCacheServiceProvider();
         var cache = CreateCacheService(serviceProvider);
         var tenantService = new TenantService(
@@ -302,12 +300,9 @@ public sealed class TenantFrameworkTests
         var transformed = await new UserClaimsTransformation(tenantService, cache)
             .TransformAsync(principal);
 
-        await Assert.That(transformed.FindFirst(CustomClaimTypes.TenantId)?.Value)
-            .IsEqualTo(tenant.Id.ToString());
-        await Assert.That(transformed.FindFirst(CustomClaimTypes.TenantType)?.Value)
-            .IsEqualTo(tenant.Type.ToString());
-        await Assert.That(transformed.FindFirst(CustomClaimTypes.TenantName)?.Value)
-            .IsEqualTo(tenant.Name);
+        await Assert.That(transformed.FindFirst(CustomClaimTypes.TenantId)).IsNull();
+        await Assert.That(transformed.FindFirst(CustomClaimTypes.TenantType)).IsNull();
+        await Assert.That(transformed.FindFirst(CustomClaimTypes.TenantName)).IsNull();
     }
 
     [Test]

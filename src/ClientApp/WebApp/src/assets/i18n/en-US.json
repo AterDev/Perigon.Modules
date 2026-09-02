@@ -33,7 +33,9 @@
     "saveFail": "Save failed",
     "formInvalid": "Form invalid, please check the content!",
     "updatedTime": "Updated Time",
-    "pageNotFound": "Page Not Found"
+    "pageNotFound": "Page Not Found",
+    "loadFail": "Unable to load data",
+    "retry": "Retry"
   },
   "login": {
     "username": "Username",
@@ -135,7 +137,7 @@
     "systemConfig": "Settings",
     "resource": "Resources",
     "resourceList": "List",
-    "personalResource": "My resources",
+    "userResource": "My resources",
     "resourceReview": "Resource review",
     "resourceConfig": "Config",
     "resourceDefinition": "Definitions",
@@ -266,14 +268,14 @@
       "fill": "Fill"
     },
     "deleteDefinitionConfirm": "Delete definition “{{name}}”?"
-    ,"personalTitle": "My resource requests"
-    ,"personalAddTitle": "Request a resource"
-    ,"personalEditTitle": "Edit resource request"
-    ,"personalDetailTitle": "Personal resource details"
-    ,"personalVisibility": "Visibility"
-    ,"personalVisibilityHint": "Private resources are visible only to you; public requests require administrator approval"
-    ,"personalPrivate": "Private"
-    ,"personalApplyPublic": "Request public access"
+    ,"userTitle": "My resources"
+    ,"userAddTitle": "Add a resource"
+    ,"userEditTitle": "Edit resource"
+    ,"userDetailTitle": "My resource details"
+    ,"userVisibility": "Visibility"
+    ,"userVisibilityHint": "Private resources are visible only to you; public requests require administrator approval"
+    ,"userPrivate": "Private"
+    ,"userApplyPublic": "Request public access"
     ,"auditStatus": "Review status"
     ,"auditNotRequired": "Not required"
     ,"auditPending": "Pending"
@@ -284,14 +286,14 @@
     ,"review": "Review"
     ,"approve": "Approve"
     ,"reject": "Reject"
-    ,"personalReviewTitle": "Public resource review"
+    ,"userReviewTitle": "Public resource review"
     ,"noPendingReviews": "No public resource requests are pending"
-    ,"personalCreateSuccess": "Resource request submitted"
-    ,"personalUpdateSuccess": "Resource request updated"
-    ,"personalDeleteConfirm": "Delete resource request “{{name}}”?"
-    ,"personalDeleteSuccess": "Resource request deleted"
-    ,"personalApproveSuccess": "Resource approved"
-    ,"personalRejectSuccess": "Resource request rejected"
+    ,"userCreateSuccess": "Resource saved"
+    ,"userUpdateSuccess": "Resource updated"
+    ,"userDeleteConfirm": "Delete resource “{{name}}”?"
+    ,"userDeleteSuccess": "Resource deleted"
+    ,"userApproveSuccess": "Resource approved"
+    ,"userRejectSuccess": "Resource request rejected"
   },
   "cms": {
     "article": {

@@ -40,6 +40,24 @@ export class EnumTextPipe implements PipeTransform {
         }
         break;
 
+      case 'UserResourceAuditStatus':
+        switch (value) {
+          case 0: result = 'NotRequired'; break;
+          case 1: result = 'Pending'; break;
+          case 2: result = 'Approved'; break;
+          case 3: result = 'Rejected'; break;
+          default: result = '默认'; break;
+        }
+        break;
+
+      case 'UserResourceStatus':
+        switch (value) {
+          case 0: result = 'Private'; break;
+          case 1: result = 'ApplyPublic'; break;
+          default: result = '默认'; break;
+        }
+        break;
+
       case 'MenuType':
         switch (value) {
           case 0: result = '页面'; break;

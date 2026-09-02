@@ -3,41 +3,41 @@ import { ContentType } from '../entity/content-type.model';
 import { ArticleCategory } from '../entity/article-category.model';
 
 /**
- * 博客概要
+ * 文章详情。
  */
 export interface ArticleDetailDto {
-  /** 标题 */
+  /** 文章标题。 */
   title: string;
-  /** 描述 */
+  /** 文章描述。 */
   description?: string | null;
-  /** 内容 */
+  /** 文章正文内容。 */
   content: string;
-  /** 作者 */
+  /** 作者名称。 */
   authors: string;
-  /** 标题 */
+  /** 翻译后的文章标题。 */
   translateTitle?: string | null;
   /** languageType */
   languageType: LanguageType;
   /** blogType */
   blogType: ContentType;
-  /** 是否审核 */
+  /** 是否已审核。 */
   isAudit: boolean;
-  /** 是否公开 */
+  /** 是否公开文章。 */
   isPublic: boolean;
-  /** 是否原创 */
+  /** 是否为原创文章。 */
   isOriginal: boolean;
-  /** userId */
+  /** 作者用户 ID。 */
   userId: string;
   /** 目录 */
   catalog: ArticleCategory;
-  /** catalogId */
+  /** 所属目录 ID。 */
   catalogId: string;
-  /** 浏览量 */
+  /** 浏览量。 */
   viewCount: number;
-  /** id */
+  /** 文章唯一标识。 */
   id: string;
-  /** createdTime */
+  /** 创建时间。 */
   createdTime: Date;
-  /** updatedTime */
+  /** 最后更新时间。 */
   updatedTime: Date;
 }

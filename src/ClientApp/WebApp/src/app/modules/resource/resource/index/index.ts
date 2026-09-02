@@ -22,6 +22,7 @@ import { ResourceAddComponent } from 'src/app/modules/resource/resource/add/add'
 import { ResourceDetailComponent } from 'src/app/modules/resource/resource/detail/detail';
 import { ResourceEditComponent } from 'src/app/modules/resource/resource/edit/edit';
 import { resourceIconName, resourceIconStyle } from 'src/app/modules/resource/shared/resource-appearance';
+import { forkJoin } from 'rxjs';
 
 @Component({
   selector: 'app-resource-index',
@@ -67,22 +68,26 @@ export class ResourceIndexComponent {
   searchKey = '';
 
   constructor() {
-    this.client.resourceConfiguration
-      .environments()
-      .subscribe((value) => this.environments.set(value));
-    this.client.resourceConfiguration
-      .categories()
-      .subscribe((value) => this.categories.set(value));
-    this.client.resourceConfiguration
-      .definitions(null)
-      .subscribe((value) => this.definitions.set(value));
-    this.client.resourceConfiguration
-      .groups(null)
-      .subscribe((value) => this.groups.set(value));
-    this.client.resourceConfiguration
-      .tags()
-      .subscribe((value) => this.tags.set(value));
-    this.load();
+    this.loading.set(true);
+    forkJoin({
+      environments: this.client.resourceConfiguration.environments(),
+      categories: this.client.resourceConfiguration.categories(),
+      definitions: this.client.resourceConfiguration.definitions(null),
+      groups: this.client.resourceConfiguration.groups(null),
+      tags: this.client.resourceConfiguration.tags(),
+      resources: this.resourceList(),
+    }).subscribe({
+      next: (result) => {
+        this.environments.set(result.environments);
+        this.categories.set(result.categories);
+        this.definitions.set(result.definitions);
+        this.groups.set(result.groups);
+        this.tags.set(result.tags);
+        this.resources.set(result.resources.data);
+        this.loading.set(false);
+      },
+      error: () => this.loading.set(false),
+    });
   }
 
   load(): void {
@@ -90,18 +95,7 @@ export class ResourceIndexComponent {
     if (searchKey.length === 1) return;
 
     this.loading.set(true);
-    this.client.resource
-      .list(
-        this.environmentId || null,
-        this.categoryId || null,
-        null,
-        this.definitionId || null,
-        this.tagName || null,
-        searchKey || null,
-        1,
-        50,
-        null,
-      )
+    this.resourceList()
       .subscribe({
         next: (page) => {
           this.resources.set(page.data);
@@ -109,6 +103,20 @@ export class ResourceIndexComponent {
         },
         error: () => this.loading.set(false),
       });
+  }
+
+  private resourceList() {
+    return this.client.resource.list(
+      this.environmentId || null,
+      this.categoryId || null,
+      null,
+      this.definitionId || null,
+      this.tagName || null,
+      this.searchKey.trim() || null,
+      1,
+      50,
+      null,
+    );
   }
 
   add(): void {

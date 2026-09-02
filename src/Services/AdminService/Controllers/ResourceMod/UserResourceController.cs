@@ -1,26 +1,26 @@
-using ResourceMod.Managers;
-using ResourceMod.Models.PersonalResourceDtos;
 using Perigon.AspNetCore.Models;
+using ResourceMod.Managers;
+using ResourceMod.Models.UserResourceDtos;
 
 namespace AdminService.Controllers.ResourceMod;
 
 /// <summary>
-/// 个人资源提交和公开申请审核。
+/// 用户资源提交和公开申请审核。
 /// </summary>
-/// <see cref="PersonalResourceManager"/>
-public class PersonalResourceController(
+/// <see cref="UserResourceManager"/>
+public class UserResourceController(
     Localizer localizer,
     IUserContext user,
-    ILogger<PersonalResourceManager> logger,
-    PersonalResourceManager manager
-) : RestControllerBase<PersonalResourceManager>(localizer, manager, user, logger)
+    ILogger<UserResourceManager> logger,
+    UserResourceManager manager
+) : RestControllerBase<UserResourceManager>(localizer, manager, user, logger)
 {
     /// <summary>
-    /// 查询当前登录用户的个人资源。
+    /// 查询当前登录用户的用户资源。
     /// </summary>
     [HttpGet("mine")]
-    public Task<PageList<PersonalResourceItemDto>> MineAsync(
-        [FromQuery] PersonalResourceFilterDto filter)
+    public Task<PageList<UserResourceItemDto>> MineAsync(
+        [FromQuery] UserResourceFilterDto filter)
     {
         return _manager.MineAsync(filter);
     }
@@ -28,47 +28,48 @@ public class PersonalResourceController(
     /// <summary>
     /// 查询待审核的公开申请。
     /// </summary>
+    [Authorize(Policy = WebConst.AdminUser)]
     [HttpGet("review")]
-    public Task<PageList<PersonalResourceItemDto>> ReviewAsync(
-        [FromQuery] PersonalResourceFilterDto filter)
+    public Task<PageList<UserResourceItemDto>> ReviewAsync(
+        [FromQuery] UserResourceFilterDto filter)
     {
         return _manager.ReviewListAsync(filter);
     }
 
     /// <summary>
-    /// 获取个人资源详情。
+    /// 获取用户资源详情。
     /// </summary>
     [HttpGet("{id:guid}")]
-    public Task<PersonalResourceDetailDto?> DetailAsync([FromRoute] Guid id)
+    public Task<UserResourceDetailDto?> DetailAsync([FromRoute] Guid id)
     {
         return _manager.GetAsync(id);
     }
 
     /// <summary>
-    /// 新增个人资源或提交公开申请。
+    /// 新增用户资源或提交公开申请。
     /// </summary>
     [HttpPost]
-    public async Task<ActionResult<PersonalResourceCreatedDto>> AddAsync(PersonalResourceAddDto input)
+    public async Task<ActionResult<UserResourceCreatedDto>> AddAsync(UserResourceAddDto input)
     {
-        PersonalResource resource = await _manager.AddAsync(input);
+        UserResource resource = await _manager.AddAsync(input);
         return Created(
-            $"/api/PersonalResource/{resource.Id}",
-            new PersonalResourceCreatedDto { Id = resource.Id });
+            $"/api/UserResource/{resource.Id}",
+            new UserResourceCreatedDto { Id = resource.Id });
     }
 
     /// <summary>
-    /// 更新个人资源或重新提交公开申请。
+    /// 更新用户资源或重新提交公开申请。
     /// </summary>
     [HttpPatch("{id:guid}")]
     public Task<bool> UpdateAsync(
         [FromRoute] Guid id,
-        PersonalResourceUpdateDto input)
+        UserResourceUpdateDto input)
     {
         return _manager.UpdateAsync(id, input);
     }
 
     /// <summary>
-    /// 删除个人资源。
+    /// 删除用户资源。
     /// </summary>
     [HttpDelete("{id:guid}")]
     public Task<bool> DeleteAsync([FromRoute] Guid id)
@@ -79,10 +80,11 @@ public class PersonalResourceController(
     /// <summary>
     /// 审核通过公开申请并创建常规资源。
     /// </summary>
+    [Authorize(Policy = WebConst.AdminUser)]
     [HttpPost("{id:guid}/approve")]
     public Task<bool> ApproveAsync(
         [FromRoute] Guid id,
-        PersonalResourceReviewDto input)
+        UserResourceReviewDto input)
     {
         return _manager.ApproveAsync(id, input);
     }
@@ -90,10 +92,11 @@ public class PersonalResourceController(
     /// <summary>
     /// 驳回公开申请。
     /// </summary>
+    [Authorize(Policy = WebConst.AdminUser)]
     [HttpPost("{id:guid}/reject")]
     public Task<bool> RejectAsync(
         [FromRoute] Guid id,
-        PersonalResourceRejectDto input)
+        UserResourceRejectDto input)
     {
         return _manager.RejectAsync(id, input);
     }

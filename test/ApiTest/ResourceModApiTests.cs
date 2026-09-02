@@ -8,7 +8,7 @@ using ResourceMod.Models.ResGroupDtos;
 using ResourceMod.Models.ResPermissionDtos;
 using ResourceMod.Models.ResTagDtos;
 using ResourceMod.Models.ResourceDtos;
-using ResourceMod.Models.PersonalResourceDtos;
+using ResourceMod.Models.UserResourceDtos;
 using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
@@ -648,52 +648,96 @@ public class ResourceModApiTests
 
     [ClassDataSource<TestHttpClientData>(Shared = SharedType.None)]
     [Test]
-    public async Task PersonalResourceApis_ShouldStorePrivateValuesAndApprovePublicRequests(
+    public async Task UserResourceApis_ShouldEnforceSystemUserVisibilityAndApprovePublicRequests(
         TestHttpClientData data)
     {
-        HttpClient client = data.HttpClient;
-        ResourceFixture fixture = await CreateFixtureAsync(client);
-        PersonalResourceAddDto input = new()
+        HttpClient adminClient = data.HttpClient;
+        (HttpClient ownerClient, Guid ownerId) = await data.CreateSystemUserClientAsync();
+        (HttpClient otherClient, _) = await data.CreateSystemUserClientAsync();
+        ResourceFixture fixture = await CreateFixtureAsync(adminClient);
+        UserResourceAddDto input = new()
         {
             DefinitionId = fixture.Definition.Id,
-            Status = PersonalResourceStatus.Private,
+            Status = UserResourceStatus.Private,
             Values = fixture.Values
         };
 
-        PersonalResourceCreatedDto privateCreated = await PostAsync<PersonalResourceCreatedDto>(
-            client,
-            "/api/PersonalResource",
+        UserResourceCreatedDto privateCreated = await PostAsync<UserResourceCreatedDto>(
+            ownerClient,
+            "/api/UserResource",
             input,
             HttpStatusCode.Created);
-        PersonalResourceDetailDto privateDetail = await GetAsync<PersonalResourceDetailDto>(
-            client,
-            $"/api/PersonalResource/{privateCreated.Id}",
+        UserResourceDetailDto privateDetail = await GetAsync<UserResourceDetailDto>(
+            ownerClient,
+            $"/api/UserResource/{privateCreated.Id}",
             HttpStatusCode.OK);
-        await Assert.That(privateDetail.Status).IsEqualTo(PersonalResourceStatus.Private);
-        await Assert.That(privateDetail.AuditStatus).IsEqualTo(PersonalResourceAuditStatus.NotRequired);
+        await Assert.That(privateDetail.UserId).IsEqualTo(ownerId);
+        await Assert.That(privateDetail.Status).IsEqualTo(UserResourceStatus.Private);
+        await Assert.That(privateDetail.AuditStatus).IsEqualTo(UserResourceAuditStatus.NotRequired);
         await Assert.That(privateDetail.Values.Select(value => value.Value))
             .IsEquivalentTo(["192.168.0.1", "2026-07-15", "true", "80", "https://example.com/", "server"]);
 
-        PersonalResourceCreatedDto publicCreated = await PostAsync<PersonalResourceCreatedDto>(
-            client,
-            "/api/PersonalResource",
-            new PersonalResourceAddDto
+        JsonDocument ownerMine = await GetAsync<JsonDocument>(
+            ownerClient,
+            "/api/UserResource/mine",
+            HttpStatusCode.OK);
+        await Assert.That(ownerMine.RootElement.GetProperty("data").EnumerateArray()
+            .Any(item => item.GetProperty("id").GetGuid() == privateCreated.Id)).IsTrue();
+
+        using HttpResponseMessage otherPrivateDetail = await otherClient.GetAsync(
+            $"/api/UserResource/{privateCreated.Id}");
+        await Assert.That(otherPrivateDetail.StatusCode).IsEqualTo(HttpStatusCode.Forbidden);
+        using HttpResponseMessage adminPrivateDetail = await adminClient.GetAsync(
+            $"/api/UserResource/{privateCreated.Id}");
+        await Assert.That(adminPrivateDetail.StatusCode).IsEqualTo(HttpStatusCode.Forbidden);
+
+        using HttpResponseMessage ownerReview = await ownerClient.GetAsync("/api/UserResource/review");
+        await Assert.That(ownerReview.StatusCode).IsEqualTo(HttpStatusCode.Forbidden);
+
+        HttpResponseMessage privateUpdate = await ownerClient.PatchAsJsonAsync(
+            $"/api/UserResource/{privateCreated.Id}",
+            new UserResourceUpdateDto
             {
                 DefinitionId = fixture.Definition.Id,
-                Status = PersonalResourceStatus.ApplyPublic,
+                Status = UserResourceStatus.Private,
+                Values = fixture.Values
+            });
+        await Assert.That(privateUpdate.StatusCode).IsEqualTo(HttpStatusCode.OK);
+
+        UserResourceCreatedDto publicCreated = await PostAsync<UserResourceCreatedDto>(
+            ownerClient,
+            "/api/UserResource",
+            new UserResourceAddDto
+            {
+                DefinitionId = fixture.Definition.Id,
+                Status = UserResourceStatus.ApplyPublic,
                 Values = fixture.Values
             },
             HttpStatusCode.Created);
+
         JsonDocument reviewList = await GetAsync<JsonDocument>(
-            client,
-            "/api/PersonalResource/review",
+            adminClient,
+            "/api/UserResource/review",
             HttpStatusCode.OK);
         await Assert.That(reviewList.RootElement.GetProperty("data").EnumerateArray()
             .Any(item => item.GetProperty("id").GetGuid() == publicCreated.Id)).IsTrue();
+        await Assert.That(reviewList.RootElement.GetProperty("data").EnumerateArray()
+            .Any(item => item.GetProperty("id").GetGuid() == privateCreated.Id)).IsFalse();
 
-        HttpResponseMessage approve = await client.PostAsJsonAsync(
-            $"/api/PersonalResource/{publicCreated.Id}/approve",
-            new PersonalResourceReviewDto
+        using HttpResponseMessage ownerApprove = await ownerClient.PostAsJsonAsync(
+            $"/api/UserResource/{publicCreated.Id}/approve",
+            new UserResourceReviewDto
+            {
+                EnvironmentId = fixture.Environment.Id,
+                CategoryId = fixture.Category.Id,
+                GroupId = fixture.Group.Id,
+                TagNames = [fixture.Tag.Name]
+            });
+        await Assert.That(ownerApprove.StatusCode).IsEqualTo(HttpStatusCode.Forbidden);
+
+        HttpResponseMessage approve = await adminClient.PostAsJsonAsync(
+            $"/api/UserResource/{publicCreated.Id}/approve",
+            new UserResourceReviewDto
             {
                 EnvironmentId = fixture.Environment.Id,
                 CategoryId = fixture.Category.Id,
@@ -703,21 +747,29 @@ public class ResourceModApiTests
             });
         await Assert.That(approve.StatusCode).IsEqualTo(HttpStatusCode.OK);
 
-        PersonalResourceDetailDto approved = await GetAsync<PersonalResourceDetailDto>(
-            client,
-            $"/api/PersonalResource/{publicCreated.Id}",
+        UserResourceDetailDto approved = await GetAsync<UserResourceDetailDto>(
+            ownerClient,
+            $"/api/UserResource/{publicCreated.Id}",
             HttpStatusCode.OK);
-        await Assert.That(approved.AuditStatus).IsEqualTo(PersonalResourceAuditStatus.Approved);
+        await Assert.That(approved.UserId).IsEqualTo(ownerId);
+        await Assert.That(approved.AuditStatus).IsEqualTo(UserResourceAuditStatus.Approved);
         await Assert.That(approved.ApprovedResourceId).IsNotNull();
         ResourceDetailDto createdResource = await GetAsync<ResourceDetailDto>(
-            client,
+            adminClient,
             $"/api/Resource/{approved.ApprovedResourceId}",
             HttpStatusCode.OK);
         await Assert.That(createdResource.EnvironmentId).IsEqualTo(fixture.Environment.Id);
         await Assert.That(createdResource.CategoryId).IsEqualTo(fixture.Category.Id);
         await Assert.That(createdResource.GroupId).IsEqualTo(fixture.Group.Id);
 
-        await DeleteAsync(client, $"/api/PersonalResource/{privateCreated.Id}", HttpStatusCode.OK);
+        JsonDocument reviewAfterApproval = await GetAsync<JsonDocument>(
+            adminClient,
+            "/api/UserResource/review",
+            HttpStatusCode.OK);
+        await Assert.That(reviewAfterApproval.RootElement.GetProperty("data").EnumerateArray()
+            .Any(item => item.GetProperty("id").GetGuid() == publicCreated.Id)).IsFalse();
+
+        await DeleteAsync(ownerClient, $"/api/UserResource/{privateCreated.Id}", HttpStatusCode.OK);
     }
 
     [ClassDataSource<TestHttpClientData>(Shared = SharedType.None)]

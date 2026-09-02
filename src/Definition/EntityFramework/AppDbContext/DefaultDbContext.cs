@@ -15,7 +15,8 @@ public partial class DefaultDbContext(DbContextOptions<DefaultDbContext> options
     public DbSet<ResDefinitionProperty> ResDefinitionProperties { get; set; }
     public DbSet<ResDefinitionPropertyMap> ResDefinitionPropertyMaps { get; set; }
     public DbSet<Resource> Resources { get; set; }
-    public DbSet<PersonalResource> PersonalResources { get; set; }
+    public DbSet<UserResource> UserResources { get; set; }
+    public DbSet<UserResValue> UserResValues { get; set; }
     public DbSet<ResValue> ResValues { get; set; }
     public DbSet<ResPermission> ResPermissions { get; set; }
     public DbSet<SystemConfig> SystemConfigs { get; set; }
@@ -32,5 +33,21 @@ public partial class DefaultDbContext(DbContextOptions<DefaultDbContext> options
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
+
+        builder.Entity<UserResource>()
+            .HasOne(resource => resource.Definition)
+            .WithMany()
+            .HasForeignKey(resource => resource.DefinitionId)
+            .OnDelete(DeleteBehavior.Restrict);
+        builder.Entity<UserResValue>()
+            .HasOne(value => value.UserResource)
+            .WithMany(resource => resource.Values)
+            .HasForeignKey(value => value.UserResourceId)
+            .OnDelete(DeleteBehavior.Cascade);
+        builder.Entity<UserResValue>()
+            .HasOne(value => value.DefinitionProperty)
+            .WithMany()
+            .HasForeignKey(value => value.DefinitionPropertyId)
+            .OnDelete(DeleteBehavior.Restrict);
     }
 }

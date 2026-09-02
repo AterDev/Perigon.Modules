@@ -42,9 +42,9 @@
         "menuType": 0
       },
       {
-        "name": "menu.personalResource",
+        "name": "menu.userResource",
         "path": "/resource/mine",
-        "accessCode": "resource-personal",
+        "accessCode": "resource-user",
         "icon": "person",
         "sort": 1,
         "menuType": 0

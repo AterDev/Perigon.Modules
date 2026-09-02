@@ -1,8 +1,11 @@
+/**
+ * 资源权限替换请求结构。
+ */
 export interface ResPermissionUpdateDto {
-  /** environmentId */
+  /** 资源环境 ID。 */
   environmentId?: string | null;
-  /** categoryId */
+  /** 资源分类 ID。 */
   categoryId?: string | null;
-  /** roleIds */
+  /** 允许查看该环境和分类资源的角色 ID 列表；提交时会去重并整体替换原授权。 */
   roleIds?: string[] | null;
 }

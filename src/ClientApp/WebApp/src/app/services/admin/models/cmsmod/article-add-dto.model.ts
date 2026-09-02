@@ -2,27 +2,27 @@ import { LanguageType } from '../entity/language-type.model';
 import { ContentType } from '../entity/content-type.model';
 
 /**
- * 博客添加时请求结构
+ * 文章添加时请求结构。
  */
 export interface ArticleAddDto {
-  /** 标题 */
+  /** 文章标题。 */
   title: string;
-  /** 描述 */
+  /** 文章描述。 */
   description?: string | null;
-  /** 内容 */
+  /** 文章正文内容。 */
   content: string;
-  /** 标题 */
+  /** 翻译后的文章标题。 */
   translateTitle?: string | null;
-  /** 翻译内容 */
+  /** 翻译后的文章正文内容。 */
   translateContent?: string | null;
   /** languageType */
   languageType: LanguageType;
   /** blogType */
   blogType: ContentType;
-  /** 是否公开 */
+  /** 是否公开文章。 */
   isPublic: boolean;
-  /** 是否原创 */
+  /** 是否为原创文章。 */
   isOriginal: boolean;
-  /** catalogId */
+  /** 所属目录 ID。 */
   catalogId: string;
 }

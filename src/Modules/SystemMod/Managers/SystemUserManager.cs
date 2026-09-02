@@ -23,7 +23,8 @@ public class SystemUserManager(
 ) : ManagerBase<DefaultDbContext, SystemUser>(
     dbContextFactory,
     userContext,
-    logger
+    logger,
+    allowCatalogContext: true
 )
 {
     private readonly CacheService _cache = cache;
@@ -143,12 +144,10 @@ public class SystemUserManager(
     public AccessTokenDto GenerateJwtToken(SystemUser user)
     {
         // 加载关联数据
-        var roles = user.SystemRoles?.Select(r => r.NameValue)?.ToList() ?? [WebConst.AdminUser];
-
-        // 添加管理员用户标识
-        if (!roles.Contains(WebConst.AdminUser))
+        List<string> roles = user.SystemRoles?.Select(r => r.NameValue).ToList() ?? [];
+        if (!roles.Contains(WebConst.User))
         {
-            roles.Add(WebConst.AdminUser);
+            roles.Add(WebConst.User);
         }
 
         jwtService.Claims = [
@@ -358,7 +357,7 @@ public class SystemUserManager(
             if (roles != null && roles.Count > 0)
             {
                 var roleIds = roles.Select(r => r.Id).ToList();
-                await UserRoleManager.SetUserRolesAsync(entity.Id, roleIds);
+                await UserRoleManager.SetUserRolesAsync(entity.Id, roleIds, _dbContext);
             }
 
             return entity;
@@ -415,7 +414,7 @@ public class SystemUserManager(
             if (roles != null)
             {
                 var roleIds = roles.Select(r => r.Id).ToList();
-                await UserRoleManager.SetUserRolesAsync(current.Id, roleIds);
+                await UserRoleManager.SetUserRolesAsync(current.Id, roleIds, _dbContext);
             }
 
             return current;

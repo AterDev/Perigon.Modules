@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace EntityFramework.Migrations
 {
     /// <inheritdoc />
-    public partial class Init : Migration
+    public partial class Initial : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -295,7 +295,7 @@ namespace EntityFramework.Migrations
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
                     Title = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
                     Description = table.Column<string>(type: "character varying(300)", maxLength: 300, nullable: true),
-                    Content = table.Column<string>(type: "character varying(10000)", maxLength: 10000, nullable: false),
+                    Content = table.Column<string>(type: "character varying(200000)", maxLength: 200000, nullable: false),
                     Authors = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
                     LanguageType = table.Column<int>(type: "integer", nullable: false),
                     ContentType = table.Column<int>(type: "integer", nullable: false),
@@ -375,6 +375,33 @@ namespace EntityFramework.Migrations
                         principalTable: "ResDefinitions",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "UserResources",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    UserId = table.Column<Guid>(type: "uuid", nullable: false),
+                    DefinitionId = table.Column<Guid>(type: "uuid", nullable: false),
+                    Status = table.Column<int>(type: "integer", nullable: false),
+                    AuditStatus = table.Column<int>(type: "integer", nullable: false),
+                    ApprovedResourceId = table.Column<Guid>(type: "uuid", nullable: true),
+                    ReviewComment = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: true),
+                    CreatedTime = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    UpdatedTime = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "boolean", nullable: false),
+                    TenantId = table.Column<Guid>(type: "uuid", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_UserResources", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_UserResources_ResDefinitions_DefinitionId",
+                        column: x => x.DefinitionId,
+                        principalTable: "ResDefinitions",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -657,6 +684,38 @@ namespace EntityFramework.Migrations
                         column: x => x.GroupId,
                         principalTable: "ResGroups",
                         principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "UserResValues",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    UserResourceId = table.Column<Guid>(type: "uuid", nullable: false),
+                    DefinitionPropertyId = table.Column<Guid>(type: "uuid", nullable: false),
+                    Value = table.Column<string>(type: "character varying(1000)", maxLength: 1000, nullable: false),
+                    PropertyNameSnapshot = table.Column<string>(type: "character varying(60)", maxLength: 60, nullable: false),
+                    ValueTypeSnapshot = table.Column<int>(type: "integer", nullable: false),
+                    CreatedTime = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    UpdatedTime = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "boolean", nullable: false),
+                    TenantId = table.Column<Guid>(type: "uuid", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_UserResValues", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_UserResValues_ResDefinitionProperties_DefinitionPropertyId",
+                        column: x => x.DefinitionPropertyId,
+                        principalTable: "ResDefinitionProperties",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_UserResValues_UserResources_UserResourceId",
+                        column: x => x.UserResourceId,
+                        principalTable: "UserResources",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -1041,6 +1100,48 @@ namespace EntityFramework.Migrations
                 table: "Tenants",
                 column: "Domain",
                 unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UserResources_DefinitionId",
+                table: "UserResources",
+                column: "DefinitionId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UserResources_TenantId_AuditStatus",
+                table: "UserResources",
+                columns: new[] { "TenantId", "AuditStatus" });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UserResources_TenantId_DefinitionId",
+                table: "UserResources",
+                columns: new[] { "TenantId", "DefinitionId" });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UserResources_TenantId_UserId",
+                table: "UserResources",
+                columns: new[] { "TenantId", "UserId" });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UserResValues_DefinitionPropertyId",
+                table: "UserResValues",
+                column: "DefinitionPropertyId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UserResValues_TenantId_DefinitionPropertyId",
+                table: "UserResValues",
+                columns: new[] { "TenantId", "DefinitionPropertyId" });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UserResValues_TenantId_UserResourceId_DefinitionPropertyId",
+                table: "UserResValues",
+                columns: new[] { "TenantId", "UserResourceId", "DefinitionPropertyId" },
+                unique: true,
+                filter: "\"IsDeleted\" = false");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UserResValues_UserResourceId",
+                table: "UserResValues",
+                column: "UserResourceId");
         }
 
         /// <inheritdoc />
@@ -1092,10 +1193,10 @@ namespace EntityFramework.Migrations
                 name: "Tenants");
 
             migrationBuilder.DropTable(
-                name: "ArticleCategories");
+                name: "UserResValues");
 
             migrationBuilder.DropTable(
-                name: "ResDefinitionProperties");
+                name: "ArticleCategories");
 
             migrationBuilder.DropTable(
                 name: "Resources");
@@ -1116,13 +1217,19 @@ namespace EntityFramework.Migrations
                 name: "SystemUsers");
 
             migrationBuilder.DropTable(
-                name: "ResDefinitions");
+                name: "ResDefinitionProperties");
+
+            migrationBuilder.DropTable(
+                name: "UserResources");
 
             migrationBuilder.DropTable(
                 name: "ResEnvironments");
 
             migrationBuilder.DropTable(
                 name: "ResGroups");
+
+            migrationBuilder.DropTable(
+                name: "ResDefinitions");
 
             migrationBuilder.DropTable(
                 name: "ResCategories");

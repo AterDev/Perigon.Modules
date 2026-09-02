@@ -1,12 +1,15 @@
 import { ResValueType } from '../entity/res-value-type.model';
 
+/**
+ * 资源属性值详情响应结构。
+ */
 export interface ResourceValueDetailDto {
-  /** definitionPropertyId */
+  /** 资源定义属性 ID。 */
   definitionPropertyId: string;
-  /** name */
+  /** 保存时的属性名称快照。 */
   name: string;
   /** 资源属性值类型。 */
   valueType: ResValueType;
-  /** value */
+  /** 属性值。 */
   value: string;
 }

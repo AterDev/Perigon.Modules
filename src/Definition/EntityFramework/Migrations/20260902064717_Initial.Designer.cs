@@ -13,8 +13,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace EntityFramework.Migrations
 {
     [DbContext(typeof(DefaultDbContext))]
-    [Migration("20260901095902_AddPersonalResources")]
-    partial class AddPersonalResources
+    [Migration("20260902064717_Initial")]
+    partial class Initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -143,61 +143,6 @@ namespace EntityFramework.Migrations
                         .HasFilter("\"IsDeleted\" = false");
 
                     b.ToTable("ArticleCategories");
-                });
-
-            modelBuilder.Entity("Entity.ResourceMod.PersonalResource", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid?>("ApprovedResourceId")
-                        .HasColumnType("uuid");
-
-                    b.Property<int>("AuditStatus")
-                        .HasColumnType("integer");
-
-                    b.Property<DateTimeOffset>("CreatedTime")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<Guid>("DefinitionId")
-                        .HasColumnType("uuid");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("boolean");
-
-                    b.Property<string>("ReviewComment")
-                        .HasMaxLength(500)
-                        .HasColumnType("character varying(500)");
-
-                    b.Property<int>("Status")
-                        .HasColumnType("integer");
-
-                    b.Property<Guid>("TenantId")
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTimeOffset>("UpdatedTime")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("ValuesJson")
-                        .IsRequired()
-                        .HasMaxLength(100000)
-                        .HasColumnType("character varying(100000)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("DefinitionId");
-
-                    b.HasIndex("TenantId", "AuditStatus");
-
-                    b.HasIndex("TenantId", "DefinitionId");
-
-                    b.HasIndex("TenantId", "UserId");
-
-                    b.ToTable("PersonalResources");
                 });
 
             modelBuilder.Entity("Entity.ResourceMod.ResCategory", b =>
@@ -629,6 +574,108 @@ namespace EntityFramework.Migrations
                     b.HasIndex("TenantId", "GroupId");
 
                     b.ToTable("Resources");
+                });
+
+            modelBuilder.Entity("Entity.ResourceMod.UserResValue", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("CreatedTime")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("DefinitionPropertyId")
+                        .HasColumnType("uuid");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("PropertyNameSnapshot")
+                        .IsRequired()
+                        .HasMaxLength(60)
+                        .HasColumnType("character varying(60)");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("UpdatedTime")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("UserResourceId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Value")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
+
+                    b.Property<int>("ValueTypeSnapshot")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DefinitionPropertyId");
+
+                    b.HasIndex("UserResourceId");
+
+                    b.HasIndex("TenantId", "DefinitionPropertyId");
+
+                    b.HasIndex("TenantId", "UserResourceId", "DefinitionPropertyId")
+                        .IsUnique()
+                        .HasFilter("\"IsDeleted\" = false");
+
+                    b.ToTable("UserResValues");
+                });
+
+            modelBuilder.Entity("Entity.ResourceMod.UserResource", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("ApprovedResourceId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("AuditStatus")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTimeOffset>("CreatedTime")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("DefinitionId")
+                        .HasColumnType("uuid");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("ReviewComment")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("UpdatedTime")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DefinitionId");
+
+                    b.HasIndex("TenantId", "AuditStatus");
+
+                    b.HasIndex("TenantId", "DefinitionId");
+
+                    b.HasIndex("TenantId", "UserId");
+
+                    b.ToTable("UserResources");
                 });
 
             modelBuilder.Entity("Entity.SystemMod.SystemConfig", b =>
@@ -1277,17 +1324,6 @@ namespace EntityFramework.Migrations
                     b.Navigation("Parent");
                 });
 
-            modelBuilder.Entity("Entity.ResourceMod.PersonalResource", b =>
-                {
-                    b.HasOne("Entity.ResourceMod.ResDefinition", "Definition")
-                        .WithMany()
-                        .HasForeignKey("DefinitionId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Definition");
-                });
-
             modelBuilder.Entity("Entity.ResourceMod.ResDefinitionPropertyMap", b =>
                 {
                     b.HasOne("Entity.ResourceMod.ResDefinition", "Definition")
@@ -1387,6 +1423,36 @@ namespace EntityFramework.Migrations
                     b.Navigation("Environment");
 
                     b.Navigation("Group");
+                });
+
+            modelBuilder.Entity("Entity.ResourceMod.UserResValue", b =>
+                {
+                    b.HasOne("Entity.ResourceMod.ResDefinitionProperty", "DefinitionProperty")
+                        .WithMany()
+                        .HasForeignKey("DefinitionPropertyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Entity.ResourceMod.UserResource", "UserResource")
+                        .WithMany("Values")
+                        .HasForeignKey("UserResourceId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("DefinitionProperty");
+
+                    b.Navigation("UserResource");
+                });
+
+            modelBuilder.Entity("Entity.ResourceMod.UserResource", b =>
+                {
+                    b.HasOne("Entity.ResourceMod.ResDefinition", "Definition")
+                        .WithMany()
+                        .HasForeignKey("DefinitionId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Definition");
                 });
 
             modelBuilder.Entity("Entity.SystemMod.SystemLogs", b =>
@@ -1570,6 +1636,11 @@ namespace EntityFramework.Migrations
                 });
 
             modelBuilder.Entity("Entity.ResourceMod.Resource", b =>
+                {
+                    b.Navigation("Values");
+                });
+
+            modelBuilder.Entity("Entity.ResourceMod.UserResource", b =>
                 {
                     b.Navigation("Values");
                 });

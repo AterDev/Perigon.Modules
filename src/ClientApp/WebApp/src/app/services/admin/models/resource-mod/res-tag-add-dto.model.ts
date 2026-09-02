@@ -1,8 +1,11 @@
+/**
+ * 资源标签新增请求结构。
+ */
 export interface ResTagAddDto {
-  /** name */
+  /** 标签名称。 */
   name: string;
-  /** color */
+  /** 显示颜色，例如 CSS 十六进制颜色值。 */
   color: string;
-  /** icon */
+  /** Material Icons 图标名称，可选。 */
   icon?: string | null;
 }

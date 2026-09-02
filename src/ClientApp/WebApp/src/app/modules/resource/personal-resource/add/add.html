@@ -1,5 +1,10 @@
 <h2 mat-dialog-title>{{ title() | translate }}</h2>
 <mat-dialog-content>
+  @if (loading()) {
+    <mat-spinner diameter="36" />
+  } @else if (loadError()) {
+    <p>{{ i18nKeys.common.loadFail | translate }}</p>
+  } @else {
   <form [formGroup]="form" class="resource-form" (ngSubmit)="save()">
     <mat-form-field appearance="outline" subscriptSizing="dynamic">
       <mat-label>{{ i18nKeys.resource.resourceDefinition | translate }}</mat-label>
@@ -11,16 +16,16 @@
     </mat-form-field>
 
     <mat-form-field appearance="outline" subscriptSizing="dynamic">
-      <mat-label>{{ i18nKeys.resource.personalVisibility | translate }}</mat-label>
+      <mat-label>{{ i18nKeys.resource.userVisibility | translate }}</mat-label>
       <mat-select formControlName="status">
         <mat-option [value]="statuses.Private">
-          {{ i18nKeys.resource.personalPrivate | translate }}
+          {{ i18nKeys.resource.userPrivate | translate }}
         </mat-option>
         <mat-option [value]="statuses.ApplyPublic">
-          {{ i18nKeys.resource.personalApplyPublic | translate }}
+          {{ i18nKeys.resource.userApplyPublic | translate }}
         </mat-option>
       </mat-select>
-      <mat-hint>{{ i18nKeys.resource.personalVisibilityHint | translate }}</mat-hint>
+      <mat-hint>{{ i18nKeys.resource.userVisibilityHint | translate }}</mat-hint>
     </mat-form-field>
 
     @if (definition(); as selected) {
@@ -70,10 +75,11 @@
       </section>
     }
   </form>
+  }
 </mat-dialog-content>
 <mat-dialog-actions align="end">
   <button mat-button mat-dialog-close>{{ i18nKeys.common.cancel | translate }}</button>
-  <button mat-flat-button color="primary" [disabled]="saving" (click)="save()">
+  <button mat-flat-button color="primary" [disabled]="saving || loading() || loadError()" (click)="save()">
     {{ i18nKeys.common.save | translate }}
   </button>
 </mat-dialog-actions>

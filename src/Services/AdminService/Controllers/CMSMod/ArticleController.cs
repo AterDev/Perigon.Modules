@@ -51,7 +51,7 @@ public class ArticleController(
     [HttpPost("images")]
     [Consumes("multipart/form-data")]
     public Task<ArticleImageUploadDto> UploadImageAsync(
-        [FromForm] IFormFile file,
+        IFormFile file,
         CancellationToken cancellationToken)
     {
         return imageStorage.SaveAsync(file, cancellationToken);

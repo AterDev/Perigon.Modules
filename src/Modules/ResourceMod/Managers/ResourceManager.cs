@@ -29,10 +29,11 @@ public class ResourceManager(
 
         if (!_userContext.IsAdmin)
         {
-            List<Guid> roleIds = await GetCurrentRoleIdsAsync();
             query = query.Where(r => _dbContext.ResPermissions.Any(p =>
                 p.TenantId == _userContext.TenantId &&
-                roleIds.Contains(p.RoleId) &&
+                _dbContext.SystemUserRoles.Any(userRole =>
+                    userRole.UserId == _userContext.UserId &&
+                    userRole.RoleId == p.RoleId) &&
                 p.EnvironmentId == r.EnvironmentId &&
                 p.CategoryId == r.CategoryId));
         }
@@ -122,7 +123,18 @@ public class ResourceManager(
         };
     }
 
-    public async Task<Resource> AddAsync(ResourceAddDto input)
+    public Task<Resource> AddAsync(ResourceAddDto input)
+    {
+        return AddAsync(_dbContext, input, saveChanges: true);
+    }
+
+    /// <summary>
+    /// 在指定上下文中创建常规资源，使用户资源审核可以和关联记录使用同一个事务。
+    /// </summary>
+    internal async Task<Resource> AddAsync(
+        DefaultDbContext dbContext,
+        ResourceAddDto input,
+        bool saveChanges)
     {
         EnsureAdmin();
 
@@ -136,9 +148,12 @@ public class ResourceManager(
             TenantId = _userContext.TenantId
         };
 
-        await PopulateAndValidateValuesAsync(resource, input.Values);
-        await _dbContext.Resources.AddAsync(resource);
-        await _dbContext.SaveChangesAsync();
+        await PopulateAndValidateValuesAsync(dbContext, resource, input.Values);
+        await dbContext.Resources.AddAsync(resource);
+        if (saveChanges)
+        {
+            await dbContext.SaveChangesAsync();
+        }
 
         return resource;
     }
@@ -155,7 +170,7 @@ public class ResourceManager(
         resource.DefinitionId = input.DefinitionId;
         resource.TagNames = input.TagNames.Distinct(StringComparer.OrdinalIgnoreCase).ToList();
 
-        await PopulateAndValidateValuesAsync(resource, input.Values);
+        await PopulateAndValidateValuesAsync(_dbContext, resource, input.Values);
         resource.UpdatedTime = DateTimeOffset.UtcNow;
         await _dbContext.SaveChangesAsync();
 
@@ -189,23 +204,13 @@ public class ResourceManager(
             return query;
         }
 
-        List<Guid> roleIds = _dbContext.SystemUserRoles
-            .Where(ur => ur.UserId == _userContext.UserId)
-            .Select(ur => ur.RoleId)
-            .ToList();
         return query.Where(r => _dbContext.ResPermissions.Any(p =>
             p.TenantId == _userContext.TenantId &&
-            roleIds.Contains(p.RoleId) &&
+            _dbContext.SystemUserRoles.Any(userRole =>
+                userRole.UserId == _userContext.UserId &&
+                userRole.RoleId == p.RoleId) &&
             p.EnvironmentId == r.EnvironmentId &&
             p.CategoryId == r.CategoryId));
-    }
-
-    private async Task<List<Guid>> GetCurrentRoleIdsAsync()
-    {
-        return await _dbContext.SystemUserRoles
-            .Where(ur => ur.UserId == _userContext.UserId)
-            .Select(ur => ur.RoleId)
-            .ToListAsync();
     }
 
     private async Task<Resource?> FindOwnedAsync(Guid id)
@@ -214,18 +219,21 @@ public class ResourceManager(
             .FirstOrDefaultAsync(r => r.Id == id && r.TenantId == _userContext.TenantId);
     }
 
-    private async Task PopulateAndValidateValuesAsync(Resource resource, List<ResourceValueDto> inputs)
+    private async Task PopulateAndValidateValuesAsync(
+        DefaultDbContext dbContext,
+        Resource resource,
+        List<ResourceValueDto> inputs)
     {
-        bool environmentExists = await _dbContext.ResEnvironments.AnyAsync(e =>
+        bool environmentExists = await dbContext.ResEnvironments.AnyAsync(e =>
             e.Id == resource.EnvironmentId && e.TenantId == _userContext.TenantId);
-        bool categoryExists = await _dbContext.ResCategories.AnyAsync(c =>
+        bool categoryExists = await dbContext.ResCategories.AnyAsync(c =>
             c.Id == resource.CategoryId && c.TenantId == _userContext.TenantId);
         if (!environmentExists || !categoryExists)
         {
             throw new BusinessException("环境或分类不存在", StatusCodes.Status400BadRequest);
         }
 
-        bool groupIsInvalid = resource.GroupId != null && !await _dbContext.ResGroups.AnyAsync(g =>
+        bool groupIsInvalid = resource.GroupId != null && !await dbContext.ResGroups.AnyAsync(g =>
             g.Id == resource.GroupId &&
             g.CategoryId == resource.CategoryId &&
             g.TenantId == _userContext.TenantId);
@@ -235,7 +243,7 @@ public class ResourceManager(
         }
 
         List<ResourceValueDto> normalizedValues =
-            await ValidateAndNormalizeValuesAsync(resource.DefinitionId, inputs);
+            await ValidateAndNormalizeValuesAsync(dbContext, resource.DefinitionId, inputs);
 
         List<ResValue> values = normalizedValues
             .Select(input => new ResValue
@@ -249,7 +257,7 @@ public class ResourceManager(
             })
             .ToList();
 
-        List<ResDefinitionProperty> properties = await _dbContext.ResDefinitionPropertyMaps
+        List<ResDefinitionProperty> properties = await dbContext.ResDefinitionPropertyMaps
             .Where(map =>
                 map.DefinitionId == resource.DefinitionId &&
                 map.TenantId == _userContext.TenantId)
@@ -264,26 +272,37 @@ public class ResourceManager(
             value.ValueTypeSnapshot = property.ValueType;
         }
 
-        List<ResValue> existingValues = await _dbContext.ResValues
+        List<ResValue> existingValues = await dbContext.ResValues
             .Where(value => value.ResourceId == resource.Id && value.TenantId == _userContext.TenantId)
             .ToListAsync();
-        _dbContext.ResValues.RemoveRange(existingValues);
+        dbContext.ResValues.RemoveRange(existingValues);
         resource.Values = values;
-        await _dbContext.ResValues.AddRangeAsync(values);
+        await dbContext.ResValues.AddRangeAsync(values);
     }
 
     public async Task<List<ResourceValueDto>> ValidateAndNormalizeValuesAsync(
         Guid definitionId,
         List<ResourceValueDto> inputs)
     {
-        List<ResDefinitionProperty> properties = await _dbContext.ResDefinitionPropertyMaps
+        return await ValidateAndNormalizeValuesAsync(_dbContext, definitionId, inputs);
+    }
+
+    /// <summary>
+    /// 使用指定上下文复用常规资源的属性校验和规范化逻辑。
+    /// </summary>
+    internal async Task<List<ResourceValueDto>> ValidateAndNormalizeValuesAsync(
+        DefaultDbContext dbContext,
+        Guid definitionId,
+        List<ResourceValueDto> inputs)
+    {
+        List<ResDefinitionProperty> properties = await dbContext.ResDefinitionPropertyMaps
             .Where(map =>
                 map.DefinitionId == definitionId &&
                 map.TenantId == _userContext.TenantId)
             .OrderBy(map => map.Sort)
             .Select(map => map.Property)
             .ToListAsync();
-        bool definitionDoesNotExist = properties.Count == 0 && !await _dbContext.ResDefinitions.AnyAsync(d =>
+        bool definitionDoesNotExist = properties.Count == 0 && !await dbContext.ResDefinitions.AnyAsync(d =>
             d.Id == definitionId && d.TenantId == _userContext.TenantId);
         if (definitionDoesNotExist)
         {
@@ -303,7 +322,7 @@ public class ResourceManager(
 
         ResDefinitionProperty? missingRequiredProperty = properties.FirstOrDefault(p =>
             p.IsRequired && inputs.All(v =>
-                v.DefinitionPropertyId != p.Id || string.IsNullOrEmpty(v.Value)));
+                v.DefinitionPropertyId != p.Id || string.IsNullOrWhiteSpace(v.Value)));
         if (missingRequiredProperty != null)
         {
             throw new BusinessException(
@@ -315,7 +334,7 @@ public class ResourceManager(
         foreach (ResourceValueDto input in inputs)
         {
             ResDefinitionProperty property = propertiesById[input.DefinitionPropertyId];
-            if (string.IsNullOrEmpty(input.Value))
+            if (string.IsNullOrWhiteSpace(input.Value))
             {
                 continue;
             }

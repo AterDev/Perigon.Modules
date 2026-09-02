@@ -16,28 +16,45 @@ public class SystemUserRoleManager(
     /// </summary>
     /// <param name="userId">用户ID</param>
     /// <param name="roleIds">角色ID列表</param>
+    /// <param name="dbContext">可选的外部上下文；传入时复用调用方事务</param>
     /// <returns></returns>
-    public async Task<bool> SetUserRolesAsync(Guid userId, List<Guid> roleIds)
+    public async Task<bool> SetUserRolesAsync(
+        Guid userId,
+        List<Guid> roleIds,
+        DefaultDbContext? dbContext = null)
     {
-        return await ExecuteInTransactionAsync(async () =>
+        if (dbContext != null)
         {
-            // 先删除现有的用户角色关联
-            await _dbSet.Where(ur => ur.UserId == userId).ExecuteDeleteAsync();
+            return await SetUserRolesAsync(dbContext, userId, roleIds);
+        }
 
-            // 批量插入新的用户角色关联
-            if (roleIds.Count > 0)
-            {
-                var userRoles = roleIds.Select(roleId => new SystemUserRole
-                {
-                    UserId = userId,
-                    RoleId = roleId,
-                });
+        return await ExecuteInTransactionAsync(
+            () => SetUserRolesAsync(_dbContext, userId, roleIds));
+    }
 
-                await BulkInsertAsync(userRoles);
-            }
+    private async Task<bool> SetUserRolesAsync(
+        DefaultDbContext dbContext,
+        Guid userId,
+        List<Guid> roleIds)
+    {
+        // 先删除现有的用户角色关联
+        await dbContext.SystemUserRoles
+            .Where(ur => ur.UserId == userId)
+            .ExecuteDeleteAsync();
 
+        if (roleIds.Count == 0)
+        {
             return true;
-        });
+        }
+
+        dbContext.SystemUserRoles.AddRange(roleIds.Select(roleId => new SystemUserRole
+        {
+            UserId = userId,
+            RoleId = roleId,
+            TenantId = _userContext.TenantId
+        }));
+        await dbContext.SaveChangesAsync();
+        return true;
     }
 
     /// <summary>

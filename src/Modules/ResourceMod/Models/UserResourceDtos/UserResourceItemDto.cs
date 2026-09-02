@@ -1,12 +1,12 @@
-namespace ResourceMod.Models.PersonalResourceDtos;
+namespace ResourceMod.Models.UserResourceDtos;
 
 /// <summary>
-/// 个人资源列表项响应结构。
+/// 用户资源列表项结构。
 /// </summary>
-public class PersonalResourceItemDto
+public class UserResourceItemDto
 {
     /// <summary>
-    /// 个人资源唯一标识。
+    /// 用户资源唯一标识。
     /// </summary>
     public Guid Id { get; set; }
 
@@ -26,14 +26,14 @@ public class PersonalResourceItemDto
     public required string DefinitionName { get; set; }
 
     /// <summary>
-    /// 个人资源状态。
+    /// 用户资源可见性。
     /// </summary>
-    public PersonalResourceStatus Status { get; set; }
+    public UserResourceStatus Status { get; set; }
 
     /// <summary>
     /// 公开申请审核状态。
     /// </summary>
-    public PersonalResourceAuditStatus AuditStatus { get; set; }
+    public UserResourceAuditStatus AuditStatus { get; set; }
 
     /// <summary>
     /// 审核通过后创建的常规资源 ID。

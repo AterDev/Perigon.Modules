@@ -3,7 +3,6 @@ import { ArticleService } from './services/article.service';
 import { ArticleCategoryService } from './services/article-category.service';
 import { ResourceService } from './services/resource.service';
 import { ResourceConfigurationService } from './services/resource-configuration.service';
-import { PersonalResourceService } from './services/personal-resource.service';
 import { SystemConfigService } from './services/system-config.service';
 import { SystemLogsService } from './services/system-logs.service';
 import { SystemMenuService } from './services/system-menu.service';
@@ -11,20 +10,19 @@ import { SystemPermissionService } from './services/system-permission.service';
 import { SystemPermissionGroupService } from './services/system-permission-group.service';
 import { SystemRoleService } from './services/system-role.service';
 import { SystemUserService } from './services/system-user.service';
+import { UserResourceService } from './services/user-resource.service';
 @Injectable({
   providedIn: 'root'
 })
 export class AdminClient {
-  /** Article */
+  /** 文章管理。 */
   public article = inject(ArticleService);
   /** ArticleCategory */
   public articleCategory = inject(ArticleCategoryService);
-  /** Resource */
+  /** 资源管理。 */
   public resource = inject(ResourceService);
-  /** ResourceConfiguration */
+  /** 资源基础配置管理，包括环境、分类、分组、标签、属性定义、资源定义和资源权限。 */
   public resourceConfiguration = inject(ResourceConfigurationService);
-  /** 用户提交的个人资源 */
-  public personalResource = inject(PersonalResourceService);
   /** 系统配置 */
   public systemConfig = inject(SystemConfigService);
   /** 系统日志 */
@@ -40,4 +38,6 @@ SystemMod.Managers.SystemRoleManager */
   public systemRole = inject(SystemRoleService);
   /** 系统用户 */
   public systemUser = inject(SystemUserService);
+  /** 用户资源提交和公开申请审核。 */
+  public userResource = inject(UserResourceService);
 }

@@ -107,7 +107,7 @@ public class SystemUserController(
         {
             Id = user.Id,
             Username = user.UserName ?? string.Empty,
-            Roles = user.SystemRoles?.Select(r => r.NameValue).ToArray() ?? [WebConst.AdminUser],
+            Roles = user.SystemRoles?.Select(r => r.NameValue).ToArray() ?? [],
             Menus = menus,
             PermissionGroups = permissionGroups,
         };
