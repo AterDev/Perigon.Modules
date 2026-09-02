@@ -7,7 +7,7 @@
     "PackageType": 0,
     "Version": "1.0.0",
     "Frontend": "Angular",
-    "CreatedTime": "2026-07-14T07:46:14.8553351Z"
+    "CreatedTime": "2026-09-02T09:18:04.7458096Z"
   },
   {
     "ModuleName": "ResourceMod",
@@ -17,7 +17,7 @@
     "PackageType": 0,
     "Version": "1.0.0",
     "Frontend": "Angular",
-    "CreatedTime": "2026-07-14T07:46:15.3956417Z"
+    "CreatedTime": "2026-09-02T09:18:05.4364812Z"
   },
   {
     "ModuleName": "SystemMod",
@@ -27,6 +27,6 @@
     "PackageType": 0,
     "Version": "1.0.0",
     "Frontend": "Angular",
-    "CreatedTime": "2026-07-14T07:46:15.9675824Z"
+    "CreatedTime": "2026-09-02T09:18:06.0412942Z"
   }
 ]
