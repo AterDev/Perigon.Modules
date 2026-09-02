@@ -10,6 +10,7 @@ import { SystemPermissionService } from './services/system-permission.service';
 import { SystemPermissionGroupService } from './services/system-permission-group.service';
 import { SystemRoleService } from './services/system-role.service';
 import { SystemUserService } from './services/system-user.service';
+import { UserFavoriteResourceService } from './services/user-favorite-resource.service';
 import { UserResourceService } from './services/user-resource.service';
 @Injectable({
   providedIn: 'root'
@@ -38,6 +39,8 @@ SystemMod.Managers.SystemRoleManager */
   public systemRole = inject(SystemRoleService);
   /** 系统用户 */
   public systemUser = inject(SystemUserService);
+  /** 用户收藏资源接口。 */
+  public userFavoriteResource = inject(UserFavoriteResourceService);
   /** 用户资源提交和公开申请审核。 */
   public userResource = inject(UserResourceService);
 }

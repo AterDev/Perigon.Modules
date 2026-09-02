@@ -20,23 +20,11 @@ public class ResourceManager(
 
     public async Task<PageList<ResourceItemDto>> FilterAsync(ResourceFilterDto filter)
     {
-        IQueryable<Resource> query = _dbContext.Resources
+        IQueryable<Resource> query = GetVisibleQuery(_dbContext)
             .Include(r => r.Environment)
             .Include(r => r.Category)
             .Include(r => r.Group)
-            .Include(r => r.Definition)
-            .Where(r => r.TenantId == _userContext.TenantId);
-
-        if (!_userContext.IsAdmin)
-        {
-            query = query.Where(r => _dbContext.ResPermissions.Any(p =>
-                p.TenantId == _userContext.TenantId &&
-                _dbContext.SystemUserRoles.Any(userRole =>
-                    userRole.UserId == _userContext.UserId &&
-                    userRole.RoleId == p.RoleId) &&
-                p.EnvironmentId == r.EnvironmentId &&
-                p.CategoryId == r.CategoryId));
-        }
+            .Include(r => r.Definition);
 
         query = query
             .WhereNotNull(filter.EnvironmentId, r => r.EnvironmentId == filter.EnvironmentId)
@@ -85,7 +73,7 @@ public class ResourceManager(
 
     public async Task<ResourceDetailDto?> GetAsync(Guid id)
     {
-        Resource? resource = await GetVisibleQuery()
+        Resource? resource = await GetVisibleQuery(_dbContext)
             .Include(r => r.Environment)
             .Include(r => r.Category)
             .Include(r => r.Group)
@@ -192,21 +180,21 @@ public class ResourceManager(
 
     public override async Task<bool> HasPermissionAsync(Guid id)
     {
-        return await GetVisibleQuery().AnyAsync(r => r.Id == id);
+        return await GetVisibleQuery(_dbContext).AnyAsync(r => r.Id == id);
     }
 
-    private IQueryable<Resource> GetVisibleQuery()
+    internal IQueryable<Resource> GetVisibleQuery(DefaultDbContext dbContext)
     {
-        IQueryable<Resource> query = _dbContext.Resources
+        IQueryable<Resource> query = dbContext.Resources
             .Where(r => r.TenantId == _userContext.TenantId);
         if (_userContext.IsAdmin)
         {
             return query;
         }
 
-        return query.Where(r => _dbContext.ResPermissions.Any(p =>
+        return query.Where(r => dbContext.ResPermissions.Any(p =>
             p.TenantId == _userContext.TenantId &&
-            _dbContext.SystemUserRoles.Any(userRole =>
+            dbContext.SystemUserRoles.Any(userRole =>
                 userRole.UserId == _userContext.UserId &&
                 userRole.RoleId == p.RoleId) &&
             p.EnvironmentId == r.EnvironmentId &&

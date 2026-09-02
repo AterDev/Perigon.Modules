@@ -38,7 +38,9 @@ export const I18N_KEYS = {
     "updatedTime": "common.updatedTime",
     "pageNotFound": "common.pageNotFound",
     "loadFail": "common.loadFail",
-    "retry": "common.retry"
+    "retry": "common.retry",
+    "yes": "common.yes",
+    "no": "common.no"
   },
   "login": {
     "username": "login.username",

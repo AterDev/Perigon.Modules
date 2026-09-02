@@ -35,7 +35,9 @@
     "updatedTime": "Updated Time",
     "pageNotFound": "Page Not Found",
     "loadFail": "Unable to load data",
-    "retry": "Retry"
+    "retry": "Retry",
+    "yes": "Yes",
+    "no": "No"
   },
   "login": {
     "username": "Username",
@@ -267,33 +269,33 @@
       "outline": "Outline",
       "fill": "Fill"
     },
-    "deleteDefinitionConfirm": "Delete definition “{{name}}”?"
-    ,"userTitle": "My resources"
-    ,"userAddTitle": "Add a resource"
-    ,"userEditTitle": "Edit resource"
-    ,"userDetailTitle": "My resource details"
-    ,"userVisibility": "Visibility"
-    ,"userVisibilityHint": "Private resources are visible only to you; public requests require administrator approval"
-    ,"userPrivate": "Private"
-    ,"userApplyPublic": "Request public access"
-    ,"auditStatus": "Review status"
-    ,"auditNotRequired": "Not required"
-    ,"auditPending": "Pending"
-    ,"auditApproved": "Approved"
-    ,"auditRejected": "Rejected"
-    ,"reviewComment": "Review comment"
-    ,"userId": "User ID"
-    ,"review": "Review"
-    ,"approve": "Approve"
-    ,"reject": "Reject"
-    ,"userReviewTitle": "Public resource review"
-    ,"noPendingReviews": "No public resource requests are pending"
-    ,"userCreateSuccess": "Resource saved"
-    ,"userUpdateSuccess": "Resource updated"
-    ,"userDeleteConfirm": "Delete resource “{{name}}”?"
-    ,"userDeleteSuccess": "Resource deleted"
-    ,"userApproveSuccess": "Resource approved"
-    ,"userRejectSuccess": "Resource request rejected"
+    "deleteDefinitionConfirm": "Delete definition “{{name}}”?",
+    "userTitle": "My resources",
+    "userAddTitle": "Add a resource",
+    "userEditTitle": "Edit resource",
+    "userDetailTitle": "My resource details",
+    "userVisibility": "Visibility",
+    "userVisibilityHint": "Private resources are visible only to you; public requests require administrator approval",
+    "userPrivate": "Private",
+    "userApplyPublic": "Request public access",
+    "auditStatus": "Review status",
+    "auditNotRequired": "Not required",
+    "auditPending": "Pending",
+    "auditApproved": "Approved",
+    "auditRejected": "Rejected",
+    "reviewComment": "Review comment",
+    "userId": "User ID",
+    "review": "Review",
+    "approve": "Approve",
+    "reject": "Reject",
+    "userReviewTitle": "Public resource review",
+    "noPendingReviews": "No public resource requests are pending",
+    "userCreateSuccess": "Resource saved",
+    "userUpdateSuccess": "Resource updated",
+    "userDeleteConfirm": "Delete resource “{{name}}”?",
+    "userDeleteSuccess": "Resource deleted",
+    "userApproveSuccess": "Resource approved",
+    "userRejectSuccess": "Resource request rejected"
   },
   "cms": {
     "article": {

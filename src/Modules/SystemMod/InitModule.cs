@@ -73,6 +73,7 @@ public class InitModule
             Name = WebConst.SuperAdmin,
             NameValue = WebConst.SuperAdmin,
             TenantId = tenant.Id,
+            IsSystem = true,
         };
 
         var adminRole = new SystemRole
@@ -80,6 +81,7 @@ public class InitModule
             Name = WebConst.AdminUser,
             NameValue = WebConst.AdminUser,
             TenantId = tenant.Id,
+            IsSystem = true,
         };
         var salt = HashCrypto.BuildSalt();
         var adminUser = new SystemUser

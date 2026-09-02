@@ -17,6 +17,7 @@ public partial class DefaultDbContext(DbContextOptions<DefaultDbContext> options
     public DbSet<Resource> Resources { get; set; }
     public DbSet<UserResource> UserResources { get; set; }
     public DbSet<UserResValue> UserResValues { get; set; }
+    public DbSet<UserFavoriteResource> UserFavoriteResources { get; set; }
     public DbSet<ResValue> ResValues { get; set; }
     public DbSet<ResPermission> ResPermissions { get; set; }
     public DbSet<SystemConfig> SystemConfigs { get; set; }
@@ -49,5 +50,10 @@ public partial class DefaultDbContext(DbContextOptions<DefaultDbContext> options
             .WithMany()
             .HasForeignKey(value => value.DefinitionPropertyId)
             .OnDelete(DeleteBehavior.Restrict);
+        builder.Entity<UserFavoriteResource>()
+            .HasOne(favorite => favorite.Resource)
+            .WithMany()
+            .HasForeignKey(favorite => favorite.ResourceId)
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }

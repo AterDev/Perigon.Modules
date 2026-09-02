@@ -25,6 +25,7 @@
 | `ResValue` | `ResourceId`、`DefinitionPropertyId` 必填；`Value` 必填，最大 1000；`PropertyNameSnapshot` 必填，最大 60；`ValueTypeSnapshot` 必填枚举。 | 多对一资源和定义属性；同一资源的 `DefinitionPropertyId` 唯一。快照保证定义属性日后重命名或类型变更时，历史详情仍可正确显示。 |
 | `UserResource` | `UserId`、`DefinitionId`、`Status`、`AuditStatus` 必填；`ApprovedResourceId` 可空；`ReviewComment` 最大 500。仅保存用户资源自身信息，不保存环境、分类、分组或标签。 | 通过 `UserId` 标识创建者，不建立用户实体导航；多对一资源定义。`Status=Private` 仅创建者可见；`Status=ApplyPublic` 且待审核时进入管理员审核队列。 |
 | `UserResValue` | `UserResourceId`、`DefinitionPropertyId`、`Value` 必填；值最大 1000；保存属性名称和类型快照。 | 多对一用户资源和定义属性；同一用户资源的 `DefinitionPropertyId` 唯一。公开申请通过时，将快照值复用为常规 `ResValue`。 |
+| `UserFavoriteResource` | `UserId`、`ResourceId` 必填；同一用户对同一资源只能保留一条未删除收藏记录。 | 只保存用户 ID 标量，不建立用户实体导航；多对一常规 `Resource`，通过资源导航关联基础属性和 `ResValue`。收藏记录受租户和软删除过滤约束；资源物理删除时级联删除，资源软删除后不再出现在收藏查询中。 |
 | `ResPermission` | `RoleId`、`EnvironmentId`、`CategoryId` 均必填。 | `RoleId + EnvironmentId + CategoryId` 建立租户内唯一索引；角色 ID 指向 `SystemMod` 的 `SystemRole`，环境和分类为本模块外键。删除环境或分类前必须先清理授权。 |
 
 `ValueType` 使用带 `Description` 的枚举：`String`、`Number`、`Boolean`、`Date`、`Uri`、`IPAddress`。`ResValue.Value` 始终存储字符串；其规范格式为：数字使用不受区域影响的十进制文本、布尔值为小写 `true`/`false`、日期为 ISO 8601 `yyyy-MM-dd`、URI 为绝对 URI 的规范文本、IP 地址为 `IPAddress.ToString()` 结果。
@@ -33,7 +34,7 @@
 
 ### 3.1 模块切片
 
-实现时创建实体、`DefaultDbContext` 的 `DbSet` 与必要模型配置、`ResourceMod` 项目、DTO、Manager、`AdminService/Controllers/ResourceMod` 控制器、`AdminService` 的项目引用、迁移、初始化和 API 测试。DTO 按实体放在 `Models/{Entity}Dtos` 下，至少提供 Add、Update、Detail、Item、Filter 形态；不要将实体直接作为列表和编辑契约。
+实现时创建实体、`DefaultDbContext` 的 `DbSet` 与必要模型配置、`ResourceMod` 项目、DTO、Manager、`AdminService/Controllers/ResourceMod` 控制器、`AdminService` 的项目引用、迁移、初始化和 API 测试。DTO 按实体放在 `Models/{Entity}Dtos` 下，常规 CRUD 实体至少提供 Add、Update、Detail、Item、Filter 形态；行为型关联实体按实际接口提供契约，不强行暴露无意义的 Update DTO。不要将实体直接作为列表和编辑契约。
 
 控制器保持薄，只负责路由、绑定、授权和 HTTP 结果；Manager 负责租户过滤、关联校验、动态属性校验、事务和业务错误。预期业务失败抛出 `BusinessException`，由现有中间件返回 `ProblemDetails`，不引入 `ApiResponse` 包装。
 
@@ -71,6 +72,12 @@
 - 私有资源创建时 `AuditStatus=NotRequired`；公开申请创建或重新提交时 `AuditStatus=Pending`。审核通过和驳回仅允许管理员执行，已通过的用户资源不可再编辑或删除。
 - 审核通过请求补充 `EnvironmentId`、`CategoryId`、可选 `GroupId`、`TagNames` 和审核意见。审核流程在同一 `DefaultDbContext` 事务中复用常规资源属性校验/规范化逻辑创建 `Resource`，成功后回写 `ApprovedResourceId`；任一校验或写入失败都会回滚申请状态和常规资源。
 - 用户属性以 `UserResValue` 独立行保存，不序列化为 JSON。这样可以在用户资源详情中返回值快照，也能阻止定义属性被仍有用户值引用时删除。私有资源表结构不包含环境、分类、分组或标签字段。
+
+### 3.6 用户收藏资源
+
+- `UserFavoriteResource` 的 `UserId` 只取当前 `IUserContext.UserId`，客户端不能指定其他用户；`ResourceId` 只允许指向当前用户按常规资源可见性规则能够读取的 `Resource`。`UserResource` 私有记录和公开申请记录不是常规资源，不能直接收藏。
+- `POST /api/UserFavoriteResource` 创建收藏；重复收藏返回 409。`GET /api/UserFavoriteResource/mine` 按收藏时间分页返回当前用户的收藏和资源摘要，`GET /api/UserFavoriteResource/{resourceId}` 返回当前用户对指定资源的收藏及完整资源属性值。
+- `DELETE /api/UserFavoriteResource/{resourceId}` 取消收藏，使用软删除；取消后允许重新收藏。列表、详情和写入均同时执行当前租户与资源可见性过滤，不依赖前端隐藏按钮。
 
 ## 4. Angular 验证端交互
 
@@ -113,6 +120,7 @@
 - `/resource/mine` 提供我的资源列表、创建、详情、编辑和删除；表单先选择资源定义，再按定义属性动态生成控件，并选择私有或申请公开。
 - `/resource/review` 为管理员专用路由和菜单。审核对话框并行加载申请详情、环境、分类和标签；选定分类后再加载分组，审核通过前必须完成环境、分类和分组依赖加载。
 - Angular 请求模型和服务由最新 AdminService Swagger 使用 `perigon generate request ... -t angular` 生成。页面只调用生成的 `AdminClient.userResource`，不保留旧的 `PersonalResource` 客户端契约；环境、分类、标签、定义等互不依赖的初始化请求使用 `forkJoin` 并行执行。
+- 收藏接口的 Angular 模型和服务同样由最新 AdminService Swagger 生成，通过 `AdminClient.userFavoriteResource` 调用；本轮只新增接口客户端，不额外引入收藏页面。
 
 ## 5. 验收与测试
 
@@ -129,7 +137,8 @@
 | 用户资源可见性 | 用户创建私有资源，并由另一用户查询；再创建公开申请。 | 私有资源仅创建者详情可见；公开申请进入管理员待审核列表，普通用户不能访问审核接口。 |
 | 用户资源属性持久化 | 创建、编辑用户资源并提交合法及非法属性值。 | `UserResValue` 按行保存规范化值和属性快照；非法值返回 400；不产生 `ValuesJson`，私有资源不产生环境/分类/分组/标签关联。 |
 | 公开申请转换 | 管理员补充环境、分类、分组和标签并通过申请；重复审核或常规资源校验失败。 | 事务内创建一条常规 `Resource` 并回写 `ApprovedResourceId`；重复审核幂等，失败时申请保持待审核且不遗留常规资源。 |
+| 用户收藏资源 | 用户尝试收藏无权访问的资源、重复收藏、查询他人收藏、取消后再次收藏。 | 无资源权限返回 403；重复返回 409；收藏列表和详情按用户隔离；取消成功后可再次收藏；详情包含常规资源属性值。 |
 | 引用删除 | 依次尝试删除被资源、分组、授权或资源值引用的对象。 | 返回 409，原数据完整保留；删除无引用对象成功。 |
 | 前端流程 | 管理员完成资源新建、内联建分组/标签、定义切换、授权配置；普通用户访问只读资源页。 | 路由、菜单、i18n、生成客户端调用和页面反馈正确；普通用户无写控件且只看见 API 允许的数据。 |
 
-本轮实现通过 `dotnet build Perigon.Modules.slnx --no-restore`、清空迁移目录后执行 `scripts/EFMigrations.ps1 -Name Initial`、`scripts/GenSwagger.ps1 -ServiceName AdminService -DocumentName v1`、`perigon generate request <swagger.json> <WebApp/src/app> -t angular`、`pnpm build` 和 `dotnet test --project test/ApiTest/ApiTest.csproj --no-restore --maximum-parallel-tests 1` 验证；集成测试 28 项全部通过。由于验证宿主默认只初始化管理员账号，用户资源 API 测试通过现有 `SystemUser` 管理接口创建带 `User` 角色的测试用户并走真实登录流程，再验证普通用户的 `UserContext`、租户和授权行为。生成的 Swagger 文件是请求代码生成的临时输入，不作为模块运行时契约手工维护。
+本轮在既有 `Initial` 迁移基础上通过 `scripts/EFMigrations.ps1 -Name AddUserFavoriteResource` 生成收藏表迁移，并通过 `dotnet build Perigon.Modules.slnx --no-restore`、`scripts/GenSwagger.ps1 -ServiceName AdminService -DocumentName v1`、`perigon generate request <swagger.json> <WebApp/src/app> -t angular`、`pnpm build` 和 `dotnet test --project test/ApiTest/ApiTest.csproj --no-restore --maximum-parallel-tests 1` 验证；集成测试 29 项全部通过。由于验证宿主默认只初始化管理员账号，用户资源和收藏 API 测试通过现有 `SystemUser` 管理接口创建带 `User` 角色的测试用户并走真实登录流程，再验证普通用户的 `UserContext`、租户和授权行为。生成的 Swagger 文件是请求代码生成的临时输入，不作为模块运行时契约手工维护。

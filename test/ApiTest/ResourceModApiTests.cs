@@ -8,6 +8,7 @@ using ResourceMod.Models.ResGroupDtos;
 using ResourceMod.Models.ResPermissionDtos;
 using ResourceMod.Models.ResTagDtos;
 using ResourceMod.Models.ResourceDtos;
+using ResourceMod.Models.UserFavoriteResourceDtos;
 using ResourceMod.Models.UserResourceDtos;
 using System.Net;
 using System.Net.Http.Json;
@@ -770,6 +771,137 @@ public class ResourceModApiTests
             .Any(item => item.GetProperty("id").GetGuid() == publicCreated.Id)).IsFalse();
 
         await DeleteAsync(ownerClient, $"/api/UserResource/{privateCreated.Id}", HttpStatusCode.OK);
+    }
+
+    [ClassDataSource<TestHttpClientData>(Shared = SharedType.None)]
+    [Test]
+    public async Task UserFavoriteResourceApis_ShouldRestrictToVisibleResourcesAndSupportCancellation(
+        TestHttpClientData data)
+    {
+        HttpClient adminClient = data.HttpClient;
+        (HttpClient ownerClient, _) = await data.CreateSystemUserClientAsync();
+        (HttpClient otherClient, _) = await data.CreateSystemUserClientAsync();
+        ResourceFixture fixture = await CreateFixtureAsync(adminClient);
+
+        ResourceCreatedDto resource = await PostAsync<ResourceCreatedDto>(
+            adminClient,
+            "/api/Resource",
+            new ResourceAddDto
+            {
+                EnvironmentId = fixture.Environment.Id,
+                CategoryId = fixture.Category.Id,
+                GroupId = fixture.Group.Id,
+                DefinitionId = fixture.Definition.Id,
+                TagNames = [fixture.Tag.Name],
+                Values = fixture.Values
+            },
+            HttpStatusCode.Created);
+
+        using HttpResponseMessage denied = await ownerClient.PostAsJsonAsync(
+            "/api/UserFavoriteResource",
+            new UserFavoriteResourceAddDto { ResourceId = resource.Id });
+        await Assert.That(denied.StatusCode).IsEqualTo(HttpStatusCode.Forbidden);
+
+        JsonDocument roleList = await GetAsync<JsonDocument>(
+            adminClient,
+            "/api/SystemRole?nameValue=User&pageSize=100",
+            HttpStatusCode.OK);
+        Guid userRoleId = roleList.RootElement.GetProperty("data").EnumerateArray()
+            .Single(item => item.GetProperty("nameValue").GetString() == "User")
+            .GetProperty("id")
+            .GetGuid();
+
+        HttpResponseMessage setPermissions = await adminClient.PutAsJsonAsync(
+            "/api/ResourceConfiguration/permissions",
+            new ResPermissionUpdateDto
+            {
+                EnvironmentId = fixture.Environment.Id,
+                CategoryId = fixture.Category.Id,
+                RoleIds = [userRoleId]
+            });
+        await Assert.That(setPermissions.StatusCode).IsEqualTo(HttpStatusCode.OK);
+
+        UserFavoriteResourceCreatedDto favorite = await PostAsync<UserFavoriteResourceCreatedDto>(
+            ownerClient,
+            "/api/UserFavoriteResource",
+            new UserFavoriteResourceAddDto { ResourceId = resource.Id },
+            HttpStatusCode.Created);
+        await Assert.That(favorite.ResourceId).IsEqualTo(resource.Id);
+
+        using HttpResponseMessage duplicate = await ownerClient.PostAsJsonAsync(
+            "/api/UserFavoriteResource",
+            new UserFavoriteResourceAddDto { ResourceId = resource.Id });
+        await Assert.That(duplicate.StatusCode).IsEqualTo(HttpStatusCode.Conflict);
+
+        JsonDocument ownerMine = await GetAsync<JsonDocument>(
+            ownerClient,
+            "/api/UserFavoriteResource/mine?pageSize=20",
+            HttpStatusCode.OK);
+        JsonElement ownerItem = ownerMine.RootElement.GetProperty("data")
+            .EnumerateArray()
+            .Single(item => item.GetProperty("resourceId").GetGuid() == resource.Id);
+        await Assert.That(ownerItem.GetProperty("id").GetGuid()).IsEqualTo(favorite.Id);
+        await Assert.That(ownerItem.GetProperty("resource").GetProperty("id").GetGuid())
+            .IsEqualTo(resource.Id);
+
+        UserFavoriteResourceDetailDto detail = await GetAsync<UserFavoriteResourceDetailDto>(
+            ownerClient,
+            $"/api/UserFavoriteResource/{resource.Id}",
+            HttpStatusCode.OK);
+        await Assert.That(detail.Id).IsEqualTo(favorite.Id);
+        await Assert.That(detail.Resource.Id).IsEqualTo(resource.Id);
+        await Assert.That(detail.Resource.Values.Select(value => value.Value))
+            .IsEquivalentTo(["192.168.0.1", "2026-07-15", "true", "80", "https://example.com/", "server"]);
+
+        JsonDocument otherMineBefore = await GetAsync<JsonDocument>(
+            otherClient,
+            "/api/UserFavoriteResource/mine?pageSize=20",
+            HttpStatusCode.OK);
+        await Assert.That(otherMineBefore.RootElement.GetProperty("data").EnumerateArray()
+            .Any(item => item.GetProperty("resourceId").GetGuid() == resource.Id)).IsFalse();
+        using HttpResponseMessage otherDetail = await otherClient.GetAsync(
+            $"/api/UserFavoriteResource/{resource.Id}");
+        await Assert.That(otherDetail.StatusCode).IsEqualTo(HttpStatusCode.NotFound);
+
+        UserFavoriteResourceCreatedDto otherFavorite = await PostAsync<UserFavoriteResourceCreatedDto>(
+            otherClient,
+            "/api/UserFavoriteResource",
+            new UserFavoriteResourceAddDto { ResourceId = resource.Id },
+            HttpStatusCode.Created);
+        await Assert.That(otherFavorite.ResourceId).IsEqualTo(resource.Id);
+
+        await DeleteAsync(ownerClient, $"/api/UserFavoriteResource/{resource.Id}", HttpStatusCode.OK);
+        JsonDocument ownerMineAfterRemove = await GetAsync<JsonDocument>(
+            ownerClient,
+            "/api/UserFavoriteResource/mine?pageSize=20",
+            HttpStatusCode.OK);
+        await Assert.That(ownerMineAfterRemove.RootElement.GetProperty("data").EnumerateArray()
+            .Any(item => item.GetProperty("resourceId").GetGuid() == resource.Id)).IsFalse();
+
+        using HttpResponseMessage removedDetail = await ownerClient.GetAsync(
+            $"/api/UserFavoriteResource/{resource.Id}");
+        await Assert.That(removedDetail.StatusCode).IsEqualTo(HttpStatusCode.NotFound);
+
+        UserFavoriteResourceCreatedDto favoriteAgain = await PostAsync<UserFavoriteResourceCreatedDto>(
+            ownerClient,
+            "/api/UserFavoriteResource",
+            new UserFavoriteResourceAddDto { ResourceId = resource.Id },
+            HttpStatusCode.Created);
+        await Assert.That(favoriteAgain.ResourceId).IsEqualTo(resource.Id);
+
+        await DeleteAsync(ownerClient, $"/api/UserFavoriteResource/{resource.Id}", HttpStatusCode.OK);
+        await DeleteAsync(otherClient, $"/api/UserFavoriteResource/{resource.Id}", HttpStatusCode.OK);
+
+        HttpResponseMessage clearPermissions = await adminClient.PutAsJsonAsync(
+            "/api/ResourceConfiguration/permissions",
+            new ResPermissionUpdateDto
+            {
+                EnvironmentId = fixture.Environment.Id,
+                CategoryId = fixture.Category.Id,
+                RoleIds = []
+            });
+        await Assert.That(clearPermissions.StatusCode).IsEqualTo(HttpStatusCode.OK);
+        await DeleteAsync(adminClient, $"/api/Resource/{resource.Id}", HttpStatusCode.OK);
     }
 
     [ClassDataSource<TestHttpClientData>(Shared = SharedType.None)]

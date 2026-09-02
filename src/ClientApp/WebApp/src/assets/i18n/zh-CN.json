@@ -35,7 +35,9 @@
     "updatedTime": "更新时间",
     "pageNotFound": "这里什么都没有",
     "loadFail": "数据加载失败",
-    "retry": "重试"
+    "retry": "重试",
+    "yes": "是",
+    "no": "否"
   },
   "login": {
     "username": "用户名",
@@ -267,33 +269,33 @@
       "outline": "线框",
       "fill": "实心"
     },
-    "deleteDefinitionConfirm": "删除定义“{{name}}”？"
-    ,"userTitle": "我的资源"
-    ,"userAddTitle": "添加资源"
-    ,"userEditTitle": "编辑资源"
-    ,"userDetailTitle": "我的资源详情"
-    ,"userVisibility": "可见范围"
-    ,"userVisibilityHint": "私有资源仅自己可见，申请公开的资源需管理员审核"
-    ,"userPrivate": "私有"
-    ,"userApplyPublic": "申请公开"
-    ,"auditStatus": "审核状态"
-    ,"auditNotRequired": "无需审核"
-    ,"auditPending": "待审核"
-    ,"auditApproved": "已通过"
-    ,"auditRejected": "已驳回"
-    ,"reviewComment": "审核意见"
-    ,"userId": "用户 ID"
-    ,"review": "审核"
-    ,"approve": "通过"
-    ,"reject": "驳回"
-    ,"userReviewTitle": "公开资源审核"
-    ,"noPendingReviews": "暂无待审核的公开资源"
-    ,"userCreateSuccess": "资源已保存"
-    ,"userUpdateSuccess": "资源已更新"
-    ,"userDeleteConfirm": "确定删除资源“{{name}}”吗？"
-    ,"userDeleteSuccess": "资源已删除"
-    ,"userApproveSuccess": "资源已审核通过"
-    ,"userRejectSuccess": "资源申请已驳回"
+    "deleteDefinitionConfirm": "删除定义“{{name}}”？",
+    "userTitle": "我的资源",
+    "userAddTitle": "添加资源",
+    "userEditTitle": "编辑资源",
+    "userDetailTitle": "我的资源详情",
+    "userVisibility": "可见范围",
+    "userVisibilityHint": "私有资源仅自己可见，申请公开的资源需管理员审核",
+    "userPrivate": "私有",
+    "userApplyPublic": "申请公开",
+    "auditStatus": "审核状态",
+    "auditNotRequired": "无需审核",
+    "auditPending": "待审核",
+    "auditApproved": "已通过",
+    "auditRejected": "已驳回",
+    "reviewComment": "审核意见",
+    "userId": "用户 ID",
+    "review": "审核",
+    "approve": "通过",
+    "reject": "驳回",
+    "userReviewTitle": "公开资源审核",
+    "noPendingReviews": "暂无待审核的公开资源",
+    "userCreateSuccess": "资源已保存",
+    "userUpdateSuccess": "资源已更新",
+    "userDeleteConfirm": "确定删除资源“{{name}}”吗？",
+    "userDeleteSuccess": "资源已删除",
+    "userApproveSuccess": "资源已审核通过",
+    "userRejectSuccess": "资源申请已驳回"
   },
   "cms": {
     "article": {
