@@ -183,20 +183,22 @@ $selectedModuleNames = [System.Collections.Generic.List[string]]::new()
 
 if ($hasExplicitModuleSelection) {
 	foreach ($requestedModuleName in $Modules) {
-		$normalizedName = $requestedModuleName.Trim()
-		if ([string]::IsNullOrWhiteSpace($normalizedName)) {
-			continue
-		}
+		foreach ($requestedName in $requestedModuleName -split ',') {
+			$normalizedName = $requestedName.Trim()
+			if ([string]::IsNullOrWhiteSpace($normalizedName)) {
+				continue
+			}
 
-		$moduleDirectory = $allModuleDirectories |
-			Where-Object { $_.Name -eq $normalizedName } |
-			Select-Object -First 1
-		if ($null -eq $moduleDirectory) {
-			throw "未找到模块 '$normalizedName'。"
-		}
+			$moduleDirectory = $allModuleDirectories |
+				Where-Object { $_.Name -eq $normalizedName } |
+				Select-Object -First 1
+			if ($null -eq $moduleDirectory) {
+				throw "未找到模块 '$normalizedName'。"
+			}
 
-		if (-not $selectedModuleNames.Contains($moduleDirectory.Name)) {
-			$selectedModuleNames.Add($moduleDirectory.Name)
+			if (-not $selectedModuleNames.Contains($moduleDirectory.Name)) {
+				$selectedModuleNames.Add($moduleDirectory.Name)
+			}
 		}
 	}
 
