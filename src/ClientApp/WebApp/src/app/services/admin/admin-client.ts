@@ -3,6 +3,7 @@ import { ArticleService } from './services/article.service';
 import { ArticleCategoryService } from './services/article-category.service';
 import { ResourceService } from './services/resource.service';
 import { ResourceConfigurationService } from './services/resource-configuration.service';
+import { PersonalResourceService } from './services/personal-resource.service';
 import { SystemConfigService } from './services/system-config.service';
 import { SystemLogsService } from './services/system-logs.service';
 import { SystemMenuService } from './services/system-menu.service';
@@ -22,6 +23,8 @@ export class AdminClient {
   public resource = inject(ResourceService);
   /** ResourceConfiguration */
   public resourceConfiguration = inject(ResourceConfigurationService);
+  /** 用户提交的个人资源 */
+  public personalResource = inject(PersonalResourceService);
   /** 系统配置 */
   public systemConfig = inject(SystemConfigService);
   /** 系统日志 */

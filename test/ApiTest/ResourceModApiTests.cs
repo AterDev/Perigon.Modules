@@ -8,6 +8,7 @@ using ResourceMod.Models.ResGroupDtos;
 using ResourceMod.Models.ResPermissionDtos;
 using ResourceMod.Models.ResTagDtos;
 using ResourceMod.Models.ResourceDtos;
+using ResourceMod.Models.PersonalResourceDtos;
 using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
@@ -643,6 +644,80 @@ public class ResourceModApiTests
         await DeleteAsync(client, $"/api/Resource/{resourceId}", HttpStatusCode.OK);
         HttpResponseMessage deletedDetail = await client.GetAsync($"/api/Resource/{resourceId}");
         await Assert.That(deletedDetail.StatusCode).IsEqualTo(HttpStatusCode.Forbidden);
+    }
+
+    [ClassDataSource<TestHttpClientData>(Shared = SharedType.None)]
+    [Test]
+    public async Task PersonalResourceApis_ShouldStorePrivateValuesAndApprovePublicRequests(
+        TestHttpClientData data)
+    {
+        HttpClient client = data.HttpClient;
+        ResourceFixture fixture = await CreateFixtureAsync(client);
+        PersonalResourceAddDto input = new()
+        {
+            DefinitionId = fixture.Definition.Id,
+            Status = PersonalResourceStatus.Private,
+            Values = fixture.Values
+        };
+
+        PersonalResourceCreatedDto privateCreated = await PostAsync<PersonalResourceCreatedDto>(
+            client,
+            "/api/PersonalResource",
+            input,
+            HttpStatusCode.Created);
+        PersonalResourceDetailDto privateDetail = await GetAsync<PersonalResourceDetailDto>(
+            client,
+            $"/api/PersonalResource/{privateCreated.Id}",
+            HttpStatusCode.OK);
+        await Assert.That(privateDetail.Status).IsEqualTo(PersonalResourceStatus.Private);
+        await Assert.That(privateDetail.AuditStatus).IsEqualTo(PersonalResourceAuditStatus.NotRequired);
+        await Assert.That(privateDetail.Values.Select(value => value.Value))
+            .IsEquivalentTo(["192.168.0.1", "2026-07-15", "true", "80", "https://example.com/", "server"]);
+
+        PersonalResourceCreatedDto publicCreated = await PostAsync<PersonalResourceCreatedDto>(
+            client,
+            "/api/PersonalResource",
+            new PersonalResourceAddDto
+            {
+                DefinitionId = fixture.Definition.Id,
+                Status = PersonalResourceStatus.ApplyPublic,
+                Values = fixture.Values
+            },
+            HttpStatusCode.Created);
+        JsonDocument reviewList = await GetAsync<JsonDocument>(
+            client,
+            "/api/PersonalResource/review",
+            HttpStatusCode.OK);
+        await Assert.That(reviewList.RootElement.GetProperty("data").EnumerateArray()
+            .Any(item => item.GetProperty("id").GetGuid() == publicCreated.Id)).IsTrue();
+
+        HttpResponseMessage approve = await client.PostAsJsonAsync(
+            $"/api/PersonalResource/{publicCreated.Id}/approve",
+            new PersonalResourceReviewDto
+            {
+                EnvironmentId = fixture.Environment.Id,
+                CategoryId = fixture.Category.Id,
+                GroupId = fixture.Group.Id,
+                TagNames = [fixture.Tag.Name],
+                ReviewComment = "Approved"
+            });
+        await Assert.That(approve.StatusCode).IsEqualTo(HttpStatusCode.OK);
+
+        PersonalResourceDetailDto approved = await GetAsync<PersonalResourceDetailDto>(
+            client,
+            $"/api/PersonalResource/{publicCreated.Id}",
+            HttpStatusCode.OK);
+        await Assert.That(approved.AuditStatus).IsEqualTo(PersonalResourceAuditStatus.Approved);
+        await Assert.That(approved.ApprovedResourceId).IsNotNull();
+        ResourceDetailDto createdResource = await GetAsync<ResourceDetailDto>(
+            client,
+            $"/api/Resource/{approved.ApprovedResourceId}",
+            HttpStatusCode.OK);
+        await Assert.That(createdResource.EnvironmentId).IsEqualTo(fixture.Environment.Id);
+        await Assert.That(createdResource.CategoryId).IsEqualTo(fixture.Category.Id);
+        await Assert.That(createdResource.GroupId).IsEqualTo(fixture.Group.Id);
+
+        await DeleteAsync(client, $"/api/PersonalResource/{privateCreated.Id}", HttpStatusCode.OK);
     }
 
     [ClassDataSource<TestHttpClientData>(Shared = SharedType.None)]

@@ -42,11 +42,27 @@
         "menuType": 0
       },
       {
+        "name": "menu.personalResource",
+        "path": "/resource/mine",
+        "accessCode": "resource-personal",
+        "icon": "person",
+        "sort": 1,
+        "menuType": 0
+      },
+      {
+        "name": "menu.resourceReview",
+        "path": "/resource/review",
+        "accessCode": "resource-review",
+        "icon": "fact_check",
+        "sort": 2,
+        "menuType": 0
+      },
+      {
         "name": "menu.resourceConfig",
         "path": "/resource/config",
         "accessCode": "resource-config",
         "icon": "tune",
-        "sort": 1,
+        "sort": 3,
         "menuType": 0
       },
       {
@@ -54,7 +70,7 @@
         "path": "/resource/definition",
         "accessCode": "resource-definition",
         "icon": "schema",
-        "sort": 2,
+        "sort": 4,
         "menuType": 0
       }
     ]

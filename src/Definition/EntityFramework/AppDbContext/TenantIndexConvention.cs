@@ -43,6 +43,11 @@ internal sealed class TenantIndexConvention : IModelFinalizingConvention
                 var properties = new[] { tenantProperty }.Concat(index.Properties).ToArray();
                 var isUnique = index.IsUnique;
                 var databaseName = index.GetDatabaseName();
+                string defaultDatabaseName = $"IX_{entityType.GetTableName()}_{string.Join("_", index.Properties.Select(property => property.Name))}";
+                if (string.Equals(databaseName, defaultDatabaseName, StringComparison.Ordinal))
+                {
+                    databaseName = null;
+                }
                 var filter = index.GetFilter();
                 var descending = index.IsDescending is null
                     ? null

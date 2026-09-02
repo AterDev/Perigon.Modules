@@ -1,0 +1,41 @@
+<h2 mat-dialog-title>{{ i18nKeys.resource.personalDetailTitle | translate }}</h2>
+<mat-dialog-content>
+  @if (resource(); as item) {
+    <div class="resource-detail-grid">
+      <div>
+        <span>{{ i18nKeys.resource.definition | translate }}</span>
+        <strong>{{ item.definitionName }}</strong>
+      </div>
+      <div>
+        <span>{{ i18nKeys.resource.personalVisibility | translate }}</span>
+        <strong>{{ statusLabel(item.status) | translate }}</strong>
+      </div>
+      <div>
+        <span>{{ i18nKeys.resource.auditStatus | translate }}</span>
+        <strong>{{ auditLabel(item.auditStatus) | translate }}</strong>
+      </div>
+      <div class="full-width">
+        <span>{{ i18nKeys.resource.reviewComment | translate }}</span>
+        <strong>{{ item.reviewComment || '-' }}</strong>
+      </div>
+    </div>
+    <section class="values-section">
+      <h3>{{ i18nKeys.resource.properties | translate: { name: item.definitionName } }}</h3>
+      <div class="values-grid">
+        @for (value of item.values; track value.definitionPropertyId) {
+          <div>
+            <span>{{ value.name }}</span>
+            <strong>{{ value.value }}</strong>
+          </div>
+        } @empty {
+          <span>{{ i18nKeys.common.noData | translate }}</span>
+        }
+      </div>
+    </section>
+  } @else {
+    <mat-spinner diameter="36" />
+  }
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button mat-dialog-close>{{ i18nKeys.common.close | translate }}</button>
+</mat-dialog-actions>

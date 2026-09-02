@@ -135,6 +135,8 @@
     "systemConfig": "Settings",
     "resource": "Resources",
     "resourceList": "List",
+    "personalResource": "My resources",
+    "resourceReview": "Resource review",
     "resourceConfig": "Config",
     "resourceDefinition": "Definitions",
     "cms": "CMS",
@@ -264,6 +266,32 @@
       "fill": "Fill"
     },
     "deleteDefinitionConfirm": "Delete definition “{{name}}”?"
+    ,"personalTitle": "My resource requests"
+    ,"personalAddTitle": "Request a resource"
+    ,"personalEditTitle": "Edit resource request"
+    ,"personalDetailTitle": "Personal resource details"
+    ,"personalVisibility": "Visibility"
+    ,"personalVisibilityHint": "Private resources are visible only to you; public requests require administrator approval"
+    ,"personalPrivate": "Private"
+    ,"personalApplyPublic": "Request public access"
+    ,"auditStatus": "Review status"
+    ,"auditNotRequired": "Not required"
+    ,"auditPending": "Pending"
+    ,"auditApproved": "Approved"
+    ,"auditRejected": "Rejected"
+    ,"reviewComment": "Review comment"
+    ,"userId": "User ID"
+    ,"review": "Review"
+    ,"approve": "Approve"
+    ,"reject": "Reject"
+    ,"personalReviewTitle": "Public resource review"
+    ,"noPendingReviews": "No public resource requests are pending"
+    ,"personalCreateSuccess": "Resource request submitted"
+    ,"personalUpdateSuccess": "Resource request updated"
+    ,"personalDeleteConfirm": "Delete resource request “{{name}}”?"
+    ,"personalDeleteSuccess": "Resource request deleted"
+    ,"personalApproveSuccess": "Resource approved"
+    ,"personalRejectSuccess": "Resource request rejected"
   },
   "cms": {
     "article": {
