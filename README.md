@@ -35,7 +35,7 @@
 
 - 模块程序集位于 `src/Modules/*Mod`，实体和控制器分别位于 `src/Definition/Entity/*Mod` 与 `src/Services/*/Controllers/*Mod`。
 - 新模块开发前先阅读 `docs/UserStory` 中对应需求，并参考 `CMSMod` 或 `SystemMod` 的现有实现。
-- 模块通过 Perigon CLI 打包到 `package_modules`；批量打包流程见 `scripts/PackModules.ps1`。
+- 模块通过 Perigon CLI 打包到 `package_modules`；批量发布流程见 `.agents/skills/module-pack/SKILL.md`，脚本示例为 `pwsh ./scripts/PackModules.ps1 -Modules CMSMod,ResourceMod -Bump minor`。
 - AI 工具应先读取根目录 [AGENTS.md](AGENTS.md)，再按任务使用 `.agents/skills` 下的 skill。
 
 ## 文档

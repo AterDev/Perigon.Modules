@@ -51,6 +51,7 @@
 - `.agents/skills/code-review/SKILL.md`：代码审查、质量门禁、安全风险、性能和架构一致性检查。
 - `.agents/skills/dotnet-inspect/SKILL.md`：查询 .NET/NuGet/本地程序集 API，比较版本和定位类型实现。
 - `.agents/skills/test/SKILL.md`：TUnit 单元测试、Aspire 托管 API 集成测试和测试环境诊断。
+- `.agents/skills/module-pack/SKILL.md`：识别受影响模块、按 `modules.json` 递增版本、调用 CLI 打包并同步模块目录。
 
 只读取与任务相关的 skill。完整模块任务通常从 `perigon` 开始，再按范围读取 `references/module.md`、`references/backend.md`、`references/angular.md` 和 `test`；涉及运行时或 AppHost 时追加 `aspire`/`aspire-orchestration`。旧的独立 `engineer`、`module`、`backend` 和 `angular` skill 已并入 Perigon 或删除，不要再引用旧路径。
 
