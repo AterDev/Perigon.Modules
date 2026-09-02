@@ -685,12 +685,8 @@ public class ResourceConfigurationManager(
         }
 
         List<Guid> roleIds = input.RoleIds.Distinct().ToList();
-        int matchingRoleCount = await _dbContext.SystemRoles.CountAsync(r =>
-            r.TenantId == _userContext.TenantId && roleIds.Contains(r.Id));
-        if (roleIds.Count != matchingRoleCount)
-        {
-            throw new BusinessException("角色不存在", StatusCodes.Status400BadRequest);
-        }
+        // RoleId is an opaque identifier owned by the role provider module.
+        // ResourceMod stores and compares it but must not query that module's entities.
 
         List<ResPermission> existing = await GetPermissionsAsync(input.EnvironmentId, input.CategoryId);
         _dbContext.ResPermissions.RemoveRange(existing);

@@ -43,6 +43,11 @@ public interface IUserContext
     /// </summary>
     IReadOnlyList<string>? Roles { get; }
 
+    /// <summary>
+    /// 当前用户拥有的角色 ID；角色名称与角色 ID 分开传递，供模块按不透明 ID 执行授权。
+    /// </summary>
+    IReadOnlyList<Guid> RoleIds { get; }
+
     public HttpContext? HttpContext { get; set; }
 
     /// <summary>

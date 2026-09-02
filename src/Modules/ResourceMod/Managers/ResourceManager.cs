@@ -192,11 +192,10 @@ public class ResourceManager(
             return query;
         }
 
+        Guid[] roleIds = _userContext.RoleIds.ToArray();
         return query.Where(r => dbContext.ResPermissions.Any(p =>
             p.TenantId == _userContext.TenantId &&
-            dbContext.SystemUserRoles.Any(userRole =>
-                userRole.UserId == _userContext.UserId &&
-                userRole.RoleId == p.RoleId) &&
+            roleIds.Contains(p.RoleId) &&
             p.EnvironmentId == r.EnvironmentId &&
             p.CategoryId == r.CategoryId));
     }

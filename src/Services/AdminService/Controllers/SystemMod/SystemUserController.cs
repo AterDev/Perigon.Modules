@@ -135,7 +135,7 @@ public class SystemUserController(
         {
             return Forbid(Localizer.NotFoundUser);
         }
-        AccessTokenDto jwtToken = _manager.GenerateJwtToken(user);
+        AccessTokenDto jwtToken = await _manager.GenerateJwtTokenAsync(user);
         // 更新缓存
         var loginPolicy = await SystemConfig.GetLoginSecurityPolicyAsync();
         var client = HttpContext.Request.Headers[WebConst.ClientHeader].FirstOrDefault() ?? WebConst.Web;

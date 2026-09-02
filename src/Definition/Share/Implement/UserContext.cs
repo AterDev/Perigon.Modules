@@ -19,6 +19,7 @@ public class UserContext : IUserContext
     public bool IsAdmin { get; init; }
     public string? CurrentRole { get; set; }
     public List<string>? Roles { get; set; }
+    public IReadOnlyList<Guid> RoleIds { get; private set; } = [];
     IReadOnlyList<string>? IUserContext.Roles => Roles;
 
     public HttpContext? HttpContext { get; set; }
@@ -54,6 +55,11 @@ public class UserContext : IUserContext
         CurrentRole = FindClaimValue(ClaimTypes.Role);
 
         Roles = HttpContext?.User?.FindAll(ClaimTypes.Role).Select(c => c.Value).ToList();
+        RoleIds = HttpContext?.User?.FindAll(CustomClaimTypes.RoleId)
+            .Select(claim => Guid.TryParse(claim.Value, out Guid roleId) ? roleId : Guid.Empty)
+            .Where(roleId => roleId != Guid.Empty)
+            .Distinct()
+            .ToList() ?? [];
         if (Roles != null)
         {
             IsAdmin = Roles.Any(r => r.Equals(WebConst.AdminUser) || r.Equals(WebConst.SuperAdmin));

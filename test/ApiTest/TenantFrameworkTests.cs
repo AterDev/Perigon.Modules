@@ -623,6 +623,7 @@ public sealed class TenantFrameworkTests
         public bool IsAdmin => false;
         public string? CurrentRole => null;
         public IReadOnlyList<string>? Roles => [];
+        public IReadOnlyList<Guid> RoleIds => [];
         public HttpContext? HttpContext { get; set; }
 
         public bool IsRole(string roleName) => false;

@@ -26,7 +26,7 @@
 | `UserResource` | `UserId`、`DefinitionId`、`Status`、`AuditStatus` 必填；`ApprovedResourceId` 可空；`ReviewComment` 最大 500。仅保存用户资源自身信息，不保存环境、分类、分组或标签。 | 通过 `UserId` 标识创建者，不建立用户实体导航；多对一资源定义。`Status=Private` 仅创建者可见；`Status=ApplyPublic` 且待审核时进入管理员审核队列。 |
 | `UserResValue` | `UserResourceId`、`DefinitionPropertyId`、`Value` 必填；值最大 1000；保存属性名称和类型快照。 | 多对一用户资源和定义属性；同一用户资源的 `DefinitionPropertyId` 唯一。公开申请通过时，将快照值复用为常规 `ResValue`。 |
 | `UserFavoriteResource` | `UserId`、`ResourceId` 必填；同一用户对同一资源只能保留一条未删除收藏记录。 | 只保存用户 ID 标量，不建立用户实体导航；多对一常规 `Resource`，通过资源导航关联基础属性和 `ResValue`。收藏记录受租户和软删除过滤约束；资源物理删除时级联删除，资源软删除后不再出现在收藏查询中。 |
-| `ResPermission` | `RoleId`、`EnvironmentId`、`CategoryId` 均必填。 | `RoleId + EnvironmentId + CategoryId` 建立租户内唯一索引；角色 ID 指向 `SystemMod` 的 `SystemRole`，环境和分类为本模块外键。删除环境或分类前必须先清理授权。 |
+| `ResPermission` | `RoleId`、`EnvironmentId`、`CategoryId` 均必填。 | `RoleId + EnvironmentId + CategoryId` 建立租户内唯一索引；角色 ID 是由角色提供模块定义的不透明关联 ID，ResourceMod 不建立 `SystemRole` 外键，环境和分类为本模块外键。删除环境或分类前必须先清理授权。 |
 
 `ValueType` 使用带 `Description` 的枚举：`String`、`Number`、`Boolean`、`Date`、`Uri`、`IPAddress`。`ResValue.Value` 始终存储字符串；其规范格式为：数字使用不受区域影响的十进制文本、布尔值为小写 `true`/`false`、日期为 ISO 8601 `yyyy-MM-dd`、URI 为绝对 URI 的规范文本、IP 地址为 `IPAddress.ToString()` 结果。
 
@@ -55,7 +55,7 @@
 
 写入资源、基础数据、定义和授权配置仅允许 `_userContext.IsAdmin` 为真的后台管理员。管理员可以读取本租户全部资源。
 
-非管理员只能调用资源列表与详情的读取接口，且只能看到满足以下条件的资源：当前用户在同一租户拥有至少一个 `SystemRole`，并存在 `ResPermission(RoleId, Resource.EnvironmentId, Resource.CategoryId)` 的精确匹配记录。角色 ID 必须从 `SystemUserRole` / `SystemRole` 关系取得；不能使用 `IUserContext.Roles` 中的角色名称替代 ID。列表查询在数据库层加入此条件，详情在按 ID 查询时加入相同条件；不匹配返回 403，不得仅依赖 Angular 隐藏按钮。
+非管理员只能调用资源列表与详情的读取接口，且只能看到满足以下条件的资源：认证上下文 `IUserContext.RoleIds` 中至少有一个角色 ID，与 `ResPermission(RoleId, Resource.EnvironmentId, Resource.CategoryId)` 存在精确匹配记录。系统用户登录由认证模块把角色 ID 作为 `role_id` 声明写入 Token；ResourceMod 不读取 `SystemUserRoles` / `SystemRole`，也不能使用 `IUserContext.Roles` 中的角色名称替代 ID。列表查询在数据库层加入此条件，详情在按 ID 查询时加入相同条件；不匹配返回 403，不得仅依赖 Angular 隐藏按钮。
 
 ### 3.4 保存与删除规则
 

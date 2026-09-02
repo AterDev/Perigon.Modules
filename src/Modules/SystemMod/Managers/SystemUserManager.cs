@@ -141,20 +141,37 @@ public class SystemUserManager(
     /// </summary>
     /// <param name="user"></param>
     /// <returns></returns>
-    public AccessTokenDto GenerateJwtToken(SystemUser user)
+    public async Task<AccessTokenDto> GenerateJwtTokenAsync(SystemUser user)
     {
-        // 加载关联数据
-        List<string> roles = user.SystemRoles?.Select(r => r.NameValue).ToList() ?? [];
+        // 兼容系统初始化的隐式多对多关系和用户管理使用的显式关联表。
+        List<SystemRole> assignedRoles = await _dbContext.SystemRoles
+            .Where(role =>
+                role.TenantId == _userContext.TenantId &&
+                (role.Users.Any(assignedUser => assignedUser.Id == user.Id) ||
+                 _dbContext.SystemUserRoles.Any(userRole =>
+                     userRole.UserId == user.Id &&
+                     userRole.TenantId == _userContext.TenantId &&
+                     userRole.RoleId == role.Id)))
+            .ToListAsync();
+        List<string> roles = assignedRoles
+            .Select(role => role.NameValue)
+            .Distinct(StringComparer.Ordinal)
+            .ToList();
+        List<Guid> roleIds = assignedRoles.Select(role => role.Id).ToList();
         if (!roles.Contains(WebConst.User))
         {
             roles.Add(WebConst.User);
         }
 
-        jwtService.Claims = [
+        List<Claim> claims = [
             new(ClaimTypes.Email, user.Email),
             new(ClaimTypes.Name, user.UserName??string.Empty),
             new(CustomClaimTypes.TenantId, _userContext.TenantId.ToString())
-            ];
+        ];
+        claims.AddRange(roleIds.Select(roleId => new Claim(
+            CustomClaimTypes.RoleId,
+            roleId.ToString())));
+        jwtService.Claims = claims;
         var token = jwtService.GetToken(user.Id.ToString(), [.. roles]);
 
         return new AccessTokenDto
@@ -294,7 +311,7 @@ public class SystemUserManager(
             await ValidateLoginAsync(dto, user, loginPolicy);
 
             // 验证成功，生成token
-            AccessTokenDto jwtToken = GenerateJwtToken(user);
+            AccessTokenDto jwtToken = await GenerateJwtTokenAsync(user);
             if (loginPolicy.SessionLevel == SessionLevel.OnlyOne)
             {
                 client = WebConst.AllPlatform;
