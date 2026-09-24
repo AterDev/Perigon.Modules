@@ -85,7 +85,6 @@ public class SystemUserController(
     /// <summary>
     /// Get UserInfo ✅
     /// </summary>
-    /// <returns></returns>
     [HttpGet("userinfo")]
     public async Task<ActionResult<UserInfoDto>> GetUserInfoAsync()
     {
@@ -117,16 +116,15 @@ public class SystemUserController(
     /// 刷新 token
     /// </summary>
     /// <param name="refreshToken"></param>
-    /// <returns></returns>
-    /// <exception cref="ArgumentNullException"></exception>
-    /// <exception cref="Exception"></exception>
+    [AllowAnonymous]
+    [EnableRateLimiting(WebConst.Limited)]
     [HttpGet("refresh_token")]
     public async Task<ActionResult<AccessTokenDto>> RefreshTokenAsync(string refreshToken)
     {
         var userId = await _cache.GetValueAsync<string>(refreshToken);
         if (userId == null || userId != _user.UserId.ToString())
         {
-            return NotFound(Localizer.NotFoundResource);
+            return Forbid(Localizer.InvalidToken);
         }
 
         SystemUser? user = await _manager.FindAsync(Guid.Parse(userId));
@@ -144,8 +142,8 @@ public class SystemUserController(
             client = WebConst.AllPlatform;
         }
         var key = user.GetUniqueKey(WebConst.LoginCachePrefix, client);
-
-        await _cache.SetValueAsync(refreshToken, user.Id.ToString(), jwtToken.RefreshExpiresIn);
+        await _cache.SetValueAsync(jwtToken.RefreshToken, user.Id.ToString(), jwtToken.RefreshExpiresIn);
+        await _cache.RemoveAsync(refreshToken);
         await _cache.SetValueAsync(key, jwtToken.AccessToken, jwtToken.ExpiresIn);
         return jwtToken;
     }

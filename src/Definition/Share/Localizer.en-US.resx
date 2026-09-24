@@ -221,4 +221,10 @@
   <data name="TenantNotExist" xml:space="preserve">
     <value>The tenant does not exist</value>
   </data>
+  <data name="TokenExpired" xml:space="preserve">
+    <value>Token has expired</value>
+  </data>
+  <data name="InvalidToken" xml:space="preserve">
+    <value>Token is Invalid</value>
+  </data>
 </root>

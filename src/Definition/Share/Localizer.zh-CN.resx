@@ -221,4 +221,10 @@
   <data name="TenantNotExist" xml:space="preserve">
     <value>租户不存在</value>
   </data>
+  <data name="TokenExpired" xml:space="preserve">
+    <value>令牌已过期</value>
+  </data>
+  <data name="InvalidToken" xml:space="preserve">
+    <value>无效的令牌</value>
+  </data>
 </root>
