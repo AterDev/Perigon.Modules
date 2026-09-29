@@ -1,4 +1,4 @@
-﻿namespace ApiService.Worker;
+namespace ApiService.Worker;
 /// <summary>
 /// 后台计时器示例
 /// </summary>

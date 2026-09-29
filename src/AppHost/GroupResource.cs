@@ -1,4 +1,4 @@
-﻿namespace AppHost;
+namespace AppHost;
 
 
 public sealed class GroupResource(string name) : Resource(name)

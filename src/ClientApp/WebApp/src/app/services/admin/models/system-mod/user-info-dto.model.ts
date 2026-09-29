@@ -1,5 +1,5 @@
-import { SystemMenu } from '../entity/system-menu.model';
-import { SystemPermissionGroup } from '../entity/system-permission-group.model';
+import { SysMenu } from '../entity/sys-menu.model';
+import { SysUserDataScopeGroupItemDto } from '../system-mod/sys-user-data-scope-group-item-dto.model';
 
 export interface UserInfoDto {
   /** id */
@@ -9,7 +9,7 @@ export interface UserInfoDto {
   /** roles */
   roles: string[];
   /** menus */
-  menus?: SystemMenu[] | null;
-  /** permissionGroups */
-  permissionGroups?: SystemPermissionGroup[] | null;
+  menus?: SysMenu[] | null;
+  /** dataScopeGroups */
+  dataScopeGroups: SysUserDataScopeGroupItemDto[];
 }

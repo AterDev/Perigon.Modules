@@ -3,13 +3,13 @@ import { ArticleService } from './services/article.service';
 import { ArticleCategoryService } from './services/article-category.service';
 import { ResourceService } from './services/resource.service';
 import { ResourceConfigurationService } from './services/resource-configuration.service';
-import { SystemConfigService } from './services/system-config.service';
-import { SystemLogsService } from './services/system-logs.service';
-import { SystemMenuService } from './services/system-menu.service';
-import { SystemPermissionService } from './services/system-permission.service';
-import { SystemPermissionGroupService } from './services/system-permission-group.service';
-import { SystemRoleService } from './services/system-role.service';
-import { SystemUserService } from './services/system-user.service';
+import { SysConfigService } from './services/sys-config.service';
+import { SysDataScopeService } from './services/sys-data-scope.service';
+import { SysDataScopeGroupService } from './services/sys-data-scope-group.service';
+import { SysLogsService } from './services/sys-logs.service';
+import { SysMenuService } from './services/sys-menu.service';
+import { SysRoleService } from './services/sys-role.service';
+import { SysUserService } from './services/sys-user.service';
 import { UserFavoriteResourceService } from './services/user-favorite-resource.service';
 import { UserResourceService } from './services/user-resource.service';
 @Injectable({
@@ -25,20 +25,20 @@ export class AdminClient {
   /** 资源基础配置管理，包括环境、分类、分组、标签、属性定义、资源定义和资源权限。 */
   public resourceConfiguration = inject(ResourceConfigurationService);
   /** 系统配置 */
-  public systemConfig = inject(SystemConfigService);
+  public sysConfig = inject(SysConfigService);
+  /** 数据权限范围管理接口。 */
+  public sysDataScope = inject(SysDataScopeService);
+  /** 数据权限组管理接口。 */
+  public sysDataScopeGroup = inject(SysDataScopeGroupService);
   /** 系统日志 */
-  public systemLogs = inject(SystemLogsService);
+  public sysLogs = inject(SysLogsService);
   /** 系统菜单 */
-  public systemMenu = inject(SystemMenuService);
-  /** 权限 */
-  public systemPermission = inject(SystemPermissionService);
-  /** SystemPermissionGroup */
-  public systemPermissionGroup = inject(SystemPermissionGroupService);
+  public sysMenu = inject(SysMenuService);
   /** 系统角色
-SystemMod.Managers.SystemRoleManager */
-  public systemRole = inject(SystemRoleService);
+SystemMod.Managers.SysRoleManager */
+  public sysRole = inject(SysRoleService);
   /** 系统用户 */
-  public systemUser = inject(SystemUserService);
+  public sysUser = inject(SysUserService);
   /** 用户收藏资源接口。 */
   public userFavoriteResource = inject(UserFavoriteResourceService);
   /** 用户资源提交和公开申请审核。 */

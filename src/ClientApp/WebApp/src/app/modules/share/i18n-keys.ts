@@ -150,29 +150,25 @@ export const I18N_KEYS = {
     "article": "menu.article",
     "articleCategory": "menu.articleCategory"
   },
-  "systemPermission": {
-    "name": "systemPermission.name",
-    "description": "systemPermission.description",
-    "permissionType": "systemPermission.permissionType",
-    "typeValue": "systemPermission.typeValue",
-    "group": "systemPermission.group",
-    "status": "systemPermission.status",
-    "enabled": "systemPermission.enabled",
-    "disabled": "systemPermission.disabled",
-    "empty": "systemPermission.empty",
-    "add": "systemPermission.add",
-    "deleteConfirm": "systemPermission.deleteConfirm",
-    "createSuccess": "systemPermission.createSuccess",
-    "updateSuccess": "systemPermission.updateSuccess",
-    "deleteSuccess": "systemPermission.deleteSuccess",
+  "sysDataScope": {
+    "name": "sysDataScope.name",
+    "resourceCode": "sysDataScope.resourceCode",
+    "scopeType": "sysDataScope.scopeType",
+    "targetIds": "sysDataScope.targetIds",
+    "targetIdsHint": "sysDataScope.targetIdsHint",
+    "invalidTargetIds": "sysDataScope.invalidTargetIds",
+    "group": "sysDataScope.group",
+    "empty": "sysDataScope.empty",
+    "add": "sysDataScope.add",
+    "noGroups": "sysDataScope.noGroups",
+    "deleteConfirm": "sysDataScope.deleteConfirm",
+    "createSuccess": "sysDataScope.createSuccess",
+    "updateSuccess": "sysDataScope.updateSuccess",
+    "deleteSuccess": "sysDataScope.deleteSuccess",
     "types": {
-      "none": "systemPermission.types.none",
-      "read": "systemPermission.types.read",
-      "audit": "systemPermission.types.audit",
-      "add": "systemPermission.types.add",
-      "edit": "systemPermission.types.edit",
-      "write": "systemPermission.types.write",
-      "auditWrite": "systemPermission.types.auditWrite"
+      "none": "sysDataScope.types.none",
+      "all": "sysDataScope.types.all",
+      "include": "sysDataScope.types.include"
     }
   },
   "resource": {

@@ -23,7 +23,7 @@
     "ModuleName": "SystemMod",
     "Author": "Perigon",
     "DisplayName": "SystemMod",
-    "Description": "包含系统角色，用户，权限等相关功能",
+    "Description": "包含用户、角色、菜单、组织、系统配置、系统日志、数据权限范围、数据权限组及用户与数据权限组关联管理",
     "PackageType": 0,
     "Version": "1.0.0",
     "Frontend": "Angular",

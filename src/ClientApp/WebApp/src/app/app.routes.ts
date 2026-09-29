@@ -30,10 +30,10 @@ export const routes: Routes = [
           import('src/app/modules/cms/cms.module').then((m) => m.CmsModule),
       },
       // {
-      //   path: 'system-config',
+      //   path: 'sys-config',
       //   children: [
-      //     { path: '', redirectTo: '/system-config/index', pathMatch: 'full' },
-      //     { path: 'index', loadComponent: () => import('src/app/pages/system-config/index/index').then(m => m.Index) },
+      //     { path: '', redirectTo: '/sys-config/index', pathMatch: 'full' },
+      //     { path: 'index', loadComponent: () => import('src/app/pages/sys-config/index/index').then(m => m.Index) },
       //   ]
       // },
     ],

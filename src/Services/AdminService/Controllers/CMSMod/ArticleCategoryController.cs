@@ -1,4 +1,4 @@
-﻿using CMSMod.Managers;
+using CMSMod.Managers;
 using CMSMod.Models.ArticleCategoryDtos;
 using Entity.CMSMod;
 using Perigon.AspNetCore.Models;

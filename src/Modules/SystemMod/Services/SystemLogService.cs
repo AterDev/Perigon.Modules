@@ -11,7 +11,7 @@ namespace SystemMod.Services;
 /// <param name="taskQueue"></param>
 public class SystemLogService(
     IServiceProvider serviceProvider,
-    IEntityTaskQueue<SystemLogs> taskQueue
+    IEntityTaskQueue<SysLogs> taskQueue
 )
 {
     /// <summary>
@@ -51,7 +51,7 @@ public class SystemLogService(
         {
             return;
         }
-        var log = SystemLogs.NewLog(
+        var log = SysLogs.NewLog(
             tenantId.Value,
             userName ?? "",
             userId.Value,

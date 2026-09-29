@@ -9,7 +9,7 @@ namespace SystemMod;
 /// 服务注入扩展
 /// </summary>
 [DisplayName("Perigon::SystemMod")]
-[Description("包含系统角色，用户，权限等相关功能")]
+[Description("包含用户、角色、菜单、组织、系统配置、系统日志、数据权限范围、数据权限组及用户与数据权限组关联管理")]
 public static class ModuleExtensions
 {
     /// <summary>
@@ -25,7 +25,7 @@ public static class ModuleExtensions
 
     private static IHostApplicationBuilder AddModServices(this IHostApplicationBuilder builder)
     {
-        builder.Services.AddSingleton<IEntityTaskQueue<SystemLogs>, EntityTaskQueue<SystemLogs>>();
+        builder.Services.AddSingleton<IEntityTaskQueue<SysLogs>, EntityTaskQueue<SysLogs>>();
         builder.Services.AddSingleton<SystemLogService>();
         builder.Services.AddHostedService<SystemLogTaskHostedService>();
         builder.Services.AddHostedService<InitSystemModService>();

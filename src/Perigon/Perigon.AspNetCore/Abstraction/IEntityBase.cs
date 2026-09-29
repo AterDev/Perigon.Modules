@@ -1,4 +1,4 @@
-﻿namespace Perigon.AspNetCore.Abstraction;
+namespace Perigon.AspNetCore.Abstraction;
 
 /// <summary>
 /// entity base interface

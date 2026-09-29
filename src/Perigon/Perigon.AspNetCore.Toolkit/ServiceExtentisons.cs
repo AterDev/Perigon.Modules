@@ -1,4 +1,4 @@
-﻿using Perigon.AspNetCore.Options;
+using Perigon.AspNetCore.Options;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;

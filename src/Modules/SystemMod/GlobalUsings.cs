@@ -18,4 +18,6 @@ global using Share.Exceptions;
 global using Share.Implement;
 global using System.ComponentModel.DataAnnotations;
 global using SystemMod.Models;
+global using SystemMod.Models.SysDataScopeGroupDtos;
+global using SystemMod.Models.SysUserDataScopeGroupDtos;
 global using SystemMod.Services;

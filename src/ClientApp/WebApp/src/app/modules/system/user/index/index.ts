@@ -6,24 +6,24 @@ import { ConfirmDialogComponent } from 'src/app/modules/share/components/confirm
 import { I18N_KEYS } from 'src/app/modules/share/i18n-keys';
 import { CommonListModules } from 'src/app/modules/share/shared-modules';
 import { AdminClient } from 'src/app/services/admin/admin-client';
-import { SystemUserItemDto } from 'src/app/services/admin/models/system-mod/system-user-item-dto.model';
-import { SystemUserAddComponent } from 'src/app/modules/system/user/add/add';
-import { SystemUserEditComponent } from 'src/app/modules/system/user/edit/edit';
+import { SysUserItemDto } from 'src/app/services/admin/models/system-mod/sys-user-item-dto.model';
+import { SysUserAddComponent } from 'src/app/modules/system/user/add/add';
+import { SysUserEditComponent } from 'src/app/modules/system/user/edit/edit';
 
 @Component({
-  selector: 'app-system-user-index',
+  selector: 'app-sys-user-index',
   imports: CommonListModules,
   templateUrl: './index.html',
   styleUrl: './index.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class SystemUserIndexComponent {
+export class SysUserIndexComponent {
   readonly i18nKeys = I18N_KEYS;
   private readonly client = inject(AdminClient);
   private readonly snackBar = inject(MatSnackBar);
   private readonly dialog = inject(MatDialog);
   private readonly translate = inject(TranslateService);
-  readonly users = signal<SystemUserItemDto[]>([]);
+  readonly users = signal<SysUserItemDto[]>([]);
   readonly loading = signal(false);
   userName = '';
 
@@ -33,7 +33,7 @@ export class SystemUserIndexComponent {
 
   load(): void {
     this.loading.set(true);
-    this.client.systemUser
+    this.client.sysUser
       .filter(this.userName || null, null, 1, 50, null)
       .subscribe({
         next: (page) => {
@@ -46,7 +46,7 @@ export class SystemUserIndexComponent {
 
   add(): void {
     this.dialog
-      .open(SystemUserAddComponent, {
+      .open(SysUserAddComponent, {
         width: '640px',
         maxWidth: '96vw',
         maxHeight: '96vh',
@@ -57,9 +57,9 @@ export class SystemUserIndexComponent {
       });
   }
 
-  edit(user: SystemUserItemDto): void {
+  edit(user: SysUserItemDto): void {
     this.dialog
-      .open(SystemUserEditComponent, {
+      .open(SysUserEditComponent, {
         width: '640px',
         maxWidth: '96vw',
         maxHeight: '96vh',
@@ -71,7 +71,7 @@ export class SystemUserIndexComponent {
       });
   }
 
-  remove(user: SystemUserItemDto): void {
+  remove(user: SysUserItemDto): void {
     this.dialog
       .open(ConfirmDialogComponent, {
         data: {
@@ -84,7 +84,7 @@ export class SystemUserIndexComponent {
       .afterClosed()
       .subscribe((confirmed) => {
         if (!confirmed) return;
-        this.client.systemUser.delete(user.id).subscribe(() => {
+        this.client.sysUser.delete(user.id).subscribe(() => {
           this.snackBar.open(
             this.translate.instant(this.i18nKeys.systemUser.deleteSuccess),
             this.translate.instant(this.i18nKeys.common.close),

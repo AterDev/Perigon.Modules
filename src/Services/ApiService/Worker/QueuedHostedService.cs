@@ -1,4 +1,4 @@
-﻿namespace ApiService.Worker;
+namespace ApiService.Worker;
 /// <summary>
 /// 后台队列任务服务示例
 /// </summary>

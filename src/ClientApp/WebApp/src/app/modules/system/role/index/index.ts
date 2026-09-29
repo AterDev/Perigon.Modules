@@ -6,24 +6,24 @@ import { ConfirmDialogComponent } from 'src/app/modules/share/components/confirm
 import { I18N_KEYS } from 'src/app/modules/share/i18n-keys';
 import { CommonListModules } from 'src/app/modules/share/shared-modules';
 import { AdminClient } from 'src/app/services/admin/admin-client';
-import { SystemRoleItemDto } from 'src/app/services/admin/models/system-mod/system-role-item-dto.model';
-import { SystemRoleAddComponent } from 'src/app/modules/system/role/add/add';
-import { SystemRoleEditComponent } from 'src/app/modules/system/role/edit/edit';
+import { SysRoleItemDto } from 'src/app/services/admin/models/system-mod/sys-role-item-dto.model';
+import { SysRoleAddComponent } from 'src/app/modules/system/role/add/add';
+import { SysRoleEditComponent } from 'src/app/modules/system/role/edit/edit';
 
 @Component({
-  selector: 'app-system-role-index',
+  selector: 'app-sys-role-index',
   imports: CommonListModules,
   templateUrl: './index.html',
   styleUrl: './index.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class SystemRoleIndexComponent {
+export class SysRoleIndexComponent {
   readonly i18nKeys = I18N_KEYS;
   private readonly client = inject(AdminClient);
   private readonly snackBar = inject(MatSnackBar);
   private readonly dialog = inject(MatDialog);
   private readonly translate = inject(TranslateService);
-  readonly roles = signal<SystemRoleItemDto[]>([]);
+  readonly roles = signal<SysRoleItemDto[]>([]);
   readonly loading = signal(false);
   name = '';
 
@@ -33,7 +33,7 @@ export class SystemRoleIndexComponent {
 
   load(): void {
     this.loading.set(true);
-    this.client.systemRole.list(this.name || null, null, 1, 50, null).subscribe({
+    this.client.sysRole.list(this.name || null, null, 1, 50, null).subscribe({
       next: (page) => {
         this.roles.set(page.data);
         this.loading.set(false);
@@ -44,7 +44,7 @@ export class SystemRoleIndexComponent {
 
   add(): void {
     this.dialog
-      .open(SystemRoleAddComponent, {
+      .open(SysRoleAddComponent, {
         width: '520px',
         maxWidth: '96vw',
         maxHeight: '96vh',
@@ -55,9 +55,9 @@ export class SystemRoleIndexComponent {
       });
   }
 
-  edit(role: SystemRoleItemDto): void {
+  edit(role: SysRoleItemDto): void {
     this.dialog
-      .open(SystemRoleEditComponent, {
+      .open(SysRoleEditComponent, {
         width: '520px',
         maxWidth: '96vw',
         maxHeight: '96vh',
@@ -69,7 +69,7 @@ export class SystemRoleIndexComponent {
       });
   }
 
-  remove(role: SystemRoleItemDto): void {
+  remove(role: SysRoleItemDto): void {
     if (role.isSystem) return;
     this.dialog
       .open(ConfirmDialogComponent, {
@@ -83,7 +83,7 @@ export class SystemRoleIndexComponent {
       .afterClosed()
       .subscribe((confirmed) => {
         if (!confirmed) return;
-        this.client.systemRole.delete(role.id).subscribe(() => {
+        this.client.sysRole.delete(role.id).subscribe(() => {
           this.snackBar.open(
             this.translate.instant(this.i18nKeys.systemRole.deleteSuccess),
             this.translate.instant(this.i18nKeys.common.close),

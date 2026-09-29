@@ -1,4 +1,4 @@
-﻿namespace EntityFramework;
+namespace EntityFramework;
 
 public static class Extensions
 {

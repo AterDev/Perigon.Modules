@@ -58,23 +58,19 @@ export class EnumTextPipe implements PipeTransform {
         }
         break;
 
-      case 'MenuType':
+      case 'DataScopeType':
         switch (value) {
-          case 0: result = '页面'; break;
-          case 1: result = '按钮'; break;
+          case 0: result = 'None'; break;
+          case 1: result = 'All'; break;
+          case 2: result = 'Include'; break;
           default: result = '默认'; break;
         }
         break;
 
-      case 'PermissionType':
+      case 'MenuType':
         switch (value) {
-          case 0: result = '无权限'; break;
-          case 1: result = '可读'; break;
-          case 2: result = '可审核'; break;
-          case 4: result = '仅添加'; break;
-          case 16: result = '仅编辑'; break;
-          case 21: result = '可读写'; break;
-          case 23: result = '读写且可审核'; break;
+          case 0: result = '页面'; break;
+          case 1: result = '按钮'; break;
           default: result = '默认'; break;
         }
         break;

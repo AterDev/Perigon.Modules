@@ -11,13 +11,13 @@ namespace SystemMod.Worker;
 /// </summary>
 public class SystemLogTaskHostedService(
     IServiceProvider serviceProvider,
-    IEntityTaskQueue<SystemLogs> queue,
+    IEntityTaskQueue<SysLogs> queue,
     ILogger<SystemLogTaskHostedService> logger
 ) : BackgroundService
 {
     private readonly IServiceProvider _serviceProvider = serviceProvider;
     private readonly ILogger<SystemLogTaskHostedService> _logger = logger;
-    private readonly IEntityTaskQueue<SystemLogs> _taskQueue = queue;
+    private readonly IEntityTaskQueue<SysLogs> _taskQueue = queue;
 
     private readonly int MaxWaitMilliseconds = 10_000;
 
@@ -29,7 +29,7 @@ public class SystemLogTaskHostedService(
 
     private async Task BackgroundProcessing(CancellationToken stoppingToken)
     {
-        List<SystemLogs> logs = [];
+        List<SysLogs> logs = [];
         DateTime? batchStart = null;
 
         while (!stoppingToken.IsCancellationRequested)
@@ -55,7 +55,7 @@ public class SystemLogTaskHostedService(
         }
     }
 
-    private async Task InsertLogsAsync(List<SystemLogs> logs, CancellationToken stoppingToken)
+    private async Task InsertLogsAsync(List<SysLogs> logs, CancellationToken stoppingToken)
     {
         using IServiceScope scope = _serviceProvider.CreateScope();
         var dbContextFactory = scope.ServiceProvider.GetRequiredService<AppDbFactory>();

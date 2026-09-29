@@ -8,17 +8,17 @@ import { CommonFormModules } from 'src/app/modules/share/shared-modules';
 import { AdminClient } from 'src/app/services/admin/admin-client';
 
 @Component({
-  selector: 'app-system-role-edit',
+  selector: 'app-sys-role-edit',
   imports: CommonFormModules,
   templateUrl: './edit.html',
   styleUrl: './edit.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class SystemRoleEditComponent {
+export class SysRoleEditComponent {
   readonly i18nKeys = I18N_KEYS;
   private readonly fb = inject(FormBuilder);
   private readonly client = inject(AdminClient);
-  private readonly dialogRef = inject(MatDialogRef<SystemRoleEditComponent>);
+  private readonly dialogRef = inject(MatDialogRef<SysRoleEditComponent>);
   private readonly data = inject<{ id: string }>(MAT_DIALOG_DATA);
   private readonly snackBar = inject(MatSnackBar);
   private readonly translate = inject(TranslateService);
@@ -31,7 +31,7 @@ export class SystemRoleEditComponent {
   saving = false;
 
   constructor() {
-    this.client.systemRole
+    this.client.sysRole
       .detail(this.id)
       .subscribe((value) => this.form.patchValue(value));
   }
@@ -42,7 +42,7 @@ export class SystemRoleEditComponent {
       return;
     }
     this.saving = true;
-    this.client.systemRole.update(this.id, this.form.getRawValue()).subscribe({
+    this.client.sysRole.update(this.id, this.form.getRawValue()).subscribe({
       next: () => {
         this.snackBar.open(
           this.translate.instant(this.i18nKeys.systemRole.updateSuccess),

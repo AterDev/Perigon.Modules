@@ -38,13 +38,13 @@ public class InitModule
                 tenantService.SetCache(tenant);
 
                 await using var context = dbContextFactory.CreateDbContext(tenant.Id);
-                if (!await context.SystemUsers.AnyAsync())
+                if (!await context.SysUsers.AnyAsync())
                 {
                     logger.LogInformation("⛏️ Start init [System] Module for tenant {TenantId}", tenant.Id);
                     await InitTenantAdminAccountAsync(context, tenant);
                 }
 
-                if (!await context.SystemConfigs.AnyAsync())
+                if (!await context.SysConfigs.AnyAsync())
                 {
                     await InitConfigAsync(context, configuration, logger);
                 }
@@ -68,7 +68,7 @@ public class InitModule
     )
     {
         var defaultPassword = "Perigon.2026";
-        var superRole = new SystemRole
+        var superRole = new SysRole
         {
             Name = WebConst.SuperAdmin,
             NameValue = WebConst.SuperAdmin,
@@ -76,7 +76,7 @@ public class InitModule
             IsSystem = true,
         };
 
-        var adminRole = new SystemRole
+        var adminRole = new SysRole
         {
             Name = WebConst.AdminUser,
             NameValue = WebConst.AdminUser,
@@ -84,13 +84,13 @@ public class InitModule
             IsSystem = true,
         };
         var salt = HashCrypto.BuildSalt();
-        var adminUser = new SystemUser
+        var adminUser = new SysUser
         {
             UserName = "admin",
             Email = $"admin@{tenant.Domain}",
             PasswordSalt = salt,
             PasswordHash = HashCrypto.GeneratePwd(defaultPassword, salt),
-            SystemRoles = [superRole, adminRole],
+            SysRoles = [superRole, adminRole],
             TenantId = tenant.Id,
         };
 
@@ -106,7 +106,7 @@ public class InitModule
         ILogger logger
     )
     {
-        var initConfig = SystemConfig.NewSystemConfig(
+        var initConfig = SysConfig.NewSysConfig(
             WebConst.SystemGroup,
             WebConst.IsInit,
             "true"
@@ -116,14 +116,14 @@ public class InitModule
             configuration.GetSection(WebConst.LoginSecurityPolicy).Get<LoginSecurityPolicyOption>()
             ?? new LoginSecurityPolicyOption();
 
-        var loginSecurityPolicyConfig = SystemConfig.NewSystemConfig(
+        var loginSecurityPolicyConfig = SysConfig.NewSysConfig(
             WebConst.SystemGroup,
             WebConst.LoginSecurityPolicy,
             JsonSerializer.Serialize(loginSecurityPolicy)
         );
 
-        context.SystemConfigs.Add(loginSecurityPolicyConfig);
-        context.SystemConfigs.Add(initConfig);
+        context.SysConfigs.Add(loginSecurityPolicyConfig);
+        context.SysConfigs.Add(initConfig);
 
         await context.SaveChangesAsync();
         logger.LogInformation("写入登录安全策略成功");
@@ -138,7 +138,7 @@ public class InitModule
     {
         logger.LogInformation("加载租户 {TenantId} 配置缓存", tenantId);
         var securityPolicy = await context
-            .SystemConfigs
+            .SysConfigs
             .Where(c => c.Key == WebConst.LoginSecurityPolicy)
             .Where(c => c.GroupName == WebConst.SystemGroup)
             .Select(c => c.Value)
@@ -147,7 +147,7 @@ public class InitModule
         if (securityPolicy != null)
         {
             await cache.SetValueAsync(
-                SystemConfigManager.GetLoginSecurityPolicyCacheKey(tenantId),
+                SysConfigManager.GetLoginSecurityPolicyCacheKey(tenantId),
                 securityPolicy,
                 null
             );

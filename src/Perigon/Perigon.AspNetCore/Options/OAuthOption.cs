@@ -1,4 +1,4 @@
-﻿namespace Perigon.AspNetCore.Options;
+namespace Perigon.AspNetCore.Options;
 
 public class OAuthOption
 {

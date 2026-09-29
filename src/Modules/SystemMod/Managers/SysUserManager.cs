@@ -1,0 +1,476 @@
+using EntityFramework.AppDbFactory;
+using Entity;
+using Share.Models.Auth;
+using System.Security.Claims;
+using System.Text.Json;
+using System.Text.RegularExpressions;
+using Share.Services;
+using SystemMod.Models.SysUserDtos;
+
+namespace SystemMod.Managers;
+
+public class SysUserManager(
+    AppDbFactory dbContextFactory,
+    CacheService cache,
+    TenantService tenantService,
+    JwtService jwtService,
+    SystemLogService logService,
+    ILogger<SysUserManager> logger,
+    IUserContext userContext,
+    Localizer localizer,
+    IConfiguration configuration,
+    IServiceProvider serviceProvider
+) : ManagerBase<DefaultDbContext, SysUser>(
+    dbContextFactory,
+    userContext,
+    logger,
+    allowCatalogContext: true
+)
+{
+    private readonly CacheService _cache = cache;
+    private readonly TenantService _tenantService = tenantService;
+    private readonly SystemLogService _logService = logService;
+    private readonly Localizer _localizer = localizer;
+    private readonly IConfiguration _configuration = configuration;
+    private readonly IServiceProvider _serviceProvider = serviceProvider;
+
+    private SysUserRoleManager UserRoleManager =>
+        _serviceProvider.GetRequiredService<SysUserRoleManager>();
+
+    /// <summary>
+    /// 获取验证码
+    /// 也可自己实现图片验证码
+    /// </summary>
+    /// <param name="length">验证码长度</param>
+    /// <returns></returns>
+    public static string GetCaptcha(int length = 6)
+    {
+        return HashCrypto.GetRandom(length);
+    }
+
+    /// <summary>
+    /// 获取图形验证码
+    /// </summary>
+    /// <param name="length"></param>
+    /// <returns></returns>
+    public byte[] GetCaptchaImage(int length = 4)
+    {
+        var code = GetCaptcha(length);
+        var width = length * 20;
+        return ImageHelper.GenerateImageCaptcha(code, width);
+    }
+
+    /// <summary>
+    /// 登录安全政策验证
+    /// </summary>
+    /// <param name="dto"></param>
+    /// <param name="user"></param>
+    /// <param name="loginPolicy"></param>
+    /// <returns></returns>
+    public async Task ValidateLoginAsync(
+        SysLoginDto dto,
+        SysUser user,
+        LoginSecurityPolicyOption loginPolicy
+    )
+    {
+        user.LastLoginTime = DateTimeOffset.UtcNow;
+
+        if (loginPolicy.IsEnable)
+        {
+            // 刷新锁定状态
+            var lastLoginTime = user.LastLoginTime?.ToLocalTime() ?? DateTimeOffset.Now;
+            if ((DateTimeOffset.Now - lastLoginTime).Days >= 1)
+            {
+                user.RetryCount = 0;
+                if (user.LockoutEnabled)
+                {
+                    user.LockoutEnabled = false;
+                }
+            }
+
+            // 锁定状态
+            if (user.LockoutEnabled || user.RetryCount >= loginPolicy.LoginRetry)
+            {
+                user.LockoutEnabled = true;
+                throw new BusinessException(Localizer.LockAccountForManyTimes);
+            }
+
+            // 验证码处理
+            if (loginPolicy.IsNeedVerifyCode)
+            {
+                if (dto.VerifyCode == null)
+                {
+                    user.RetryCount++;
+                    throw new BusinessException(Localizer.InvalidVerifyCode);
+                }
+                var key = WebConst.VerifyCodeCachePrefix + user.Email;
+                var code = await _cache.GetValueAsync<string>(key);
+                if (code == null)
+                {
+                    user.RetryCount++;
+                    throw new BusinessException(Localizer.VerifyCodeExpired);
+                }
+                if (!code.Equals(dto.VerifyCode))
+                {
+                    await _cache.RemoveAsync(key);
+                    user.RetryCount++;
+                    throw new BusinessException(Localizer.InvalidVerifyCode);
+                }
+            }
+
+            // 密码过期时间
+            if ((DateTimeOffset.UtcNow - user.LastPwdEditTime).TotalDays > loginPolicy.PasswordExpired)
+            {
+                user.RetryCount++;
+                throw new BusinessException(Localizer.PasswordExpired);
+            }
+        }
+
+        if (!HashCrypto.Validate(dto.Password, user.PasswordSalt, user.PasswordHash))
+        {
+            user.RetryCount++;
+            throw new BusinessException(
+                Localizer.PasswordInvalid,
+                StatusCodes.Status401Unauthorized
+            );
+        }
+    }
+
+    /// <summary>
+    /// 生成jwtToken
+    /// </summary>
+    /// <param name="user"></param>
+    /// <returns></returns>
+    public async Task<AccessTokenDto> GenerateJwtTokenAsync(SysUser user)
+    {
+        // 兼容系统初始化的隐式多对多关系和用户管理使用的显式关联表。
+        List<SysRole> assignedRoles = await _dbContext.SysRoles
+            .Where(role =>
+                role.TenantId == _userContext.TenantId &&
+                (role.Users.Any(assignedUser => assignedUser.Id == user.Id) ||
+                 _dbContext.SysUserRoles.Any(userRole =>
+                     userRole.UserId == user.Id &&
+                     userRole.TenantId == _userContext.TenantId &&
+                     userRole.RoleId == role.Id)))
+            .ToListAsync();
+        List<string> roles = assignedRoles
+            .Select(role => role.NameValue)
+            .Distinct(StringComparer.Ordinal)
+            .ToList();
+        List<Guid> roleIds = assignedRoles.Select(role => role.Id).ToList();
+        if (!roles.Contains(WebConst.User))
+        {
+            roles.Add(WebConst.User);
+        }
+
+        List<Claim> claims = [
+            new(ClaimTypes.Email, user.Email),
+            new(ClaimTypes.Name, user.UserName??string.Empty),
+            new(CustomClaimTypes.TenantId, _userContext.TenantId.ToString())
+        ];
+        claims.AddRange(roleIds.Select(roleId => new Claim(
+            CustomClaimTypes.RoleId,
+            roleId.ToString())));
+        jwtService.Claims = claims;
+        var token = jwtService.GetToken(user.Id.ToString(), [.. roles]);
+
+        return new AccessTokenDto
+        {
+            AccessToken = token,
+            ExpiresIn = jwtService.ExpiredSecond,
+            RefreshToken = JwtService.GetRefreshToken(),
+            RefreshExpiresIn = jwtService.RefreshExpiredSecond,
+        };
+    }
+
+    /// <summary>
+    /// 更新密码
+    /// </summary>
+    /// <param name="user"></param>
+    /// <param name="newPassword"></param>
+    /// <returns></returns>
+    public async Task<bool> ChangePasswordAsync(SysUser user, string newPassword)
+    {
+        user.PasswordSalt = HashCrypto.BuildSalt();
+        user.PasswordHash = HashCrypto.GeneratePwd(newPassword, user.PasswordSalt);
+        user.LastPwdEditTime = DateTimeOffset.UtcNow;
+        _dbSet.Update(user);
+        return await _dbContext.SaveChangesAsync() > 0;
+    }
+
+    public async Task<PageList<SysUserItemDto>> ToPageAsync(SysUserFilterDto filter)
+    {
+        Queryable = Queryable.WhereNotNull(
+            filter.UserName,
+            q =>
+                (q.UserName != null && q.UserName.Contains(filter.UserName!))
+                || (q.PhoneNumber != null && q.PhoneNumber.Contains(filter.UserName!))
+                || q.Email.Contains(filter.UserName!)
+        );
+
+        if (filter.RoleId != null)
+        {
+            Queryable = Queryable.Where(q => q
+                .SysRoles
+                .Any(r => r.Id == filter.RoleId));
+        }
+        return await PageListAsync<SysUserFilterDto, SysUserItemDto>(filter);
+    }
+
+    /// <summary>
+    /// 是否存在
+    /// </summary>
+    /// <param name="email"></param>
+    /// <returns></returns>
+    public async Task<bool> IsExistAsync(string email)
+    {
+        await ResolveTenantAsync(email);
+        return await Queryable.AnyAsync(q => q.Email == email);
+    }
+
+    /// <summary>
+    /// 当前用户所拥有的对象
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns></returns>
+    public async Task<SysUser?> GetOwnedAsync(Guid id)
+    {
+        IQueryable<SysUser> query = _dbSet.Where(q => q.Id == id);
+        return await query.FirstOrDefaultAsync();
+    }
+
+    /// <summary>
+    /// 删除实体
+    /// </summary>
+    /// <param name="ids"></param>
+    /// <param name="softDelete"></param>
+    /// <returns></returns>
+    public async Task DeleteAsync(List<Guid> ids, bool softDelete = true)
+    {
+        await base.DeleteOrUpdateAsync(ids, softDelete);
+    }
+
+    /// <summary>
+    /// 验证密码复杂度
+    /// </summary>
+    /// <param name="password"></param>
+    /// <returns></returns>
+    public async Task<bool> ValidatePasswordAsync(string password)
+    {
+        var loginPolicy = await GetLoginSecurityPolicyAsync();
+        // 密码复杂度校验
+        var pwdReg = loginPolicy.PasswordLevel switch
+        {
+            PasswordLevel.Simple => RegexConst.SimplePasswordRegex,
+            PasswordLevel.Normal => RegexConst.NormalPasswordRegex,
+            PasswordLevel.Strict => RegexConst.StrongPasswordRegex,
+            _ => RegexConst.StrongPasswordRegex,
+        };
+        return Regex.IsMatch(password, pwdReg);
+    }
+
+    public async Task<SysUser?> GetSysUserAsync(Guid id)
+    {
+        return await Queryable
+            .Where(q => q.Id == id)
+            .Include(q => q.SysRoles)
+            .FirstOrDefaultAsync();
+    }
+
+    // expose DTO getter for controllers
+    public async Task<SysUserDetailDto?> GetAsync(Guid id)
+    {
+        return await FindAsync<SysUserDetailDto>(d => d.Id == id);
+    }
+
+    public async Task<AccessTokenDto> LoginAsync(SysLoginDto dto, string client)
+    {
+        var tenant = await ResolveTenantAsync(dto.Email);
+
+        // 查询用户
+        var user = await _dbSet
+            .Where(u => u.Email == dto.Email)
+            .Include(u => u.SysRoles)
+            .FirstOrDefaultAsync() ?? throw new BusinessException(Localizer.UserNotExists);
+        try
+        {
+            var loginPolicy = await GetLoginSecurityPolicyAsync();
+            await ValidateLoginAsync(dto, user, loginPolicy);
+
+            // 验证成功，生成token
+            AccessTokenDto jwtToken = await GenerateJwtTokenAsync(user);
+            if (loginPolicy.SessionLevel == SessionLevel.OnlyOne)
+            {
+                client = WebConst.AllPlatform;
+            }
+            var key = user.GetUniqueKey(WebConst.LoginCachePrefix, client);
+
+            var expiredSeconds =
+                loginPolicy.SessionExpiredSeconds == 0
+                    ? jwtToken.ExpiresIn
+                    : loginPolicy.SessionExpiredSeconds;
+
+            // 缓存
+            await _cache.SetValueAsync(key, jwtToken.AccessToken, expiredSeconds);
+            await _cache.SetValueAsync(
+                jwtToken.RefreshToken,
+                user.Id.ToString(),
+                jwtToken.RefreshExpiresIn
+            );
+
+            await _logService.NewLog(
+                Localizer.LoginAction,
+                UserActionType.Login,
+                Localizer.LoginSuccess,
+                user.UserName,
+                user.Id,
+                tenant.Id
+            );
+            return jwtToken;
+        }
+        catch (BusinessException)
+        {
+            // 密码错误等业务异常，直接抛出
+            throw;
+        }
+        catch (Exception ex)
+        {
+            // 其他异常
+            _logger.LogError(ex, "An unexpected error occurred during login.");
+            throw;
+        }
+        finally
+        {
+            // 确保用户信息（如重试次数、最后登录时间）被保存
+            await _dbContext.SaveChangesAsync();
+        }
+    }
+
+    public async Task<SysUser> AddAsync(SysUserAddDto dto, List<SysRole>? roles)
+    {
+        return await ExecuteInTransactionAsync(async () =>
+        {
+            SysUser entity = dto.MapTo<SysUser>();
+            // 密码处理
+            entity.PasswordSalt = HashCrypto.BuildSalt();
+            entity.PasswordHash = HashCrypto.GeneratePwd(dto.Password, entity.PasswordSalt);
+
+            await InsertAsync(entity);
+
+            // 使用中间表管理器处理角色关联，提高性能
+            if (roles != null && roles.Count > 0)
+            {
+                var roleIds = roles.Select(r => r.Id).ToList();
+                await UserRoleManager.SetUserRolesAsync(entity.Id, roleIds, _dbContext);
+            }
+
+            return entity;
+        });
+    }
+
+    public async Task<SysUser> UpdateAsync(
+        Guid id,
+        SysUserUpdateDto dto,
+        List<SysRole>? roles
+    )
+    {
+        return await ExecuteInTransactionAsync(async () =>
+        {
+            var current =
+                await FindAsync(id) ?? throw new BusinessException(Localizer.UserNotFound);
+
+            // 权限验证，利用 IUserContext
+            if (!CanUserModify(current))
+            {
+                throw new BusinessException(
+                    Localizer.InsufficientPermissions,
+                    StatusCodes.Status403Forbidden
+                );
+            }
+
+            // 先进行 DTO 局部更新
+            await base.UpdateAsync(id, dto);
+
+            // 如需修改密码，单独更新密码相关字段
+            if (dto.Password != null)
+            {
+                if (!await ValidatePasswordAsync(dto.Password))
+                {
+                    throw new BusinessException(
+                        Localizer.PasswordComplexityNotMet,
+                        StatusCodes.Status400BadRequest
+                    );
+                }
+
+                var newSalt = HashCrypto.BuildSalt();
+                var newHash = HashCrypto.GeneratePwd(dto.Password, newSalt);
+                var now = DateTimeOffset.UtcNow;
+
+                await _dbSet
+                    .Where(u => u.Id == id)
+                    .ExecuteUpdateAsync(u => u
+                        .SetProperty(e => e.PasswordSalt, newSalt)
+                        .SetProperty(e => e.PasswordHash, newHash)
+                        .SetProperty(e => e.LastPwdEditTime, now));
+            }
+
+            // 使用中间表管理器处理角色关联，提高性能
+            if (roles != null)
+            {
+                var roleIds = roles.Select(r => r.Id).ToList();
+                await UserRoleManager.SetUserRolesAsync(current.Id, roleIds, _dbContext);
+            }
+
+            return current;
+        });
+    }
+
+    /// <summary>
+    /// 验证用户是否可以修改
+    /// </summary>
+    /// <param name="user"></param>
+    /// <returns></returns>
+    private bool CanUserModify(SysUser user)
+    {
+        // 超级管理员可以修改所有用户，普通用户只能修改自己
+        return _userContext.IsRole(WebConst.SuperAdmin) || _userContext.UserId == user.Id;
+    }
+
+    public override async Task<bool> HasPermissionAsync(Guid id)
+    {
+        var query = _dbSet.Where(q => q.Id == id && q.TenantId == _userContext.TenantId);
+        return await query.AnyAsync();
+    }
+
+    private async Task<Tenant> ResolveTenantAsync(string email)
+    {
+        var domain = email.Split("@").Last();
+        var tenant = await _tenantService.GetByDomainAsync(domain);
+        if (tenant is null || tenant.Disabled)
+        {
+            throw new BusinessException(Localizer.TenantNotExist);
+        }
+
+        _dbContext.SetTenantId(tenant.Id);
+        _userContext.TenantId = tenant.Id;
+        _userContext.TenantType = tenant.Type.ToString();
+        return tenant;
+    }
+
+    private async Task<LoginSecurityPolicyOption> GetLoginSecurityPolicyAsync()
+    {
+        var configString = await _cache.GetValueAsync<string>(
+            SysConfigManager.GetLoginSecurityPolicyCacheKey(_userContext.TenantId)
+        );
+        if (configString is not null)
+        {
+            return JsonSerializer.Deserialize<LoginSecurityPolicyOption>(configString)
+                ?? new LoginSecurityPolicyOption();
+        }
+
+        return _configuration
+                .GetSection(LoginSecurityPolicyOption.ConfigPath)
+                .Get<LoginSecurityPolicyOption>()
+            ?? new LoginSecurityPolicyOption();
+    }
+}

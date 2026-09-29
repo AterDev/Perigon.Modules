@@ -649,12 +649,12 @@ public class ResourceModApiTests
 
     [ClassDataSource<TestHttpClientData>(Shared = SharedType.None)]
     [Test]
-    public async Task UserResourceApis_ShouldEnforceSystemUserVisibilityAndApprovePublicRequests(
+    public async Task UserResourceApis_ShouldEnforceSysUserVisibilityAndApprovePublicRequests(
         TestHttpClientData data)
     {
         HttpClient adminClient = data.HttpClient;
-        (HttpClient ownerClient, Guid ownerId) = await data.CreateSystemUserClientAsync();
-        (HttpClient otherClient, _) = await data.CreateSystemUserClientAsync();
+        (HttpClient ownerClient, Guid ownerId) = await data.CreateSysUserClientAsync();
+        (HttpClient otherClient, _) = await data.CreateSysUserClientAsync();
         ResourceFixture fixture = await CreateFixtureAsync(adminClient);
         UserResourceAddDto input = new()
         {
@@ -779,8 +779,8 @@ public class ResourceModApiTests
         TestHttpClientData data)
     {
         HttpClient adminClient = data.HttpClient;
-        (HttpClient ownerClient, _) = await data.CreateSystemUserClientAsync();
-        (HttpClient otherClient, _) = await data.CreateSystemUserClientAsync();
+        (HttpClient ownerClient, _) = await data.CreateSysUserClientAsync();
+        (HttpClient otherClient, _) = await data.CreateSysUserClientAsync();
         ResourceFixture fixture = await CreateFixtureAsync(adminClient);
 
         ResourceCreatedDto resource = await PostAsync<ResourceCreatedDto>(
@@ -804,7 +804,7 @@ public class ResourceModApiTests
 
         JsonDocument roleList = await GetAsync<JsonDocument>(
             adminClient,
-            "/api/SystemRole?nameValue=User&pageSize=100",
+            "/api/SysRole?nameValue=User&pageSize=100",
             HttpStatusCode.OK);
         Guid userRoleId = roleList.RootElement.GetProperty("data").EnumerateArray()
             .Single(item => item.GetProperty("nameValue").GetString() == "User")
@@ -1001,7 +1001,7 @@ public class ResourceModApiTests
     {
         HttpClient client = data.HttpClient;
         ResourceFixture fixture = await CreateFixtureAsync(client);
-        JsonDocument roleList = await GetAsync<JsonDocument>(client, "/api/SystemRole?pageSize=20", HttpStatusCode.OK);
+        JsonDocument roleList = await GetAsync<JsonDocument>(client, "/api/SysRole?pageSize=20", HttpStatusCode.OK);
         Guid roleId = roleList.RootElement.GetProperty("data").EnumerateArray().First()
             .GetProperty("id").GetGuid();
 

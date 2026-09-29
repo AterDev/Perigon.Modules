@@ -1,4 +1,4 @@
-﻿namespace EntityFramework.AppDbContext;
+namespace EntityFramework.AppDbContext;
 
 /// <summary>
 /// Analysis-related read/write data access.

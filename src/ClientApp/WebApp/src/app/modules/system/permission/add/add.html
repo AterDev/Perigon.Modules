@@ -1,8 +1,8 @@
-<h2 mat-dialog-title>{{ i18nKeys.systemPermission.add | translate }}</h2>
+<h2 mat-dialog-title>{{ i18nKeys.common.add | translate }}</h2>
 <mat-dialog-content>
   <form [formGroup]="form" (ngSubmit)="save()" class="dialog-form">
     <mat-form-field appearance="outline">
-      <mat-label>{{ i18nKeys.systemPermission.name | translate }}</mat-label>
+      <mat-label>{{ i18nKeys.sysDataScope.name | translate }}</mat-label>
       <input matInput formControlName="name" />
       @if (form.controls.name.hasError('required')) {
         <mat-error>{{ i18nKeys.validation.required | translate }}</mat-error>
@@ -10,43 +10,59 @@
     </mat-form-field>
 
     <mat-form-field appearance="outline">
-      <mat-label>{{ i18nKeys.systemPermission.description | translate }}</mat-label>
-      <textarea matInput formControlName="description"></textarea>
-    </mat-form-field>
-
-    <mat-form-field appearance="outline">
-      <mat-label>{{ i18nKeys.systemPermission.permissionType | translate }}</mat-label>
-      <mat-select formControlName="permissionType">
-        @for (type of types; track type.value) {
-          <mat-option [value]="type.value">
-            {{ type.labelKey | translate }} ({{ type.value }})
-          </mat-option>
-        }
-      </mat-select>
-    </mat-form-field>
-
-    <mat-form-field appearance="outline">
-      <mat-label>{{ i18nKeys.systemPermission.group | translate }}</mat-label>
-      <mat-select formControlName="systemPermissionGroupId">
-        @for (group of groups(); track group.id) {
-          <mat-option [value]="group.id">{{ group.name }}</mat-option>
-        }
-      </mat-select>
-      @if (form.controls.systemPermissionGroupId.hasError('required')) {
+      <mat-label>{{ i18nKeys.sysDataScope.resourceCode | translate }}</mat-label>
+      <input matInput formControlName="resourceCode" />
+      @if (form.controls.resourceCode.hasError('required')) {
         <mat-error>{{ i18nKeys.validation.required | translate }}</mat-error>
       }
     </mat-form-field>
 
-    <mat-checkbox formControlName="enable">
-      {{ i18nKeys.systemPermission.enabled | translate }}
-    </mat-checkbox>
+    <mat-form-field appearance="outline">
+      <mat-label>{{ i18nKeys.sysDataScope.scopeType | translate }}</mat-label>
+      <mat-select formControlName="scopeType">
+        @for (type of typeOptions; track type.value) {
+          <mat-option [value]="type.value">{{ type.label | translate }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    @if (isIncludeScope) {
+      <mat-form-field appearance="outline">
+        <mat-label>{{ i18nKeys.sysDataScope.targetIds | translate }}</mat-label>
+        <textarea matInput formControlName="targetIdsText" rows="4"></textarea>
+        <mat-hint>{{ i18nKeys.sysDataScope.targetIdsHint | translate }}</mat-hint>
+        @if (hasInvalidTargetIds) {
+          <mat-error>{{ i18nKeys.sysDataScope.invalidTargetIds | translate }}</mat-error>
+        }
+      </mat-form-field>
+    }
+
+    <mat-form-field appearance="outline">
+      <mat-label>{{ i18nKeys.sysDataScope.group | translate }}</mat-label>
+      <mat-select formControlName="groupId">
+        @for (group of groups(); track group.id) {
+          <mat-option [value]="group.id">{{ group.name }}</mat-option>
+        }
+      </mat-select>
+      @if (form.controls.groupId.hasError('required')) {
+        <mat-error>{{ i18nKeys.validation.required | translate }}</mat-error>
+      }
+    </mat-form-field>
+    @if (groups().length === 0) {
+      <p class="empty-hint">{{ i18nKeys.sysDataScope.noGroups | translate }}</p>
+    }
   </form>
 </mat-dialog-content>
 <mat-dialog-actions align="end">
   <button mat-button type="button" mat-dialog-close>
     {{ i18nKeys.common.cancel | translate }}
   </button>
-  <button mat-flat-button type="button" [disabled]="saving" (click)="save()">
+  <button
+    mat-flat-button
+    type="button"
+    [disabled]="saving || groups().length === 0"
+    (click)="save()"
+  >
     {{ i18nKeys.common.save | translate }}
   </button>
 </mat-dialog-actions>

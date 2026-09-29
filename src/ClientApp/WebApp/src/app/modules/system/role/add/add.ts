@@ -8,17 +8,17 @@ import { CommonFormModules } from 'src/app/modules/share/shared-modules';
 import { AdminClient } from 'src/app/services/admin/admin-client';
 
 @Component({
-  selector: 'app-system-role-add',
+  selector: 'app-sys-role-add',
   imports: CommonFormModules,
   templateUrl: './add.html',
   styleUrl: './add.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class SystemRoleAddComponent {
+export class SysRoleAddComponent {
   readonly i18nKeys = I18N_KEYS;
   private readonly fb = inject(FormBuilder);
   private readonly client = inject(AdminClient);
-  private readonly dialogRef = inject(MatDialogRef<SystemRoleAddComponent>);
+  private readonly dialogRef = inject(MatDialogRef<SysRoleAddComponent>);
   private readonly snackBar = inject(MatSnackBar);
   private readonly translate = inject(TranslateService);
   saving = false;
@@ -34,7 +34,7 @@ export class SystemRoleAddComponent {
       return;
     }
     this.saving = true;
-    this.client.systemRole.add(this.form.getRawValue()).subscribe({
+    this.client.sysRole.add(this.form.getRawValue()).subscribe({
       next: () => {
         this.snackBar.open(
           this.translate.instant(this.i18nKeys.systemRole.createSuccess),

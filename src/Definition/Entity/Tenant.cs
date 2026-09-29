@@ -1,4 +1,4 @@
-﻿// ⚠️ dont delete this file unless you are absolutely sure about it.
+// ⚠️ dont delete this file unless you are absolutely sure about it.
 namespace Entity;
 
 /// <summary>

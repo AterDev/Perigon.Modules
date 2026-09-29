@@ -4,13 +4,13 @@ import { CommonListModules } from 'src/app/modules/share/shared-modules';
 import { AdminClient } from 'src/app/services/admin/admin-client';
 import { ResEnvironment } from 'src/app/services/admin/models/entity/res-environment.model';
 import { ResCategory } from 'src/app/services/admin/models/entity/res-category.model';
-import { SystemRole } from 'src/app/services/admin/models/entity/system-role.model';
+import { SysRole } from 'src/app/services/admin/models/entity/sys-role.model';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { TranslateService } from '@ngx-translate/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ConfirmDialogComponent } from 'src/app/modules/share/components/confirm-dialog/confirm-dialog.component';
 import { ResourceInputDialogComponent, ResourceInputDialogData } from 'src/app/modules/resource/dialogs/input-dialog/input-dialog';
-import { SystemRoleItemDto } from 'src/app/services/admin/models/system-mod/system-role-item-dto.model';
+import { SysRoleItemDto } from 'src/app/services/admin/models/system-mod/sys-role-item-dto.model';
 import { resourceIconName, resourceIconStyle } from 'src/app/modules/resource/shared/resource-appearance';
 import { forkJoin } from 'rxjs';
 
@@ -31,7 +31,7 @@ export class ResourceConfigIndexComponent {
   private readonly dialog = inject(MatDialog);
   readonly environments = signal<ResEnvironment[]>([]);
   readonly categories = signal<ResCategory[]>([]);
-  readonly roles = signal<SystemRoleItemDto[]>([]);
+  readonly roles = signal<SysRoleItemDto[]>([]);
   permissionEnvironmentId = '';
   permissionCategoryId = '';
   permissionRoleIds: string[] = [];
@@ -43,7 +43,7 @@ export class ResourceConfigIndexComponent {
     forkJoin({
       environments: this.client.resourceConfiguration.environments(),
       categories: this.client.resourceConfiguration.categories(),
-      roles: this.client.systemRole.list(null, null, 1, 100, null),
+      roles: this.client.sysRole.list(null, null, 1, 100, null),
     }).subscribe((result) => {
       this.environments.set(result.environments);
       this.categories.set(result.categories);

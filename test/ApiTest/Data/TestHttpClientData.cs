@@ -1,11 +1,11 @@
-﻿using Share.Models.Auth;
+using Share.Models.Auth;
 using Perigon.AspNetCore.Constants;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text.Json;
 using SystemMod.Models;
-using SystemMod.Models.SystemRoleDtos;
-using SystemMod.Models.SystemUserDtos;
+using SystemMod.Models.SysRoleDtos;
+using SystemMod.Models.SysUserDtos;
 using TUnit.Core.Interfaces;
 
 namespace ApiTest.Data;
@@ -37,7 +37,7 @@ public class TestHttpClientData : IAsyncInitializer, IAsyncDisposable
             Password = "Perigon.2026",
         };
 
-        using var resp = await HttpClient.PostAsJsonAsync("/api/systemUser/authorize", loginDto);
+        using var resp = await HttpClient.PostAsJsonAsync("/api/SysUser/authorize", loginDto);
         resp.EnsureSuccessStatusCode();
         var token = await resp.Content.ReadFromJsonAsync<AccessTokenDto>();
         if (token is null || string.IsNullOrWhiteSpace(token.AccessToken))
@@ -50,15 +50,15 @@ public class TestHttpClientData : IAsyncInitializer, IAsyncDisposable
     }
 
     /// <summary>
-    /// Creates and logs in a SystemUser with the ordinary User role for API tests.
+    /// Creates and logs in a SysUser with the ordinary User role for API tests.
     /// </summary>
-    public async Task<(HttpClient Client, Guid UserId)> CreateSystemUserClientAsync()
+    public async Task<(HttpClient Client, Guid UserId)> CreateSysUserClientAsync()
     {
         Guid userRoleId = await EnsureUserRoleAsync();
         string suffix = Guid.CreateVersion7().ToString("N");
         string email = $"user-{suffix}@default.com";
         string password = "Perigon.User.2026";
-        SystemUserAddDto addDto = new()
+        SysUserAddDto addDto = new()
         {
             UserName = $"user-{suffix[..20]}",
             Email = email,
@@ -67,20 +67,20 @@ public class TestHttpClientData : IAsyncInitializer, IAsyncDisposable
         };
 
         using HttpResponseMessage createResponse = await HttpClient.PostAsJsonAsync(
-            "/api/SystemUser",
+            "/api/SysUser",
             addDto);
-        await EnsureStatusAsync(createResponse, HttpStatusCode.Created, "/api/SystemUser");
+        await EnsureStatusAsync(createResponse, HttpStatusCode.Created, "/api/SysUser");
         using JsonDocument created = await ReadJsonAsync(createResponse);
         Guid userId = created.RootElement.GetProperty("id").GetGuid();
 
         HttpClient client = (GlobalHooks.App ?? throw new NullReferenceException())
             .CreateHttpClient("AdminService");
         using HttpResponseMessage loginResponse = await client.PostAsJsonAsync(
-            "/api/systemUser/authorize",
-            new SystemLoginDto { Email = email, Password = password });
-        await EnsureStatusAsync(loginResponse, HttpStatusCode.OK, "/api/systemUser/authorize");
+            "/api/SysUser/authorize",
+            new SysLoginDto { Email = email, Password = password });
+        await EnsureStatusAsync(loginResponse, HttpStatusCode.OK, "/api/SysUser/authorize");
         AccessTokenDto token = await loginResponse.Content.ReadFromJsonAsync<AccessTokenDto>()
-            ?? throw new InvalidOperationException("SystemUser login returned an empty access token.");
+            ?? throw new InvalidOperationException("SysUser login returned an empty access token.");
         client.DefaultRequestHeaders.Authorization =
             new AuthenticationHeaderValue("Bearer", token.AccessToken);
         _systemUserClients.Add(client);
@@ -93,8 +93,8 @@ public class TestHttpClientData : IAsyncInitializer, IAsyncDisposable
         try
         {
             using HttpResponseMessage listResponse = await HttpClient.GetAsync(
-                "/api/SystemRole?nameValue=User&pageSize=100");
-            await EnsureStatusAsync(listResponse, HttpStatusCode.OK, "/api/SystemRole");
+                "/api/SysRole?nameValue=User&pageSize=100");
+            await EnsureStatusAsync(listResponse, HttpStatusCode.OK, "/api/SysRole");
             using JsonDocument roles = await ReadJsonAsync(listResponse);
             JsonElement existing = roles.RootElement.GetProperty("data").EnumerateArray()
                 .FirstOrDefault(item => item.GetProperty("nameValue").GetString() == WebConst.User);
@@ -104,14 +104,14 @@ public class TestHttpClientData : IAsyncInitializer, IAsyncDisposable
             }
 
             using HttpResponseMessage createResponse = await HttpClient.PostAsJsonAsync(
-                "/api/SystemRole",
-                new SystemRoleAddDto
+                "/api/SysRole",
+                new SysRoleAddDto
                 {
                     Name = WebConst.User,
                     NameValue = WebConst.User,
                     IsSystem = true
                 });
-            await EnsureStatusAsync(createResponse, HttpStatusCode.Created, "/api/SystemRole");
+            await EnsureStatusAsync(createResponse, HttpStatusCode.Created, "/api/SysRole");
             using JsonDocument created = await ReadJsonAsync(createResponse);
             return created.RootElement.GetProperty("id").GetGuid();
         }

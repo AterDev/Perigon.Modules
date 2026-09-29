@@ -66,7 +66,7 @@ export class Login implements AfterViewInit {
   doLogin(): void {
     if (this.loginForm.invalid) return;
     const data = this.loginForm.getRawValue();
-    this.adminClient.systemUser
+    this.adminClient.sysUser
       .login({ email: data.email ?? '', password: data.password ?? '' })
       .subscribe((res) => {
         this.authService.saveToken(res);
@@ -75,7 +75,7 @@ export class Login implements AfterViewInit {
   }
 
   getUserInfo(): void {
-    this.adminClient.systemUser.getUserInfo().subscribe((res) => {
+    this.adminClient.sysUser.getUserInfo().subscribe((res) => {
       this.authService.saveUserInfo(res);
       this.router.navigate(['/system']);
     });

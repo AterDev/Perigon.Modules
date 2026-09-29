@@ -712,7 +712,7 @@ namespace EntityFramework.Migrations
                     b.ToTable("UserResources");
                 });
 
-            modelBuilder.Entity("Entity.SystemMod.SystemConfig", b =>
+            modelBuilder.Entity("Entity.SystemMod.SysConfig", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -764,7 +764,97 @@ namespace EntityFramework.Migrations
                     b.ToTable("SystemConfigs");
                 });
 
-            modelBuilder.Entity("Entity.SystemMod.SystemLogs", b =>
+            modelBuilder.Entity("Entity.SystemMod.SysDataScope", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("CreatedTime")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("GroupId")
+                        .HasColumnType("uuid");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(60)
+                        .HasColumnType("character varying(60)");
+
+                    b.Property<string>("ResourceCode")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)");
+
+                    b.Property<int>("ScopeType")
+                        .HasColumnType("integer");
+
+                    b.PrimitiveCollection<List<Guid>>("TargetIds")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid[]")
+                        .HasDefaultValueSql("ARRAY[]::uuid[]");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("UpdatedTime")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("GroupId");
+
+                    b.HasIndex("TenantId", "GroupId");
+
+                    b.HasIndex("TenantId", "Name");
+
+                    b.ToTable("SystemPermissions");
+                });
+
+            modelBuilder.Entity("Entity.SystemMod.SysDataScopeGroup", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("CreatedTime")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsEnabled")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true);
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("UpdatedTime")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TenantId", "Name");
+
+                    b.ToTable("SystemPermissionGroups");
+                });
+
+            modelBuilder.Entity("Entity.SystemMod.SysLogs", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -793,7 +883,7 @@ namespace EntityFramework.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("character varying(200)");
 
-                    b.Property<Guid>("SystemUserId")
+                    b.Property<Guid>("SysUserId")
                         .HasColumnType("uuid");
 
                     b.Property<string>("TargetName")
@@ -808,11 +898,11 @@ namespace EntityFramework.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("SystemUserId");
+                    b.HasIndex("SysUserId");
 
                     b.HasIndex("TenantId", "CreatedTime");
 
-                    b.HasIndex("TenantId", "SystemUserId");
+                    b.HasIndex("TenantId", "SysUserId");
 
                     b.HasIndex("TenantId", "ActionType", "CreatedTime");
 
@@ -821,7 +911,7 @@ namespace EntityFramework.Migrations
                     b.ToTable("SystemLogs");
                 });
 
-            modelBuilder.Entity("Entity.SystemMod.SystemMenu", b =>
+            modelBuilder.Entity("Entity.SystemMod.SysMenu", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -885,7 +975,7 @@ namespace EntityFramework.Migrations
                     b.ToTable("SystemMenus");
                 });
 
-            modelBuilder.Entity("Entity.SystemMod.SystemMenuRole", b =>
+            modelBuilder.Entity("Entity.SystemMod.SysMenuRole", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -903,10 +993,10 @@ namespace EntityFramework.Migrations
                     b.Property<Guid>("RoleId")
                         .HasColumnType("uuid");
 
-                    b.Property<Guid>("SystemMenuId")
+                    b.Property<Guid>("SysMenuId")
                         .HasColumnType("uuid");
 
-                    b.Property<Guid>("SystemRoleId")
+                    b.Property<Guid>("SysRoleId")
                         .HasColumnType("uuid");
 
                     b.Property<Guid>("TenantId")
@@ -917,13 +1007,13 @@ namespace EntityFramework.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("SystemMenuId");
+                    b.HasIndex("SysMenuId");
 
-                    b.HasIndex("SystemRoleId");
+                    b.HasIndex("SysRoleId");
 
-                    b.HasIndex("TenantId", "SystemMenuId");
+                    b.HasIndex("TenantId", "SysMenuId");
 
-                    b.HasIndex("TenantId", "SystemRoleId");
+                    b.HasIndex("TenantId", "SysRoleId");
 
                     b.HasIndex("TenantId", "RoleId", "MenuId")
                         .IsUnique()
@@ -932,7 +1022,7 @@ namespace EntityFramework.Migrations
                     b.ToTable("SystemMenuRoles");
                 });
 
-            modelBuilder.Entity("Entity.SystemMod.SystemOrganization", b =>
+            modelBuilder.Entity("Entity.SystemMod.SysOrganization", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -969,88 +1059,7 @@ namespace EntityFramework.Migrations
                     b.ToTable("SystemOrganizations");
                 });
 
-            modelBuilder.Entity("Entity.SystemMod.SystemPermission", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTimeOffset>("CreatedTime")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("Description")
-                        .HasMaxLength(200)
-                        .HasColumnType("character varying(200)");
-
-                    b.Property<bool>("Enable")
-                        .HasColumnType("boolean");
-
-                    b.Property<Guid>("GroupId")
-                        .HasColumnType("uuid");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("boolean");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(60)
-                        .HasColumnType("character varying(60)");
-
-                    b.Property<int>("PermissionType")
-                        .HasColumnType("integer");
-
-                    b.Property<Guid>("TenantId")
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTimeOffset>("UpdatedTime")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("GroupId");
-
-                    b.HasIndex("TenantId", "GroupId");
-
-                    b.HasIndex("TenantId", "Name");
-
-                    b.ToTable("SystemPermissions");
-                });
-
-            modelBuilder.Entity("Entity.SystemMod.SystemPermissionGroup", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTimeOffset>("CreatedTime")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("Description")
-                        .HasMaxLength(1000)
-                        .HasColumnType("character varying(1000)");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("boolean");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(30)
-                        .HasColumnType("character varying(30)");
-
-                    b.Property<Guid>("TenantId")
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTimeOffset>("UpdatedTime")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("TenantId", "Name");
-
-                    b.ToTable("SystemPermissionGroups");
-                });
-
-            modelBuilder.Entity("Entity.SystemMod.SystemRole", b =>
+            modelBuilder.Entity("Entity.SystemMod.SysRole", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -1096,7 +1105,7 @@ namespace EntityFramework.Migrations
                     b.ToTable("SystemRoles");
                 });
 
-            modelBuilder.Entity("Entity.SystemMod.SystemUser", b =>
+            modelBuilder.Entity("Entity.SystemMod.SysUser", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -1188,7 +1197,46 @@ namespace EntityFramework.Migrations
                     b.ToTable("SystemUsers");
                 });
 
-            modelBuilder.Entity("Entity.SystemMod.SystemUserRole", b =>
+            modelBuilder.Entity("Entity.SystemMod.SysUserDataScopeGroup", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("CreatedTime")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("DataScopeGroupId")
+                        .HasColumnType("uuid");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("UpdatedTime")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DataScopeGroupId");
+
+                    b.HasIndex("UserId");
+
+                    b.HasIndex("TenantId", "DataScopeGroupId");
+
+                    b.HasIndex("TenantId", "UserId", "DataScopeGroupId")
+                        .IsUnique()
+                        .HasFilter("\"IsDeleted\" = false");
+
+                    b.ToTable("SysUserDataScopeGroups");
+                });
+
+            modelBuilder.Entity("Entity.SystemMod.SysUserRole", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -1290,7 +1338,7 @@ namespace EntityFramework.Migrations
 
                     b.HasIndex("SystemRolesId");
 
-                    b.ToTable("SystemMenuSystemRole");
+                    b.ToTable("SystemMenuSystemRole", (string)null);
                 });
 
             modelBuilder.Entity("SystemOrganizationSystemUser", b =>
@@ -1305,22 +1353,7 @@ namespace EntityFramework.Migrations
 
                     b.HasIndex("UsersId");
 
-                    b.ToTable("SystemOrganizationSystemUser");
-                });
-
-            modelBuilder.Entity("SystemPermissionGroupSystemRole", b =>
-                {
-                    b.Property<Guid>("PermissionGroupsId")
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid>("RolesId")
-                        .HasColumnType("uuid");
-
-                    b.HasKey("PermissionGroupsId", "RolesId");
-
-                    b.HasIndex("RolesId");
-
-                    b.ToTable("SystemPermissionGroupSystemRole");
+                    b.ToTable("SystemOrganizationSystemUser", (string)null);
                 });
 
             modelBuilder.Entity("SystemRoleSystemUser", b =>
@@ -1335,7 +1368,7 @@ namespace EntityFramework.Migrations
 
                     b.HasIndex("UsersId");
 
-                    b.ToTable("SystemRoleSystemUser");
+                    b.ToTable("SystemRoleSystemUser", (string)null);
                 });
 
             modelBuilder.Entity("Entity.CMSMod.Article", b =>
@@ -1500,58 +1533,10 @@ namespace EntityFramework.Migrations
                     b.Navigation("Definition");
                 });
 
-            modelBuilder.Entity("Entity.SystemMod.SystemLogs", b =>
+            modelBuilder.Entity("Entity.SystemMod.SysDataScope", b =>
                 {
-                    b.HasOne("Entity.SystemMod.SystemUser", "SystemUser")
-                        .WithMany("SystemLogs")
-                        .HasForeignKey("SystemUserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("SystemUser");
-                });
-
-            modelBuilder.Entity("Entity.SystemMod.SystemMenu", b =>
-                {
-                    b.HasOne("Entity.SystemMod.SystemMenu", "Parent")
-                        .WithMany("Children")
-                        .HasForeignKey("ParentId");
-
-                    b.Navigation("Parent");
-                });
-
-            modelBuilder.Entity("Entity.SystemMod.SystemMenuRole", b =>
-                {
-                    b.HasOne("Entity.SystemMod.SystemMenu", "SystemMenu")
-                        .WithMany()
-                        .HasForeignKey("SystemMenuId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Entity.SystemMod.SystemRole", "SystemRole")
-                        .WithMany()
-                        .HasForeignKey("SystemRoleId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("SystemMenu");
-
-                    b.Navigation("SystemRole");
-                });
-
-            modelBuilder.Entity("Entity.SystemMod.SystemOrganization", b =>
-                {
-                    b.HasOne("Entity.SystemMod.SystemOrganization", "Parent")
-                        .WithMany("Children")
-                        .HasForeignKey("ParentId");
-
-                    b.Navigation("Parent");
-                });
-
-            modelBuilder.Entity("Entity.SystemMod.SystemPermission", b =>
-                {
-                    b.HasOne("Entity.SystemMod.SystemPermissionGroup", "Group")
-                        .WithMany("Permissions")
+                    b.HasOne("Entity.SystemMod.SysDataScopeGroup", "Group")
+                        .WithMany("DataScopes")
                         .HasForeignKey("GroupId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -1559,16 +1544,83 @@ namespace EntityFramework.Migrations
                     b.Navigation("Group");
                 });
 
-            modelBuilder.Entity("Entity.SystemMod.SystemUserRole", b =>
+            modelBuilder.Entity("Entity.SystemMod.SysLogs", b =>
                 {
-                    b.HasOne("Entity.SystemMod.SystemRole", "Role")
+                    b.HasOne("Entity.SystemMod.SysUser", "SysUser")
+                        .WithMany("SysLogs")
+                        .HasForeignKey("SysUserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("SysUser");
+                });
+
+            modelBuilder.Entity("Entity.SystemMod.SysMenu", b =>
+                {
+                    b.HasOne("Entity.SystemMod.SysMenu", "Parent")
+                        .WithMany("Children")
+                        .HasForeignKey("ParentId");
+
+                    b.Navigation("Parent");
+                });
+
+            modelBuilder.Entity("Entity.SystemMod.SysMenuRole", b =>
+                {
+                    b.HasOne("Entity.SystemMod.SysMenu", "SysMenu")
                         .WithMany()
+                        .HasForeignKey("SysMenuId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Entity.SystemMod.SysRole", "SysRole")
+                        .WithMany()
+                        .HasForeignKey("SysRoleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("SysMenu");
+
+                    b.Navigation("SysRole");
+                });
+
+            modelBuilder.Entity("Entity.SystemMod.SysOrganization", b =>
+                {
+                    b.HasOne("Entity.SystemMod.SysOrganization", "Parent")
+                        .WithMany("Children")
+                        .HasForeignKey("ParentId");
+
+                    b.Navigation("Parent");
+                });
+
+            modelBuilder.Entity("Entity.SystemMod.SysUserDataScopeGroup", b =>
+                {
+                    b.HasOne("Entity.SystemMod.SysDataScopeGroup", "DataScopeGroup")
+                        .WithMany("Users")
+                        .HasForeignKey("DataScopeGroupId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Entity.SystemMod.SysUser", "User")
+                        .WithMany("DataScopeGroups")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("DataScopeGroup");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Entity.SystemMod.SysUserRole", b =>
+                {
+                    b.HasOne("Entity.SystemMod.SysRole", "Role")
+                        .WithMany("SysUserRoles")
                         .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Entity.SystemMod.SystemUser", "User")
-                        .WithMany()
+                    b.HasOne("Entity.SystemMod.SysUser", "User")
+                        .WithMany("SysUserRoles")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -1580,13 +1632,13 @@ namespace EntityFramework.Migrations
 
             modelBuilder.Entity("SystemMenuSystemRole", b =>
                 {
-                    b.HasOne("Entity.SystemMod.SystemMenu", null)
+                    b.HasOne("Entity.SystemMod.SysMenu", null)
                         .WithMany()
                         .HasForeignKey("SystemMenusId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Entity.SystemMod.SystemRole", null)
+                    b.HasOne("Entity.SystemMod.SysRole", null)
                         .WithMany()
                         .HasForeignKey("SystemRolesId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -1595,43 +1647,28 @@ namespace EntityFramework.Migrations
 
             modelBuilder.Entity("SystemOrganizationSystemUser", b =>
                 {
-                    b.HasOne("Entity.SystemMod.SystemOrganization", null)
+                    b.HasOne("Entity.SystemMod.SysOrganization", null)
                         .WithMany()
                         .HasForeignKey("SystemOrganizationsId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Entity.SystemMod.SystemUser", null)
+                    b.HasOne("Entity.SystemMod.SysUser", null)
                         .WithMany()
                         .HasForeignKey("UsersId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("SystemPermissionGroupSystemRole", b =>
-                {
-                    b.HasOne("Entity.SystemMod.SystemPermissionGroup", null)
-                        .WithMany()
-                        .HasForeignKey("PermissionGroupsId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Entity.SystemMod.SystemRole", null)
-                        .WithMany()
-                        .HasForeignKey("RolesId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
             modelBuilder.Entity("SystemRoleSystemUser", b =>
                 {
-                    b.HasOne("Entity.SystemMod.SystemRole", null)
+                    b.HasOne("Entity.SystemMod.SysRole", null)
                         .WithMany()
                         .HasForeignKey("SystemRolesId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Entity.SystemMod.SystemUser", null)
+                    b.HasOne("Entity.SystemMod.SysUser", null)
                         .WithMany()
                         .HasForeignKey("UsersId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -1690,24 +1727,35 @@ namespace EntityFramework.Migrations
                     b.Navigation("Values");
                 });
 
-            modelBuilder.Entity("Entity.SystemMod.SystemMenu", b =>
+            modelBuilder.Entity("Entity.SystemMod.SysDataScopeGroup", b =>
+                {
+                    b.Navigation("DataScopes");
+
+                    b.Navigation("Users");
+                });
+
+            modelBuilder.Entity("Entity.SystemMod.SysMenu", b =>
                 {
                     b.Navigation("Children");
                 });
 
-            modelBuilder.Entity("Entity.SystemMod.SystemOrganization", b =>
+            modelBuilder.Entity("Entity.SystemMod.SysOrganization", b =>
                 {
                     b.Navigation("Children");
                 });
 
-            modelBuilder.Entity("Entity.SystemMod.SystemPermissionGroup", b =>
+            modelBuilder.Entity("Entity.SystemMod.SysRole", b =>
                 {
-                    b.Navigation("Permissions");
+                    b.Navigation("SysUserRoles");
                 });
 
-            modelBuilder.Entity("Entity.SystemMod.SystemUser", b =>
+            modelBuilder.Entity("Entity.SystemMod.SysUser", b =>
                 {
-                    b.Navigation("SystemLogs");
+                    b.Navigation("DataScopeGroups");
+
+                    b.Navigation("SysLogs");
+
+                    b.Navigation("SysUserRoles");
                 });
 #pragma warning restore 612, 618
         }

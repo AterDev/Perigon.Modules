@@ -7,23 +7,23 @@ import { I18N_KEYS } from 'src/app/modules/share/i18n-keys';
 import { CommonFormModules } from 'src/app/modules/share/shared-modules';
 import { AdminClient } from 'src/app/services/admin/admin-client';
 import { GenderType } from 'src/app/services/admin/models/perigon/gender-type.model';
-import { SystemRoleItemDto } from 'src/app/services/admin/models/system-mod/system-role-item-dto.model';
+import { SysRoleItemDto } from 'src/app/services/admin/models/system-mod/sys-role-item-dto.model';
 
 @Component({
-  selector: 'app-system-user-add',
+  selector: 'app-sys-user-add',
   imports: CommonFormModules,
   templateUrl: './add.html',
   styleUrl: './add.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class SystemUserAddComponent {
+export class SysUserAddComponent {
   readonly i18nKeys = I18N_KEYS;
   private readonly fb = inject(FormBuilder);
   private readonly client = inject(AdminClient);
-  private readonly dialogRef = inject(MatDialogRef<SystemUserAddComponent>);
+  private readonly dialogRef = inject(MatDialogRef<SysUserAddComponent>);
   private readonly snackBar = inject(MatSnackBar);
   private readonly translate = inject(TranslateService);
-  readonly roles = signal<SystemRoleItemDto[]>([]);
+  readonly roles = signal<SysRoleItemDto[]>([]);
   readonly genders = [
     { value: GenderType.Male, labelKey: I18N_KEYS.systemUser.genderTypes.male },
     { value: GenderType.Female, labelKey: I18N_KEYS.systemUser.genderTypes.female },
@@ -42,7 +42,7 @@ export class SystemUserAddComponent {
   });
 
   constructor() {
-    this.client.systemRole
+    this.client.sysRole
       .list(null, null, 1, 100, null)
       .subscribe((page) => this.roles.set(page.data));
   }
@@ -53,7 +53,7 @@ export class SystemUserAddComponent {
       return;
     }
     this.saving = true;
-    this.client.systemUser.add(this.form.getRawValue()).subscribe({
+    this.client.sysUser.add(this.form.getRawValue()).subscribe({
       next: () => {
         this.snackBar.open(
           this.translate.instant(this.i18nKeys.systemUser.createSuccess),

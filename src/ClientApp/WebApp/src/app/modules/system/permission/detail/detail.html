@@ -1,6 +1,6 @@
 <section class="page">
   <header>
-    @if (permission(); as item) {
+    @if (dataScope(); as item) {
       <button
         mat-flat-button
         type="button"
@@ -13,26 +13,30 @@
     }
   </header>
 
-  @if (permission(); as item) {
+  @if (dataScope(); as item) {
     <mat-card>
       <mat-card-content>
         <dl>
-          <dt>{{ i18nKeys.systemPermission.name | translate }}</dt>
+          <dt>{{ i18nKeys.sysDataScope.name | translate }}</dt>
           <dd><code>{{ item.name }}</code></dd>
-          <dt>{{ i18nKeys.systemPermission.description | translate }}</dt>
-          <dd>{{ item.description || '-' }}</dd>
-          <dt>{{ i18nKeys.systemPermission.typeValue | translate }}</dt>
-          <dd>{{ item.permissionType }}</dd>
-          <dt>{{ i18nKeys.systemPermission.status | translate }}</dt>
+          <dt>{{ i18nKeys.sysDataScope.resourceCode | translate }}</dt>
+          <dd><code>{{ item.resourceCode }}</code></dd>
+          <dt>{{ i18nKeys.sysDataScope.scopeType | translate }}</dt>
+          <dd>{{ scopeTypeKey(item.scopeType) | translate }}</dd>
+          <dt>{{ i18nKeys.sysDataScope.group | translate }}</dt>
+          <dd>{{ groupName() || item.groupId }}</dd>
+          <dt>{{ i18nKeys.sysDataScope.targetIds | translate }}</dt>
           <dd>
-            {{
-              item.enable
-                ? (i18nKeys.systemPermission.enabled | translate)
-                : (i18nKeys.systemPermission.disabled | translate)
-            }}
+            @if (item.targetIds.length === 0) {
+              {{ i18nKeys.common.none | translate }}
+            } @else {
+              <ul>
+                @for (targetId of item.targetIds; track targetId) {
+                  <li><code>{{ targetId }}</code></li>
+                }
+              </ul>
+            }
           </dd>
-          <dt>{{ i18nKeys.systemPermission.group | translate }}</dt>
-          <dd>{{ item.group.name }}</dd>
         </dl>
       </mat-card-content>
     </mat-card>
