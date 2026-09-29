@@ -42,9 +42,9 @@ public class SysMenu : EntityBase, ITreeNode<SysMenu>
     public List<SysMenu> Children { get; set; } = [];
 
     /// <summary>
-    /// 所属角色
+    /// 所属角色关联
     /// </summary>
-    public ICollection<SysRole> SysRoles { get; set; } = [];
+    public ICollection<SysMenuRole> SysMenuRoles { get; set; } = [];
 
     /// <summary>
     /// 权限编码

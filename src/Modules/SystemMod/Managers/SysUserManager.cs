@@ -143,15 +143,14 @@ public class SysUserManager(
     /// <returns></returns>
     public async Task<AccessTokenDto> GenerateJwtTokenAsync(SysUser user)
     {
-        // 兼容系统初始化的隐式多对多关系和用户管理使用的显式关联表。
+        // 通过显式关联表查询用户角色。
         List<SysRole> assignedRoles = await _dbContext.SysRoles
             .Where(role =>
                 role.TenantId == _userContext.TenantId &&
-                (role.Users.Any(assignedUser => assignedUser.Id == user.Id) ||
-                 _dbContext.SysUserRoles.Any(userRole =>
-                     userRole.UserId == user.Id &&
-                     userRole.TenantId == _userContext.TenantId &&
-                     userRole.RoleId == role.Id)))
+                _dbContext.SysUserRoles.Any(userRole =>
+                    userRole.UserId == user.Id &&
+                    userRole.TenantId == _userContext.TenantId &&
+                    userRole.RoleId == role.Id))
             .ToListAsync();
         List<string> roles = assignedRoles
             .Select(role => role.NameValue)
@@ -211,8 +210,8 @@ public class SysUserManager(
         if (filter.RoleId != null)
         {
             Queryable = Queryable.Where(q => q
-                .SysRoles
-                .Any(r => r.Id == filter.RoleId));
+                .SysUserRoles
+                .Any(ur => ur.RoleId == filter.RoleId));
         }
         return await PageListAsync<SysUserFilterDto, SysUserItemDto>(filter);
     }
@@ -273,7 +272,8 @@ public class SysUserManager(
     {
         return await Queryable
             .Where(q => q.Id == id)
-            .Include(q => q.SysRoles)
+            .Include(q => q.SysUserRoles)
+            .ThenInclude(ur => ur.Role)
             .FirstOrDefaultAsync();
     }
 
@@ -290,7 +290,8 @@ public class SysUserManager(
         // 查询用户
         var user = await _dbSet
             .Where(u => u.Email == dto.Email)
-            .Include(u => u.SysRoles)
+            .Include(u => u.SysUserRoles)
+            .ThenInclude(ur => ur.Role)
             .FirstOrDefaultAsync() ?? throw new BusinessException(Localizer.UserNotExists);
         try
         {

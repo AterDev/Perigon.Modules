@@ -14,18 +14,16 @@ public class SysUserController(
         CacheService cache,
         SysUserManager manager,
         SysDataScopeGroupManager dataScopeGroupManager,
+        SysConfigManager sysConfigManager,
+        SysRoleManager roleManager,
         IUserContext user,
-        ILogger<SysUserController> logger,
-        IServiceProvider serviceProvider
+        ILogger<SysUserController> logger
 ) : RestControllerBase<SysUserManager>(localizer, manager, user, logger)
 {
-    private readonly IServiceProvider _serviceProvider = serviceProvider;
     private readonly CacheService _cache = cache;
     private readonly SysDataScopeGroupManager _dataScopeGroupManager = dataScopeGroupManager;
-    private SysConfigManager SysConfig =>
-        _serviceProvider.GetRequiredService<SysConfigManager>();
-    private SysRoleManager RoleManager =>
-        _serviceProvider.GetRequiredService<SysRoleManager>();
+    private readonly SysConfigManager _sysConfigManager = sysConfigManager;
+    private readonly SysRoleManager _roleManager = roleManager;
 
     /// <summary>
     /// 登录时，发送邮箱验证码 ✅
@@ -97,9 +95,9 @@ public class SysUserController(
         }
 
         var menus = new List<SysMenu>();
-        if (user.SysRoles != null)
+        if (user.SysUserRoles != null)
         {
-            menus = await RoleManager.GetSysMenusAsync([.. user.SysRoles]);
+            menus = await _roleManager.GetSysMenusAsync([.. user.SysUserRoles.Select(ur => ur.Role)]);
         }
         List<SysUserDataScopeGroupItemDto> dataScopeGroups =
             await _dataScopeGroupManager.GetUserDataScopeGroupsAsync(user.Id);
@@ -108,7 +106,7 @@ public class SysUserController(
         {
             Id = user.Id,
             Username = user.UserName ?? string.Empty,
-            Roles = user.SysRoles?.Select(r => r.NameValue).ToArray() ?? [],
+            Roles = user.SysUserRoles?.Select(ur => ur.Role.NameValue).ToArray() ?? [],
             Menus = menus,
             DataScopeGroups = dataScopeGroups,
         };
@@ -137,7 +135,7 @@ public class SysUserController(
         }
         AccessTokenDto jwtToken = await _manager.GenerateJwtTokenAsync(user);
         // 更新缓存
-        var loginPolicy = await SysConfig.GetLoginSecurityPolicyAsync();
+        var loginPolicy = await _sysConfigManager.GetLoginSecurityPolicyAsync();
         var client = HttpContext.Request.Headers[WebConst.ClientHeader].FirstOrDefault() ?? WebConst.Web;
         if (loginPolicy.SessionLevel == SessionLevel.OnlyOne)
         {
@@ -191,7 +189,7 @@ public class SysUserController(
         List<SysRole>? roles = null;
         if (dto.RoleIds != null && dto.RoleIds.Count != 0)
         {
-            roles = await RoleManager.ListAsync(r => dto
+            roles = await _roleManager.ListAsync(r => dto
                 .RoleIds
                 .Contains(r.Id));
         }
@@ -216,7 +214,7 @@ public class SysUserController(
         List<SysRole>? roles = null;
         if (dto.RoleIds != null)
         {
-            roles = await RoleManager.ListAsync(r => dto
+            roles = await _roleManager.ListAsync(r => dto
                 .RoleIds
                 .Contains(r.Id));
         }

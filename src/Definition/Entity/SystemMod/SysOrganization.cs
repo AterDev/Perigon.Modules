@@ -23,5 +23,9 @@ public class SysOrganization : EntityBase, ITreeNode<SysOrganization>
     [ForeignKey(nameof(ParentId))]
     public SysOrganization? Parent { get; set; }
     public Guid? ParentId { get; set; }
-    public ICollection<SysUser> Users { get; set; } = [];
+
+    /// <summary>
+    /// 组织用户关联
+    /// </summary>
+    public ICollection<SysUserOrganization> SysUserOrganizations { get; set; } = [];
 }

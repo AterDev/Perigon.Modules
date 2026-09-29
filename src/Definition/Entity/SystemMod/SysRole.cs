@@ -29,11 +29,10 @@ public class SysRole : EntityBase
     /// </summary>
     [MaxLength(30)]
     public string? Icon { get; set; }
-    public ICollection<SysUser> Users { get; set; } = [];
-
     public ICollection<SysUserRole> SysUserRoles { get; set; } = [];
+
     /// <summary>
-    /// 菜单权限
+    /// 菜单权限关联
     /// </summary>
-    public ICollection<SysMenu> SysMenus { get; set; } = [];
+    public ICollection<SysMenuRole> SysMenuRoles { get; set; } = [];
 }

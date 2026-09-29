@@ -66,10 +66,9 @@ public class SysUser : EntityBase
     /// </summary>
     [MaxLength(200)]
     public string? Avatar { get; set; }
-    public ICollection<SysRole> SysRoles { get; set; } = [];
     public ICollection<SysUserRole> SysUserRoles { get; set; } = [];
     public ICollection<SysLogs> SysLogs { get; set; } = [];
-    public ICollection<SysOrganization> SysOrganizations { get; set; } = [];
+    public ICollection<SysUserOrganization> SysUserOrganizations { get; set; } = [];
 
     /// <summary>
     /// 数据权限关联表

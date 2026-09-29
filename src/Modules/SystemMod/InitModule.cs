@@ -90,7 +90,11 @@ public class InitModule
             Email = $"admin@{tenant.Domain}",
             PasswordSalt = salt,
             PasswordHash = HashCrypto.GeneratePwd(defaultPassword, salt),
-            SysRoles = [superRole, adminRole],
+            SysUserRoles =
+            [
+                new SysUserRole { Role = superRole, TenantId = tenant.Id },
+                new SysUserRole { Role = adminRole, TenantId = tenant.Id },
+            ],
             TenantId = tenant.Id,
         };
 

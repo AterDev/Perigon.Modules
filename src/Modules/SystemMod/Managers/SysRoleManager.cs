@@ -39,7 +39,7 @@ public class SysRoleManager(
     {
         IEnumerable<Guid> ids = systemRoles.Select(r => r.Id);
         return await _dbContext
-            .SysMenus.Where(m => m.SysRoles.Any(r => ids.Contains(r.Id)))
+            .SysMenus.Where(m => m.SysMenuRoles.Any(mr => ids.Contains(mr.RoleId)))
             .ToListAsync();
     }
 
@@ -96,14 +96,21 @@ public class SysRoleManager(
                 );
             }
 
-            await _dbContext.Entry(current).Collection(r => r.SysMenus).LoadAsync();
+            // 先删除现有菜单角色关联
+            await _dbContext.SysMenuRoles
+                .Where(mr => mr.RoleId == current.Id)
+                .ExecuteDeleteAsync();
 
             var menus = await _dbContext
                 .SysMenus.Where(m => dto.MenuIds.Contains(m.Id))
                 .ToListAsync();
 
-            current.SysMenus = menus;
-            _dbSet.Update(current);
+            _dbContext.SysMenuRoles.AddRange(menus.Select(menu => new SysMenuRole
+            {
+                MenuId = menu.Id,
+                RoleId = current.Id,
+                TenantId = _userContext.TenantId,
+            }));
             await _dbContext.SaveChangesAsync();
 
             return current;

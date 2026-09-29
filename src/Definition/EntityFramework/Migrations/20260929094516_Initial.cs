@@ -128,7 +128,7 @@ namespace EntityFramework.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "SystemConfigs",
+                name: "SysConfigs",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
@@ -145,11 +145,29 @@ namespace EntityFramework.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_SystemConfigs", x => x.Id);
+                    table.PrimaryKey("PK_SysConfigs", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
-                name: "SystemMenus",
+                name: "SysDataScopeGroups",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    Name = table.Column<string>(type: "character varying(30)", maxLength: 30, nullable: false),
+                    Description = table.Column<string>(type: "character varying(1000)", maxLength: 1000, nullable: true),
+                    IsEnabled = table.Column<bool>(type: "boolean", nullable: false, defaultValue: true),
+                    CreatedTime = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    UpdatedTime = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "boolean", nullable: false),
+                    TenantId = table.Column<Guid>(type: "uuid", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_SysDataScopeGroups", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "SysMenus",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
@@ -169,16 +187,16 @@ namespace EntityFramework.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_SystemMenus", x => x.Id);
+                    table.PrimaryKey("PK_SysMenus", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_SystemMenus_SystemMenus_ParentId",
+                        name: "FK_SysMenus_SysMenus_ParentId",
                         column: x => x.ParentId,
-                        principalTable: "SystemMenus",
+                        principalTable: "SysMenus",
                         principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
-                name: "SystemOrganizations",
+                name: "SysOrganizations",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
@@ -191,33 +209,16 @@ namespace EntityFramework.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_SystemOrganizations", x => x.Id);
+                    table.PrimaryKey("PK_SysOrganizations", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_SystemOrganizations_SystemOrganizations_ParentId",
+                        name: "FK_SysOrganizations_SysOrganizations_ParentId",
                         column: x => x.ParentId,
-                        principalTable: "SystemOrganizations",
+                        principalTable: "SysOrganizations",
                         principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
-                name: "SystemPermissionGroups",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    Name = table.Column<string>(type: "character varying(30)", maxLength: 30, nullable: false),
-                    Description = table.Column<string>(type: "character varying(1000)", maxLength: 1000, nullable: true),
-                    CreatedTime = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
-                    UpdatedTime = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
-                    IsDeleted = table.Column<bool>(type: "boolean", nullable: false),
-                    TenantId = table.Column<Guid>(type: "uuid", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_SystemPermissionGroups", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "SystemRoles",
+                name: "SysRoles",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
@@ -232,11 +233,11 @@ namespace EntityFramework.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_SystemRoles", x => x.Id);
+                    table.PrimaryKey("PK_SysRoles", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
-                name: "SystemUsers",
+                name: "SysUsers",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
@@ -264,7 +265,7 @@ namespace EntityFramework.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_SystemUsers", x => x.Id);
+                    table.PrimaryKey("PK_SysUsers", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -435,14 +436,14 @@ namespace EntityFramework.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "SystemPermissions",
+                name: "SysDataScopes",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
                     Name = table.Column<string>(type: "character varying(60)", maxLength: 60, nullable: false),
-                    Description = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: true),
-                    Enable = table.Column<bool>(type: "boolean", nullable: false),
-                    PermissionType = table.Column<int>(type: "integer", nullable: false),
+                    ResourceCode = table.Column<string>(type: "character varying(30)", maxLength: 30, nullable: false),
+                    TargetIds = table.Column<List<Guid>>(type: "uuid[]", nullable: false),
+                    ScopeType = table.Column<int>(type: "integer", nullable: false),
                     GroupId = table.Column<Guid>(type: "uuid", nullable: false),
                     CreatedTime = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
                     UpdatedTime = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
@@ -451,24 +452,22 @@ namespace EntityFramework.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_SystemPermissions", x => x.Id);
+                    table.PrimaryKey("PK_SysDataScopes", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_SystemPermissions_SystemPermissionGroups_GroupId",
+                        name: "FK_SysDataScopes_SysDataScopeGroups_GroupId",
                         column: x => x.GroupId,
-                        principalTable: "SystemPermissionGroups",
+                        principalTable: "SysDataScopeGroups",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
-                name: "SystemMenuRoles",
+                name: "SysMenuRoles",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
                     MenuId = table.Column<Guid>(type: "uuid", nullable: false),
                     RoleId = table.Column<Guid>(type: "uuid", nullable: false),
-                    SystemMenuId = table.Column<Guid>(type: "uuid", nullable: false),
-                    SystemRoleId = table.Column<Guid>(type: "uuid", nullable: false),
                     CreatedTime = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
                     UpdatedTime = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
                     IsDeleted = table.Column<bool>(type: "boolean", nullable: false),
@@ -476,71 +475,23 @@ namespace EntityFramework.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_SystemMenuRoles", x => x.Id);
+                    table.PrimaryKey("PK_SysMenuRoles", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_SystemMenuRoles_SystemMenus_SystemMenuId",
-                        column: x => x.SystemMenuId,
-                        principalTable: "SystemMenus",
+                        name: "FK_SysMenuRoles_SysMenus_MenuId",
+                        column: x => x.MenuId,
+                        principalTable: "SysMenus",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_SystemMenuRoles_SystemRoles_SystemRoleId",
-                        column: x => x.SystemRoleId,
-                        principalTable: "SystemRoles",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "SystemMenuSystemRole",
-                columns: table => new
-                {
-                    SystemMenusId = table.Column<Guid>(type: "uuid", nullable: false),
-                    SystemRolesId = table.Column<Guid>(type: "uuid", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_SystemMenuSystemRole", x => new { x.SystemMenusId, x.SystemRolesId });
-                    table.ForeignKey(
-                        name: "FK_SystemMenuSystemRole_SystemMenus_SystemMenusId",
-                        column: x => x.SystemMenusId,
-                        principalTable: "SystemMenus",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_SystemMenuSystemRole_SystemRoles_SystemRolesId",
-                        column: x => x.SystemRolesId,
-                        principalTable: "SystemRoles",
+                        name: "FK_SysMenuRoles_SysRoles_RoleId",
+                        column: x => x.RoleId,
+                        principalTable: "SysRoles",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
-                name: "SystemPermissionGroupSystemRole",
-                columns: table => new
-                {
-                    PermissionGroupsId = table.Column<Guid>(type: "uuid", nullable: false),
-                    RolesId = table.Column<Guid>(type: "uuid", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_SystemPermissionGroupSystemRole", x => new { x.PermissionGroupsId, x.RolesId });
-                    table.ForeignKey(
-                        name: "FK_SystemPermissionGroupSystemRole_SystemPermissionGroups_Perm~",
-                        column: x => x.PermissionGroupsId,
-                        principalTable: "SystemPermissionGroups",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_SystemPermissionGroupSystemRole_SystemRoles_RolesId",
-                        column: x => x.RolesId,
-                        principalTable: "SystemRoles",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "SystemLogs",
+                name: "SysLogs",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
@@ -549,7 +500,7 @@ namespace EntityFramework.Migrations
                     Route = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
                     ActionType = table.Column<int>(type: "integer", nullable: false),
                     Description = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: true),
-                    SystemUserId = table.Column<Guid>(type: "uuid", nullable: false),
+                    SysUserId = table.Column<Guid>(type: "uuid", nullable: false),
                     CreatedTime = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
                     UpdatedTime = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
                     IsDeleted = table.Column<bool>(type: "boolean", nullable: false),
@@ -557,65 +508,75 @@ namespace EntityFramework.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_SystemLogs", x => x.Id);
+                    table.PrimaryKey("PK_SysLogs", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_SystemLogs_SystemUsers_SystemUserId",
-                        column: x => x.SystemUserId,
-                        principalTable: "SystemUsers",
+                        name: "FK_SysLogs_SysUsers_SysUserId",
+                        column: x => x.SysUserId,
+                        principalTable: "SysUsers",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
-                name: "SystemOrganizationSystemUser",
+                name: "SysUserDataScopeGroups",
                 columns: table => new
                 {
-                    SystemOrganizationsId = table.Column<Guid>(type: "uuid", nullable: false),
-                    UsersId = table.Column<Guid>(type: "uuid", nullable: false)
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    UserId = table.Column<Guid>(type: "uuid", nullable: false),
+                    DataScopeGroupId = table.Column<Guid>(type: "uuid", nullable: false),
+                    CreatedTime = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    UpdatedTime = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "boolean", nullable: false),
+                    TenantId = table.Column<Guid>(type: "uuid", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_SystemOrganizationSystemUser", x => new { x.SystemOrganizationsId, x.UsersId });
+                    table.PrimaryKey("PK_SysUserDataScopeGroups", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_SystemOrganizationSystemUser_SystemOrganizations_SystemOrga~",
-                        column: x => x.SystemOrganizationsId,
-                        principalTable: "SystemOrganizations",
+                        name: "FK_SysUserDataScopeGroups_SysDataScopeGroups_DataScopeGroupId",
+                        column: x => x.DataScopeGroupId,
+                        principalTable: "SysDataScopeGroups",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_SystemOrganizationSystemUser_SystemUsers_UsersId",
-                        column: x => x.UsersId,
-                        principalTable: "SystemUsers",
+                        name: "FK_SysUserDataScopeGroups_SysUsers_UserId",
+                        column: x => x.UserId,
+                        principalTable: "SysUsers",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
-                name: "SystemRoleSystemUser",
+                name: "SysUserOrganizations",
                 columns: table => new
                 {
-                    SystemRolesId = table.Column<Guid>(type: "uuid", nullable: false),
-                    UsersId = table.Column<Guid>(type: "uuid", nullable: false)
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    UserId = table.Column<Guid>(type: "uuid", nullable: false),
+                    OrganizationId = table.Column<Guid>(type: "uuid", nullable: false),
+                    CreatedTime = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    UpdatedTime = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "boolean", nullable: false),
+                    TenantId = table.Column<Guid>(type: "uuid", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_SystemRoleSystemUser", x => new { x.SystemRolesId, x.UsersId });
+                    table.PrimaryKey("PK_SysUserOrganizations", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_SystemRoleSystemUser_SystemRoles_SystemRolesId",
-                        column: x => x.SystemRolesId,
-                        principalTable: "SystemRoles",
+                        name: "FK_SysUserOrganizations_SysOrganizations_OrganizationId",
+                        column: x => x.OrganizationId,
+                        principalTable: "SysOrganizations",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_SystemRoleSystemUser_SystemUsers_UsersId",
-                        column: x => x.UsersId,
-                        principalTable: "SystemUsers",
+                        name: "FK_SysUserOrganizations_SysUsers_UserId",
+                        column: x => x.UserId,
+                        principalTable: "SysUsers",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
-                name: "SystemUserRoles",
+                name: "SysUserRoles",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
@@ -628,17 +589,17 @@ namespace EntityFramework.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_SystemUserRoles", x => x.Id);
+                    table.PrimaryKey("PK_SysUserRoles", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_SystemUserRoles_SystemRoles_RoleId",
+                        name: "FK_SysUserRoles_SysRoles_RoleId",
                         column: x => x.RoleId,
-                        principalTable: "SystemRoles",
+                        principalTable: "SysRoles",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_SystemUserRoles_SystemUsers_UserId",
+                        name: "FK_SysUserRoles_SysUsers_UserId",
                         column: x => x.UserId,
-                        principalTable: "SystemUsers",
+                        principalTable: "SysUsers",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -744,6 +705,29 @@ namespace EntityFramework.Migrations
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_ResValues_Resources_ResourceId",
+                        column: x => x.ResourceId,
+                        principalTable: "Resources",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "UserFavoriteResources",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    UserId = table.Column<Guid>(type: "uuid", nullable: false),
+                    ResourceId = table.Column<Guid>(type: "uuid", nullable: false),
+                    CreatedTime = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    UpdatedTime = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "boolean", nullable: false),
+                    TenantId = table.Column<Guid>(type: "uuid", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_UserFavoriteResources", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_UserFavoriteResources_Resources_ResourceId",
                         column: x => x.ResourceId,
                         principalTable: "Resources",
                         principalColumn: "Id",
@@ -917,180 +901,199 @@ namespace EntityFramework.Migrations
                 filter: "\"IsDeleted\" = false");
 
             migrationBuilder.CreateIndex(
-                name: "IX_SystemConfigs_TenantId_GroupName_Key",
-                table: "SystemConfigs",
+                name: "IX_SysConfigs_TenantId_GroupName_Key",
+                table: "SysConfigs",
                 columns: new[] { "TenantId", "GroupName", "Key" },
                 unique: true,
                 filter: "\"IsDeleted\" = false");
 
             migrationBuilder.CreateIndex(
-                name: "IX_SystemLogs_SystemUserId",
-                table: "SystemLogs",
-                column: "SystemUserId");
+                name: "IX_SysDataScopeGroups_TenantId_Name",
+                table: "SysDataScopeGroups",
+                columns: new[] { "TenantId", "Name" });
 
             migrationBuilder.CreateIndex(
-                name: "IX_SystemLogs_TenantId_ActionType_CreatedTime",
-                table: "SystemLogs",
+                name: "IX_SysDataScopes_GroupId",
+                table: "SysDataScopes",
+                column: "GroupId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_SysDataScopes_TenantId_GroupId",
+                table: "SysDataScopes",
+                columns: new[] { "TenantId", "GroupId" });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_SysDataScopes_TenantId_Name",
+                table: "SysDataScopes",
+                columns: new[] { "TenantId", "Name" });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_SysLogs_SysUserId",
+                table: "SysLogs",
+                column: "SysUserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_SysLogs_TenantId_ActionType_CreatedTime",
+                table: "SysLogs",
                 columns: new[] { "TenantId", "ActionType", "CreatedTime" });
 
             migrationBuilder.CreateIndex(
-                name: "IX_SystemLogs_TenantId_ActionUserName_CreatedTime",
-                table: "SystemLogs",
+                name: "IX_SysLogs_TenantId_ActionUserName_CreatedTime",
+                table: "SysLogs",
                 columns: new[] { "TenantId", "ActionUserName", "CreatedTime" });
 
             migrationBuilder.CreateIndex(
-                name: "IX_SystemLogs_TenantId_CreatedTime",
-                table: "SystemLogs",
+                name: "IX_SysLogs_TenantId_CreatedTime",
+                table: "SysLogs",
                 columns: new[] { "TenantId", "CreatedTime" });
 
             migrationBuilder.CreateIndex(
-                name: "IX_SystemLogs_TenantId_SystemUserId",
-                table: "SystemLogs",
-                columns: new[] { "TenantId", "SystemUserId" });
+                name: "IX_SysLogs_TenantId_SysUserId",
+                table: "SysLogs",
+                columns: new[] { "TenantId", "SysUserId" });
 
             migrationBuilder.CreateIndex(
-                name: "IX_SystemMenuRoles_SystemMenuId",
-                table: "SystemMenuRoles",
-                column: "SystemMenuId");
+                name: "IX_SysMenuRoles_MenuId",
+                table: "SysMenuRoles",
+                column: "MenuId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_SystemMenuRoles_SystemRoleId",
-                table: "SystemMenuRoles",
-                column: "SystemRoleId");
+                name: "IX_SysMenuRoles_RoleId",
+                table: "SysMenuRoles",
+                column: "RoleId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_SystemMenuRoles_TenantId_RoleId_MenuId",
-                table: "SystemMenuRoles",
+                name: "IX_SysMenuRoles_TenantId_MenuId",
+                table: "SysMenuRoles",
+                columns: new[] { "TenantId", "MenuId" });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_SysMenuRoles_TenantId_RoleId_MenuId",
+                table: "SysMenuRoles",
                 columns: new[] { "TenantId", "RoleId", "MenuId" },
                 unique: true,
                 filter: "\"IsDeleted\" = false");
 
             migrationBuilder.CreateIndex(
-                name: "IX_SystemMenuRoles_TenantId_SystemMenuId",
-                table: "SystemMenuRoles",
-                columns: new[] { "TenantId", "SystemMenuId" });
-
-            migrationBuilder.CreateIndex(
-                name: "IX_SystemMenuRoles_TenantId_SystemRoleId",
-                table: "SystemMenuRoles",
-                columns: new[] { "TenantId", "SystemRoleId" });
-
-            migrationBuilder.CreateIndex(
-                name: "IX_SystemMenus_ParentId",
-                table: "SystemMenus",
+                name: "IX_SysMenus_ParentId",
+                table: "SysMenus",
                 column: "ParentId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_SystemMenus_TenantId_AccessCode",
-                table: "SystemMenus",
+                name: "IX_SysMenus_TenantId_AccessCode",
+                table: "SysMenus",
                 columns: new[] { "TenantId", "AccessCode" },
                 unique: true,
                 filter: "\"IsDeleted\" = false");
 
             migrationBuilder.CreateIndex(
-                name: "IX_SystemMenus_TenantId_ParentId",
-                table: "SystemMenus",
+                name: "IX_SysMenus_TenantId_ParentId",
+                table: "SysMenus",
                 columns: new[] { "TenantId", "ParentId" });
 
             migrationBuilder.CreateIndex(
-                name: "IX_SystemMenuSystemRole_SystemRolesId",
-                table: "SystemMenuSystemRole",
-                column: "SystemRolesId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_SystemOrganizations_ParentId",
-                table: "SystemOrganizations",
+                name: "IX_SysOrganizations_ParentId",
+                table: "SysOrganizations",
                 column: "ParentId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_SystemOrganizations_TenantId_Name",
-                table: "SystemOrganizations",
+                name: "IX_SysOrganizations_TenantId_Name",
+                table: "SysOrganizations",
                 columns: new[] { "TenantId", "Name" });
 
             migrationBuilder.CreateIndex(
-                name: "IX_SystemOrganizations_TenantId_ParentId",
-                table: "SystemOrganizations",
+                name: "IX_SysOrganizations_TenantId_ParentId",
+                table: "SysOrganizations",
                 columns: new[] { "TenantId", "ParentId" });
 
             migrationBuilder.CreateIndex(
-                name: "IX_SystemOrganizationSystemUser_UsersId",
-                table: "SystemOrganizationSystemUser",
-                column: "UsersId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_SystemPermissionGroups_TenantId_Name",
-                table: "SystemPermissionGroups",
+                name: "IX_SysRoles_TenantId_Name",
+                table: "SysRoles",
                 columns: new[] { "TenantId", "Name" });
 
             migrationBuilder.CreateIndex(
-                name: "IX_SystemPermissionGroupSystemRole_RolesId",
-                table: "SystemPermissionGroupSystemRole",
-                column: "RolesId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_SystemPermissions_GroupId",
-                table: "SystemPermissions",
-                column: "GroupId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_SystemPermissions_TenantId_GroupId",
-                table: "SystemPermissions",
-                columns: new[] { "TenantId", "GroupId" });
-
-            migrationBuilder.CreateIndex(
-                name: "IX_SystemPermissions_TenantId_Name",
-                table: "SystemPermissions",
-                columns: new[] { "TenantId", "Name" });
-
-            migrationBuilder.CreateIndex(
-                name: "IX_SystemRoles_TenantId_Name",
-                table: "SystemRoles",
-                columns: new[] { "TenantId", "Name" });
-
-            migrationBuilder.CreateIndex(
-                name: "IX_SystemRoles_TenantId_NameValue",
-                table: "SystemRoles",
+                name: "IX_SysRoles_TenantId_NameValue",
+                table: "SysRoles",
                 columns: new[] { "TenantId", "NameValue" },
                 unique: true,
                 filter: "\"IsDeleted\" = false");
 
             migrationBuilder.CreateIndex(
-                name: "IX_SystemRoleSystemUser_UsersId",
-                table: "SystemRoleSystemUser",
-                column: "UsersId");
+                name: "IX_SysUserDataScopeGroups_DataScopeGroupId",
+                table: "SysUserDataScopeGroups",
+                column: "DataScopeGroupId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_SystemUserRoles_RoleId",
-                table: "SystemUserRoles",
+                name: "IX_SysUserDataScopeGroups_TenantId_DataScopeGroupId",
+                table: "SysUserDataScopeGroups",
+                columns: new[] { "TenantId", "DataScopeGroupId" });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_SysUserDataScopeGroups_TenantId_UserId_DataScopeGroupId",
+                table: "SysUserDataScopeGroups",
+                columns: new[] { "TenantId", "UserId", "DataScopeGroupId" },
+                unique: true,
+                filter: "\"IsDeleted\" = false");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_SysUserDataScopeGroups_UserId",
+                table: "SysUserDataScopeGroups",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_SysUserOrganizations_OrganizationId",
+                table: "SysUserOrganizations",
+                column: "OrganizationId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_SysUserOrganizations_TenantId_OrganizationId",
+                table: "SysUserOrganizations",
+                columns: new[] { "TenantId", "OrganizationId" });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_SysUserOrganizations_TenantId_UserId_OrganizationId",
+                table: "SysUserOrganizations",
+                columns: new[] { "TenantId", "UserId", "OrganizationId" },
+                unique: true,
+                filter: "\"IsDeleted\" = false");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_SysUserOrganizations_UserId",
+                table: "SysUserOrganizations",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_SysUserRoles_RoleId",
+                table: "SysUserRoles",
                 column: "RoleId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_SystemUserRoles_TenantId_RoleId",
-                table: "SystemUserRoles",
+                name: "IX_SysUserRoles_TenantId_RoleId",
+                table: "SysUserRoles",
                 columns: new[] { "TenantId", "RoleId" });
 
             migrationBuilder.CreateIndex(
-                name: "IX_SystemUserRoles_TenantId_UserId_RoleId",
-                table: "SystemUserRoles",
+                name: "IX_SysUserRoles_TenantId_UserId_RoleId",
+                table: "SysUserRoles",
                 columns: new[] { "TenantId", "UserId", "RoleId" },
                 unique: true,
                 filter: "\"IsDeleted\" = false");
 
             migrationBuilder.CreateIndex(
-                name: "IX_SystemUserRoles_UserId",
-                table: "SystemUserRoles",
+                name: "IX_SysUserRoles_UserId",
+                table: "SysUserRoles",
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_SystemUsers_TenantId_Email",
-                table: "SystemUsers",
+                name: "IX_SysUsers_TenantId_Email",
+                table: "SysUsers",
                 columns: new[] { "TenantId", "Email" },
                 unique: true,
                 filter: "\"IsDeleted\" = false");
 
             migrationBuilder.CreateIndex(
-                name: "IX_SystemUsers_TenantId_PhoneNumber",
-                table: "SystemUsers",
+                name: "IX_SysUsers_TenantId_PhoneNumber",
+                table: "SysUsers",
                 columns: new[] { "TenantId", "PhoneNumber" },
                 unique: true,
                 filter: "\"IsDeleted\" = false");
@@ -1100,6 +1103,23 @@ namespace EntityFramework.Migrations
                 table: "Tenants",
                 column: "Domain",
                 unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UserFavoriteResources_ResourceId",
+                table: "UserFavoriteResources",
+                column: "ResourceId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UserFavoriteResources_TenantId_ResourceId",
+                table: "UserFavoriteResources",
+                columns: new[] { "TenantId", "ResourceId" });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UserFavoriteResources_TenantId_UserId_ResourceId",
+                table: "UserFavoriteResources",
+                columns: new[] { "TenantId", "UserId", "ResourceId" },
+                unique: true,
+                filter: "\"IsDeleted\" = false");
 
             migrationBuilder.CreateIndex(
                 name: "IX_UserResources_DefinitionId",
@@ -1163,34 +1183,31 @@ namespace EntityFramework.Migrations
                 name: "ResValues");
 
             migrationBuilder.DropTable(
-                name: "SystemConfigs");
+                name: "SysConfigs");
 
             migrationBuilder.DropTable(
-                name: "SystemLogs");
+                name: "SysDataScopes");
 
             migrationBuilder.DropTable(
-                name: "SystemMenuRoles");
+                name: "SysLogs");
 
             migrationBuilder.DropTable(
-                name: "SystemMenuSystemRole");
+                name: "SysMenuRoles");
 
             migrationBuilder.DropTable(
-                name: "SystemOrganizationSystemUser");
+                name: "SysUserDataScopeGroups");
 
             migrationBuilder.DropTable(
-                name: "SystemPermissionGroupSystemRole");
+                name: "SysUserOrganizations");
 
             migrationBuilder.DropTable(
-                name: "SystemPermissions");
-
-            migrationBuilder.DropTable(
-                name: "SystemRoleSystemUser");
-
-            migrationBuilder.DropTable(
-                name: "SystemUserRoles");
+                name: "SysUserRoles");
 
             migrationBuilder.DropTable(
                 name: "Tenants");
+
+            migrationBuilder.DropTable(
+                name: "UserFavoriteResources");
 
             migrationBuilder.DropTable(
                 name: "UserResValues");
@@ -1199,22 +1216,22 @@ namespace EntityFramework.Migrations
                 name: "ArticleCategories");
 
             migrationBuilder.DropTable(
+                name: "SysMenus");
+
+            migrationBuilder.DropTable(
+                name: "SysDataScopeGroups");
+
+            migrationBuilder.DropTable(
+                name: "SysOrganizations");
+
+            migrationBuilder.DropTable(
+                name: "SysRoles");
+
+            migrationBuilder.DropTable(
+                name: "SysUsers");
+
+            migrationBuilder.DropTable(
                 name: "Resources");
-
-            migrationBuilder.DropTable(
-                name: "SystemMenus");
-
-            migrationBuilder.DropTable(
-                name: "SystemOrganizations");
-
-            migrationBuilder.DropTable(
-                name: "SystemPermissionGroups");
-
-            migrationBuilder.DropTable(
-                name: "SystemRoles");
-
-            migrationBuilder.DropTable(
-                name: "SystemUsers");
 
             migrationBuilder.DropTable(
                 name: "ResDefinitionProperties");
