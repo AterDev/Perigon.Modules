@@ -24,7 +24,6 @@ public class InitModule
         try
         {
             var tenants = await catalogContext.Tenants
-                .AsNoTracking()
                 .ToListAsync();
             if (tenants.Count == 0)
             {
@@ -56,8 +55,7 @@ public class InitModule
         }
         catch (Exception ex)
         {
-            var conn = catalogContext.Database.GetConnectionString();
-            logger.LogError(ex, "Failed to initialize system configuration for {ConnectionString}", conn);
+            logger.LogError(ex, "Failed to initialize system configuration");
             throw;
         }
     }
@@ -90,16 +88,18 @@ public class InitModule
             Email = $"admin@{tenant.Domain}",
             PasswordSalt = salt,
             PasswordHash = HashCrypto.GeneratePwd(defaultPassword, salt),
-            SysUserRoles =
-            [
-                new SysUserRole { Role = superRole, TenantId = tenant.Id },
-                new SysUserRole { Role = adminRole, TenantId = tenant.Id },
-            ],
             TenantId = tenant.Id,
         };
 
-        context.Add(adminUser);
-        await context.SaveChangesAsync();
+        await context.TransactionAsync(async cancellationToken =>
+        {
+            await context.SysRoles.BulkInsertAsync([superRole, adminRole], cancellationToken: cancellationToken);
+            await context.SysUsers.InsertAsync(adminUser, cancellationToken);
+            await context.SysUserRoles.BulkInsertAsync([
+                new SysUserRole { UserId = adminUser.Id, RoleId = superRole.Id, TenantId = tenant.Id },
+                new SysUserRole { UserId = adminUser.Id, RoleId = adminRole.Id, TenantId = tenant.Id },
+            ], cancellationToken: cancellationToken);
+        });
 
         Console.WriteLine($"✨ Created admin for {tenant.Domain} : {adminUser.Email}/{defaultPassword}");
     }
@@ -115,6 +115,7 @@ public class InitModule
             WebConst.IsInit,
             "true"
         );
+        initConfig.TenantId = context.RequiredTenantId;
 
         var loginSecurityPolicy =
             configuration.GetSection(WebConst.LoginSecurityPolicy).Get<LoginSecurityPolicyOption>()
@@ -125,11 +126,9 @@ public class InitModule
             WebConst.LoginSecurityPolicy,
             JsonSerializer.Serialize(loginSecurityPolicy)
         );
+        loginSecurityPolicyConfig.TenantId = context.RequiredTenantId;
 
-        context.SysConfigs.Add(loginSecurityPolicyConfig);
-        context.SysConfigs.Add(initConfig);
-
-        await context.SaveChangesAsync();
+        await context.SysConfigs.BulkInsertAsync([loginSecurityPolicyConfig, initConfig]);
         logger.LogInformation("写入登录安全策略成功");
     }
 
@@ -141,12 +140,12 @@ public class InitModule
     )
     {
         logger.LogInformation("加载租户 {TenantId} 配置缓存", tenantId);
-        var securityPolicy = await context
+        var securityPolicyConfig = await context
             .SysConfigs
             .Where(c => c.Key == WebConst.LoginSecurityPolicy)
             .Where(c => c.GroupName == WebConst.SystemGroup)
-            .Select(c => c.Value)
             .FirstOrDefaultAsync();
+        var securityPolicy = securityPolicyConfig?.Value;
 
         if (securityPolicy != null)
         {

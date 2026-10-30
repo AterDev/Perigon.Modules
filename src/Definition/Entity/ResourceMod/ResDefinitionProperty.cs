@@ -1,14 +1,22 @@
 namespace Entity.ResourceMod;
 
 /// <summary>资源定义中的单个属性配置。</summary>
-[Index(nameof(TenantId), nameof(Name), IsUnique = true)]
 public class ResDefinitionProperty : EntityBase
 {
     /// <summary>属性名称。</summary>
     [MaxLength(60)]
-    public required string Name { get; set; }
+    public string Name { get; set; } = string.Empty;
+    /// <summary>属性值类型的整数存储值。</summary>
+    [JsonIgnore]
+    [Column("ValueType")]
+    public int ValueTypeValue { get; set; }
     /// <summary>属性值类型。</summary>
-    public ResValueType ValueType { get; set; }
+    [NotMapped]
+    public ResValueType ValueType
+    {
+        get => (ResValueType)ValueTypeValue;
+        set => ValueTypeValue = (int)value;
+    }
     /// <summary>是否必填。</summary>
     public bool IsRequired { get; set; }
     /// <summary>属性值最大长度。</summary>
@@ -17,9 +25,11 @@ public class ResDefinitionProperty : EntityBase
     [NotMapped]
     public int Sort { get; set; }
     [JsonIgnore]
+    [NotMapped]
     public ICollection<ResDefinitionPropertyMap> DefinitionMaps { get; set; } = [];
     /// <summary>使用此属性的资源值。</summary>
     [JsonIgnore]
+    [NotMapped]
     public ICollection<ResValue> Values { get; set; } = [];
 }
 

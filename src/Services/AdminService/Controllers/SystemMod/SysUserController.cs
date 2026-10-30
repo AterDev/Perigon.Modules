@@ -13,17 +13,15 @@ public class SysUserController(
         Localizer localizer,
         CacheService cache,
         SysUserManager manager,
-        SysDataScopeGroupManager dataScopeGroupManager,
-        SysConfigManager sysConfigManager,
-        SysRoleManager roleManager,
+        IServiceProvider services,
         IUserContext user,
         ILogger<SysUserController> logger
 ) : RestControllerBase<SysUserManager>(localizer, manager, user, logger)
 {
     private readonly CacheService _cache = cache;
-    private readonly SysDataScopeGroupManager _dataScopeGroupManager = dataScopeGroupManager;
-    private readonly SysConfigManager _sysConfigManager = sysConfigManager;
-    private readonly SysRoleManager _roleManager = roleManager;
+    private SysDataScopeGroupManager _dataScopeGroupManager => services.GetRequiredService<SysDataScopeGroupManager>();
+    private SysConfigManager _sysConfigManager => services.GetRequiredService<SysConfigManager>();
+    private SysRoleManager _roleManager => services.GetRequiredService<SysRoleManager>();
 
     /// <summary>
     /// 登录时，发送邮箱验证码 ✅
@@ -189,9 +187,8 @@ public class SysUserController(
         List<SysRole>? roles = null;
         if (dto.RoleIds != null && dto.RoleIds.Count != 0)
         {
-            roles = await _roleManager.ListAsync(r => dto
-                .RoleIds
-                .Contains(r.Id));
+            Guid[] roleIds = dto.RoleIds.ToArray();
+            roles = await _roleManager.ListAsync(r => roleIds.Contains(r.Id));
         }
         var entity = await _manager.AddAsync(dto, roles);
         return Created($"/api/SysUser/{entity.Id}", entity);
@@ -214,9 +211,8 @@ public class SysUserController(
         List<SysRole>? roles = null;
         if (dto.RoleIds != null)
         {
-            roles = await _roleManager.ListAsync(r => dto
-                .RoleIds
-                .Contains(r.Id));
+            Guid[] roleIds = dto.RoleIds.ToArray();
+            roles = await _roleManager.ListAsync(r => roleIds.Contains(r.Id));
         }
         var entity = await _manager.UpdateAsync(id, dto, roles);
         return Ok(entity);

@@ -9,8 +9,10 @@ public abstract class EntityBase : ITenantEntityBase
 {
     [Key]
     public Guid Id { get; set; } = Guid.CreateVersion7();
-    public DateTimeOffset CreatedTime { get; private set; } = DateTimeOffset.UtcNow;
-    public DateTimeOffset UpdatedTime { get; set; } = DateTimeOffset.UtcNow;
+    [AutoTimestamp]
+    public DateTimeOffset CreatedTime { get; set; }
+    [AutoTimestamp(onUpdate: true)]
+    public DateTimeOffset UpdatedTime { get; set; }
     public bool IsDeleted { get; set; }
     public Guid TenantId { get; set; }
 }

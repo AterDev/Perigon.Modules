@@ -11,9 +11,6 @@ public class ComponentOption
     public CacheType Cache { get; set; } = CacheType.Memory;
 
     [JsonConverter(typeof(JsonStringEnumConverter))]
-    public DatabaseType Database { get; set; } = DatabaseType.PostgreSql;
-
-    [JsonConverter(typeof(JsonStringEnumConverter))]
     public AuthType AuthType { get; set; } = AuthType.Jwt;
 
     [JsonConverter(typeof(JsonStringEnumConverter))]
@@ -30,12 +27,6 @@ public enum AuthType
     Jwt,
     Cookie,
     OAuth,
-}
-
-public enum DatabaseType
-{
-    SqlServer,
-    PostgreSql,
 }
 
 public enum CacheType

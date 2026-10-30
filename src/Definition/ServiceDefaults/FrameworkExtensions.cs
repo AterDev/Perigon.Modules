@@ -33,7 +33,7 @@ public static class FrameworkExtensions
             builder.AddOptions();
             builder.AddCache(components);
             builder.AddDbFactory();
-            builder.AddDbContext(components);
+            builder.AddDbContext();
             builder.Services.AddScoped<TenantService>();
             builder.Services.AddScoped<ITenantResolver>(services =>
                 services.GetRequiredService<TenantService>()
@@ -82,34 +82,10 @@ public static class FrameworkExtensions
         /// 添加数据库上下文
         /// </summary>
         /// <returns></returns>
-        public IHostApplicationBuilder AddDbContext(
-            ComponentOption components
-        )
+        public IHostApplicationBuilder AddDbContext()
         {
-            var analysisConnectionString = builder.Configuration.GetConnectionString(
-                AppConst.Analysis
-            );
-
-            switch (components.Database)
-            {
-                case DatabaseType.SqlServer:
-                    builder.AddSqlServerDbContext<DefaultDbContext>(
-                        AppConst.Default,
-                        configureDbContextOptions: options => options.UseDefaultDbContextSeeding(
-                            analysisConnectionString
-                        )
-                    );
-                    break;
-
-                case DatabaseType.PostgreSql:
-                    builder.AddNpgsqlDbContext<DefaultDbContext>(
-                        AppConst.Default,
-                        configureDbContextOptions: options => options.UseDefaultDbContextSeeding(
-                            analysisConnectionString
-                        )
-                    );
-                    break;
-            }
+            builder.Services.AddScoped<DefaultDbContext>(services =>
+                services.GetRequiredService<AppDbFactory>().CreateDbContext(null));
             return builder;
         }
 

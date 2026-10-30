@@ -28,19 +28,27 @@ public class SysDataScopeGroupManager(
     public async Task<SysDataScopeGroupDetailDto?> GetAsync(Guid id)
     {
         SysDataScopeGroup? group = await _dbSet
-            .AsNoTracking()
-            .Include(item => item.DataScopes)
-            .SingleOrDefaultAsync(item => item.Id == id);
+            .Where(item => item.Id == id)
+            .SingleOrDefaultAsync();
         if (group is null)
         {
             return null;
         }
 
-        List<Guid> userIds = await _dbContext.SysUserDataScopeGroups
-            .AsNoTracking()
-            .Where(link => link.DataScopeGroupId == id && link.User.TenantId == _userContext.TenantId)
-            .Select(link => link.UserId)
+        group.DataScopes = await _dbContext.SysDataScopes
+            .Where(scope => scope.GroupId == id)
             .ToListAsync();
+
+        var groupLinks = await _dbContext.SysUserDataScopeGroups
+            .Where(link => link.DataScopeGroupId == id)
+            .ToListAsync();
+        var tenantUserIds = (await _dbContext.SysUsers
+            .Where(user => user.TenantId == _userContext.TenantId)
+            .ToListAsync()).Select(user => user.Id).ToHashSet();
+        List<Guid> userIds = groupLinks
+            .Where(link => tenantUserIds.Contains(link.UserId))
+            .Select(link => link.UserId)
+            .ToList();
 
         return MapDetail(group, userIds);
     }
@@ -55,7 +63,7 @@ public class SysDataScopeGroupManager(
 
     public async Task<SysDataScopeGroup> UpdateAsync(Guid id, SysDataScopeGroupUpdateDto dto)
     {
-        SysDataScopeGroup current = await _dbSet.SingleOrDefaultAsync(group => group.Id == id)
+        SysDataScopeGroup current = await _dbSet.Where(group => group.Id == id).SingleOrDefaultAsync()
             ?? throw new BusinessException(Localizer.NotFoundResource, StatusCodes.Status404NotFound);
 
         if (dto.Name is not null)
@@ -73,18 +81,25 @@ public class SysDataScopeGroupManager(
             current.IsEnabled = isEnabled;
         }
 
-        await _dbContext.SaveChangesAsync();
+        await _dbSet
+            .Where(group => group.Id == id && group.TenantId == _userContext.TenantId)
+            .ExecuteUpdateAsync(update => update
+                .Set(group => group.Name, current.Name)
+                .Set(group => group.Description, current.Description)
+                .Set(group => group.IsEnabled, current.IsEnabled));
         return current;
     }
 
     public async Task<List<Guid>> GetUserIdsAsync(Guid groupId)
     {
         await EnsureGroupExistsAsync(groupId);
-        return await _dbContext.SysUserDataScopeGroups
-            .AsNoTracking()
-            .Where(link => link.DataScopeGroupId == groupId && link.User.TenantId == _userContext.TenantId)
-            .Select(link => link.UserId)
+        var links = await _dbContext.SysUserDataScopeGroups
+            .Where(link => link.DataScopeGroupId == groupId)
             .ToListAsync();
+        var tenantUserIds = (await _dbContext.SysUsers
+            .Where(user => user.TenantId == _userContext.TenantId)
+            .ToListAsync()).Select(user => user.Id).ToHashSet();
+        return links.Where(link => tenantUserIds.Contains(link.UserId)).Select(link => link.UserId).ToList();
     }
 
     /// <summary>
@@ -95,12 +110,13 @@ public class SysDataScopeGroupManager(
         await ExecuteInTransactionAsync(async () =>
         {
             await EnsureGroupExistsAsync(groupId);
-            List<Guid> userIds = dto.UserIds.Distinct().ToList();
-            if (userIds.Count > 0)
+            Guid[] userIds = dto.UserIds.Distinct().ToArray();
+            if (userIds.Length > 0)
             {
                 int tenantUserCount = await _dbContext.SysUsers
-                    .CountAsync(user => userIds.Contains(user.Id) && user.TenantId == _userContext.TenantId);
-                if (tenantUserCount != userIds.Count)
+                    .Where(user => userIds.Contains(user.Id) && user.TenantId == _userContext.TenantId)
+                    .CountAsync();
+                if (tenantUserCount != userIds.Length)
                 {
                     throw new BusinessException("One or more users do not belong to the current tenant.",
                         StatusCodes.Status400BadRequest);
@@ -108,27 +124,35 @@ public class SysDataScopeGroupManager(
             }
 
             await _dbContext.SysUserDataScopeGroups
-                .Where(link => link.DataScopeGroupId == groupId)
+                .Where(link => link.DataScopeGroupId == groupId && link.TenantId == _userContext.TenantId)
                 .ExecuteDeleteAsync();
 
-            _dbContext.SysUserDataScopeGroups.AddRange(userIds.Select(userId => new SysUserDataScopeGroup
+            await _dbContext.SysUserDataScopeGroups.BulkInsertAsync(userIds.Select(userId => new SysUserDataScopeGroup
             {
                 UserId = userId,
                 DataScopeGroupId = groupId,
+                TenantId = _userContext.TenantId,
             }));
-            await _dbContext.SaveChangesAsync();
             return true;
         });
     }
 
     public async Task<List<SysUserDataScopeGroupItemDto>> GetUserDataScopeGroupsAsync(Guid userId)
     {
-        List<SysDataScopeGroup> groups = await _dbContext.SysDataScopeGroups
-            .AsNoTracking()
-            .Where(group => group.IsEnabled && group.Users.Any(link =>
-                link.UserId == userId && link.User.TenantId == _userContext.TenantId))
-            .Include(group => group.DataScopes)
+        var userGroupLinks = await _dbContext.SysUserDataScopeGroups
+            .Where(link => link.UserId == userId && link.TenantId == _userContext.TenantId)
             .ToListAsync();
+        var groupIds = userGroupLinks.Select(link => link.DataScopeGroupId).Distinct().ToArray();
+        List<SysDataScopeGroup> groups = await _dbContext.SysDataScopeGroups
+            .Where(group => group.IsEnabled && groupIds.Contains(group.Id))
+            .ToListAsync();
+        var scopes = await _dbContext.SysDataScopes
+            .Where(scope => groupIds.Contains(scope.GroupId))
+            .ToListAsync();
+        foreach (var group in groups)
+        {
+            group.DataScopes = scopes.Where(scope => scope.GroupId == group.Id).ToList();
+        }
 
         return groups.Select(group => new SysUserDataScopeGroupItemDto
         {
@@ -142,8 +166,8 @@ public class SysDataScopeGroupManager(
     {
         await EnsureGroupExistsAsync(id);
 
-        bool hasScopes = await _dbContext.SysDataScopes.AnyAsync(scope => scope.GroupId == id);
-        bool hasUsers = await _dbContext.SysUserDataScopeGroups.AnyAsync(link => link.DataScopeGroupId == id);
+        bool hasScopes = await _dbContext.SysDataScopes.Where(scope => scope.GroupId == id).AnyAsync();
+        bool hasUsers = await _dbContext.SysUserDataScopeGroups.Where(link => link.DataScopeGroupId == id).AnyAsync();
         if (hasScopes || hasUsers)
         {
             throw new BusinessException(
@@ -156,7 +180,7 @@ public class SysDataScopeGroupManager(
 
     public override Task<bool> HasPermissionAsync(Guid id)
     {
-        return _dbSet.AnyAsync(group => group.Id == id && group.TenantId == _userContext.TenantId);
+        return _dbSet.Where(group => group.Id == id && group.TenantId == _userContext.TenantId).AnyAsync();
     }
 
     private async Task EnsureGroupExistsAsync(Guid groupId)

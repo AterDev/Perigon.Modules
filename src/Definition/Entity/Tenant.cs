@@ -1,12 +1,18 @@
 // ⚠️ dont delete this file unless you are absolutely sure about it.
+using Perigon.AspNetCore.Abstraction;
 namespace Entity;
 
 /// <summary>
 /// The tenant entity
 /// </summary>
-[Index(nameof(Domain), IsUnique = true)]
-public sealed class Tenant : EntityBase
+public sealed class Tenant : IEntityBase
 {
+    [System.Diagnostics.CodeAnalysis.SetsRequiredMembers]
+    public Tenant() { Name = string.Empty; Domain = string.Empty; }
+    [Key] public Guid Id { get; set; } = Guid.CreateVersion7();
+    [AutoTimestamp] public DateTimeOffset CreatedTime { get; set; }
+    [AutoTimestamp(onUpdate: true)] public DateTimeOffset UpdatedTime { get; set; }
+    public bool IsDeleted { get; set; }
     [MaxLength(100)]
     public required string Name { get; set; }
 
@@ -22,7 +28,11 @@ public sealed class Tenant : EntityBase
     [MaxLength(200)]
     public required string Domain { get; set; }
 
-    public TenantType Type { get; set; } = TenantType.Normal;
+    [JsonIgnore]
+    public int TypeValue { get; set; } = (int)TenantType.Normal;
+
+    [NotMapped]
+    public TenantType Type { get => (TenantType)TypeValue; set => TypeValue = (int)value; }
 
     public bool Disabled { get; set; }
 }

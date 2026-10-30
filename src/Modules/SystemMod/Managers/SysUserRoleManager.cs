@@ -39,7 +39,7 @@ public class SysUserRoleManager(
     {
         // 先删除现有的用户角色关联
         await dbContext.SysUserRoles
-            .Where(ur => ur.UserId == userId)
+            .Where(ur => ur.UserId == userId && ur.TenantId == _userContext.TenantId)
             .ExecuteDeleteAsync();
 
         if (roleIds.Count == 0)
@@ -47,13 +47,12 @@ public class SysUserRoleManager(
             return true;
         }
 
-        dbContext.SysUserRoles.AddRange(roleIds.Select(roleId => new SysUserRole
+        await dbContext.SysUserRoles.BulkInsertAsync(roleIds.Select(roleId => new SysUserRole
         {
             UserId = userId,
             RoleId = roleId,
             TenantId = _userContext.TenantId
         }));
-        await dbContext.SaveChangesAsync();
         return true;
     }
 
@@ -64,11 +63,10 @@ public class SysUserRoleManager(
     /// <returns></returns>
     public async Task<List<Guid>> GetUserRoleIdsAsync(Guid userId)
     {
-        return await _dbSet
-            .AsNoTracking()
+        var links = await _dbSet
             .Where(ur => ur.UserId == userId)
-            .Select(ur => ur.RoleId)
             .ToListAsync();
+        return links.Select(link => link.RoleId).ToList();
     }
 
     /// <summary>
@@ -78,11 +76,10 @@ public class SysUserRoleManager(
     /// <returns></returns>
     public async Task<List<Guid>> GetRoleUserIdsAsync(Guid roleId)
     {
-        return await _dbSet
-            .AsNoTracking()
+        var links = await _dbSet
             .Where(ur => ur.RoleId == roleId)
-            .Select(ur => ur.UserId)
             .ToListAsync();
+        return links.Select(link => link.UserId).ToList();
     }
 
     /// <summary>
@@ -94,13 +91,13 @@ public class SysUserRoleManager(
     public async Task<bool> HasUserRoleAsync(Guid userId, Guid roleId)
     {
         return await _dbSet
-            .AsNoTracking()
-            .AnyAsync(ur => ur.UserId == userId && ur.RoleId == roleId);
+            .Where(ur => ur.UserId == userId && ur.RoleId == roleId)
+            .AnyAsync();
     }
 
     public override async Task<bool> HasPermissionAsync(Guid id)
     {
-        var query = _dbSet.Where(q => q.Id == id).Join(
+        var query = _dbSet.Where(q => q.Id == id && q.TenantId == _userContext.TenantId).Join(
             _dbContext.SysUsers,
             ur => ur.UserId,
             u => u.Id,

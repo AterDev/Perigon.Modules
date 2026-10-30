@@ -1,7 +1,6 @@
 namespace Entity.ResourceMod;
 
 /// <summary>资源定义与资源属性的关联。</summary>
-[Index(nameof(DefinitionId), nameof(PropertyId), IsUnique = true)]
 public class ResDefinitionPropertyMap : EntityBase
 {
     /// <summary>资源定义 ID。</summary>
@@ -13,9 +12,11 @@ public class ResDefinitionPropertyMap : EntityBase
     /// <summary>所属资源定义。</summary>
     [ForeignKey(nameof(DefinitionId))]
     [JsonIgnore]
+    [NotMapped]
     public ResDefinition Definition { get; set; } = null!;
     /// <summary>关联的资源属性。</summary>
     [ForeignKey(nameof(PropertyId))]
     [JsonIgnore]
+    [NotMapped]
     public ResDefinitionProperty Property { get; set; } = null!;
 }

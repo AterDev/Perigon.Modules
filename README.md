@@ -20,7 +20,7 @@
 - `src/Perigon/Perigon.AspNetCore`: 基础类库，提供基础帮助类。
 - `src/Definition/ServiceDefaults`: 是提供基础的服务注入的项目。
 - `src/Definition/Entity`: 包含所有的实体模型，按模块目录组织。
-- `src/Definition/EntityFramework`: 基于Entity Framework Core的数据库上下文
+- `src/Definition/EntityFramework`: 兼容现有目录结构的 Perigon.PostgreSQL 数据库上下文（不使用 EF Core）
 - `src/Modules/`: 包含各个模块的程序集，主要用于业务逻辑实现
   - `src/Modules/XXXMod/Managers`: 各模块下，实际实现业务逻辑的目录
   - `src/Modules/XXXMod/Models`: 各模块下，Dto模型定义，按实体目录组织
@@ -29,13 +29,17 @@
 
 ## 项目运行
 
-项目基于`Aspire`，直接运行`AppHost`项目即可启动所有服务。
+项目基于 `Aspire`，默认使用 PostgreSQL 资源。AppHost 会先通过独立 migration resource 执行 Perigon.PostgreSQL 迁移，再启动业务服务。
+
+当前数据库工具版本固定为 `Perigon.PostgreSQL 0.2.2`。资源搜索和用户收藏列表的可见性过滤、总数统计及 `Skip/Take` 分页均在 PostgreSQL 中执行；已有旧 EF 数据库必须先备份并核对表、列、索引和外键，再由运维人员显式 baseline，系统不会自动重建、删除或隐式接管已有数据库。
+
+租户实体使用全局租户过滤和软删除过滤。租户级 Manager 必须在有效 `TenantId` 上下文中创建；匿名接口不得提前解析租户级 Manager。测试环境使用临时 PostgreSQL 容器，非测试环境保留数据库持久卷。
 
 ## 模块开发
 
 - 模块程序集位于 `src/Modules/*Mod`，实体和控制器分别位于 `src/Definition/Entity/*Mod` 与 `src/Services/*/Controllers/*Mod`。
 - 新模块开发前先阅读 `docs/UserStory` 中对应需求，并参考 `CMSMod` 或 `SystemMod` 的现有实现。
-- 模块通过 Perigon CLI 打包到 `package_modules`；批量发布流程见 `.agents/skills/module-pack/SKILL.md`，脚本示例为 `pwsh ./scripts/PackModules.ps1 -Modules CMSMod,ResourceMod -Bump minor`。
+- 模块通过 Perigon CLI 打包到 `package_modules`；批量发布流程见 `.agents/skills/module-pack/SKILL.md`，脚本示例为 `& ./scripts/PackModules.ps1 -Modules @('CMSMod','ResourceMod','SystemMod') -Bump minor`。正式打包前应在隔离工作树中执行，避免未确认的包和 `modules.json` 变更进入当前工作区。
 - AI 工具应先读取根目录 [AGENTS.md](AGENTS.md)，再按任务使用 `.agents/skills` 下的 skill。
 
 ## 文档

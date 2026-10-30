@@ -5,8 +5,6 @@ namespace Entity.SystemMod;
 /// <summary>
 /// 系统用户
 /// </summary>
-[Index(nameof(Email), IsUnique = true)]
-[Index(nameof(PhoneNumber), IsUnique = true)]
 public class SysUser : EntityBase
 {
     /// <summary>
@@ -26,7 +24,8 @@ public class SysUser : EntityBase
     [MaxLength(100)]
     [MinLength(6)]
     [EmailAddress]
-    public required string Email { get; set; }
+    [Required]
+    public string Email { get; set; } = string.Empty;
     public bool EmailConfirmed { get; set; }
 
     [JsonIgnore]
@@ -66,19 +65,32 @@ public class SysUser : EntityBase
     /// </summary>
     [MaxLength(200)]
     public string? Avatar { get; set; }
+    [NotMapped]
     public ICollection<SysUserRole> SysUserRoles { get; set; } = [];
+    [NotMapped]
     public ICollection<SysLogs> SysLogs { get; set; } = [];
+    [NotMapped]
     public ICollection<SysUserOrganization> SysUserOrganizations { get; set; } = [];
 
     /// <summary>
     /// 数据权限关联表
     /// </summary>
+    [NotMapped]
     public ICollection<SysUserDataScopeGroup> DataScopeGroups { get; set; } = [];
 
     /// <summary>
     /// 性别
     /// </summary>
-    public Sex Sex { get; set; } = Sex.Male;
+    [NotMapped]
+    public Sex Sex
+    {
+        get => (Sex)SexValue;
+        set => SexValue = (int)value;
+    }
+
+    [Column("Sex")]
+    [JsonIgnore]
+    public int SexValue { get; set; } = (int)Sex.Male;
 
     public string GetUniqueKey(string prefix, string client)
     {

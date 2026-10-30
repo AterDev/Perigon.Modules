@@ -3,7 +3,6 @@ namespace Entity.ResourceMod;
 /// <summary>
 /// 用户收藏的常规资源。
 /// </summary>
-[Index(nameof(UserId), nameof(ResourceId), IsUnique = true)]
 public class UserFavoriteResource : EntityBase
 {
     /// <summary>
@@ -20,5 +19,6 @@ public class UserFavoriteResource : EntityBase
     /// 被收藏资源及其属性值。
     /// </summary>
     [ForeignKey(nameof(ResourceId))]
+    [NotMapped]
     public Resource Resource { get; set; } = null!;
 }

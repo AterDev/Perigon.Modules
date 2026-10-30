@@ -22,7 +22,7 @@ public class SysLogsManager : ManagerBase<DefaultDbContext, SysLogs>
         Queryable = Queryable
             .WhereNotNull(filter.ActionUserName, q => q.ActionUserName.Contains(filter.ActionUserName!))
             .WhereNotNull(filter.TargetName, q => q.TargetName == filter.TargetName)
-            .WhereNotNull(filter.ActionType, q => q.ActionType == filter.ActionType);
+            .WhereNotNull(filter.ActionType, q => q.ActionTypeValue == (int)filter.ActionType!.Value);
 
         if (filter.StartDate.HasValue && filter.EndDate.HasValue)
         {

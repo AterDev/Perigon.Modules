@@ -4,9 +4,7 @@
 
 using Aspire.Hosting;
 using Microsoft.Extensions.Logging;
-using Perigon.AspNetCore.Constants;
 
-[assembly: Retry(3)]
 [assembly: System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
 
 namespace ApiTest;
@@ -21,10 +19,6 @@ public class GlobalHooks
     {
         Environment.SetEnvironmentVariable("ASPIRE_ENVIRONMENT", "Testing");
         var appHost = await DistributedApplicationTestingBuilder.CreateAsync<Projects.AppHost>();
-        appHost.Services.ConfigureHttpClientDefaults(clientBuilder =>
-        {
-            clientBuilder.AddStandardResilienceHandler();
-        });
 
         appHost.Services.AddLogging(logging => logging
             .AddConsole()
@@ -42,20 +36,6 @@ public class GlobalHooks
     {
         if (App != null)
         {
-            var connectionString = await App.GetConnectionStringAsync(AppConst.Default);
-
-            var builder = new Npgsql.NpgsqlConnectionStringBuilder(connectionString)
-            {
-                Database = "postgres"
-            };
-            using var conn = new Npgsql.NpgsqlConnection(builder.ToString());
-            await conn.OpenAsync();
-
-            // 强制断开所有连接并删除库
-            var dropSql = "DROP DATABASE IF EXISTS \"PerigonModulesTest\" WITH (FORCE);";
-            using var cmd = new Npgsql.NpgsqlCommand(dropSql, conn);
-            await cmd.ExecuteNonQueryAsync();
-
             await App.StopAsync();
             await App.DisposeAsync();
         }

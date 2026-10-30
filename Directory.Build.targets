@@ -1,0 +1,11 @@
+<Project>
+  <!-- 0.2.1 generates materializers for every public class, including unrelated
+       DTOs with required members. EntityFramework owns the only DbContext and
+       must run the generator; other projects consume the generated metadata. -->
+  <Target Name="LimitPostgreSqlGeneratorsToDbContextProject" BeforeTargets="CoreCompile"
+          Condition="'$(MSBuildProjectName)' != 'EntityFramework'">
+    <ItemGroup>
+      <Analyzer Remove="@(Analyzer)" Condition="'%(Analyzer.Filename)' == 'Perigon.PostgreSQL.SourceGeneration' Or '%(Analyzer.Filename)' == 'Perigon.PostgreSQL.Analyzers'" />
+    </ItemGroup>
+  </Target>
+</Project>

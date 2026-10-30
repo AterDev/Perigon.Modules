@@ -5,7 +5,7 @@ global using Entity;
 global using Entity.ResourceMod;
 global using EntityFramework.AppDbContext;
 global using Microsoft.Extensions.DependencyInjection;
-global using Microsoft.EntityFrameworkCore;
+global using Perigon.PostgreSQL;
 global using Microsoft.Extensions.Logging;
 global using Microsoft.AspNetCore.Builder;
 global using Perigon.AspNetCore.Abstraction;

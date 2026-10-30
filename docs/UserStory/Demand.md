@@ -4,4 +4,4 @@
 
 | Iteration | Scope | Status |
 |---|---|---|
-| [Iter1-EntityRelationship](Iter1-EntityRelationship/PD0001-EntityRelationship.md) | 模块化 EF Core 映射与全新 PostgreSQL 迁移基线 | in-progress |
+| [Iter1-EntityRelationship](Iter1-EntityRelationship/PD0001-EntityRelationship.md) | Perigon.PostgreSQL 0.2.2、租户安全与 PostgreSQL 迁移基线 | done |

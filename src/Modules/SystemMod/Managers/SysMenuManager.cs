@@ -33,7 +33,20 @@ public class SysMenuManager(
     {
         if (await HasPermissionAsync(id))
         {
-            return await UpdateAsync(id, dto) > 0;
+            var current = await _dbSet.Where(menu => menu.Id == id).FirstOrDefaultAsync()
+                ?? throw new BusinessException(Localizer.NotFoundResource, StatusCodes.Status404NotFound);
+            await _dbSet
+                .Where(menu => menu.Id == id && menu.TenantId == _userContext.TenantId)
+                .ExecuteUpdateAsync(update => update
+                    .Set(menu => menu.Name, dto.Name ?? current.Name)
+                    .Set(menu => menu.Path, dto.Path ?? current.Path)
+                    .Set(menu => menu.Icon, dto.Icon ?? current.Icon)
+                    .Set(menu => menu.IsValid, dto.IsValid ?? current.IsValid)
+                    .Set(menu => menu.AccessCode, dto.AccessCode ?? current.AccessCode)
+                    .Set(menu => menu.MenuTypeValue, (int)(dto.MenuType ?? current.MenuType))
+                    .Set(menu => menu.Sort, dto.Sort ?? current.Sort)
+                    .Set(menu => menu.Hidden, dto.Hidden ?? current.Hidden));
+            return true;
         }
         throw new BusinessException(Localizer.NoPermission, StatusCodes.Status403Forbidden);
     }
@@ -45,48 +58,47 @@ public class SysMenuManager(
     /// <returns></returns>
     public async Task<bool> SyncSysMenusAsync(List<SysMenuSyncDto> menus)
     {
-        // 查询当前菜单内容
-        List<SysMenu> currentMenus = await _dbSet.ToListAsync();
-        List<SysMenu> flatMenus    = FlatTree(menus);
-
-        var accessCodes = flatMenus.Select(m => m.AccessCode).ToList();
-        // 获取需要被删除的
-        var needDeleteMenus = currentMenus.Where(m => !accessCodes.Contains(m.AccessCode)).ToList();
-        if (needDeleteMenus.Count != 0)
+        return await ExecuteInTransactionAsync(async () =>
         {
-            _dbSet.RemoveRange(needDeleteMenus);
-            currentMenus = currentMenus.Except(needDeleteMenus).ToList();
-        }
-
-        // 菜单新增与更新
-        foreach (SysMenu menu in flatMenus)
-        {
-            if (currentMenus.Any(c => c.AccessCode == menu.AccessCode))
+            List<SysMenu> currentMenus = await _dbSet.ToListAsync();
+            List<SysMenu> flatMenus = FlatTree(menus);
+            var byAccessCode = currentMenus.ToDictionary(m => m.AccessCode, StringComparer.Ordinal);
+            var accessCodes = flatMenus.Select(m => m.AccessCode).ToHashSet(StringComparer.Ordinal);
+            var removed = currentMenus.Where(m => !accessCodes.Contains(m.AccessCode)).ToList();
+            if (removed.Count != 0)
             {
-                var index = currentMenus.FindIndex(m => m
-                    .AccessCode
-                    .Equals(menu.AccessCode));
-                currentMenus[index].Name = menu.Name;
-                currentMenus[index].Sort = menu.Sort;
-                currentMenus[index].Icon = menu.Icon;
-                _dbSet.Update(currentMenus[index]);
+                var removedIds = removed.Select(m => m.Id).ToArray();
+                await _dbContext.SysMenuRoles
+                    .Where(link => removedIds.Contains(link.MenuId) && link.TenantId == _userContext.TenantId)
+                    .ExecuteDeleteAsync();
+                await _dbSet.Where(menu => removedIds.Contains(menu.Id)).ExecuteDeleteAsync();
             }
-            else
+
+            var changed = removed.Count != 0;
+            foreach (SysMenu menu in flatMenus)
             {
-                if (menu.Parent != null)
+                if (byAccessCode.TryGetValue(menu.AccessCode, out var existing))
                 {
-                    SysMenu? parent = currentMenus
-                        .Where(c => c.AccessCode == menu.Parent.AccessCode)
-                        .FirstOrDefault();
-                    if (parent != null)
-                    {
-                        menu.Parent = parent;
-                    }
+                    var count = await _dbSet.Where(item => item.Id == existing.Id).ExecuteUpdateAsync(update => update
+                        .Set(item => item.Name, menu.Name)
+                        .Set(item => item.Sort, menu.Sort)
+                        .Set(item => item.Icon, menu.Icon));
+                    changed |= count > 0;
+                    continue;
                 }
-                await _dbSet.AddAsync(menu);
+
+                if (menu.Parent is not null && byAccessCode.TryGetValue(menu.Parent.AccessCode, out var parent))
+                {
+                    menu.ParentId = parent.Id;
+                }
+                menu.Parent = null;
+                menu.TenantId = _userContext.TenantId;
+                await _dbSet.InsertAsync(menu);
+                byAccessCode[menu.AccessCode] = menu;
+                changed = true;
             }
-        }
-        return await _dbContext.SaveChangesAsync() > 0;
+            return changed;
+        });
     }
 
     /// <summary>
@@ -140,22 +152,22 @@ public class SysMenuManager(
         List<SysMenu>? menus;
         if (filter.RoleId != null)
         {
-            menus = await Queryable
-                .Where(q => q.SysMenuRoles
-                .Any(mr => mr.RoleId == filter.RoleId))
+            var menuLinks = await _dbContext.SysMenuRoles
+                .Where(link => link.RoleId == filter.RoleId)
                 .ToListAsync();
+            var menuIds = menuLinks.Select(link => link.MenuId).Distinct().ToArray();
+            menus = await Queryable.Where(q => menuIds.Contains(q.Id)).ToListAsync();
             menus.BuildTree();
         }
         else if (filter.ParentId != null)
         {
             menus = await Queryable
-                .Where(q => q.Parent != null && q.ParentId == filter.ParentId)
+                .Where(q => q.ParentId == filter.ParentId)
                 .ToListAsync();
         }
         else
         {
             menus = await Queryable
-                .AsNoTracking()
                 .OrderByDescending(t => t.Sort)
                 .ThenByDescending(t => t.CreatedTime)
                 .Skip((filter.PageIndex - 1) * filter.PageSize)
@@ -212,10 +224,11 @@ public class SysMenuManager(
         {
             return [];
         }
-        var query = _dbSet
-            .Where(q => ids.Contains(q.Id) && q.TenantId == _userContext.TenantId)
+        Guid[] ownedIds = ids.ToArray();
+        var ownedMenus = await _dbSet
+            .Where(q => ownedIds.Contains(q.Id) && q.TenantId == _userContext.TenantId)
             // TODO: other conditions
-            .Select(q => q.Id);
-        return await query.ToListAsync();
+            .ToListAsync();
+        return ownedMenus.Select(menu => menu.Id).ToList();
     }
 }

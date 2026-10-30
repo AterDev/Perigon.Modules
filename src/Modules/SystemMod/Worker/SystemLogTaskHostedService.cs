@@ -107,8 +107,7 @@ public class SystemLogTaskHostedService(
 
                 await using var context = dbContextFactory.CreateDbContext(tenantLogs.Key);
                 var tenantLogList = tenantLogs.ToList();
-                context.AddRange(tenantLogList);
-                await context.SaveChangesAsync(stoppingToken);
+                await context.SysLogs.BulkInsertAsync(tenantLogList, cancellationToken: stoppingToken);
                 foreach (var log in tenantLogList)
                 {
                     _logger.LogInformation(

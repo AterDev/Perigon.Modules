@@ -3,11 +3,11 @@ namespace Entity.SystemMod;
 /// <summary>
 /// 系统配置
 /// </summary>
-[Index(nameof(GroupName), nameof(Key), IsUnique = true)]
 public class SysConfig : EntityBase
 {
     [MaxLength(100)]
-    public required string Key { get; set; }
+    [Required]
+    public string Key { get; set; } = string.Empty;
 
     /// <summary>
     /// 以json字符串形式存储

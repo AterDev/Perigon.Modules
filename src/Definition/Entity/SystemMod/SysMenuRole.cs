@@ -3,7 +3,6 @@ namespace Entity.SystemMod;
 /// <summary>
 /// 系统菜单角色关联表
 /// </summary>
-[Index(nameof(RoleId), nameof(MenuId), IsUnique = true)]
 public class SysMenuRole : EntityBase
 {
     /// <summary>
@@ -20,11 +19,13 @@ public class SysMenuRole : EntityBase
     /// 导航属性 - 菜单
     /// </summary>
     [ForeignKey(nameof(MenuId))]
+    [NotMapped]
     public SysMenu SysMenu { get; set; } = default!;
 
     /// <summary>
     /// 导航属性 - 角色
     /// </summary>
     [ForeignKey(nameof(RoleId))]
+    [NotMapped]
     public SysRole SysRole { get; set; } = default!;
 }

@@ -3,7 +3,6 @@ namespace Entity.ResourceMod;
 /// <summary>
 /// 用户资源的属性值。值和属性快照独立保存，避免资源定义变更影响历史提交。
 /// </summary>
-[Index(nameof(UserResourceId), nameof(DefinitionPropertyId), IsUnique = true)]
 public class UserResValue : EntityBase
 {
     /// <summary>
@@ -20,28 +19,39 @@ public class UserResValue : EntityBase
     /// 规范化后的属性值。
     /// </summary>
     [MaxLength(1000)]
-    public required string Value { get; set; }
+    public string Value { get; set; } = string.Empty;
 
     /// <summary>
     /// 保存时的属性名称快照。
     /// </summary>
     [MaxLength(60)]
-    public required string PropertyNameSnapshot { get; set; }
+    public string PropertyNameSnapshot { get; set; } = string.Empty;
 
     /// <summary>
-    /// 保存时的属性值类型快照。
+    /// 保存时的属性值类型快照的整数存储值。
     /// </summary>
-    public ResValueType ValueTypeSnapshot { get; set; }
+    [JsonIgnore]
+    [Column("ValueTypeSnapshot")]
+    public int ValueTypeSnapshotValue { get; set; }
+    /// <summary>保存时的属性值类型快照。</summary>
+    [NotMapped]
+    public ResValueType ValueTypeSnapshot
+    {
+        get => (ResValueType)ValueTypeSnapshotValue;
+        set => ValueTypeSnapshotValue = (int)value;
+    }
 
     /// <summary>
     /// 所属用户资源。
     /// </summary>
     [ForeignKey(nameof(UserResourceId))]
+    [NotMapped]
     public UserResource UserResource { get; set; } = null!;
 
     /// <summary>
     /// 所属资源定义属性。
     /// </summary>
     [ForeignKey(nameof(DefinitionPropertyId))]
+    [NotMapped]
     public ResDefinitionProperty DefinitionProperty { get; set; } = null!;
 }

@@ -3,7 +3,6 @@ namespace Entity.SystemMod;
 /// <summary>
 /// 系统用户组织关联表
 /// </summary>
-[Index(nameof(UserId), nameof(OrganizationId), IsUnique = true)]
 public class SysUserOrganization : EntityBase
 {
     /// <summary>
@@ -20,11 +19,13 @@ public class SysUserOrganization : EntityBase
     /// 导航属性 - 用户
     /// </summary>
     [ForeignKey(nameof(UserId))]
+    [NotMapped]
     public SysUser User { get; set; } = default!;
 
     /// <summary>
     /// 导航属性 - 组织
     /// </summary>
     [ForeignKey(nameof(OrganizationId))]
+    [NotMapped]
     public SysOrganization Organization { get; set; } = default!;
 }

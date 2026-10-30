@@ -1,14 +1,13 @@
 using EntityFramework.AppDbFactory;
 using Microsoft.AspNetCore.Http;
+using Perigon.PostgreSQL;
 using ResourceMod.Models.ResourceDtos;
 using ResourceMod.Models.UserFavoriteResourceDtos;
 using Share.Exceptions;
 
 namespace ResourceMod.Managers;
 
-/// <summary>
-/// 当前用户的资源收藏管理。
-/// </summary>
+/// <summary>当前用户的资源收藏管理。</summary>
 public class UserFavoriteResourceManager(
     AppDbFactory dbContextFactory,
     ILogger<UserFavoriteResourceManager> logger,
@@ -18,128 +17,68 @@ public class UserFavoriteResourceManager(
 {
     private readonly ResourceManager _resourceManager = resourceManager;
 
-    /// <summary>
-    /// 查询当前用户的收藏资源。
-    /// </summary>
-    public async Task<PageList<UserFavoriteResourceItemDto>> MineAsync(
-        UserFavoriteResourceFilterDto filter)
+    public async Task<PageList<UserFavoriteResourceItemDto>> MineAsync(UserFavoriteResourceFilterDto filter)
     {
+        IQueryable<Resource> visibleResources = _resourceManager.GetVisibleQuery(_dbContext);
         IQueryable<UserFavoriteResource> query = _dbSet
             .Where(favorite => favorite.UserId == _userContext.UserId)
-            .Where(favorite => _resourceManager
-                .GetVisibleQuery(_dbContext)
-                .Any(resource => resource.Id == favorite.ResourceId));
-
+            .Where(favorite => visibleResources.Any(resource => resource.Id == favorite.ResourceId));
         int count = await query.CountAsync();
-        List<UserFavoriteResourceItemDto> data = await query
+        List<UserFavoriteResource> favorites = await query
             .OrderByDescending(favorite => favorite.CreatedTime)
-            .Skip((filter.PageIndex - 1) * filter.PageSize)
-            .Take(filter.PageSize)
-            .Select(favorite => new UserFavoriteResourceItemDto
-            {
-                Id = favorite.Id,
-                ResourceId = favorite.ResourceId,
-                CreatedTime = favorite.CreatedTime,
-                Resource = new ResourceItemDto
-                {
-                    Id = favorite.Resource.Id,
-                    EnvironmentId = favorite.Resource.EnvironmentId,
-                    EnvironmentName = favorite.Resource.Environment.Name,
-                    CategoryId = favorite.Resource.CategoryId,
-                    CategoryName = favorite.Resource.Category.Name,
-                    GroupId = favorite.Resource.GroupId,
-                    GroupName = favorite.Resource.Group == null ? null : favorite.Resource.Group.Name,
-                    DefinitionId = favorite.Resource.DefinitionId,
-                    DefinitionName = favorite.Resource.Definition.Name,
-                    TagNames = favorite.Resource.TagNames,
-                    UpdatedTime = favorite.Resource.UpdatedTime
-                }
-            })
-            .ToListAsync();
-
-        return new PageList<UserFavoriteResourceItemDto>
-        {
-            Count = count,
-            Data = data,
-            PageIndex = filter.PageIndex
-        };
+            .Skip((filter.PageIndex - 1) * filter.PageSize).Take(filter.PageSize).ToListAsync();
+        Guid[] resourceIds = favorites.Select(item => item.ResourceId).ToArray();
+        List<Resource> resources = await visibleResources
+            .Where(item => resourceIds.Contains(item.Id)).ToListAsync();
+        Dictionary<Guid, ResourceItemDto> items = await BuildItemsAsync(resources);
+        return new PageList<UserFavoriteResourceItemDto> { Count = count, PageIndex = filter.PageIndex, Data = favorites.Where(item => items.ContainsKey(item.ResourceId))
+            .Select(item => new UserFavoriteResourceItemDto { Id = item.Id, ResourceId = item.ResourceId, CreatedTime = item.CreatedTime, Resource = items[item.ResourceId] }).ToList() };
     }
 
-    /// <summary>
-    /// 查询当前用户对指定资源的收藏详情。
-    /// </summary>
     public async Task<UserFavoriteResourceDetailDto> GetAsync(Guid resourceId)
     {
-        UserFavoriteResource favorite = await _dbSet
-            .FirstOrDefaultAsync(item =>
-                item.UserId == _userContext.UserId &&
-                item.ResourceId == resourceId)
+        UserFavoriteResource favorite = await _dbSet.FirstOrDefaultAsync(item => item.UserId == _userContext.UserId && item.ResourceId == resourceId)
             ?? throw new BusinessException("收藏记录不存在", StatusCodes.Status404NotFound);
-
         ResourceDetailDto resource = await _resourceManager.GetAsync(resourceId)
             ?? throw new BusinessException("资源不存在或无权访问", StatusCodes.Status403Forbidden);
-
-        return new UserFavoriteResourceDetailDto
-        {
-            Id = favorite.Id,
-            ResourceId = favorite.ResourceId,
-            CreatedTime = favorite.CreatedTime,
-            Resource = resource
-        };
+        return new UserFavoriteResourceDetailDto { Id = favorite.Id, ResourceId = favorite.ResourceId, CreatedTime = favorite.CreatedTime, Resource = resource };
     }
 
-    /// <summary>
-    /// 收藏一个当前用户可见的常规资源。
-    /// </summary>
     public async Task<UserFavoriteResource> AddAsync(UserFavoriteResourceAddDto input)
     {
-        bool visible = await _resourceManager
-            .GetVisibleQuery(_dbContext)
-            .AnyAsync(resource => resource.Id == input.ResourceId);
-        if (!visible)
-        {
+        if (!await _resourceManager.GetVisibleQuery(_dbContext).AnyAsync(resource => resource.Id == input.ResourceId))
             throw new BusinessException("资源不存在或无权收藏", StatusCodes.Status403Forbidden);
-        }
-
-        bool exists = await _dbSet.AnyAsync(favorite =>
-            favorite.UserId == _userContext.UserId &&
-            favorite.ResourceId == input.ResourceId);
-        if (exists)
-        {
+        if (await _dbSet.AnyAsync(favorite => favorite.UserId == _userContext.UserId && favorite.ResourceId == input.ResourceId))
             throw new BusinessException("资源已收藏", StatusCodes.Status409Conflict);
-        }
-
-        UserFavoriteResource favorite = new()
-        {
-            UserId = _userContext.UserId,
-            ResourceId = input.ResourceId,
-            TenantId = _userContext.TenantId
-        };
-        await _dbSet.AddAsync(favorite);
-        await _dbContext.SaveChangesAsync();
+        UserFavoriteResource favorite = new() { UserId = _userContext.UserId, ResourceId = input.ResourceId, TenantId = _userContext.TenantId };
+        await _dbSet.InsertAsync(favorite);
         return favorite;
     }
 
-    /// <summary>
-    /// 取消当前用户对指定资源的收藏。
-    /// </summary>
     public async Task<bool> RemoveAsync(Guid resourceId)
     {
-        UserFavoriteResource favorite = await _dbSet
-            .FirstOrDefaultAsync(item =>
-                item.UserId == _userContext.UserId &&
-                item.ResourceId == resourceId)
+        UserFavoriteResource favorite = await _dbSet.FirstOrDefaultAsync(item => item.UserId == _userContext.UserId && item.ResourceId == resourceId)
             ?? throw new BusinessException("收藏记录不存在", StatusCodes.Status404NotFound);
-
-        favorite.IsDeleted = true;
-        favorite.UpdatedTime = DateTimeOffset.UtcNow;
-        await _dbContext.SaveChangesAsync();
+        await _dbSet.Where(item => item.Id == favorite.Id).ExecuteUpdateAsync(s => s.Set(item => item.IsDeleted, true));
         return true;
     }
 
-    public override Task<bool> HasPermissionAsync(Guid id)
+    public override Task<bool> HasPermissionAsync(Guid id) => _dbSet.AnyAsync(favorite => favorite.Id == id && favorite.UserId == _userContext.UserId);
+
+    private async Task<Dictionary<Guid, ResourceItemDto>> BuildItemsAsync(List<Resource> resources)
     {
-        return _dbSet.AnyAsync(favorite =>
-            favorite.Id == id && favorite.UserId == _userContext.UserId);
+        if (resources.Count == 0) return [];
+        Guid[] environmentIds = resources.Select(item => item.EnvironmentId).Distinct().ToArray();
+        Guid[] categoryIds = resources.Select(item => item.CategoryId).Distinct().ToArray();
+        Guid[] groupIds = resources.Where(item => item.GroupId.HasValue).Select(item => item.GroupId!.Value).Distinct().ToArray();
+        Guid[] definitionIds = resources.Select(item => item.DefinitionId).Distinct().ToArray();
+        Dictionary<Guid, string> environments = (await _dbContext.ResEnvironments.Where(item => environmentIds.Contains(item.Id)).ToListAsync()).ToDictionary(item => item.Id, item => item.Name);
+        Dictionary<Guid, string> categories = (await _dbContext.ResCategories.Where(item => categoryIds.Contains(item.Id)).ToListAsync()).ToDictionary(item => item.Id, item => item.Name);
+        Dictionary<Guid, string> groups = (await _dbContext.ResGroups.Where(item => groupIds.Contains(item.Id)).ToListAsync()).ToDictionary(item => item.Id, item => item.Name);
+        Dictionary<Guid, string> definitions = (await _dbContext.ResDefinitions.Where(item => definitionIds.Contains(item.Id)).ToListAsync()).ToDictionary(item => item.Id, item => item.Name);
+        return resources.ToDictionary(resource => resource.Id, resource => new ResourceItemDto { Id = resource.Id, EnvironmentId = resource.EnvironmentId,
+            EnvironmentName = environments[resource.EnvironmentId], CategoryId = resource.CategoryId, CategoryName = categories[resource.CategoryId],
+            GroupId = resource.GroupId, GroupName = resource.GroupId.HasValue && groups.TryGetValue(resource.GroupId.Value, out string? group) ? group : null,
+            DefinitionId = resource.DefinitionId, DefinitionName = definitions[resource.DefinitionId], TagNames = resource.TagNames.ToList(), UpdatedTime = resource.UpdatedTime });
     }
 }

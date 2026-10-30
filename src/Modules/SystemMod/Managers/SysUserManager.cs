@@ -193,8 +193,12 @@ public class SysUserManager(
         user.PasswordSalt = HashCrypto.BuildSalt();
         user.PasswordHash = HashCrypto.GeneratePwd(newPassword, user.PasswordSalt);
         user.LastPwdEditTime = DateTimeOffset.UtcNow;
-        _dbSet.Update(user);
-        return await _dbContext.SaveChangesAsync() > 0;
+        return await _dbSet
+            .Where(item => item.Id == user.Id && item.TenantId == _userContext.TenantId)
+            .ExecuteUpdateAsync(update => update
+                .Set(item => item.PasswordSalt, user.PasswordSalt)
+                .Set(item => item.PasswordHash, user.PasswordHash)
+                .Set(item => item.LastPwdEditTime, user.LastPwdEditTime)) > 0;
     }
 
     public async Task<PageList<SysUserItemDto>> ToPageAsync(SysUserFilterDto filter)
@@ -209,9 +213,11 @@ public class SysUserManager(
 
         if (filter.RoleId != null)
         {
-            Queryable = Queryable.Where(q => q
-                .SysUserRoles
-                .Any(ur => ur.RoleId == filter.RoleId));
+            var roleLinks = await _dbContext.SysUserRoles
+                .Where(link => link.RoleId == filter.RoleId)
+                .ToListAsync();
+            var roleUserIds = roleLinks.Select(link => link.UserId).Distinct().ToArray();
+            Queryable = Queryable.Where(q => roleUserIds.Contains(q.Id));
         }
         return await PageListAsync<SysUserFilterDto, SysUserItemDto>(filter);
     }
@@ -224,7 +230,7 @@ public class SysUserManager(
     public async Task<bool> IsExistAsync(string email)
     {
         await ResolveTenantAsync(email);
-        return await Queryable.AnyAsync(q => q.Email == email);
+        return await Queryable.Where(q => q.Email == email).AnyAsync();
     }
 
     /// <summary>
@@ -270,11 +276,8 @@ public class SysUserManager(
 
     public async Task<SysUser?> GetSysUserAsync(Guid id)
     {
-        return await Queryable
-            .Where(q => q.Id == id)
-            .Include(q => q.SysUserRoles)
-            .ThenInclude(ur => ur.Role)
-            .FirstOrDefaultAsync();
+        var user = await Queryable.Where(q => q.Id == id).FirstOrDefaultAsync();
+        return user is null ? null : await LoadUserRolesAsync(user);
     }
 
     // expose DTO getter for controllers
@@ -290,9 +293,8 @@ public class SysUserManager(
         // 查询用户
         var user = await _dbSet
             .Where(u => u.Email == dto.Email)
-            .Include(u => u.SysUserRoles)
-            .ThenInclude(ur => ur.Role)
             .FirstOrDefaultAsync() ?? throw new BusinessException(Localizer.UserNotExists);
+        await LoadUserRolesAsync(user);
         try
         {
             var loginPolicy = await GetLoginSecurityPolicyAsync();
@@ -343,7 +345,12 @@ public class SysUserManager(
         finally
         {
             // 确保用户信息（如重试次数、最后登录时间）被保存
-            await _dbContext.SaveChangesAsync();
+            await _dbSet
+                .Where(item => item.Id == user.Id && item.TenantId == _userContext.TenantId)
+                .ExecuteUpdateAsync(update => update
+                    .Set(item => item.LastLoginTime, user.LastLoginTime)
+                    .Set(item => item.RetryCount, user.RetryCount)
+                    .Set(item => item.LockoutEnabled, user.LockoutEnabled));
         }
     }
 
@@ -389,8 +396,28 @@ public class SysUserManager(
                 );
             }
 
-            // 先进行 DTO 局部更新
-            await base.UpdateAsync(id, dto);
+            // Perigon PostgreSQL does not track entities; materialize the current
+            // row and issue one explicit update for the supplied fields.
+            if (dto.UserName is not null) current.UserName = dto.UserName;
+            if (dto.RealName is not null) current.RealName = dto.RealName;
+            if (dto.Email is not null) current.Email = dto.Email;
+            if (dto.PhoneNumber is not null) current.PhoneNumber = dto.PhoneNumber;
+            if (dto.Avatar is not null) current.Avatar = dto.Avatar;
+            if (dto.Sex is GenderType sex) current.Sex = (Sex)sex;
+
+            if (dto.UserName is not null || dto.RealName is not null || dto.Email is not null
+                || dto.PhoneNumber is not null || dto.Avatar is not null || dto.Sex is not null)
+            {
+                await _dbSet
+                    .Where(u => u.Id == id && u.TenantId == _userContext.TenantId)
+                    .ExecuteUpdateAsync(update => update
+                        .Set(u => u.UserName, current.UserName)
+                        .Set(u => u.RealName, current.RealName)
+                        .Set(u => u.Email, current.Email)
+                        .Set(u => u.PhoneNumber, current.PhoneNumber)
+                        .Set(u => u.Avatar, current.Avatar)
+                        .Set(u => u.SexValue, current.SexValue));
+            }
 
             // 如需修改密码，单独更新密码相关字段
             if (dto.Password != null)
@@ -410,9 +437,9 @@ public class SysUserManager(
                 await _dbSet
                     .Where(u => u.Id == id)
                     .ExecuteUpdateAsync(u => u
-                        .SetProperty(e => e.PasswordSalt, newSalt)
-                        .SetProperty(e => e.PasswordHash, newHash)
-                        .SetProperty(e => e.LastPwdEditTime, now));
+                        .Set(e => e.PasswordSalt, newSalt)
+                        .Set(e => e.PasswordHash, newHash)
+                        .Set(e => e.LastPwdEditTime, now));
             }
 
             // 使用中间表管理器处理角色关联，提高性能
@@ -452,10 +479,28 @@ public class SysUserManager(
             throw new BusinessException(Localizer.TenantNotExist);
         }
 
-        _dbContext.SetTenantId(tenant.Id);
         _userContext.TenantId = tenant.Id;
         _userContext.TenantType = tenant.Type.ToString();
+        BindTenantContext(tenant.Id);
         return tenant;
+    }
+
+    private async Task<SysUser> LoadUserRolesAsync(SysUser user)
+    {
+        var links = await _dbContext.SysUserRoles
+            .Where(link => link.UserId == user.Id && link.TenantId == _userContext.TenantId)
+            .ToListAsync();
+        var roleIds = links.Select(link => link.RoleId).Distinct().ToArray();
+        var roles = await _dbContext.SysRoles
+            .Where(role => roleIds.Contains(role.Id) && role.TenantId == _userContext.TenantId)
+            .ToListAsync();
+        foreach (var link in links)
+        {
+            link.Role = roles.FirstOrDefault(role => role.Id == link.RoleId)!;
+            link.User = user;
+        }
+        user.SysUserRoles = links;
+        return user;
     }
 
     private async Task<LoginSecurityPolicyOption> GetLoginSecurityPolicyAsync()

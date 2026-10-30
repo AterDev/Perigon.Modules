@@ -17,7 +17,7 @@ public class SysDataScopeManager(
         Queryable = Queryable
             .WhereNotNull(filter.Name, scope => scope.Name.Contains(filter.Name!))
             .WhereNotNull(filter.ResourceCode, scope => scope.ResourceCode == filter.ResourceCode)
-            .WhereNotNull(filter.ScopeType, scope => scope.ScopeType == filter.ScopeType)
+            .WhereNotNull(filter.ScopeType, scope => scope.ScopeTypeValue == (int)filter.ScopeType!.Value)
             .WhereNotNull(filter.GroupId, scope => scope.GroupId == filter.GroupId);
 
         return await PageListAsync<SysDataScopeFilterDto, SysDataScopeItemDto>(filter);
@@ -26,7 +26,6 @@ public class SysDataScopeManager(
     public async Task<SysDataScopeDetailDto?> GetAsync(Guid id)
     {
         return await _dbSet
-            .AsNoTracking()
             .Where(scope => scope.Id == id)
             .Select(scope => new SysDataScopeDetailDto
             {
@@ -55,7 +54,7 @@ public class SysDataScopeManager(
 
     public async Task<SysDataScope> UpdateAsync(Guid id, SysDataScopeUpdateDto dto)
     {
-        SysDataScope current = await _dbSet.SingleOrDefaultAsync(scope => scope.Id == id)
+        SysDataScope current = await _dbSet.Where(scope => scope.Id == id).SingleOrDefaultAsync()
             ?? throw new BusinessException(Localizer.NotFoundResource, StatusCodes.Status404NotFound);
 
         if (dto.GroupId is Guid groupId)
@@ -89,7 +88,14 @@ public class SysDataScopeManager(
             current.TargetIds = [];
         }
 
-        await _dbContext.SaveChangesAsync();
+        await _dbSet
+            .Where(scope => scope.Id == id && scope.TenantId == _userContext.TenantId)
+            .ExecuteUpdateAsync(update => update
+                .Set(scope => scope.GroupId, current.GroupId)
+                .Set(scope => scope.Name, current.Name)
+                .Set(scope => scope.ResourceCode, current.ResourceCode)
+                .Set(scope => scope.ScopeTypeValue, current.ScopeTypeValue)
+                .Set(scope => scope.TargetIds, current.TargetIds));
         return current;
     }
 
@@ -105,13 +111,14 @@ public class SysDataScopeManager(
 
     public override Task<bool> HasPermissionAsync(Guid id)
     {
-        return _dbSet.AnyAsync(scope => scope.Id == id && scope.TenantId == _userContext.TenantId);
+        return _dbSet.Where(scope => scope.Id == id && scope.TenantId == _userContext.TenantId).AnyAsync();
     }
 
     private async Task EnsureGroupExistsAsync(Guid groupId)
     {
-        bool groupExists = await _dbContext.SysDataScopeGroups.AnyAsync(group =>
-            group.Id == groupId && group.TenantId == _userContext.TenantId);
+        bool groupExists = await _dbContext.SysDataScopeGroups
+            .Where(group => group.Id == groupId && group.TenantId == _userContext.TenantId)
+            .AnyAsync();
         if (!groupExists)
         {
             throw new BusinessException(Localizer.NotFoundResource, StatusCodes.Status404NotFound);

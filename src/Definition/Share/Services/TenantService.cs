@@ -1,7 +1,7 @@
 using Entity;
 using EntityFramework.AppDbContext;
 using EntityFramework.AppDbFactory;
-using Microsoft.EntityFrameworkCore;
+using Perigon.PostgreSQL;
 using Perigon.AspNetCore.Constants;
 using Perigon.AspNetCore.Services;
 
@@ -35,9 +35,7 @@ public sealed class TenantService(
             return cachedTenant;
         }
 
-        var tenant = dbContext.Tenants
-            .AsNoTracking()
-            .FirstOrDefault(item => item.Id == tenantId);
+        var tenant = dbContext.Tenants.Where(item => item.Id == tenantId).FirstOrDefaultAsync().GetAwaiter().GetResult();
 
         if (tenant is not null)
         {
@@ -69,8 +67,7 @@ public sealed class TenantService(
         }
 
         var tenant = await dbContext.Tenants
-            .AsNoTracking()
-            .FirstOrDefaultAsync(item => item.Id == tenantId, cancellationToken);
+            .Where(item => item.Id == tenantId).FirstOrDefaultAsync(cancellationToken);
 
         if (tenant is not null)
         {
@@ -131,8 +128,7 @@ public sealed class TenantService(
         }
 
         var tenant = await dbContext.Tenants
-            .AsNoTracking()
-            .FirstOrDefaultAsync(item => item.Domain == domain, cancellationToken);
+            .Where(item => item.Domain == domain).FirstOrDefaultAsync(cancellationToken);
 
         if (tenant is not null)
         {
@@ -222,8 +218,7 @@ public sealed class TenantService(
 
         var previousTenant = cache.GetMemory<Tenant>(GetCacheKey(tenantId));
         var tenant = await dbContext.Tenants
-            .AsNoTracking()
-            .FirstOrDefaultAsync(item => item.Id == tenantId, cancellationToken);
+            .Where(item => item.Id == tenantId).FirstOrDefaultAsync(cancellationToken);
 
         RemoveCache(tenantId, previousTenant?.Domain);
         if (tenant is not null)

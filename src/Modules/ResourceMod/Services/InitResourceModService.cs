@@ -1,5 +1,6 @@
 using Microsoft.Extensions.Hosting;
 using EntityFramework.AppDbFactory;
+using Perigon.PostgreSQL;
 
 namespace ResourceMod.Services;
 
@@ -56,18 +57,18 @@ public class InitResourceModService(
             using IServiceScope scope = serviceProvider.CreateScope();
             DefaultDbContext catalogContext = scope.ServiceProvider.GetRequiredService<DefaultDbContext>();
             AppDbFactory dbContextFactory = scope.ServiceProvider.GetRequiredService<AppDbFactory>();
-            List<Tenant> tenants = await catalogContext.Tenants
-                .AsNoTracking()
-                .ToListAsync(stoppingToken);
+            List<Tenant> tenants = await catalogContext.Tenants.ToListAsync(stoppingToken);
             foreach (Tenant tenant in tenants)
             {
                 Guid tenantId = tenant.Id;
                 await using DefaultDbContext context = dbContextFactory.CreateDbContext(tenantId);
-                await InitializeEnvironmentsAsync(context, tenantId, stoppingToken);
-                await InitializeCategoryAsync(context, tenantId, stoppingToken);
-                await InitializeTagsAsync(context, tenantId, stoppingToken);
-                await InitializeDefinitionsAsync(context, tenantId, stoppingToken);
-                await context.SaveChangesAsync(stoppingToken);
+                await context.TransactionAsync(async cancellationToken =>
+                {
+                    await InitializeEnvironmentsAsync(context, tenantId, cancellationToken);
+                    await InitializeCategoryAsync(context, tenantId, cancellationToken);
+                    await InitializeTagsAsync(context, tenantId, cancellationToken);
+                    await InitializeDefinitionsAsync(context, tenantId, cancellationToken);
+                }, stoppingToken);
             }
             logger.LogInformation("ResourceMod initialized for {TenantCount} tenants", tenants.Count);
         }
@@ -95,18 +96,19 @@ public class InitResourceModService(
             {
                 if (string.IsNullOrWhiteSpace(existing.Icon))
                 {
-                    existing.Icon = icon;
+                    await context.ResEnvironments.Where(item => item.Id == existing.Id)
+                        .ExecuteUpdateAsync(s => s.Set(item => item.Icon, icon), cancellationToken: cancellationToken);
                 }
                 continue;
             }
 
-            context.ResEnvironments.Add(new ResEnvironment
+            await context.ResEnvironments.InsertAsync(new ResEnvironment
             {
                 Name = name,
                 Icon = icon,
                 Color = color,
                 TenantId = tenantId
-            });
+            }, cancellationToken);
         }
     }
 
@@ -121,19 +123,20 @@ public class InitResourceModService(
         {
             if (string.IsNullOrWhiteSpace(existing.Icon))
             {
-                existing.Icon = "category";
+                await context.ResCategories.Where(item => item.Id == existing.Id)
+                    .ExecuteUpdateAsync(s => s.Set(item => item.Icon, "category"), cancellationToken: cancellationToken);
             }
             return;
         }
 
-        context.ResCategories.Add(new ResCategory
+        await context.ResCategories.InsertAsync(new ResCategory
         {
             Name = "Default",
             CatalogCode = "Default",
             Icon = "category",
             Color = "#9e9e9e",
             TenantId = tenantId
-        });
+        }, cancellationToken);
     }
 
     private static async Task InitializeTagsAsync(
@@ -153,18 +156,19 @@ public class InitResourceModService(
             {
                 if (string.IsNullOrWhiteSpace(existing.Icon))
                 {
-                    existing.Icon = icon;
+                    await context.ResTags.Where(item => item.Id == existing.Id)
+                        .ExecuteUpdateAsync(s => s.Set(item => item.Icon, icon), cancellationToken: cancellationToken);
                 }
                 continue;
             }
 
-            context.ResTags.Add(new ResTag
+            await context.ResTags.InsertAsync(new ResTag
             {
                 Name = name,
                 Icon = icon,
                 Color = color,
                 TenantId = tenantId
-            });
+            }, cancellationToken);
         }
     }
 
@@ -182,7 +186,8 @@ public class InitResourceModService(
                 string.Equals(definition.Name, name, StringComparison.Ordinal));
             if (existing != null && string.IsNullOrWhiteSpace(existing.Icon))
             {
-                existing.Icon = icon;
+                await context.ResDefinitions.Where(item => item.Id == existing.Id)
+                    .ExecuteUpdateAsync(s => s.Set(item => item.Icon, icon), cancellationToken: cancellationToken);
             }
         }
 
@@ -199,13 +204,13 @@ public class InitResourceModService(
                 item => new ResDefinitionProperty
                 {
                     Name = item.Name,
-                    ValueType = item.ValueType,
+                    ValueTypeValue = (int)item.ValueType,
                     IsRequired = item.Name == "名称",
                     MaxLength = 200,
                     TenantId = tenantId
                 },
                 StringComparer.Ordinal);
-        context.ResDefinitionProperties.AddRange(properties.Values);
+        await context.ResDefinitionProperties.BulkInsertAsync(properties.Values, cancellationToken: cancellationToken);
 
         List<ResDefinition> definitions = [];
         List<ResDefinitionPropertyMap> maps = [];
@@ -232,7 +237,7 @@ public class InitResourceModService(
             }
         }
 
-        context.ResDefinitions.AddRange(definitions);
-        context.ResDefinitionPropertyMaps.AddRange(maps);
+        await context.ResDefinitions.BulkInsertAsync(definitions, cancellationToken: cancellationToken);
+        await context.ResDefinitionPropertyMaps.BulkInsertAsync(maps, cancellationToken: cancellationToken);
     }
 }

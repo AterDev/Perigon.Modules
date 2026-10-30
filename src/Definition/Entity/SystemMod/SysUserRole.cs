@@ -3,7 +3,6 @@ namespace Entity.SystemMod;
 /// <summary>
 /// 系统用户角色关联表
 /// </summary>
-[Index(nameof(UserId), nameof(RoleId), IsUnique = true)]
 public class SysUserRole : EntityBase
 {
     /// <summary>
@@ -20,11 +19,13 @@ public class SysUserRole : EntityBase
     /// 导航属性 - 用户
     /// </summary>
     [ForeignKey(nameof(UserId))]
+    [NotMapped]
     public SysUser User { get; set; } = default!;
 
     /// <summary>
     /// 导航属性 - 角色
     /// </summary>
     [ForeignKey(nameof(RoleId))]
+    [NotMapped]
     public SysRole Role { get; set; } = default!;
 }

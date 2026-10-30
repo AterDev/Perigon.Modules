@@ -1,16 +1,18 @@
+using System.Text.Json.Serialization;
+
 namespace Entity.SystemMod;
 
 /// <summary>
 /// 系统菜单
 /// </summary>
-[Index(nameof(AccessCode), IsUnique = true)]
 public class SysMenu : EntityBase, ITreeNode<SysMenu>
 {
     /// <summary>
     /// 菜单名称
     /// </summary>
     [MaxLength(60)]
-    public required string Name { get; set; }
+    [Required]
+    public string Name { get; set; } = string.Empty;
 
     /// <summary>
     /// 菜单路径
@@ -28,6 +30,7 @@ public class SysMenu : EntityBase, ITreeNode<SysMenu>
     /// 父菜单
     /// </summary>
     [ForeignKey(nameof(ParentId))]
+    [NotMapped]
     public SysMenu? Parent { get; set; }
     public Guid? ParentId { get; set; }
 
@@ -39,23 +42,35 @@ public class SysMenu : EntityBase, ITreeNode<SysMenu>
     /// <summary>
     /// 子菜单
     /// </summary>
+    [NotMapped]
     public List<SysMenu> Children { get; set; } = [];
 
     /// <summary>
     /// 所属角色关联
     /// </summary>
+    [NotMapped]
     public ICollection<SysMenuRole> SysMenuRoles { get; set; } = [];
 
     /// <summary>
     /// 权限编码
     /// </summary>
     [MaxLength(50)]
-    public required string AccessCode { get; set; }
+    [Required]
+    public string AccessCode { get; set; } = string.Empty;
 
     /// <summary>
     /// 菜单类型
     /// </summary>
-    public MenuType MenuType { get; set; } = MenuType.Page;
+    [NotMapped]
+    public MenuType MenuType
+    {
+        get => (MenuType)MenuTypeValue;
+        set => MenuTypeValue = (int)value;
+    }
+
+    [Column("MenuType")]
+    [JsonIgnore]
+    public int MenuTypeValue { get; set; } = (int)MenuType.Page;
 
     /// <summary>
     /// 排序

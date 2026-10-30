@@ -10,7 +10,6 @@ var aspireSetting = AppSettingsHelper.LoadAspireSettings(builder.Configuration);
 var isTesting = builder.Configuration["ASPIRE_ENVIRONMENT"]?.ToLowerInvariant() == "testing";
 var isMultiTenant = builder.Configuration["Components:IsMultiTenant"] ?? "false";
 
-IResourceBuilder<IResourceWithConnectionString>? database = null;
 IResourceBuilder<IResourceWithConnectionString>? cache = null;
 
 // if you have exist resource, you can set connection string here, without create container
@@ -27,20 +26,14 @@ var devPassword = builder.AddParameter(
 );
 
 var infrastructureGroup = builder.AddGroup("Infrastructure", "Cloud");
-_ = aspireSetting.DatabaseType?.ToLowerInvariant() switch
+var postgres = builder
+    .AddPostgres(name: "Database", password: devPassword, port: aspireSetting.DbPort)
+    .WithImageTag("18.1-alpine");
+if (!isTesting)
 {
-    "postgresql" => database = builder
-        .AddPostgres(name: "Database", password: devPassword, port: aspireSetting.DbPort)
-        .WithImageTag("18.1-alpine")
-        .WithDataVolume()
-        .AddDatabase(AppConst.Default, databaseName: defaultName),
-    "sqlserver" => database = builder
-        .AddSqlServer(name: "Database", password: devPassword, port: aspireSetting.DbPort)
-        .WithImageTag("2025-latest")
-        .WithDataVolume()
-        .AddDatabase(AppConst.Default, databaseName: defaultName),
-    _ => null,
-};
+    postgres = postgres.WithDataVolume();
+}
+var database = postgres.AddDatabase(AppConst.Default, databaseName: defaultName);
 _ = aspireSetting.CacheType?.ToLowerInvariant() switch
 {
     "memory" => null,
@@ -52,7 +45,7 @@ _ = aspireSetting.CacheType?.ToLowerInvariant() switch
 };
 
 devPassword.WithParentRelationship(infrastructureGroup);
-database?.WithParentRelationship(infrastructureGroup);
+database.WithParentRelationship(infrastructureGroup);
 cache?.WithParentRelationship(infrastructureGroup);
 
 #endregion
@@ -61,14 +54,12 @@ cache?.WithParentRelationship(infrastructureGroup);
 var serviceGroup = builder.AddGroup("Services", "Globe");
 var adminService = builder.AddProject<Projects.AdminService>("AdminService")
     .WithEnvironment("Components__Cache", aspireSetting.CacheType)
-    .WithEnvironment("Components__Database", aspireSetting.DatabaseType)
     .WithEnvironment("Components__IsMultiTenant", isMultiTenant)
     .WithParentRelationship(serviceGroup);
 
 var apiService = builder.AddProject<Projects.ApiService>("ApiService")
     .WithReference(adminService)
     .WithEnvironment("Components__Cache", aspireSetting.CacheType)
-    .WithEnvironment("Components__Database", aspireSetting.DatabaseType)
     .WithEnvironment("Components__IsMultiTenant", isMultiTenant)
     .WithParentRelationship(serviceGroup);
 
@@ -87,30 +78,27 @@ if (!string.Equals(builder.Environment.EnvironmentName, "Production", StringComp
         .WithParentRelationship(serviceGroup);
 }
 
-if (database != null)
-{
-    apiService.WithReference(database);
-    adminService.WithReference(database);
-}
+apiService.WithReference(database);
+adminService.WithReference(database);
 if (cache != null)
 {
     apiService.WithReference(cache);
     adminService.WithReference(cache);
 }
 
-var adminMigrations = adminService
-    .AddEFMigrations("AdminService-Migrations","EntityFramework.AppDbContext.DefaultDbContext")
-    .WithEnvironment("Components__Database", aspireSetting.DatabaseType)
+// The migration instance is the same AdminService binary, started in an explicit
+// migration-only mode. It must finish successfully before either web service starts.
+// The mode is implemented by the service startup and calls Perigon.PostgreSQL's
+// migration API; it never calls EnsureCreated or performs an implicit baseline.
+var adminMigrations = builder.AddProject<Projects.AdminService>("AdminService-Migrations")
     .WithEnvironment("Components__IsMultiTenant", isMultiTenant)
-    .WithMigrationsProject("..\\Definition\\EntityFramework\\EntityFramework.csproj")
-    .RunDatabaseUpdateOnStart()
-    .PublishAsMigrationBundle(publishContainer: true)
+    .WithEnvironment("Perigon__MigrationMode", "Apply")
     .PublishAsKubernetesService(resource =>
     {
         if (resource.Workload is not Deployment deployment)
         {
             throw new InvalidOperationException(
-                "Aspire did not generate a Deployment workload for the EF migration resource."
+                "Aspire did not generate a Deployment workload for the PostgreSQL migration resource."
             );
         }
 
@@ -135,10 +123,7 @@ var adminMigrations = adminService
     })
     .WithParentRelationship(serviceGroup);
 
-if (database != null)
-{
-    adminMigrations.WithReference(database).WaitFor(database);
-}
+adminMigrations.WithReference(database).WaitFor(database);
 
 apiService.WaitForCompletion(adminMigrations);
 adminService.WaitForCompletion(adminMigrations);

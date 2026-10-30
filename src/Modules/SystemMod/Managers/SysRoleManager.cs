@@ -37,9 +37,13 @@ public class SysRoleManager(
     /// <returns></returns>
     public async Task<List<SysMenu>> GetSysMenusAsync(List<SysRole> systemRoles)
     {
-        IEnumerable<Guid> ids = systemRoles.Select(r => r.Id);
-        return await _dbContext
-            .SysMenus.Where(m => m.SysMenuRoles.Any(mr => ids.Contains(mr.RoleId)))
+        Guid[] ids = systemRoles.Select(r => r.Id).ToArray();
+        var menuLinks = await _dbContext.SysMenuRoles
+            .Where(link => ids.Contains(link.RoleId))
+            .ToListAsync();
+        var menuIds = menuLinks.Select(link => link.MenuId).Distinct().ToArray();
+        return await _dbContext.SysMenus
+            .Where(menu => menuIds.Contains(menu.Id))
             .ToListAsync();
     }
 
@@ -62,7 +66,20 @@ public class SysRoleManager(
             );
         }
 
-        await base.UpdateAsync<SysRoleUpdateDto>(id, dto);
+        if (dto.Name is null && dto.NameValue is null && dto.IsSystem is null)
+        {
+            return current;
+        }
+
+        var name = dto.Name ?? current.Name;
+        var nameValue = dto.NameValue ?? current.NameValue;
+        var isSystem = dto.IsSystem ?? current.IsSystem;
+        await _dbSet
+            .Where(role => role.Id == id && role.TenantId == _userContext.TenantId)
+            .ExecuteUpdateAsync(update => update
+                .Set(role => role.Name, name)
+                .Set(role => role.NameValue, nameValue)
+                .Set(role => role.IsSystem, isSystem));
         return current;
     }
 
@@ -98,20 +115,20 @@ public class SysRoleManager(
 
             // 先删除现有菜单角色关联
             await _dbContext.SysMenuRoles
-                .Where(mr => mr.RoleId == current.Id)
+                .Where(mr => mr.RoleId == current.Id && mr.TenantId == _userContext.TenantId)
                 .ExecuteDeleteAsync();
 
+            Guid[] menuIds = dto.MenuIds.ToArray();
             var menus = await _dbContext
-                .SysMenus.Where(m => dto.MenuIds.Contains(m.Id))
+                .SysMenus.Where(m => menuIds.Contains(m.Id))
                 .ToListAsync();
 
-            _dbContext.SysMenuRoles.AddRange(menus.Select(menu => new SysMenuRole
+            await _dbContext.SysMenuRoles.BulkInsertAsync(menus.Select(menu => new SysMenuRole
             {
                 MenuId = menu.Id,
                 RoleId = current.Id,
                 TenantId = _userContext.TenantId,
             }));
-            await _dbContext.SaveChangesAsync();
 
             return current;
         });
@@ -125,7 +142,7 @@ public class SysRoleManager(
 
     public async Task<List<SysRole>> ListAsync(Expression<Func<SysRole, bool>>? whereExp = null)
     {
-        return await _dbContext.SysRoles.AsNoTracking().Where(whereExp ?? (e => true)).ToListAsync();
+        return await _dbContext.SysRoles.Where(whereExp ?? (e => true)).ToListAsync();
     }
 
     public async Task<SysRoleDetailDto?> GetAsync(Guid id)

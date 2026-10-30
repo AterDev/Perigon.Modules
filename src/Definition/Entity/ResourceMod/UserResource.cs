@@ -3,8 +3,6 @@ namespace Entity.ResourceMod;
 /// <summary>
 /// 用户提交的资源。个人资源在转换为常规资源前不关联环境、分类、分组或标签。
 /// </summary>
-[Index(nameof(UserId))]
-[Index(nameof(AuditStatus))]
 public class UserResource : EntityBase
 {
     /// <summary>
@@ -18,14 +16,32 @@ public class UserResource : EntityBase
     public Guid DefinitionId { get; set; }
 
     /// <summary>
-    /// 资源可见性。私有资源仅所有者可见，公开申请由管理员审核后转换为常规资源。
+    /// 资源可见性的整数存储值。
     /// </summary>
-    public UserResourceStatus Status { get; set; }
+    [JsonIgnore]
+    [Column("Status")]
+    public int StatusValue { get; set; }
+    /// <summary>资源可见性。私有资源仅所有者可见，公开申请由管理员审核后转换为常规资源。</summary>
+    [NotMapped]
+    public UserResourceStatus Status
+    {
+        get => (UserResourceStatus)StatusValue;
+        set => StatusValue = (int)value;
+    }
 
     /// <summary>
-    /// 公开申请审核状态。
+    /// 公开申请审核状态的整数存储值。
     /// </summary>
-    public UserResourceAuditStatus AuditStatus { get; set; }
+    [JsonIgnore]
+    [Column("AuditStatus")]
+    public int AuditStatusValue { get; set; }
+    /// <summary>公开申请审核状态。</summary>
+    [NotMapped]
+    public UserResourceAuditStatus AuditStatus
+    {
+        get => (UserResourceAuditStatus)AuditStatusValue;
+        set => AuditStatusValue = (int)value;
+    }
 
     /// <summary>
     /// 审核通过后创建的常规资源 ID。
@@ -42,10 +58,12 @@ public class UserResource : EntityBase
     /// 使用的资源定义。
     /// </summary>
     [ForeignKey(nameof(DefinitionId))]
+    [NotMapped]
     public ResDefinition Definition { get; set; } = null!;
 
     /// <summary>
     /// 用户填写的资源属性值。
     /// </summary>
+    [NotMapped]
     public ICollection<UserResValue> Values { get; set; } = [];
 }

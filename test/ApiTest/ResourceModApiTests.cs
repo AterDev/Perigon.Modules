@@ -649,6 +649,125 @@ public class ResourceModApiTests
 
     [ClassDataSource<TestHttpClientData>(Shared = SharedType.None)]
     [Test]
+    public async Task ResourceAndFavoriteLists_ShouldPageVisibleRowsAndKeepTenantDataIsolated(
+        TestHttpClientData data)
+    {
+        HttpClient adminClient = data.HttpClient;
+        (HttpClient ownerClient, _) = await data.CreateSysUserClientAsync();
+        ResourceFixture fixture = await CreateFixtureAsync(adminClient);
+        string searchKey = $"page-resource-{Guid.CreateVersion7():N}";
+        List<Guid> resourceIds = [];
+
+        try
+        {
+            foreach (string suffix in new[] { "one", "two", "three" })
+            {
+                ResourceCreatedDto resource = await PostAsync<ResourceCreatedDto>(
+                    adminClient,
+                    "/api/Resource",
+                    new ResourceAddDto
+                    {
+                        EnvironmentId = fixture.Environment.Id,
+                        CategoryId = fixture.Category.Id,
+                        GroupId = fixture.Group.Id,
+                        DefinitionId = fixture.Definition.Id,
+                        TagNames = [$"{searchKey}-{suffix}"],
+                        Values = fixture.Values
+                    },
+                    HttpStatusCode.Created);
+                resourceIds.Add(resource.Id);
+            }
+
+            JsonDocument firstResourcePage = await GetAsync<JsonDocument>(
+                adminClient,
+                $"/api/Resource/list?searchKey={Uri.EscapeDataString(searchKey)}&pageIndex=1&pageSize=2",
+                HttpStatusCode.OK);
+            await Assert.That(firstResourcePage.RootElement.GetProperty("count").GetInt32()).IsEqualTo(3);
+            await Assert.That(firstResourcePage.RootElement.GetProperty("data").GetArrayLength()).IsEqualTo(2);
+
+            JsonDocument secondResourcePage = await GetAsync<JsonDocument>(
+                adminClient,
+                $"/api/Resource/list?searchKey={Uri.EscapeDataString(searchKey)}&pageIndex=2&pageSize=2",
+                HttpStatusCode.OK);
+            await Assert.That(secondResourcePage.RootElement.GetProperty("count").GetInt32()).IsEqualTo(3);
+            await Assert.That(secondResourcePage.RootElement.GetProperty("data").GetArrayLength()).IsEqualTo(1);
+            Guid[] listedIds = firstResourcePage.RootElement.GetProperty("data").EnumerateArray()
+                .Concat(secondResourcePage.RootElement.GetProperty("data").EnumerateArray())
+                .Select(item => item.GetProperty("id").GetGuid())
+                .ToArray();
+            await Assert.That(listedIds.OrderBy(id => id)).IsEquivalentTo(resourceIds.OrderBy(id => id));
+
+            JsonDocument roleList = await GetAsync<JsonDocument>(
+                adminClient,
+                "/api/SysRole?nameValue=User&pageSize=100",
+                HttpStatusCode.OK);
+            Guid userRoleId = roleList.RootElement.GetProperty("data").EnumerateArray()
+                .Single(item => item.GetProperty("nameValue").GetString() == "User")
+                .GetProperty("id").GetGuid();
+            using (HttpResponseMessage setPermissions = await adminClient.PutAsJsonAsync(
+                "/api/ResourceConfiguration/permissions",
+                new ResPermissionUpdateDto
+                {
+                    EnvironmentId = fixture.Environment.Id,
+                    CategoryId = fixture.Category.Id,
+                    RoleIds = [userRoleId]
+                }))
+            {
+                await Assert.That(setPermissions.StatusCode).IsEqualTo(HttpStatusCode.OK);
+            }
+
+            foreach (Guid resourceId in resourceIds)
+            {
+                await PostAsync<UserFavoriteResourceCreatedDto>(
+                    ownerClient,
+                    "/api/UserFavoriteResource",
+                    new UserFavoriteResourceAddDto { ResourceId = resourceId },
+                    HttpStatusCode.Created);
+            }
+
+            JsonDocument firstFavoritePage = await GetAsync<JsonDocument>(
+                ownerClient,
+                "/api/UserFavoriteResource/mine?pageIndex=1&pageSize=2",
+                HttpStatusCode.OK);
+            await Assert.That(firstFavoritePage.RootElement.GetProperty("count").GetInt32()).IsEqualTo(3);
+            await Assert.That(firstFavoritePage.RootElement.GetProperty("data").GetArrayLength()).IsEqualTo(2);
+
+            JsonDocument secondFavoritePage = await GetAsync<JsonDocument>(
+                ownerClient,
+                "/api/UserFavoriteResource/mine?pageIndex=2&pageSize=2",
+                HttpStatusCode.OK);
+            await Assert.That(secondFavoritePage.RootElement.GetProperty("count").GetInt32()).IsEqualTo(3);
+            await Assert.That(secondFavoritePage.RootElement.GetProperty("data").GetArrayLength()).IsEqualTo(1);
+            Guid[] favoriteIds = firstFavoritePage.RootElement.GetProperty("data").EnumerateArray()
+                .Concat(secondFavoritePage.RootElement.GetProperty("data").EnumerateArray())
+                .Select(item => item.GetProperty("resourceId").GetGuid())
+                .ToArray();
+            await Assert.That(favoriteIds.OrderBy(id => id)).IsEquivalentTo(resourceIds.OrderBy(id => id));
+        }
+        finally
+        {
+            foreach (Guid resourceId in resourceIds)
+            {
+                await DeleteAsync(ownerClient, $"/api/UserFavoriteResource/{resourceId}", HttpStatusCode.OK);
+                await DeleteAsync(adminClient, $"/api/Resource/{resourceId}", HttpStatusCode.OK);
+            }
+
+            using (HttpResponseMessage clearPermissions = await adminClient.PutAsJsonAsync(
+                "/api/ResourceConfiguration/permissions",
+                new ResPermissionUpdateDto
+                {
+                    EnvironmentId = fixture.Environment.Id,
+                    CategoryId = fixture.Category.Id,
+                    RoleIds = []
+                }))
+            {
+                await Assert.That(clearPermissions.StatusCode).IsEqualTo(HttpStatusCode.OK);
+            }
+        }
+    }
+
+    [ClassDataSource<TestHttpClientData>(Shared = SharedType.None)]
+    [Test]
     public async Task UserResourceApis_ShouldEnforceSysUserVisibilityAndApprovePublicRequests(
         TestHttpClientData data)
     {

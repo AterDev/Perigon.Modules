@@ -1,85 +1,89 @@
-# Entity Relationship Mapping and Migration Baseline
+# PostgreSQL 模型、租户与迁移基线
 
 ## 文档信息
+
 - Iteration: `Iter1-EntityRelationship`
 - Product Design: `PD0001-EntityRelationship`
-- Status: `in-progress`
+- Status: `done`
+- PostgreSQL provider: `Perigon.PostgreSQL 0.2.2`
 
 ## 背景与目标
-`DefaultDbContext.OnModelCreating` 集中包含模块关系和字段默认值配置。模型应优先由导航属性、实体约定及显式关联实体表达；无法由约定或 Data Annotation 表达的规则应按模块独立配置。当前迁移历史需要重建为与现有模型一致的全新基线。
+
+模块项目统一使用 `Perigon.PostgreSQL 0.2.2`，移除 EF Core 的运行时依赖，同时保持现有模块目录、实体表名、列名、租户隔离和业务行为。`EntityFramework` 目录名称暂时保留用于兼容现有项目引用，但其中的上下文和查询实现不使用 EF Core。
+
+本轮只支持 PostgreSQL，不再维护 SQL Server 配置、迁移或兼容分支。
 
 ## 范围
+
 ### 包含
-- 将必须保留的关系删除行为和 provider-specific 字段默认值拆入模块实体配置。
-- 使用 `SysUserRole`、`SysMenuRole` 和 `SysUserOrganization` 表达关联关系。
-- 删除历史迁移源码及快照，生成 PostgreSQL `Initial` 基线。
+
+- 使用 Perigon.PostgreSQL 上下文、显式查询、插入和更新操作。
+- 保留租户过滤和软删除过滤；租户级 Manager 必须绑定有效 `TenantId`。
+- 多对多关系只通过显式中间实体和中间表实现，不依赖隐式多对多表。
+- 生成 PostgreSQL 初始迁移，并提供显式迁移、更新和 baseline 脚本。
+- 保留旧 EF 数据库的表名、列名、索引和外键元数据，供基线校验使用。
 
 ### 不包含
-- 将新基线应用到已有数据库或执行数据库清库。
-- 为 SQL Server 单独生成迁移。
-- 迁移既有影子关联表中的生产数据。
 
-## 角色与用户场景
-本变更面向维护 Perigon 数据模型和数据库初始化流程的开发者，不改变终端用户的业务权限行为。
+- SQL Server provider、SQL Server 迁移或 SQL Server 兼容处理。
+- 自动将既有数据库标记为已迁移。
+- `EnsureCreated`、删除表、清库或自动重建已有数据库。
+- 追踪机制和 `SaveChanges` 工作流。
 
 ## 需求
-### REQ-001 保留关系语义并模块化配置
-- 优先依赖实体导航、显式外键及 EF Core 约定；只有无法通过约定表达的行为才需要额外模型配置。
-- 优先级：P1
-- 验收场景：SC-001
-  - Given 使用 PostgreSQL 构建 `DefaultDbContext` 模型，When 模型配置完成，Then 资源定义关系保留 Restrict 删除行为，显式关联关系不生成重复的影子多对多表。
 
-### REQ-002 从空迁移历史生成完整基线
-- 基线迁移必须能从空数据库创建当前模型所需的完整 schema，包含显式关联表和索引。
-- 优先级：P1
-- 验收场景：SC-002
-  - Given 数据库为空且迁移历史为空，When 生成并执行 `Initial` 迁移，Then 当前模型对应的 schema 可被创建。
+### REQ-001 PostgreSQL-only 数据访问
 
-## 非功能要求
-- `SysDataScope.TargetIds` 在 PostgreSQL 中为原生 `uuid[]`，空数组是默认行为，无需配置；SQL Server 无原生数组，需 JSON 默认值。当前生成的基线目标为 PostgreSQL。
-- 模型配置在 `EntityFramework` 项目内按 `EntityConfigration/{Module}` 组织。
+- 所有模块使用 `Perigon.PostgreSQL 0.2.2`。
+- Resource 搜索的定义名称、资源值和标签元素模糊匹配由 PostgreSQL 执行；用户收藏先按当前用户可见资源过滤，再由数据库执行计数、排序和 `Skip/Take` 分页。
+- `scripts/Migrations.ps1` 调用 `dotnet perigon migrations`，输出固定到 `PostgresMigrations`；兼容入口不得调用 `dotnet ef`。
+- 优先使用显式 `Where`、`ToListAsync`、`FirstOrDefaultAsync`、`InsertAsync` 和 `ExecuteUpdateAsync`。
 
-## 边界与异常
-- 全新 `Initial` 迁移是空数据库基线，不是已有数据库的增量升级脚本。已有数据库不可直接应用，否则创建已存在对象时会失败。
-- 生成迁移不自动转换既有影子关联表的数据；已有环境需单独制定备份、数据迁移和切换方案。
+### REQ-002 租户和软删除安全
 
-## 假设与依赖
-- 本次清理历史迁移是用户明确要求；旧迁移不再用于既有环境回滚。
-- 本次根据 `appsettings.Development.json` 中的 provider 配置生成 PostgreSQL 迁移。
+- 租户实体默认应用租户过滤和软删除过滤。
+- 没有 `TenantId` 的请求不得创建租户级 Manager。
+- 匿名接口只能解析不需要租户的 catalog Manager；租户级 Manager 必须延迟到认证和租户上下文建立后再解析。
+- 测试环境使用临时 PostgreSQL 容器，非测试环境保留数据卷，避免测试复用开发库。
 
-## 待确认项
-- 若仍需支持已部署数据库，应在部署前确认既有数据保留与数据库基线接管方案；当前变更不执行该方案。
+### REQ-003 显式关联表
+
+- `SysUserRole`、`SysMenuRole`、`SysUserOrganization` 等关联必须使用显式实体和实体表。
+- 外键删除行为、约束名称和关联列必须与既有 schema 核对后再生成或执行迁移。
+
+### REQ-004 枚举整数持久化
+
+- Perigon.PostgreSQL 0.2.2 的数据库列使用整数属性，不依赖枚举值转换。
+- `Article.LanguageTypeValue` 映射到既有 `LanguageType` 列；`Article.ContentTypeValue` 映射到既有 `ContentType` 列。
+- `LanguageType` 和 `ContentType` 仅作为 `[NotMapped]` 枚举包装属性，整数 backing 属性使用 `[JsonIgnore]`，避免改变 API JSON 结构。
+- 服务端筛选和更新使用整数属性；枚举只在业务边界转换。
+
+### REQ-005 迁移与旧库安全
+
+- 空数据库可以执行初始 PostgreSQL migration 创建 schema。
+- 旧 EF 数据库在 baseline 前必须备份并核对表、列、主键、索引、外键和删除行为。
+- baseline 必须使用明确 migration id；系统不能自动 baseline，也不能因 schema 不一致而删除或重建对象。
+- 每个独立数据库连接都必须单独执行迁移或 baseline，不能跨租户数据库共享迁移历史。
 
 ## 技术设计
 
-### 上下文与约束
-`DefaultDbContext` 使用 EF Core 10，支持 PostgreSQL 和 SQL Server。实体位于 Entity 项目，模型配置位于 EntityFramework 项目。多对多关系优先使用显式关联实体。
+### 上下文与目录
 
-### 方案与需求映射
-| Requirement | Design decision | Verification |
-|---|---|---|
-| REQ-001 | 非约定关系行为及字段默认值放入 `EntityConfigration/{Module}` 的配置类；关联关系由实体导航和显式 join entity 表达 | EntityFramework 构建、snapshot 检查 |
-| REQ-002 | 删除旧 migration history 后生成完整 PostgreSQL `Initial` | 导出 `0 -> Initial` SQL 并检查创建内容 |
+`src/Definition/EntityFramework` 是历史兼容目录，实际基类为 Perigon.PostgreSQL context。`DefaultDbContext` 负责连接、租户上下文和迁移模型；`AppDbFactory` 根据 catalog 或租户连接创建上下文。
 
-`DefaultDbContext` 在基类模型配置后通过 `ApplyConfigurationsFromAssembly` 自动注册程序集内全部 `IEntityTypeConfiguration`，后续新增配置类无需手动注册。所有配置类保持无参构造。PostgreSQL 原生支持数组，`SysDataScope.TargetIds` 无需配置；SQL Server 无原生数组，其 JSON 默认值 `N'[]'` 在 `OnModelCreating` 中按 provider 设置。
+### 迁移流程
 
-### 数据模型与迁移
-新 PostgreSQL `Initial` 的 `Up` 从空历史创建当前完整 schema，包括显式 `SysUserOrganization` 关联表，不包含旧历史的 rename/drop；`Down` 仅回滚本迁移创建的对象。已有库需要独立的备份、影子关联数据转换和基线接管方案。
+- 添加/查看迁移：`scripts/Migrations.ps1`。
+- 更新新数据库：`scripts/DatabaseUpdate.ps1 -Connection <connection>`。
+- 接管旧库：先人工验证 schema，再显式执行 `scripts/DatabaseUpdate.ps1 -Baseline -Migration <id>`。
+- `AdminService-Migrations` 是 AppHost 中的一次性 migration resource；其成功完成后，业务服务才启动。
 
-### 权限、租户与安全
-不改变权限判定逻辑或租户过滤约定。关联实体继承 `EntityBase`，保留租户、软删除和审计字段。
+### 兼容和发布
 
-### 兼容、发布与回滚
-新基线仅适用于空数据库或明确重建的开发数据库。对已有库执行会因表已存在而失败，也没有自动的数据回滚能力。SQL Server 配置分支保留，但本次仅生成 PostgreSQL migration。
+模块修改涉及 `Entity`、`Modules` 或对应控制器时，CMSMod、ResourceMod、SystemMod 均需重新打包。模块版本和包元数据以 `modules.json` 为账本，正式打包前不得使用 CLI 默认版本覆盖已有版本。
 
-### 测试策略
-- 构建 `EntityFramework.csproj` 验证配置类、migration 和 snapshot 编译。
-- 导出从 `0` 到 `Initial` 的 SQL，验证 migration assembly 和 schema 脚本。
-- AdminService 全量构建受工作区重复控制器阻塞；数据库连接不可用，因此本轮不执行真实 PostgreSQL 初始化。
+## 当前验证状态
 
-### 备选方案
-| Decision | Rationale | Alternatives |
-|---|---|---|
-| 使用模块级 `IEntityTypeConfiguration<T>` | 关系和默认值映射按模块归属，避免 DbContext 集中堆叠配置 | 全部留在 DbContext；约定无法表达 Restrict/provider-specific SQL |
-| 多对多使用显式 join entity | 保留租户、软删除和审计属性并表达两个一对多关系 | 影子 join table 无法复用现有关联模型 |
-| 重建单一 `Initial` | 用户明确要求清理历史迁移并按当前模型建立新基线 | 追加迁移兼容旧历史；不符合本次要求 |
+- Entity、三个模块、AdminService 和 AppHost 的构建命令已分别执行。
+- 依赖升级后的完整业务测试 `26/26` 已通过，覆盖资源搜索、收藏分页、跨租户访问和软删除隔离。
+- 旧 EF 数据库 baseline 未自动执行；实际接管前仍必须备份并人工核对 schema、索引、外键和删除行为。

@@ -5,11 +5,9 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Aspire.Npgsql.EntityFrameworkCore.PostgreSQL" />
-    <PackageReference Include="Aspire.Microsoft.EntityFrameworkCore.SqlServer" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" />
-    <PackageReference Include="EFCore.BulkExtensions.PostgreSql" />
-    <PackageReference Include="EFCore.BulkExtensions.SqlServer" />
+    <PackageReference Include="Perigon.PostgreSQL" PrivateAssets="analyzers" />
+    <!-- Preserve historical EF migrations for existing deployments; they are no longer compiled. -->
+    <Compile Remove="Migrations\**\*.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Entity\Entity.csproj" />

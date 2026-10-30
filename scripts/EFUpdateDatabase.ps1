@@ -1,12 +1,14 @@
-# 使用 AdminService 的启动配置更新数据库并执行 EF Core 种子逻辑
-$scriptRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
-$repoRoot = [System.IO.Path]::GetFullPath((Join-Path $scriptRoot ".."))
-$adminServicePath = Join-Path $repoRoot "src\Services\AdminService"
-$adminServiceProjectPath = Join-Path $adminServicePath "AdminService.csproj"
-$entityFrameworkProjectPath = Join-Path $repoRoot "src\Definition\EntityFramework\EntityFramework.csproj"
+# Compatibility entry point. Supply a connection explicitly; no implicit
+# baseline or destructive schema recreation is performed.
+param(
+    [Parameter(Mandatory = $true)]
+    [string]$Connection,
+    [string]$Migration,
+    [switch]$Baseline
+)
 
-Push-Location $adminServicePath
-try {
-    dotnet ef database update -c DefaultDbContext --project $entityFrameworkProjectPath --startup-project $adminServiceProjectPath
-}
-finally { Pop-Location }
+& (Join-Path $PSScriptRoot "DatabaseUpdate.ps1") `
+    -Connection $Connection `
+    -Migration $Migration `
+    -Baseline:$Baseline
+if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }

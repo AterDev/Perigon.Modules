@@ -2,6 +2,7 @@ using CMSMod.Models.ArticleDtos;
 using EntityFramework.AppDbContext;
 using EntityFramework.AppDbFactory;
 using Perigon.AspNetCore.Abstraction;
+using Perigon.PostgreSQL.Update;
 using Microsoft.AspNetCore.Http;
 using Share.Exceptions;
 
@@ -18,15 +19,17 @@ public class ArticleManager(
 {
     public async Task<PageList<ArticleItemDto>> ToPageAsync(ArticleFilterDto filter)
     {
+        int languageType = (int)filter.LanguageType.GetValueOrDefault();
+        int contentType = (int)filter.BlogType.GetValueOrDefault();
         Queryable = Queryable
             .WhereNotNull(filter.Title, q => q.Title == filter.Title)
-            .WhereNotNull(filter.LanguageType, q => q.LanguageType == filter.LanguageType)
-            .WhereNotNull(filter.BlogType, q => q.ContentType == filter.BlogType)
+            .WhereNotNull(filter.LanguageType, q => q.LanguageTypeValue == languageType)
+            .WhereNotNull(filter.BlogType, q => q.ContentTypeValue == contentType)
             .WhereNotNull(filter.IsAudit, q => q.IsAudit == filter.IsAudit)
             .WhereNotNull(filter.IsPublic, q => q.IsPublic == filter.IsPublic)
             .WhereNotNull(filter.IsOriginal, q => q.IsOriginal == filter.IsOriginal)
             .WhereNotNull(filter.UserId, q => q.UserId == filter.UserId)
-            .WhereNotNull(filter.CatalogId, q => q.Catalog.Id == filter.CatalogId);
+            .WhereNotNull(filter.CatalogId, q => q.CatalogId == filter.CatalogId);
 
 
         return await PageListAsync<ArticleFilterDto, ArticleItemDto>(filter);
@@ -41,8 +44,8 @@ public class ArticleManager(
             Description = dto.Description,
             Content = dto.Content,
             Authors = GetCurrentAuthorName(),
-            LanguageType = dto.LanguageType,
-            ContentType = dto.BlogType,
+            LanguageTypeValue = (int)dto.LanguageType,
+            ContentTypeValue = (int)dto.BlogType,
             IsAudit = false,
             IsPublic = dto.IsPublic,
             IsOriginal = dto.IsOriginal,
@@ -60,28 +63,34 @@ public class ArticleManager(
         if (!await HasPermissionAsync(id))
             throw new BusinessException("无权查看文章", StatusCodes.Status403Forbidden);
 
-        return await _dbSet
+        Article? entity = await _dbSet
             .Where(a => a.Id == id && a.TenantId == _userContext.TenantId)
-            .Select(a => new ArticleDetailDto
-            {
-                Id = a.Id,
-                Title = a.Title,
-                Description = a.Description,
-                Content = a.Content,
-                Authors = a.Authors,
-                LanguageType = a.LanguageType,
-                BlogType = a.ContentType,
-                IsAudit = a.IsAudit,
-                IsPublic = a.IsPublic,
-                IsOriginal = a.IsOriginal,
-                UserId = a.UserId,
-                CatalogId = a.CatalogId,
-                Catalog = a.Catalog,
-                ViewCount = a.ViewCount,
-                CreatedTime = a.CreatedTime,
-                UpdatedTime = a.UpdatedTime,
-            })
             .FirstOrDefaultAsync();
+        if (entity is null)
+            return null;
+
+        ArticleCategory? catalog = await _dbContext.ArticleCategories
+            .Where(c => c.Id == entity.CatalogId && c.TenantId == _userContext.TenantId)
+            .FirstOrDefaultAsync();
+        return new ArticleDetailDto
+        {
+            Id = entity.Id,
+            Title = entity.Title,
+            Description = entity.Description,
+            Content = entity.Content,
+            Authors = entity.Authors,
+            LanguageType = entity.LanguageType,
+            BlogType = entity.ContentType,
+            IsAudit = entity.IsAudit,
+            IsPublic = entity.IsPublic,
+            IsOriginal = entity.IsOriginal,
+            UserId = entity.UserId,
+            CatalogId = entity.CatalogId,
+            Catalog = catalog!,
+            ViewCount = entity.ViewCount,
+            CreatedTime = entity.CreatedTime,
+            UpdatedTime = entity.UpdatedTime,
+        };
     }
 
     public async Task<Article> EditAsync(Guid id, ArticleUpdateDto dto)
@@ -92,12 +101,28 @@ public class ArticleManager(
         entity.Title = dto.Title;
         entity.Description = dto.Description;
         entity.Content = dto.Content;
-        entity.LanguageType = dto.LanguageType ?? entity.LanguageType;
-        entity.ContentType = dto.BlogType ?? entity.ContentType;
+        entity.LanguageTypeValue = dto.LanguageType is { } languageType
+            ? (int)languageType
+            : entity.LanguageTypeValue;
+        entity.ContentTypeValue = dto.BlogType is { } contentType
+            ? (int)contentType
+            : entity.ContentTypeValue;
         entity.IsPublic = dto.IsPublic ?? entity.IsPublic;
         entity.IsOriginal = dto.IsOriginal ?? entity.IsOriginal;
         entity.CatalogId = catalogId;
-        await _dbContext.SaveChangesAsync();
+        entity.UpdatedTime = DateTimeOffset.UtcNow;
+        await _dbSet
+            .Where(a => a.Id == id && a.TenantId == _userContext.TenantId)
+            .ExecuteUpdateAsync(update => update
+                .Set(a => a.Title, entity.Title)
+                .Set(a => a.Description, entity.Description)
+                .Set(a => a.Content, entity.Content)
+                .Set(a => a.LanguageTypeValue, entity.LanguageTypeValue)
+                .Set(a => a.ContentTypeValue, entity.ContentTypeValue)
+                .Set(a => a.IsPublic, entity.IsPublic)
+                .Set(a => a.IsOriginal, entity.IsOriginal)
+                .Set(a => a.CatalogId, entity.CatalogId)
+                .Set(a => a.UpdatedTime, entity.UpdatedTime));
         return entity;
     }
 
@@ -119,15 +144,19 @@ public class ArticleManager(
     {
         if (!await HasPermissionAsync(id))
             throw new BusinessException("无权维护文章", StatusCodes.Status403Forbidden);
-        return await _dbSet.FirstAsync(a => a.Id == id && a.TenantId == _userContext.TenantId);
+        Article? entity = await _dbSet
+            .Where(a => a.Id == id && a.TenantId == _userContext.TenantId)
+            .FirstOrDefaultAsync();
+        return entity ?? throw new BusinessException("文章不存在", StatusCodes.Status404NotFound);
     }
 
     private async Task EnsureCategoryAsync(Guid id)
     {
-        bool exists = await _dbContext.ArticleCategories.AnyAsync(c =>
-            c.Id == id
-            && c.TenantId == _userContext.TenantId
-            && (_userContext.IsAdmin || c.UserId == _userContext.UserId));
+        bool exists = await _dbContext.ArticleCategories
+            .Where(c => c.Id == id
+                && c.TenantId == _userContext.TenantId
+                && (_userContext.IsAdmin || c.UserId == _userContext.UserId))
+            .AnyAsync();
         if (!exists)
             throw new BusinessException("文章分类不存在", StatusCodes.Status400BadRequest);
     }

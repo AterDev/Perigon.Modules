@@ -1,62 +1,80 @@
-# Entity Relationship Mapping and Migration Baseline
+# PostgreSQL 模型与迁移改造计划
 
 ## 来源与范围
+
 - Iteration: `Iter1-EntityRelationship`
 - Plan Task: `PT0001-EntityRelationship`
 - Source PD: [PD0001-EntityRelationship](../../UserStory/Iter1-EntityRelationship/PD0001-EntityRelationship.md)
-- Status: `blocked`
-- Progress: `2/3`
-- Goal: 模块化 EF Core 映射并将迁移历史重建为当前模型的 PostgreSQL 空库基线。
-- Included: EntityFramework 配置类、显式 join entity 关系、历史迁移重置和 PostgreSQL `Initial`。
-- Excluded: 将迁移应用到现有数据库、已有影子 join 数据转换、SQL Server 基线生成。
-
-## Plan
-- 先把无法由约定表达的关系行为和 provider 默认值移入模块配置类。
-- 删除历史 migration、designer 和旧 snapshot，再由当前模型生成 `Initial`。
-- 编译 EntityFramework 并导出 `0 -> Initial` SQL；之后验证 AdminService 集成构建。
-- 不在未备份/未制定数据转换方案时对已有数据库执行迁移。
-
-## Tasks
-- [x] TASK-001 [REQ-001] 将保留的 Fluent API 拆入模块配置类，并由 `DefaultDbContext` 程序集扫描自动应用
-  - Depends on: none
-  - Done when: `EntityConfigration/{ResourceMod,SystemMod}` 配置覆盖 Restrict 和字段默认值，EF 项目可构建；新增配置类无需手动注册。
-  - Verify: `dotnet build src/Definition/EntityFramework/EntityFramework.csproj -v minimal` — passed。
-- [x] TASK-002 [REQ-002] 删除旧 migration 历史并生成新的 PostgreSQL `Initial`
-  - Depends on: TASK-001
-  - Done when: migration 目录仅包含新 `Initial`、Designer 和 snapshot；`Up` 导出的 SQL 含完整建表内容且不重命名/删除旧对象，`Down` 仅回滚本迁移创建的对象。
-  - Verify: `dotnet ef migrations script 0 Initial -c DefaultDbContext --project src/Definition/EntityFramework/EntityFramework.csproj --startup-project src/Services/AdminService/AdminService.csproj --no-build --output "$env:TEMP\PerigonInitial.sql"` — passed; SQL 文件生成，26,106 bytes。
-- [ ] TASK-003 [REQ-002] 完成 AdminService 集成构建验证
-  - Depends on: TASK-001, TASK-002
-  - Done when: `dotnet build src/Services/AdminService/AdminService.csproj -v q` 成功。
-  - Verify: `dotnet build src/Services/AdminService/AdminService.csproj -v q` — blocked by duplicate `SysUserController` type/member definitions in untracked `SystemUserController.cs`.
-
-## 实现记录
-
-### `2026-09-29` — `TASK-001` / 模块化模型配置
+- PostgreSQL provider: `Perigon.PostgreSQL 0.2.2`
 - Status: `done`
-- Implementation: 将资源定义 Restrict 配置放入 ResourceMod，将数据权限默认值放入 SystemMod；`DefaultDbContext` 通过 `ApplyConfigurationsFromAssembly` 自动注册程序集内全部 `IEntityTypeConfiguration`，后续新增配置类无需手动注册。PostgreSQL 原生支持数组，`TargetIds` 无需配置；SQL Server 无原生数组，其 JSON 默认值 `N'[]'` 在 `OnModelCreating` 中按 provider 设置。多对多使用显式关联实体。
-- Code evidence: `src/Definition/EntityFramework/AppDbContext/DefaultDbContext.cs`; `src/Definition/EntityFramework/EntityConfigration/ResourceMod/UserResourceConfiguration.cs`; `src/Definition/EntityFramework/EntityConfigration/ResourceMod/UserResValueConfiguration.cs`; `src/Definition/EntityFramework/EntityConfigration/SystemMod/SysDataScopeGroupConfiguration.cs`
-- Verification: `dotnet build src/Definition/EntityFramework/EntityFramework.csproj -v minimal` — passed; 重新生成 `Initial` 后 `TargetIds` 为 `uuid[]` 且无显式默认值，确认 PostgreSQL 依赖原生数组行为。
-- Documentation: 本 PT、来源 PD、Demand/Design 索引已同步。
-- Remaining: AdminService 集成构建单列为 TASK-003。
 
-### `2026-09-29` — `TASK-002` / 重建迁移基线
-- Status: `done`
-- Implementation: 删除旧 migration history 和 snapshot，生成 PostgreSQL `Initial` 与新 snapshot。新迁移创建完整 schema，包括 `SysUserOrganizations`；`TargetIds` 为 `uuid[]` 且无显式默认值（依赖 PostgreSQL 原生数组行为）；未应用到数据库。
-- Code evidence: `src/Definition/EntityFramework/Migrations/20260929094516_Initial.cs`; `src/Definition/EntityFramework/Migrations/DefaultDbContextModelSnapshot.cs`
-- Verification: `dotnet ef migrations script 0 Initial -c DefaultDbContext --project src/Definition/EntityFramework/EntityFramework.csproj --startup-project src/Services/AdminService/AdminService.csproj --no-build --output "$env:TEMP\PerigonInitial.sql"` — passed; generated SQL file is 26,106 bytes.
-- Documentation: PD records empty-database-only behavior and existing-data migration risk.
-- Remaining: 未连接数据库，未实际执行 migration；SQL Server 迁移未生成。
+目标是保持三个模块的目录和业务行为，移除 EF Core 数据访问，统一使用 PostgreSQL provider，同时保留租户隔离、软删除和显式中间表。
 
-### `2026-09-29` — `TASK-003` / AdminService 集成构建
-- Status: `blocked`
-- Implementation: 未修改重复控制器文件；保留其当前工作区状态。
-- Code evidence: `src/Services/AdminService/Controllers/SystemMod/SystemUserController.cs`
-- Verification: `dotnet build src/Services/AdminService/AdminService.csproj -v q` — failed with duplicate `SysUserController` type and duplicate members.
-- Documentation: ProjectTracking 已记录 blocker。
-- Remaining: 解决重复控制器后重跑 AdminService/solution build；在空 PostgreSQL 测试库可用后验证真实迁移。
+## 任务
 
-## Progress
-- Done: 2 / 3
-- Blocked: TASK-003
-- Next: 在不覆盖用户工作区文件的前提下解决重复控制器编译问题，然后重跑 AdminService build。
+- [x] TASK-001 [REQ-001] 将数据库访问迁移到 Perigon.PostgreSQL
+  - `DefaultDbContext`、`AppDbFactory` 和 `ManagerBase` 保留原位置，底层使用 Perigon.PostgreSQL。
+  - Manager 使用显式查询、插入和 `ExecuteUpdateAsync`，不使用 `SaveChanges` 或实体跟踪。
+
+- [x] TASK-002 [REQ-002] 保留租户和软删除安全边界
+  - 租户实体使用全局租户过滤和软删除过滤。
+  - 租户级 Manager 没有有效 `TenantId` 时拒绝创建。
+  - 匿名控制器不得提前解析租户级 Manager，按需解析必须发生在认证和租户上下文建立之后。
+  - AppHost 测试环境不挂载 PostgreSQL 数据卷，非测试环境保留数据卷。
+
+- [x] TASK-003 [REQ-003] 保留显式关联表和外键行为
+  - 多对多关系继续使用 `SysUserRole`、`SysMenuRole`、`SysUserOrganization` 等显式实体。
+  - 迁移模型包含既有 29 条业务外键，并保留约束名和删除行为。
+
+- [x] TASK-004 [REQ-004] 处理枚举整数持久化
+  - `Article.LanguageTypeValue` 映射既有 `LanguageType` 列。
+  - `Article.ContentTypeValue` 映射既有 `ContentType` 列。
+  - 枚举包装属性标记 `[NotMapped]`，整数属性标记 `[JsonIgnore]`；服务端筛选和更新使用整数属性。
+
+- [x] TASK-005 [REQ-005] 提供 PostgreSQL 迁移命令
+  - `.config/dotnet-tools.json` 固定 `Perigon.PostgreSQL.Tools 0.2.2`。
+  - `scripts/Migrations.ps1` 输出到 `src/Definition/EntityFramework/PostgresMigrations`。
+  - `scripts/DatabaseUpdate.ps1` 支持新库 update 和显式 baseline，不自动 baseline。
+  - `EFMigrations.ps1`、`EFUpdateDatabase.ps1` 仅作为兼容入口，不调用 `dotnet ef`。
+
+- [x] TASK-006 [REQ-005] 完成真实 PostgreSQL 集成验证
+  - 空库验证迁移 resource、初始 migration、默认租户 seed 和业务服务启动顺序。
+  - 旧 EF 数据库仅在备份并核对 schema 后验证显式 baseline。
+
+- [x] TASK-007 [REQ-006] 升级 PostgreSQL provider 并下推资源与收藏分页
+  - Resource 搜索的定义、值和标签过滤使用 PostgreSQL 查询；用户收藏按资源可见性在数据库过滤，并由数据库执行计数和 `Skip/Take` 分页。
+  - 完整业务测试 `26/26` 通过，覆盖资源搜索、收藏分页、跨租户访问和软删除隔离。
+  - 依赖升级后的模块构建和数据库查询验证通过。
+  - 旧 EF 数据库 baseline 仍需在实际接管前人工核对，不自动执行。
+
+## 迁移与 baseline 操作
+
+### 新数据库
+
+```powershell
+dotnet tool restore
+pwsh .\scripts\Migrations.ps1 -Command List
+pwsh .\scripts\DatabaseUpdate.ps1 -Connection "<connection-string>"
+```
+
+### 既有数据库
+
+不得直接执行初始 migration，也不得使用 `EnsureCreated` 或删除/重建 schema。应先备份并核对表、列、主键、索引、外键和删除行为，再执行：
+
+```powershell
+pwsh .\scripts\DatabaseUpdate.ps1 `
+  -Connection "<connection-string>" `
+  -Baseline `
+  -Migration "<verified-migration-id>"
+```
+
+如果模型元数据与旧库不一致，baseline 必须停止并由人工制定兼容 DDL 或模型调整方案。不同租户数据库必须分别执行验证和迁移。
+
+## 验证记录
+
+- `CMSMod`、`ResourceMod`、`SystemMod` 构建命令已执行。
+- `AdminService` 和 `AppHost` 构建命令已执行。
+- migration list 能发现当前 PostgreSQL 初始 migration。
+- 依赖升级后的完整业务测试已通过 `26/26`，覆盖资源搜索、收藏分页、跨租户访问和软删除隔离。
+- 解决方案构建为 `0` 警告、`0` 错误。
+- 旧 EF 数据库 baseline 不属于自动测试范围；接管前仍需人工备份和 schema 核对。

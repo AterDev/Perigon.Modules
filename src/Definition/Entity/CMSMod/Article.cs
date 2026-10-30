@@ -3,14 +3,13 @@ namespace Entity.CMSMod;
 /// <summary>
 /// 内容
 /// </summary>
-[Index(nameof(UserId), nameof(Title), IsUnique = true)]
 public class Article : EntityBase
 {
     /// <summary>
     /// 标题
     /// </summary>
-    [MaxLength(100)]
-    public required string Title { get; set; }
+    [Required, MaxLength(100)]
+    public string Title { get; set; } = string.Empty;
 
     /// <summary>
     /// 描述
@@ -21,24 +20,46 @@ public class Article : EntityBase
     /// <summary>
     /// 内容
     /// </summary>
-    [MaxLength(200000)]
-    public required string Content { get; set; }
+    [Required, MaxLength(200000)]
+    public string Content { get; set; } = string.Empty;
 
     /// <summary>
     /// 作者
     /// </summary>
-    [MaxLength(200)]
-    public required string Authors { get; set; }
+    [Required, MaxLength(200)]
+    public string Authors { get; set; } = string.Empty;
 
     /// <summary>
-    /// 语言类型
+    /// 语言类型的持久化值。保留旧数据库的 LanguageType 列名。
     /// </summary>
-    public LanguageType LanguageType { get; set; } = LanguageType.CN;
+    [JsonIgnore, Column("LanguageType")]
+    public int LanguageTypeValue { get; set; } = (int)CMSMod.LanguageType.CN;
 
     /// <summary>
-    /// 全站类别
+    /// 语言类型。
     /// </summary>
-    public ContentType ContentType { get; set; }
+    [NotMapped]
+    public LanguageType LanguageType
+    {
+        get => (LanguageType)LanguageTypeValue;
+        set => LanguageTypeValue = (int)value;
+    }
+
+    /// <summary>
+    /// 全站类别的持久化值。保留旧数据库的 ContentType 列名。
+    /// </summary>
+    [JsonIgnore, Column("ContentType")]
+    public int ContentTypeValue { get; set; }
+
+    /// <summary>
+    /// 全站类别。
+    /// </summary>
+    [NotMapped]
+    public ContentType ContentType
+    {
+        get => (ContentType)ContentTypeValue;
+        set => ContentTypeValue = (int)value;
+    }
 
     /// <summary>
     /// 是否审核
@@ -60,7 +81,7 @@ public class Article : EntityBase
     /// <summary>
     /// 所属目录
     /// </summary>
-    [ForeignKey(nameof(CatalogId))]
+    [NotMapped, ForeignKey(nameof(CatalogId))]
     public ArticleCategory Catalog { get; set; } = null!;
     public Guid CatalogId { get; set; }
 

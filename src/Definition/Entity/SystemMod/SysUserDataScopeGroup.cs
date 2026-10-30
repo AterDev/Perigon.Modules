@@ -5,7 +5,6 @@ using Entity;
 /// <summary>
 /// 用户数据权限中间表
 /// </summary>
-[Index(nameof(UserId), nameof(DataScopeGroupId), IsUnique = true)]
 public class SysUserDataScopeGroup : EntityBase
 {
     public Guid UserId { get; set; }
@@ -13,9 +12,11 @@ public class SysUserDataScopeGroup : EntityBase
     public Guid DataScopeGroupId { get; set; }
 
     [ForeignKey(nameof(UserId))]
+    [NotMapped]
     public SysUser User { get; set; } = default!;
 
     [ForeignKey(nameof(DataScopeGroupId))]
+    [NotMapped]
     public SysDataScopeGroup DataScopeGroup { get; set; } = default!;
 
 }

@@ -95,11 +95,25 @@ public class SysConfigManager(
     /// </summary>
     public async Task<int> EditAsync(Guid id, SysConfigUpdateDto dto)
     {
-        if (await HasPermissionAsync(id))
-        {
-            return await UpdateAsync(id, dto);
-        }
-        throw new BusinessException(Localizer.NoPermission);
+        if (!await HasPermissionAsync(id))
+            throw new BusinessException(Localizer.NoPermission);
+
+        var current = await _dbSet.Where(config => config.Id == id).FirstOrDefaultAsync()
+            ?? throw new BusinessException(Localizer.NotFoundResource, StatusCodes.Status404NotFound);
+        if (dto.Key is not null) current.Key = dto.Key;
+        if (dto.Value is not null) current.Value = dto.Value;
+        if (dto.Description is not null) current.Description = dto.Description;
+        if (dto.Valid is bool valid) current.Valid = valid;
+        if (dto.GroupName is not null) current.GroupName = dto.GroupName;
+
+        return await _dbSet
+            .Where(config => config.Id == id && config.TenantId == _userContext.TenantId)
+            .ExecuteUpdateAsync(update => update
+                .Set(config => config.Key, current.Key)
+                .Set(config => config.Value, current.Value)
+                .Set(config => config.Description, current.Description)
+                .Set(config => config.Valid, current.Valid)
+                .Set(config => config.GroupName, current.GroupName));
     }
 
     /// <summary>
@@ -120,7 +134,8 @@ public class SysConfigManager(
                 filter.Key,
                 q => q
                     .Key
-                    .Contains(filter.Key!, StringComparison.CurrentCultureIgnoreCase)
+                    .ToLower()
+                    .Contains(filter.Key!.ToLower())
             )
             .WhereNotNull(filter.GroupName, q => q.GroupName == filter.GroupName);
 

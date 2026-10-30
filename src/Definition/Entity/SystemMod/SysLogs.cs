@@ -5,16 +5,14 @@ namespace Entity.SystemMod;
 /// <summary>
 /// 系统日志
 /// </summary>
-[Index(nameof(ActionType), nameof(CreatedTime))]
-[Index(nameof(ActionUserName), nameof(CreatedTime))]
-[Index(nameof(CreatedTime))]
 public class SysLogs : EntityBase
 {
     /// <summary>
     /// 操作人名称
     /// </summary>
     [MaxLength(100)]
-    public required string ActionUserName { get; set; }
+    [Required]
+    public string ActionUserName { get; set; } = string.Empty;
 
     /// <summary>
     /// 操作对象名称
@@ -30,12 +28,22 @@ public class SysLogs : EntityBase
     /// 操作路由
     /// </summary>
     [MaxLength(200)]
-    public required string Route { get; set; } = string.Empty;
+    [Required]
+    public string Route { get; set; } = string.Empty;
 
     /// <summary>
     /// 操作类型
     /// </summary>
-    public required UserActionType ActionType { get; set; }
+    [NotMapped]
+    public UserActionType ActionType
+    {
+        get => (UserActionType)ActionTypeValue;
+        set => ActionTypeValue = (int)value;
+    }
+
+    [Column("ActionType")]
+    [JsonIgnore]
+    public int ActionTypeValue { get; set; }
 
     /// <summary>
     /// 描述
@@ -44,6 +52,7 @@ public class SysLogs : EntityBase
     public string? Description { get; set; }
 
     [ForeignKey(nameof(SysUserId))]
+    [NotMapped]
     public SysUser SysUser { get; set; } = null!;
 
     public Guid SysUserId { get; set; } = default!;

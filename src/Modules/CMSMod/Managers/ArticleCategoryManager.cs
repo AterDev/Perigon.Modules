@@ -3,6 +3,7 @@ using CMSMod.Models.ArticleCategoryDtos;
 using EntityFramework.AppDbContext;
 using EntityFramework.AppDbFactory;
 using Microsoft.AspNetCore.Http;
+using Perigon.PostgreSQL.Update;
 using Share;
 using Share.Exceptions;
 
@@ -24,8 +25,17 @@ public class ArticleCategoryManager(
     /// <returns></returns>
     public async Task<ArticleCategory> AddAsync(ArticleCategoryAddDto dto)
     {
-        var entity = dto.MapTo<ArticleCategory>();
-        entity.UserId = _userContext.UserId;
+        if (dto.ParentId is Guid parentId)
+        {
+            await EnsureParentAsync(parentId);
+        }
+
+        var entity = new ArticleCategory
+        {
+            Name = dto.Name,
+            ParentId = dto.ParentId,
+            UserId = _userContext.UserId,
+        };
         await InsertAsync(entity);
         return entity;
     }
@@ -42,7 +52,11 @@ public class ArticleCategoryManager(
     {
         if (await HasPermissionAsync(id))
         {
-            return await UpdateAsync(id, dto);
+            return await _dbSet
+                .Where(c => c.Id == id && c.TenantId == _userContext.TenantId)
+                .ExecuteUpdateAsync(update => update
+                    .Set(c => c.Name, dto.Name)
+                    .Set(c => c.UpdatedTime, DateTimeOffset.UtcNow));
         }
         throw new BusinessException(Localizer.NoPermission);
     }
@@ -51,7 +65,26 @@ public class ArticleCategoryManager(
     {
         if (await HasPermissionAsync(id))
         {
-            return await FindAsync<ArticleCategoryDetailDto>(q => q.Id == id);
+            ArticleCategory? entity = await _dbSet
+                .Where(q => q.Id == id && q.TenantId == _userContext.TenantId)
+                .FirstOrDefaultAsync();
+            if (entity is null)
+                return null;
+
+            ArticleCategory? parent = entity.ParentId is Guid parentId
+                ? await _dbContext.ArticleCategories
+                    .Where(q => q.Id == parentId && q.TenantId == _userContext.TenantId)
+                    .FirstOrDefaultAsync()
+                : null;
+            return new ArticleCategoryDetailDto
+            {
+                Name = entity.Name,
+                Level = entity.Level,
+                Parent = parent,
+                ParentId = entity.ParentId,
+                CreatedTime = entity.CreatedTime,
+                UpdatedTime = entity.UpdatedTime,
+            };
         }
         throw new BusinessException(Localizer.NoPermission);
     }
@@ -98,15 +131,18 @@ public class ArticleCategoryManager(
     }
     public async Task<List<Guid>> GetOwnedIdsAsync(IEnumerable<Guid> ids)
     {
-        if (!ids.Any())
+        Guid[] requestedIds = ids.Distinct().ToArray();
+        if (requestedIds.Length == 0)
         {
             return [];
         }
         var query = _dbSet
-            .Where(q => ids.Contains(q.Id) && q.TenantId == _userContext.TenantId)
-            // TODO: other conditions
-            .Select(q => q.Id);
-        return await query.ToListAsync();
+            .Where(q => requestedIds.Contains(q.Id)
+                && q.TenantId == _userContext.TenantId
+                && (_userContext.IsAdmin || q.UserId == _userContext.UserId))
+            .ToListAsync();
+        List<ArticleCategory> owned = await query;
+        return owned.Select(q => q.Id).ToList();
     }
 
     /// <summary>
@@ -115,7 +151,7 @@ public class ArticleCategoryManager(
     /// <returns></returns>
     public async Task<List<ArticleCategory>> GetTreeAsync()
     {
-        List<ArticleCategory> data = await ListAsync<ArticleCategory>(null);
+        List<ArticleCategory> data = await _dbSet.ToListAsync();
         List<ArticleCategory> tree = data.BuildTree();
         return tree;
     }
@@ -126,12 +162,42 @@ public class ArticleCategoryManager(
     /// <returns></returns>
     public async Task<List<ArticleCategory>> GetLeafCatalogsAsync()
     {
-        List<Guid?> parentIds = await Queryable.Select(s => s.ParentId).ToListAsync();
+        List<ArticleCategory> all = await _dbSet.ToListAsync();
+        HashSet<Guid> parentIds = all
+            .Where(c => c.ParentId is not null)
+            .Select(c => c.ParentId!.Value)
+            .ToHashSet();
 
-        List<ArticleCategory> source = await Queryable
+        List<ArticleCategory> source = all
             .Where(c => !parentIds.Contains(c.Id))
-            .Include(c => c.Parent)
-            .ToListAsync();
+            .ToList();
+        Guid[] sourceParentIds = source
+            .Where(c => c.ParentId is not null)
+            .Select(c => c.ParentId!.Value)
+            .Distinct()
+            .ToArray();
+        if (sourceParentIds.Length > 0)
+        {
+            Dictionary<Guid, ArticleCategory> parentLookup = all.ToDictionary(c => c.Id);
+            foreach (ArticleCategory category in source)
+            {
+                if (category.ParentId is Guid parentId && parentLookup.TryGetValue(parentId, out ArticleCategory? parent))
+                    category.Parent = parent;
+            }
+        }
         return source;
+    }
+
+    private async Task EnsureParentAsync(Guid parentId)
+    {
+        bool exists = await _dbContext.ArticleCategories
+            .Where(category => category.Id == parentId
+                && category.TenantId == _userContext.TenantId
+                && (_userContext.IsAdmin || category.UserId == _userContext.UserId))
+            .AnyAsync();
+        if (!exists)
+        {
+            throw new BusinessException("父目录不存在", StatusCodes.Status400BadRequest);
+        }
     }
 }

@@ -1,7 +1,6 @@
 namespace Entity.ResourceMod;
 
 /// <summary>资源实例的属性值。</summary>
-[Index(nameof(ResourceId), nameof(DefinitionPropertyId), IsUnique = true)]
 public class ResValue : EntityBase
 {
     /// <summary>资源 ID。</summary>
@@ -10,16 +9,27 @@ public class ResValue : EntityBase
     public Guid DefinitionPropertyId { get; set; }
     /// <summary>以字符串形式持久化的属性值。</summary>
     [MaxLength(1000)]
-    public required string Value { get; set; }
+    public string Value { get; set; } = string.Empty;
     /// <summary>保存时的属性名称快照。</summary>
     [MaxLength(60)]
-    public required string PropertyNameSnapshot { get; set; }
+    public string PropertyNameSnapshot { get; set; } = string.Empty;
+    /// <summary>保存时的属性值类型快照的整数存储值。</summary>
+    [JsonIgnore]
+    [Column("ValueTypeSnapshot")]
+    public int ValueTypeSnapshotValue { get; set; }
     /// <summary>保存时的属性值类型快照。</summary>
-    public ResValueType ValueTypeSnapshot { get; set; }
+    [NotMapped]
+    public ResValueType ValueTypeSnapshot
+    {
+        get => (ResValueType)ValueTypeSnapshotValue;
+        set => ValueTypeSnapshotValue = (int)value;
+    }
     /// <summary>所属资源。</summary>
     [ForeignKey(nameof(ResourceId))]
+    [NotMapped]
     public Resource Resource { get; set; } = null!;
     /// <summary>所属资源定义属性。</summary>
     [ForeignKey(nameof(DefinitionPropertyId))]
+    [NotMapped]
     public ResDefinitionProperty DefinitionProperty { get; set; } = null!;
 }
