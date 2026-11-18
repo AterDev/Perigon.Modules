@@ -14,8 +14,6 @@ export interface Article {
   updatedTime: Date;
   /** isDeleted */
   isDeleted: boolean;
-  /** tenantId */
-  tenantId: string;
   /** 标题 */
   title: string;
   /** 描述 */

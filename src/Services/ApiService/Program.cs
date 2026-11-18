@@ -3,11 +3,11 @@ using ApiService.Workers;
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
 builder.AddServiceDefaults();
-builder.Services.AddSingleton<Share.Serialization.IAppJsonSerializer, ApiService.Serialization.AppJsonSerializer>();
 builder.AddFrameworkServices();
 builder.AddMiniApiMiddlewareServices();
 builder.Services.AddValidation();
-builder.Services.ConfigureHttpJsonOptions(options => options.SerializerOptions.TypeInfoResolverChain.Insert(0, ApiService.ApiJsonSerializerContext.Default));
+builder.Services.ConfigureHttpJsonOptions(options =>
+    options.SerializerOptions.TypeInfoResolverChain.Insert(0, ApiService.ApiJsonSerializerContext.Default));
 builder.Services.AddOpenApi(options => options.AddSchemaTransformer<ApiService.OpenApi.EnumSchemaTransformer>());
 builder.Services.AddAuthorizationBuilder()
     .AddPolicy(WebConst.AdminUser, policy => policy.RequireRole(WebConst.AdminUser, WebConst.SuperAdmin))

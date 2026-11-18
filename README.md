@@ -30,9 +30,17 @@
 
 项目基于 `Aspire`，默认使用 PostgreSQL 资源。AppHost 会先通过独立 migration resource 执行 Perigon.PostgreSQL 迁移，再启动业务服务。
 
-当前数据库工具版本固定为 `Perigon.PostgreSQL 0.2.2`。资源搜索和用户收藏列表的可见性过滤、总数统计及 `Skip/Take` 分页均在 PostgreSQL 中执行；已有旧 EF 数据库必须先备份并核对表、列、索引和外键，再由运维人员显式 baseline，系统不会自动重建、删除或隐式接管已有数据库。
+运行时依赖 Perigon.PostgreSQL 0.3.2-preview.2。资源搜索和用户收藏列表的可见性过滤、总数统计及 `Skip/Take` 分页均在 PostgreSQL 中执行；已有旧 EF 数据库必须先备份并核对表、列、索引和外键，再由运维人员显式 baseline，系统不会自动重建、删除或隐式接管已有数据库。
 
-租户实体使用全局租户过滤和软删除过滤。租户级 Manager 必须在有效 `TenantId` 上下文中创建；匿名接口不得提前解析租户级 Manager。测试环境使用临时 PostgreSQL 容器，非测试环境保留数据库持久卷。
+本地预览包由同级 Perigon.PostgreSQL 仓库生成。在 Perigon.Modules 根目录执行以下命令可在新环境还原依赖。
+
+```powershell
+../Perigon.PostgreSQL/scripts/pack.ps1 -Version 0.3.2-preview.2
+dotnet restore Perigon.Modules.slnx
+dotnet tool restore
+```
+
+Modules 使用单个 PostgreSQL 业务库，实体保留软删除过滤。ApiService 启动时应用迁移，并在首次启动初始化默认管理员。旧多租户库不能直接使用新的迁移基线；本地开发请使用新的空库，不要清理旧库来绕过迁移检查。
 
 ## 模块开发
 

@@ -13,8 +13,6 @@ export interface SysMenu {
   updatedTime: Date;
   /** isDeleted */
   isDeleted: boolean;
-  /** tenantId */
-  tenantId: string;
   /** 菜单名称 */
   name: string;
   /** 菜单路径 */

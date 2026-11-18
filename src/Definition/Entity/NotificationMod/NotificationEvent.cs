@@ -1,5 +1,6 @@
 namespace Entity.NotificationMod;
 
+[Index(nameof(SourceId), nameof(EventKey), IsUnique = true)]
 public class NotificationEvent : EntityBase
 {
     public Guid SourceId { get; set; }

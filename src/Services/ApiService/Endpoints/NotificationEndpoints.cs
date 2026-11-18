@@ -146,11 +146,9 @@ public sealed class NotificationEndpoints : RestEndpointBase
     public static async Task<NotificationRecoveryResultDto> RecoverAsync(
         NotificationRecoveryDto dto,
         NotificationRecoveryService recovery,
-        IUserContext user,
         CancellationToken cancellationToken)
     {
         var result = await recovery.RecoverAsync(
-            user.TenantId,
             TimeSpan.FromSeconds(dto.LeaseSeconds),
             cancellationToken);
         return new NotificationRecoveryResultDto { Deliveries = result.Deliveries, Events = result.Events };

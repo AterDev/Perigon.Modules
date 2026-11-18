@@ -13,8 +13,6 @@ export interface SysUserDataScopeGroup {
   updatedTime: Date;
   /** isDeleted */
   isDeleted: boolean;
-  /** tenantId */
-  tenantId: string;
   /** userId */
   userId: string;
   /** dataScopeGroupId */

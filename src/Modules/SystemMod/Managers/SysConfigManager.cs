@@ -1,6 +1,7 @@
 using EntityFramework.AppDbFactory;
 using Perigon.AspNetCore.Options;
-using Share.Serialization;
+using System.Text.Json;
+using SystemMod.Serialization;
 using SystemMod.Models.SysConfigDtos;
 
 namespace SystemMod.Managers;
@@ -13,13 +14,11 @@ public class SysConfigManager(
     ILogger<SysConfigManager> logger,
     IUserContext userContext,
     IConfiguration configuration,
-    CacheService cache,
-    IAppJsonSerializer appJsonSerializer
+    CacheService cache
 ) : ManagerBase<DefaultDbContext, SysConfig>(dbContextFactory, userContext, logger)
 {
     private readonly IConfiguration _configuration = configuration;
     private readonly CacheService _cache = cache;
-    private readonly IAppJsonSerializer _appJsonSerializer = appJsonSerializer;
 
     /// <summary>
     /// 获取枚举信息
@@ -61,11 +60,13 @@ public class SysConfigManager(
         // 优先级：缓存>配置文件
         var policy = new LoginSecurityPolicyOption();
         var configString = await _cache.GetValueAsync<string>(
-            GetLoginSecurityPolicyCacheKey(_userContext.TenantId)
+            GetLoginSecurityPolicyCacheKey()
         );
-        if (configString != null)
+        if (!string.IsNullOrWhiteSpace(configString))
         {
-            policy = _appJsonSerializer.Deserialize<LoginSecurityPolicyOption>(configString)
+            policy = JsonSerializer.Deserialize(
+                    configString,
+                    SystemModJsonSerializerContext.Default.LoginSecurityPolicyOption)
                 ?? new LoginSecurityPolicyOption();
         }
         else
@@ -79,9 +80,9 @@ public class SysConfigManager(
         return policy ?? new LoginSecurityPolicyOption();
     }
 
-    public static string GetLoginSecurityPolicyCacheKey(Guid tenantId)
+    public static string GetLoginSecurityPolicyCacheKey()
     {
-        return $"{WebConst.LoginSecurityPolicy}__{tenantId}";
+        return WebConst.LoginSecurityPolicy;
     }
 
     /// <summary>
@@ -100,18 +101,39 @@ public class SysConfigManager(
     public async Task<int> EditAsync(Guid id, SysConfigUpdateDto dto)
     {
         if (!await HasPermissionAsync(id))
+        {
             throw new BusinessException(Localizer.NoPermission);
+        }
 
         var current = await _dbSet.Where(config => config.Id == id).FirstOrDefaultAsync()
             ?? throw new BusinessException(Localizer.NotFoundResource, StatusCodes.Status404NotFound);
-        if (dto.Key is not null) current.Key = dto.Key;
-        if (dto.Value is not null) current.Value = dto.Value;
-        if (dto.Description is not null) current.Description = dto.Description;
-        if (dto.Valid is bool valid) current.Valid = valid;
-        if (dto.GroupName is not null) current.GroupName = dto.GroupName;
+        if (dto.Key is not null)
+        {
+            current.Key = dto.Key;
+        }
+
+        if (dto.Value is not null)
+        {
+            current.Value = dto.Value;
+        }
+
+        if (dto.Description is not null)
+        {
+            current.Description = dto.Description;
+        }
+
+        if (dto.Valid is bool valid)
+        {
+            current.Valid = valid;
+        }
+
+        if (dto.GroupName is not null)
+        {
+            current.GroupName = dto.GroupName;
+        }
 
         return await _dbSet
-            .Where(config => config.Id == id && config.TenantId == _userContext.TenantId)
+            .Where(config => config.Id == id)
             .ExecuteUpdateAsync(update => update
                 .Set(config => config.Key, current.Key)
                 .Set(config => config.Value, current.Value)
@@ -163,8 +185,8 @@ public class SysConfigManager(
 
     public override Task<bool> HasPermissionAsync(Guid id)
     {
-        // allow if exists in tenant
-        var query = _dbSet.Where(q => q.Id == id && q.TenantId == _userContext.TenantId);
+        // Allow the object when it exists in the database.
+        var query = _dbSet.Where(q => q.Id == id);
         return query.AnyAsync();
     }
 }

@@ -6,23 +6,45 @@ namespace Share.Implement;
 
 public class UserContext : IUserContext
 {
-    public Guid UserId { get; init; }
+    public Guid UserId
+    {
+        get; init;
+    }
 
-    public Guid? GroupId { get; init; }
+    public Guid? GroupId
+    {
+        get; init;
+    }
 
-    public Guid TenantId { get; set; }
-    public string? TenantType { get; set; }
 
-    public string? UserName { get; init; }
-    public string? Email { get; set; }
+    public string? UserName
+    {
+        get; init;
+    }
+    public string? Email
+    {
+        get; set;
+    }
 
-    public bool IsAdmin { get; init; }
-    public string? CurrentRole { get; set; }
-    public List<string>? Roles { get; set; }
+    public bool IsAdmin
+    {
+        get; init;
+    }
+    public string? CurrentRole
+    {
+        get; set;
+    }
+    public List<string>? Roles
+    {
+        get; set;
+    }
     public IReadOnlyList<Guid> RoleIds { get; private set; } = [];
     IReadOnlyList<string>? IUserContext.Roles => Roles;
 
-    public HttpContext? HttpContext { get; set; }
+    public HttpContext? HttpContext
+    {
+        get; set;
+    }
 
     public UserContext(IHttpContextAccessor httpContextAccessor)
     {
@@ -38,15 +60,6 @@ public class UserContext : IUserContext
         )
         {
             GroupId = groupSid;
-        }
-
-        if (Guid.TryParse(FindClaimValue(CustomClaimTypes.TenantId), out Guid tenantId)
-            && tenantId != Guid.Empty
-        )
-        {
-            TenantId = tenantId;
-            TenantType = FindClaimValue(CustomClaimTypes.TenantType)
-                ?? nameof(Entity.TenantType.Normal);
         }
 
         UserName = FindClaimValue(ClaimTypes.Name, JwtRegisteredClaimNames.Name);

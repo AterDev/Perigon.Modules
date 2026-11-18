@@ -54,7 +54,6 @@ public class ArticleManager(
             UserId = _userContext.UserId,
             CatalogId = dto.CatalogId,
             ViewCount = 0,
-            TenantId = _userContext.TenantId,
         };
         await InsertAsync(entity);
         return entity;
@@ -63,16 +62,20 @@ public class ArticleManager(
     public async Task<ArticleDetailDto?> GetAsync(Guid id)
     {
         if (!await HasPermissionAsync(id))
+        {
             throw new BusinessException("无权查看文章", StatusCodes.Status403Forbidden);
+        }
 
         Article? entity = await _dbSet
-            .Where(a => a.Id == id && a.TenantId == _userContext.TenantId)
+            .Where(a => a.Id == id)
             .FirstOrDefaultAsync();
         if (entity is null)
+        {
             return null;
+        }
 
         ArticleCategory? catalog = await _dbContext.ArticleCategories
-            .Where(c => c.Id == entity.CatalogId && c.TenantId == _userContext.TenantId)
+            .Where(c => c.Id == entity.CatalogId)
             .FirstOrDefaultAsync();
         return new ArticleDetailDto
         {
@@ -114,7 +117,7 @@ public class ArticleManager(
         entity.CatalogId = catalogId;
         entity.UpdatedTime = DateTimeOffset.UtcNow;
         await _dbSet
-            .Where(a => a.Id == id && a.TenantId == _userContext.TenantId)
+            .Where(a => a.Id == id)
             .ExecuteUpdateAsync(update => update
                 .Set(a => a.Title, entity.Title)
                 .Set(a => a.Description, entity.Description)
@@ -136,18 +139,24 @@ public class ArticleManager(
 
     public override async Task<bool> HasPermissionAsync(Guid id)
     {
-        var query = _dbSet.Where(q => q.Id == id && q.TenantId == _userContext.TenantId);
+        var query = _dbSet.Where(q => q.Id == id);
         if (!_userContext.IsAdmin)
+        {
             query = query.Where(q => q.UserId == _userContext.UserId);
+        }
+
         return await query.AnyAsync();
     }
 
     private async Task<Article> GetOwnedAsync(Guid id)
     {
         if (!await HasPermissionAsync(id))
+        {
             throw new BusinessException("无权维护文章", StatusCodes.Status403Forbidden);
+        }
+
         Article? entity = await _dbSet
-            .Where(a => a.Id == id && a.TenantId == _userContext.TenantId)
+            .Where(a => a.Id == id)
             .FirstOrDefaultAsync();
         return entity ?? throw new BusinessException("文章不存在", StatusCodes.Status404NotFound);
     }
@@ -156,20 +165,25 @@ public class ArticleManager(
     {
         bool exists = await _dbContext.ArticleCategories
             .Where(c => c.Id == id
-                && c.TenantId == _userContext.TenantId
                 && (_userContext.IsAdmin || c.UserId == _userContext.UserId))
             .AnyAsync();
         if (!exists)
+        {
             throw new BusinessException("文章分类不存在", StatusCodes.Status400BadRequest);
+        }
     }
 
     private string GetCurrentAuthorName()
     {
         if (!string.IsNullOrWhiteSpace(_userContext.UserName))
+        {
             return _userContext.UserName!;
+        }
 
         if (!string.IsNullOrWhiteSpace(_userContext.Email))
+        {
             return _userContext.Email!;
+        }
 
         return _userContext.UserId.ToString();
     }

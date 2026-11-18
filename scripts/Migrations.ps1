@@ -14,7 +14,7 @@ param(
 $scriptRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
 $repoRoot = [System.IO.Path]::GetFullPath((Join-Path $scriptRoot ".."))
 $entityProjectPath = Join-Path $repoRoot "src\Definition\EntityFramework\EntityFramework.csproj"
-$migrationOutputPath = Join-Path $repoRoot "src\Definition\EntityFramework\PostgresMigrations"
+$migrationOutputPath = Join-Path $repoRoot "src\Definition\EntityFramework\Migrations"
 
 if (-not (Test-Path $entityProjectPath)) {
     throw "Entity project not found: $entityProjectPath"

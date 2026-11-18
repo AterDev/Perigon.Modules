@@ -1,4 +1,5 @@
 using Entity.SystemMod;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Perigon.AspNetCore.Models;
 using Share;
 using SystemMod.Managers;
@@ -26,7 +27,7 @@ public sealed class SysMenuEndpoints : RestEndpointBase
         SysMenuManager manager,
         CancellationToken cancellationToken) => manager.FilterAsync(filter);
 
-    private static async Task<IResult> SyncSysMenusAsync(
+    private static async Task<Results<ForbidHttpResult, Ok<bool>>> SyncSysMenusAsync(
         string token,
         List<SysMenuSyncDto> menus,
         SysMenuManager manager,
@@ -43,7 +44,7 @@ public sealed class SysMenuEndpoints : RestEndpointBase
             : TypedResults.Ok(await manager.SyncSysMenusAsync(menus));
     }
 
-    private static async Task<IResult> AddAsync(
+    private static async Task<Results<NotFound<string>, Created<SysMenu>>> AddAsync(
         SysMenuAddDto dto,
         SysMenuManager manager,
         Localizer localizer,
@@ -58,7 +59,7 @@ public sealed class SysMenuEndpoints : RestEndpointBase
         return TypedResults.Created($"/api/SysMenu/{entity.Id}", entity);
     }
 
-    private static async Task<IResult> UpdateAsync(
+    private static async Task<Results<NotFound<string>, Ok<bool>>> UpdateAsync(
         Guid id,
         SysMenuUpdateDto dto,
         SysMenuManager manager,
@@ -74,7 +75,7 @@ public sealed class SysMenuEndpoints : RestEndpointBase
         return TypedResults.Ok(true);
     }
 
-    private static async Task<IResult> GetDetailAsync(
+    private static async Task<Results<NotFound, Ok<SysMenu>>> GetDetailAsync(
         Guid id,
         SysMenuManager manager,
         CancellationToken cancellationToken)

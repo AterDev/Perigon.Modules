@@ -6,8 +6,6 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Perigon.PostgreSQL" PrivateAssets="analyzers" />
-    <!-- Preserve historical EF migrations for existing deployments; they are no longer compiled. -->
-    <Compile Remove="Migrations\**\*.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Entity\Entity.csproj" />

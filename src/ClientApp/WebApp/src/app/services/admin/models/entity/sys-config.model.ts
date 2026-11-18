@@ -10,8 +10,6 @@ export interface SysConfig {
   updatedTime: Date;
   /** isDeleted */
   isDeleted: boolean;
-  /** tenantId */
-  tenantId: string;
   /** key */
   key: string;
   /** 以json字符串形式存储 */

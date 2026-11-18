@@ -12,8 +12,6 @@ export interface SysOrganization {
   updatedTime: Date;
   /** isDeleted */
   isDeleted: boolean;
-  /** tenantId */
-  tenantId: string;
   /** 名称 */
   name: string;
   /** 子目录 */

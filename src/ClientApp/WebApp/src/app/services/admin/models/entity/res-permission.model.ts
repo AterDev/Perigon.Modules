@@ -13,8 +13,6 @@ export interface ResPermission {
   updatedTime: Date;
   /** isDeleted */
   isDeleted: boolean;
-  /** tenantId */
-  tenantId: string;
   /** 角色 ID。 */
   roleId: string;
   /** 环境 ID。 */

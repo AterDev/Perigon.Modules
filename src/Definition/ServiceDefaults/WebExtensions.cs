@@ -266,12 +266,12 @@ public static class WebExtensions
             .AddAuthorizationBuilder()
             .AddPolicy(
                 WebConst.Default,
-                policy => policy.RequireAuthenticatedUser().RequireClaim(CustomClaimTypes.TenantId)
+                policy => policy.RequireAuthenticatedUser()
             )
             .AddPolicy(
                 WebConst.User,
                 policy => policy
-                    .RequireClaim(CustomClaimTypes.TenantId)
+                    .RequireAuthenticatedUser()
                     .RequireRole(WebConst.User, WebConst.AdminUser, WebConst.SuperAdmin)
             );
 

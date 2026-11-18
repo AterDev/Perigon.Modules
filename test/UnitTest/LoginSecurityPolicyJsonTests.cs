@@ -1,5 +1,6 @@
 using Perigon.AspNetCore.Options;
-using ApiService.Serialization;
+using System.Text.Json;
+using SystemMod.Serialization;
 
 namespace UnitTest;
 
@@ -19,8 +20,8 @@ public sealed class LoginSecurityPolicyJsonTests
             IsEnable = true,
         };
 
-        var serializer = new AppJsonSerializer();
-        LoginSecurityPolicyOption actual = serializer.Deserialize<LoginSecurityPolicyOption>(serializer.Serialize(expected))!;
+        var typeInfo = SystemModJsonSerializerContext.Default.LoginSecurityPolicyOption;
+        LoginSecurityPolicyOption actual = JsonSerializer.Deserialize(JsonSerializer.Serialize(expected, typeInfo), typeInfo)!;
 
         await Assert.That(actual.PasswordLevel).IsEqualTo(expected.PasswordLevel);
         await Assert.That(actual.IsNeedVerifyCode).IsEqualTo(expected.IsNeedVerifyCode);
@@ -34,7 +35,9 @@ public sealed class LoginSecurityPolicyJsonTests
     [Test]
     public async Task Deserialize_MissingFieldsUsesPolicyDefaults()
     {
-        LoginSecurityPolicyOption actual = new AppJsonSerializer().Deserialize<LoginSecurityPolicyOption>("{}")!;
+        LoginSecurityPolicyOption actual = JsonSerializer.Deserialize(
+            "{}",
+            SystemModJsonSerializerContext.Default.LoginSecurityPolicyOption)!;
 
         await Assert.That(actual.PasswordLevel).IsEqualTo(PasswordLevel.Normal);
         await Assert.That(actual.PasswordExpired).IsEqualTo(365);

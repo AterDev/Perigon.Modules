@@ -17,8 +17,6 @@ export interface SysUser {
   updatedTime: Date;
   /** isDeleted */
   isDeleted: boolean;
-  /** tenantId */
-  tenantId: string;
   /** 用户名 */
   userName?: string | null;
   /** 真实姓名 */

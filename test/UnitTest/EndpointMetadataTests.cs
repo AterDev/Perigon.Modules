@@ -30,7 +30,7 @@ public sealed class EndpointMetadataTests
         using WebApplication app = BuildApplication();
         NotificationWebhookEndpoints.MapEndpoints(app);
 
-        RouteEndpoint webhook = Find(app, "/api/webhooks/{tenantId:guid}/{sourceId:guid}", "POST");
+        RouteEndpoint webhook = Find(app, "/api/webhooks/{sourceId:guid}", "POST");
 
         await Assert.That(webhook.Metadata.GetMetadata<IAllowAnonymous>()).IsNotNull();
         await Assert.That(webhook.Metadata.GetMetadata<IAuthorizeData>()).IsNull();

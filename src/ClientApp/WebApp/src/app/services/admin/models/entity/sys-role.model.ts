@@ -14,8 +14,6 @@ export interface SysRole {
   updatedTime: Date;
   /** isDeleted */
   isDeleted: boolean;
-  /** tenantId */
-  tenantId: string;
   /** 角色名称 */
   name: string;
   /** 角色标识 */

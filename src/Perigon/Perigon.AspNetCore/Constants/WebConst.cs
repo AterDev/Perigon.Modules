@@ -8,8 +8,6 @@ public static class WebConst
     public const string ProjectName = "MyProjectName";
     public const string DefaultStateName = "statestore";
     public const string DefaultPubSubName = "pubsub";
-    public const string TenantId = "TenantId";
-    public const string TenantCachePrefix = "TenantId__";
 
     public const string Default = "Default";
     public const string Limited = "Limited";

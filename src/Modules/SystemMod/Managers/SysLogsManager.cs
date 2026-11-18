@@ -47,7 +47,7 @@ public class SysLogsManager : ManagerBase<DefaultDbContext, SysLogs>
 
     public override async Task<bool> HasPermissionAsync(Guid id)
     {
-        var query = _dbSet.Where(q => q.Id == id && q.TenantId == _userContext.TenantId);
+        var query = _dbSet.Where(q => q.Id == id);
         return await query.AnyAsync();
     }
     private static SysLogsItemDto MapItem(SysLogs x) => new() { Id = x.Id, ActionUserName = x.ActionUserName, TargetName = x.TargetName!, Route = x.Route, ActionType = x.ActionType, Description = x.Description, CreatedTime = x.CreatedTime };

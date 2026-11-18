@@ -1,4 +1,5 @@
 using Entity.SystemMod;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Perigon.AspNetCore.Models;
 using SystemMod.Managers;
 using SystemMod.Models.SysRoleDtos;
@@ -24,7 +25,7 @@ public sealed class SysRoleEndpoints : RestEndpointBase
         SysRoleManager manager,
         CancellationToken cancellationToken) => manager.FilterAsync(filter);
 
-    private static async Task<IResult> AddAsync(
+    private static async Task<Created<SysRole>> AddAsync(
         SysRoleAddDto dto,
         SysRoleManager manager,
         CancellationToken cancellationToken)
@@ -33,18 +34,18 @@ public sealed class SysRoleEndpoints : RestEndpointBase
         return TypedResults.Created($"/api/SysRole/{entity.Id}", entity);
     }
 
-    private static async Task<IResult> UpdateAsync(
+    private static async Task<Ok<SysRole>> UpdateAsync(
         Guid id,
         SysRoleUpdateDto dto,
         SysRoleManager manager,
         CancellationToken cancellationToken) => TypedResults.Ok(await manager.UpdateAsync(id, dto));
 
-    private static async Task<IResult> UpdateMenusAsync(
+    private static async Task<Ok<SysRole>> UpdateMenusAsync(
         SysRoleSetMenusDto dto,
         SysRoleManager manager,
         CancellationToken cancellationToken) => TypedResults.Ok(await manager.SetMenusAsync(dto));
 
-    private static async Task<IResult> DetailAsync(
+    private static async Task<Results<NotFound, Ok<SysRoleDetailDto>>> DetailAsync(
         Guid id,
         SysRoleManager manager,
         CancellationToken cancellationToken)
@@ -53,7 +54,7 @@ public sealed class SysRoleEndpoints : RestEndpointBase
         return result is null ? TypedResults.NotFound() : TypedResults.Ok(result);
     }
 
-    private static async Task<IResult> DeleteAsync(
+    private static async Task<NoContent> DeleteAsync(
         Guid id,
         SysRoleManager manager,
         CancellationToken cancellationToken)

@@ -75,7 +75,7 @@ public class SysRoleManager(
         var nameValue = dto.NameValue ?? current.NameValue;
         var isSystem = dto.IsSystem ?? current.IsSystem;
         await _dbSet
-            .Where(role => role.Id == id && role.TenantId == _userContext.TenantId)
+            .Where(role => role.Id == id)
             .ExecuteUpdateAsync(update => update
                 .Set(role => role.Name, name)
                 .Set(role => role.NameValue, nameValue)
@@ -115,7 +115,7 @@ public class SysRoleManager(
 
             // 先删除现有菜单角色关联
             await _dbContext.SysMenuRoles
-                .Where(mr => mr.RoleId == current.Id && mr.TenantId == _userContext.TenantId)
+                .Where(mr => mr.RoleId == current.Id)
                 .ExecuteDeleteAsync();
 
             Guid[] menuIds = dto.MenuIds.ToArray();
@@ -127,7 +127,6 @@ public class SysRoleManager(
             {
                 MenuId = menu.Id,
                 RoleId = current.Id,
-                TenantId = _userContext.TenantId,
             }));
 
             return current;
@@ -136,7 +135,7 @@ public class SysRoleManager(
 
     public override async Task<bool> HasPermissionAsync(Guid id)
     {
-        var query = _dbSet.Where(q => q.Id == id && q.TenantId == _userContext.TenantId);
+        var query = _dbSet.Where(q => q.Id == id);
         return await query.AnyAsync();
     }
 

@@ -1,7 +1,9 @@
 using System.Text.Json.Serialization;
 using Perigon.AspNetCore.Options;
 
-namespace ApiService.Serialization;
+namespace SystemMod.Serialization;
 
 [JsonSerializable(typeof(LoginSecurityPolicyOption))]
-public partial class AppSerializerContext : JsonSerializerContext { }
+internal partial class SystemModJsonSerializerContext : JsonSerializerContext
+{
+}

@@ -7,7 +7,7 @@ using System.Text.Unicode;
 
 namespace ServiceDefaults;
 
-/// <summary>Minimal API web pipeline retaining the tenant-aware authentication boundary.</summary>
+/// <summary>Minimal API web pipeline.</summary>
 public static class MiniApiWebExtensions
 {
     public static WebApplicationBuilder AddMiniApiMiddlewareServices(this WebApplicationBuilder builder)
@@ -35,17 +35,23 @@ public static class MiniApiWebExtensions
     public static WebApplication UseMiniApiMiddlewareServices(this WebApplication app)
     {
         app.UseForwardedHeaders();
-        if (app.Environment.IsProduction()) { app.UseHsts(); app.UseHttpsRedirection(); }
+        if (app.Environment.IsProduction())
+        {
+            app.UseHsts();
+            app.UseHttpsRedirection();
+        }
         app.UseStaticFiles();
         app.UseRequestLocalization();
         app.UseRouting();
         app.UseCors(app.Environment.IsProduction() ? WebConst.Limited : WebConst.Default);
         app.UseStatusCodePages();
         app.UseRateLimiter();
-        if (!app.Environment.IsProduction()) app.MapOpenApi();
+        if (!app.Environment.IsProduction())
+        {
+            app.MapOpenApi();
+        }
         app.UseMiddleware<GlobalExceptionMiddleware>();
         app.UseAuthentication();
-        app.UseMiddleware<TenantResolutionMiddleware>();
         app.UseAuthorization();
         return app;
     }

@@ -10,8 +10,6 @@ export interface ResTag {
   updatedTime: Date;
   /** isDeleted */
   isDeleted: boolean;
-  /** tenantId */
-  tenantId: string;
   /** 标签名称。 */
   name: string;
   /** 显示颜色，例如 CSS 十六进制颜色值。 */

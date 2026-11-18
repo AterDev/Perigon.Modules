@@ -13,7 +13,7 @@ description: >-
 
 - 所有命令从 `C:\codes\Perigon.Modules` 根目录执行。
 - 先确认 `perigon module pack -h` 包含 `-v, --version <VERSION>`。不支持时停止并更新 `Perigon.CLI`；不要通过修改 zip 内文件绕过 CLI。
-- `scripts/PackModules.ps1` 是批量打包入口，目标服务为 `AdminService`。它会校验打包结果并在全部成功后同步 `modules.json`。
+- `scripts/PackModules.ps1` 是 AOT 分支的批量打包入口，目标服务为 `ApiService`。CLI 从 `.config/perigon.config.toml` 读取 `isAOT = true`。脚本会校验打包结果并在全部成功后同步 `modules.json`。
 - 保留工作树中与本任务无关的改动；提交前只暂存本次发布相关文件。
 
 ## 确定受影响模块
@@ -31,7 +31,7 @@ git ls-files --others --exclude-standard
 
 - `src/Modules/<Module>Mod/**`
 - `src/Definition/Entity/<Module>Mod/**`
-- `src/Services/*/Controllers/<Module>Mod/**`
+- `src/Services/*/Endpoints/<Module>Mod/**`
 - `src/ClientApp/WebApp/src/app/modules/<frontend-name>/**`，将前端目录与 `src/Modules/*Mod` 去掉 `Mod` 后的名称匹配。
 
 前端 `src/app/modules/share/**` 或确实进入模块包、影响所有模块编译契约的共享代码变化，应纳入所有适用模块。仅修改文档、脚本、`modules.json` 或已有 zip 文件本身，不足以推断需要重新发布模块；如共享改动的影响无法确定，先检查依赖和包内容再决定。
@@ -59,7 +59,7 @@ pwsh ./scripts/PackModules.ps1 -Modules CMSMod,ResourceMod -Bump minor
 把实际模块名替换为受影响集合。脚本会：
 
 1. 在调用 CLI 前从旧 `modules.json` 计算目标版本。
-2. 对每个模块执行 `perigon module pack <Module> AdminService --version <目标版本>`，存在对应前端目录时一并打包。
+2. 对每个模块执行 `perigon module pack <Module> ApiService --version <目标版本>`，存在对应前端目录时一并打包。
 3. 从生成 zip 的 `metadata.json` 读取并校验 `ModuleName`、`Version`。
 4. 合并未受影响模块的旧元数据，按模块名写回根目录 `modules.json`。
 5. 任一模块失败时以非零状态结束，并且不写入新的 `modules.json`。
@@ -69,7 +69,7 @@ pwsh ./scripts/PackModules.ps1 -Modules CMSMod,ResourceMod -Bump minor
 ## 验证
 
 - 检查每个受影响 zip 内的 `metadata.json` 与 `modules.json` 中对应条目的版本一致。
-- 确认未受影响模块的版本和元数据没有意外变化，并检查 zip 只包含约定的 Entity、Modules、Controllers、Frontend 和 share 内容。
+- 确认未受影响模块的版本和元数据没有意外变化，并检查 zip 只包含约定的 Entity、Modules、Endpoints、Frontend 和 share 内容及元数据。
 - 执行 `git diff --check`，再按影响范围运行 CLI 的目标测试/构建和模块仓库必要的静态检查。
 - CLI 不支持 `--version`、版本不是三段式数字、包元数据不一致或出现非预期宿主文件时停止，不提交不完整产物。
 

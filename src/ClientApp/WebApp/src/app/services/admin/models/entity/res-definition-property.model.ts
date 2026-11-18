@@ -12,8 +12,6 @@ export interface ResDefinitionProperty {
   updatedTime: Date;
   /** isDeleted */
   isDeleted: boolean;
-  /** tenantId */
-  tenantId: string;
   /** 属性名称。 */
   name: string;
   /** 资源属性值类型。 */

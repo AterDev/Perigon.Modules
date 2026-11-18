@@ -21,7 +21,6 @@ public class SystemLogService(
     /// <param name="targetName"></param>
     /// <param name="actionType"></param>
     /// <param name="description"></param>
-    /// <param name="tenantId"></param>
     /// <param name="userName"></param>
     /// <param name="userId"></param>
     /// <returns></returns>
@@ -30,8 +29,7 @@ public class SystemLogService(
         UserActionType actionType,
         string description,
         string? userName = null,
-        Guid? userId = null,
-        Guid? tenantId = null
+        Guid? userId = null
     )
     {
         var _context = serviceProvider
@@ -39,7 +37,6 @@ public class SystemLogService(
             .ServiceProvider.GetRequiredService<IUserContext>();
 
         userId = _context.UserId == Guid.Empty ? userId : _context.UserId;
-        tenantId = _context.TenantId == Guid.Empty ? tenantId : _context.TenantId;
         userName = string.IsNullOrEmpty(_context.UserName) ? userName : _context.UserName;
         var route = _context!.HttpContext?.Request.Path.Value;
 
@@ -47,12 +44,7 @@ public class SystemLogService(
         {
             return;
         }
-        if (tenantId == null || tenantId.Equals(Guid.Empty))
-        {
-            return;
-        }
         var log = SysLogs.NewLog(
-            tenantId.Value,
             userName ?? "",
             userId.Value,
             targetName,

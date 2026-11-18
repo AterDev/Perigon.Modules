@@ -13,8 +13,6 @@ export interface SysUserRole {
   updatedTime: Date;
   /** isDeleted */
   isDeleted: boolean;
-  /** tenantId */
-  tenantId: string;
   /** 用户ID */
   userId: string;
   /** 角色ID */

@@ -649,7 +649,7 @@ public class ResourceModApiTests
 
     [ClassDataSource<TestHttpClientData>(Shared = SharedType.None)]
     [Test]
-    public async Task ResourceAndFavoriteLists_ShouldPageVisibleRowsAndKeepTenantDataIsolated(
+    public async Task ResourceAndFavoriteLists_ShouldPageVisibleRows(
         TestHttpClientData data)
     {
         HttpClient adminClient = data.HttpClient;

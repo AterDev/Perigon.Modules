@@ -155,9 +155,9 @@ $modulesRoot = Join-Path $projectRoot 'src\Modules'
 $frontendModulesRoot = Join-Path $projectRoot 'src\ClientApp\WebApp\src\app\modules'
 $packageRoot = Join-Path $projectRoot 'package_modules'
 $modulesJsonPath = Join-Path $projectRoot 'modules.json'
-$serviceName = 'AdminService'
-if (-not (Test-Path -LiteralPath (Join-Path $projectRoot 'src\Services\AdminService\AdminService.csproj') -PathType Leaf)) {
-	throw '旧打包流程只支持 MVC Controllers。请先更新 Perigon CLI 的模块打包流程以支持 ApiService Minimal API Endpoints。'
+$serviceName = 'ApiService'
+if (-not (Test-Path -LiteralPath (Join-Path $projectRoot 'src\Services\ApiService\ApiService.csproj') -PathType Leaf)) {
+	throw '未找到 ApiService 项目。'
 }
 
 if (-not (Test-Path -LiteralPath $modulesRoot -PathType Container)) {

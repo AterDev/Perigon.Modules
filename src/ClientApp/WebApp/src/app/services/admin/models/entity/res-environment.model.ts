@@ -13,8 +13,6 @@ export interface ResEnvironment {
   updatedTime: Date;
   /** isDeleted */
   isDeleted: boolean;
-  /** tenantId */
-  tenantId: string;
   /** 环境名称。 */
   name: string;
   /** Material Icons 图标名称，以字符串形式持久化。 */

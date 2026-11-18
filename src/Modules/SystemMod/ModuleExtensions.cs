@@ -28,7 +28,6 @@ public static class ModuleExtensions
         builder.Services.AddSingleton<IEntityTaskQueue<SysLogs>, EntityTaskQueue<SysLogs>>();
         builder.Services.AddSingleton<SystemLogService>();
         builder.Services.AddHostedService<SystemLogTaskHostedService>();
-        builder.Services.AddHostedService<InitSystemModService>();
         return builder;
     }
 }

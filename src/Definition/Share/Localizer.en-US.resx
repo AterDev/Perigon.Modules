@@ -218,9 +218,6 @@
   <data name="NoPermission" xml:space="preserve">
     <value>No permission to operate</value>
   </data>
-  <data name="TenantNotExist" xml:space="preserve">
-    <value>The tenant does not exist</value>
-  </data>
   <data name="TokenExpired" xml:space="preserve">
     <value>Token has expired</value>
   </data>

@@ -11,6 +11,6 @@ public class InAppNotification : EntityBase
     public DateTimeOffset? PublishedTime { get; set; }
     public DateTimeOffset? ExpiresTime { get; set; }
     public Guid? CreatedBy { get; set; }
-    /// <summary>Empty means all tenant users; otherwise only listed users receive a row.</summary>
+    /// <summary>Empty means all users; otherwise only listed users receive a row.</summary>
     public Guid[] TargetUserIds { get; set; } = [];
 }

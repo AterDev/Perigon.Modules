@@ -37,7 +37,14 @@ public class SysDataScopeManager(
         await EnsureGroupExistsAsync(dto.GroupId);
         ValidateScopeType(dto.ScopeType);
 
-        SysDataScope entity = new() { Name = dto.Name, ResourceCode = dto.ResourceCode, TargetIds = dto.TargetIds, ScopeType = dto.ScopeType, GroupId = dto.GroupId };
+        SysDataScope entity = new()
+        {
+            Name = dto.Name,
+            ResourceCode = dto.ResourceCode,
+            TargetIds = dto.TargetIds,
+            ScopeType = dto.ScopeType,
+            GroupId = dto.GroupId
+        };
         entity.Name = dto.Name.Trim();
         entity.ResourceCode = dto.ResourceCode.Trim();
         entity.TargetIds = NormalizeTargetIds(dto.TargetIds, dto.ScopeType);
@@ -82,7 +89,7 @@ public class SysDataScopeManager(
         }
 
         await _dbSet
-            .Where(scope => scope.Id == id && scope.TenantId == _userContext.TenantId)
+            .Where(scope => scope.Id == id)
             .ExecuteUpdateAsync(update => update
                 .Set(scope => scope.GroupId, current.GroupId)
                 .Set(scope => scope.Name, current.Name)
@@ -104,13 +111,13 @@ public class SysDataScopeManager(
 
     public override Task<bool> HasPermissionAsync(Guid id)
     {
-        return _dbSet.Where(scope => scope.Id == id && scope.TenantId == _userContext.TenantId).AnyAsync();
+        return _dbSet.Where(scope => scope.Id == id).AnyAsync();
     }
 
     private async Task EnsureGroupExistsAsync(Guid groupId)
     {
         bool groupExists = await _dbContext.SysDataScopeGroups
-            .Where(group => group.Id == groupId && group.TenantId == _userContext.TenantId)
+            .Where(group => group.Id == groupId)
             .AnyAsync();
         if (!groupExists)
         {

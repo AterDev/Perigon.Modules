@@ -13,14 +13,13 @@ public sealed class NotificationWebhookEndpoints : RestEndpointBase
 {
     public static void MapEndpoints(IEndpointRouteBuilder endpoints)
     {
-        endpoints.MapPost("/api/webhooks/{tenantId:guid}/{sourceId:guid}", ReceiveAsync)
+        endpoints.MapPost("/api/webhooks/{sourceId:guid}", ReceiveAsync)
             .WithTags("NotificationWebhook")
             .AllowAnonymous()
             .WithMetadata(new RequestSizeLimitMetadata(1024 * 1024));
     }
 
     public static async Task<Results<Ok<WebhookResultDto>, JsonHttpResult<WebhookResultDto>, StatusCodeHttpResult>> ReceiveAsync(
-        Guid tenantId,
         Guid sourceId,
         JsonElement payload,
         HttpContext httpContext,
@@ -42,7 +41,6 @@ public sealed class NotificationWebhookEndpoints : RestEndpointBase
             ?? httpContext.Request.Headers["X-Event-Key"].FirstOrDefault();
 
         WebhookResultDto result = await dispatcher.HandleAsync(
-            tenantId,
             sourceId,
             payload,
             eventName,

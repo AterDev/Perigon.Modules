@@ -96,3 +96,21 @@
 - 后续按要求移除未使用的 UniversalDbFactory、共享 DI 注册及专属测试。ApiService 和 AdminService 仍通过 AppDbFactory 创建默认上下文；MiniApi 模板没有该通用工厂。解决方案构建通过（保留既有 CS8601）；UnitTest 24 项通过、2 项 Redis 测试按配置跳过。本次未重新发布 Native AOT。
 
 - 移除已不在解决方案和 AppHost 中的 AdminService MVC 宿主、旧 Swagger 与未启用的 JWT 中间件。ApiService 继续使用标准 JWT Bearer 和官方 OpenAPI。旧 CLI 模块打包仅识别 Controllers，脚本现在提前报错以免生成缺少接口的包。解决方案构建通过（既有 CS8601）；删除的管线不在 ApiService 的 AOT 发布闭包内。
+- 单库改造：移除租户实体、租户请求解析、JWT 租户声明与业务租户过滤，保留角色和用户级授权。Webhook 地址变为 `/api/webhooks/{sourceId}`。新库使用独立的单库迁移基线；旧租户库不自动导入或合并。ApiService 应用迁移后显式调用 SystemMod 管理员初始化。
+- JSON/AOT 契约收紧：接口使用准确的 HttpResults 声明，CLI 从真实请求体、声明响应和直接 JSON 调用收集根类型；登录策略的生成元数据由 SystemMod 持有。Windows x64 Native AOT 去掉 IFormFile 声明时，上传成功且字节一致，但 OpenAPI 返回 500（缺少 IFormFile 元数据），所以 ApiService 主 Context 保留这一项 OpenAPI 兼容声明。
+- 生成结果：443 项收敛至 175 项；OpenAPI 另需展开查询参数的可空标量/枚举元数据，不登记整个查询 DTO。Perigon CLI 定向测试 14 项通过。当前 CLI 工作区加载不了 .NET 11 的 OpenAPI 枚举生成器；本次重新生成时临时提供 SDK 实际生成的源码，完成后移除。
+- Windows x64 Native AOT 发布并启动通过。复用 wslc PostgreSQL/Redis，在隔离开发库验证 OpenAPI 200、multipart 文件 schema 为 string/binary、认证 PNG 上传的落盘字节一致、审核列表和通知未读数 HTTP 200。迁移加载同步到工作树实际的 Migrations 目录；不修改原开发数据库。
+- 最终验证：解决方案构建成功；UnitTest 24 项通过、2 项 Redis 专项按环境开关跳过；CLI 定向用例 15 项通过（含 JSON body / query / multipart 区分）；改动文件 whitespace 与 IDE0011 检查通过。AOT 仍有原有 5 条 HybridCache 依赖警告。
+
+### DefaultDbContext 模型约定整理
+
+- [x] TASK-011 [ARCH-001, REQ-006] 将 40 个 DbSet 集中在 DefaultDbContext，使用 Perigon.PostgreSQL 默认表名和迁移模型。普通收件索引使用实体属性，有条件唯一索引保留过滤谓词。0.3.1 的命名软删除过滤器按具体实体类型注册，保留静态调用。
+- 迁移：UseDefaultTableNames 原地重命名 13 张表和 40 个主键约束。初始迁移与新快照均无数据库外键。CLI 临时生成的模型差异为空。
+- 验证：dotnet build Perigon.Modules.slnx 通过，仍有既有 CS8601。定向 dotnet format whitespace 和 IDE0011 检查通过。隔离 PostgreSQL 18 验证迁移、回滚和重新升级，确认样例数据、主键与部分索引。完整 ApiTest 未运行。
+- Native AOT：dotnet publish src/Services/ApiService/ApiService.csproj -c Release -r win-x64 --self-contained true -p:PublishAot=true -p:PublishTrimmed=true 通过，仍有 HybridCache 相关 IL 警告。Windows 原生程序使用内存缓存和空白隔离库启动，/alive 和 /health 均返回 200。Linux x64 和业务接口套件未复测。
+
+### 基类软删除与默认索引
+
+- [x] TASK-012 [ARCH-001, REQ-006] 在 Perigon.PostgreSQL 中一次启用基类软删除，由最终映射模型为唯一索引追加未删除行条件。Modules 使用本地 0.3.2-preview.2 运行时与迁移工具，普通唯一索引只声明列和 IsUnique。审核流已启用、记录待审批仍使用各自的额外条件。索引名使用默认规则，实体自动属性使用单行。
+- 迁移：当前工作树的迁移目录从空基线生成 Init 和快照。迁移 CLI 复算差异为空。Windows x64 原生 ApiService 在空白 PostgreSQL 18 隔离库创建 10 个默认命名的部分唯一索引，/alive 和 /health 均返回 200。
+- 验证：dotnet build Perigon.Modules.slnx、定向 dotnet format whitespace 和 IDE0011 检查通过。类库单元测试 343 项、隔离 PostgreSQL 集成测试 103 项通过。类库 NativeAOT Smoke 真实验证派生实体过滤、具名绕过、额外索引条件及非唯一索引。ApiService 使用 dotnet publish src/Services/ApiService/ApiService.csproj -c Release -r win-x64 --self-contained true -p:PublishAot=true -p:PublishTrimmed=true 发布通过，仍有 HybridCache 既有裁剪警告。完整 Modules ApiTest 和 Linux x64 未运行。

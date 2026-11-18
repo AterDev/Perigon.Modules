@@ -1,4 +1,6 @@
 using Perigon.AspNetCore.Models;
+using Microsoft.AspNetCore.Http.HttpResults;
+using Entity.SystemMod;
 using SystemMod.Managers;
 using SystemMod.Models.SysDataScopeGroupDtos;
 using SystemMod.Models.SysUserDataScopeGroupDtos;
@@ -25,7 +27,7 @@ public sealed class SysDataScopeGroupEndpoints : RestEndpointBase
         SysDataScopeGroupManager manager,
         CancellationToken cancellationToken) => manager.FilterAsync(filter);
 
-    private static async Task<IResult> AddAsync(
+    private static async Task<Created<SysDataScopeGroup>> AddAsync(
         SysDataScopeGroupAddDto dto,
         SysDataScopeGroupManager manager,
         CancellationToken cancellationToken)
@@ -34,13 +36,13 @@ public sealed class SysDataScopeGroupEndpoints : RestEndpointBase
         return TypedResults.Created($"/api/SysDataScopeGroup/{entity.Id}", entity);
     }
 
-    private static async Task<IResult> UpdateAsync(
+    private static async Task<Ok<SysDataScopeGroup>> UpdateAsync(
         Guid id,
         SysDataScopeGroupUpdateDto dto,
         SysDataScopeGroupManager manager,
         CancellationToken cancellationToken) => TypedResults.Ok(await manager.UpdateAsync(id, dto));
 
-    private static async Task<IResult> GetDetailAsync(
+    private static async Task<Results<NotFound, Ok<SysDataScopeGroupDetailDto>>> GetDetailAsync(
         Guid id,
         SysDataScopeGroupManager manager,
         CancellationToken cancellationToken)
@@ -49,12 +51,12 @@ public sealed class SysDataScopeGroupEndpoints : RestEndpointBase
         return result is null ? TypedResults.NotFound() : TypedResults.Ok(result);
     }
 
-    private static async Task<IResult> GetUserIdsAsync(
+    private static async Task<Ok<List<Guid>>> GetUserIdsAsync(
         Guid id,
         SysDataScopeGroupManager manager,
         CancellationToken cancellationToken) => TypedResults.Ok(await manager.GetUserIdsAsync(id));
 
-    private static async Task<IResult> SetUsersAsync(
+    private static async Task<NoContent> SetUsersAsync(
         Guid id,
         SysUserDataScopeGroupSetUsersDto dto,
         SysDataScopeGroupManager manager,
@@ -64,7 +66,7 @@ public sealed class SysDataScopeGroupEndpoints : RestEndpointBase
         return TypedResults.NoContent();
     }
 
-    private static async Task<IResult> DeleteAsync(
+    private static async Task<NoContent> DeleteAsync(
         Guid id,
         SysDataScopeGroupManager manager,
         CancellationToken cancellationToken)

@@ -30,7 +30,7 @@
 - DTO 的嵌套属性也必须引用符合上述规则的 DTO；不要通过 `Input` 或实体类型充当 DTO 的替代品。
 - 新增或修改模块时，必须同时检查目录、文件粒度、类型命名和所有引用；生成代码后也必须按此规则整理并完成构建验证。
 
-当前技术基线由仓库配置决定：.NET 11、Perigon.PostgreSQL 0.3.1、Aspire 13、Angular 21、TypeScript 5.9、TUnit 和 Microsoft.Testing.Platform。后端迁移至 MiniApi Minimal API 与 Native AOT，保留租户感知数据库工厂；DTO 使用显式映射。NuGet 版本集中维护在 `Directory.Packages.props`，测试运行器由 `global.json` 指定。
+当前技术基线由仓库配置决定：.NET 11、Perigon.PostgreSQL 0.3.1、Aspire 13、Angular 21、TypeScript 5.9、TUnit 和 Microsoft.Testing.Platform。后端使用 MiniApi Minimal API、Native AOT 和单库，不支持多租户；DTO 使用显式映射。NuGet 版本集中维护在 `Directory.Packages.props`，测试运行器由 `global.json` 指定。
 
 ## 工具优先级
 
@@ -54,6 +54,13 @@
 - `.agents/skills/module-pack/SKILL.md`：识别受影响模块、按 `modules.json` 递增版本、调用 CLI 打包并同步模块目录。
 
 只读取与任务相关的 skill。完整模块任务通常从 `perigon` 开始，再按范围读取 `references/module.md`、`references/backend.md`、`references/angular.md` 和 `test`；涉及运行时或 AppHost 时追加 `aspire`/`aspire-orchestration`。旧的独立 `engineer`、`module`、`backend` 和 `angular` skill 已并入 Perigon 或删除，不要再引用旧路径。
+
+## C# 代码格式（强制）
+
+- 所有新增或修改的 C# 代码必须遵循仓库根目录的 `.editorconfig`。
+- `if`、`else if`、`else` 和循环的语句体必须有花括号，即使只有一条语句。
+- 采用 Allman 风格：左、右花括号各自独占一行，`else` 另起一行。类型、方法、控制流和对象初始化器均不得压成单行块。
+- 交付前对本次修改的 C# 文件运行 `dotnet format whitespace --verify-no-changes --include <文件路径>`，并检查 `IDE0011`。格式清理不应改动无关文件。
 
 ## 思维模型
 

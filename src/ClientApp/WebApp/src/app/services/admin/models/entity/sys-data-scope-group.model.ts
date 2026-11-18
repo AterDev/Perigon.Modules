@@ -13,8 +13,6 @@ export interface SysDataScopeGroup {
   updatedTime: Date;
   /** isDeleted */
   isDeleted: boolean;
-  /** tenantId */
-  tenantId: string;
   /** 分组名称 */
   name: string;
   /** 权限说明 */

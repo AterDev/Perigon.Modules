@@ -1,4 +1,6 @@
 using Perigon.AspNetCore.Models;
+using Microsoft.AspNetCore.Http.HttpResults;
+using Entity.SystemMod;
 using SystemMod.Managers;
 using SystemMod.Models.SysDataScopeDtos;
 
@@ -22,7 +24,7 @@ public sealed class SysDataScopeEndpoints : RestEndpointBase
         SysDataScopeManager manager,
         CancellationToken cancellationToken) => manager.FilterAsync(filter);
 
-    private static async Task<IResult> AddAsync(
+    private static async Task<Created<SysDataScope>> AddAsync(
         SysDataScopeAddDto dto,
         SysDataScopeManager manager,
         CancellationToken cancellationToken)
@@ -31,13 +33,13 @@ public sealed class SysDataScopeEndpoints : RestEndpointBase
         return TypedResults.Created($"/api/SysDataScope/{entity.Id}", entity);
     }
 
-    private static async Task<IResult> UpdateAsync(
+    private static async Task<Ok<SysDataScope>> UpdateAsync(
         Guid id,
         SysDataScopeUpdateDto dto,
         SysDataScopeManager manager,
         CancellationToken cancellationToken) => TypedResults.Ok(await manager.UpdateAsync(id, dto));
 
-    private static async Task<IResult> GetDetailAsync(
+    private static async Task<Results<NotFound, Ok<SysDataScopeDetailDto>>> GetDetailAsync(
         Guid id,
         SysDataScopeManager manager,
         CancellationToken cancellationToken)
@@ -46,7 +48,7 @@ public sealed class SysDataScopeEndpoints : RestEndpointBase
         return result is null ? TypedResults.NotFound() : TypedResults.Ok(result);
     }
 
-    private static async Task<IResult> DeleteAsync(
+    private static async Task<NoContent> DeleteAsync(
         Guid id,
         SysDataScopeManager manager,
         CancellationToken cancellationToken)

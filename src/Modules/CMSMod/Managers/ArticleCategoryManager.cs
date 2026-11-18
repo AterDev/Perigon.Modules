@@ -53,7 +53,7 @@ public class ArticleCategoryManager(
         if (await HasPermissionAsync(id))
         {
             return await _dbSet
-                .Where(c => c.Id == id && c.TenantId == _userContext.TenantId)
+                .Where(c => c.Id == id)
                 .ExecuteUpdateAsync(update => update
                     .Set(c => c.Name, dto.Name)
                     .Set(c => c.UpdatedTime, DateTimeOffset.UtcNow));
@@ -66,14 +66,16 @@ public class ArticleCategoryManager(
         if (await HasPermissionAsync(id))
         {
             ArticleCategory? entity = await _dbSet
-                .Where(q => q.Id == id && q.TenantId == _userContext.TenantId)
+                .Where(q => q.Id == id)
                 .FirstOrDefaultAsync();
             if (entity is null)
+            {
                 return null;
+            }
 
             ArticleCategory? parent = entity.ParentId is Guid parentId
                 ? await _dbContext.ArticleCategories
-                    .Where(q => q.Id == parentId && q.TenantId == _userContext.TenantId)
+                    .Where(q => q.Id == parentId)
                     .FirstOrDefaultAsync()
                 : null;
             return new ArticleCategoryDetailDto
@@ -127,7 +129,7 @@ public class ArticleCategoryManager(
 
     public override async Task<bool> HasPermissionAsync(Guid id)
     {
-        var query = _dbSet.Where(q => q.Id == id && q.TenantId == _userContext.TenantId);
+        var query = _dbSet.Where(q => q.Id == id);
         query = query.Where(q => q.UserId == _userContext.UserId);
         return await query.AnyAsync();
     }
@@ -140,7 +142,6 @@ public class ArticleCategoryManager(
         }
         var query = _dbSet
             .Where(q => requestedIds.Contains(q.Id)
-                && q.TenantId == _userContext.TenantId
                 && (_userContext.IsAdmin || q.UserId == _userContext.UserId))
             .ToListAsync();
         List<ArticleCategory> owned = await query;
@@ -184,7 +185,9 @@ public class ArticleCategoryManager(
             foreach (ArticleCategory category in source)
             {
                 if (category.ParentId is Guid parentId && parentLookup.TryGetValue(parentId, out ArticleCategory? parent))
+                {
                     category.Parent = parent;
+                }
             }
         }
         return source;
@@ -194,7 +197,6 @@ public class ArticleCategoryManager(
     {
         bool exists = await _dbContext.ArticleCategories
             .Where(category => category.Id == parentId
-                && category.TenantId == _userContext.TenantId
                 && (_userContext.IsAdmin || category.UserId == _userContext.UserId))
             .AnyAsync();
         if (!exists)

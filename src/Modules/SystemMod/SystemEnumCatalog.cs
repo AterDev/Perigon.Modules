@@ -16,10 +16,6 @@ internal static class SystemEnumCatalog
     public static Dictionary<string, List<EnumDictionary>> Create()
     {
         return EnumHelper.CreateEnumInfo(
-            (nameof(TenantType), EnumHelper.ToList<TenantType>(
-                (TenantType.Trial, "Trial"),
-                (TenantType.Normal, "Normal"),
-                (TenantType.Independent, "Independent"))),
             (nameof(ContentType), EnumHelper.ToList<ContentType>(
                 (ContentType.News, "News"),
                 (ContentType.ViewPoint, "ViewPoint"),

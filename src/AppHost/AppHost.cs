@@ -8,7 +8,6 @@ var builder = DistributedApplication.CreateBuilder(args);
 builder.AddKubernetesEnvironment("k8s");
 var aspireSetting = AppSettingsHelper.LoadAspireSettings(builder.Configuration);
 var isTesting = builder.Configuration["ASPIRE_ENVIRONMENT"]?.ToLowerInvariant() == "testing";
-var isMultiTenant = builder.Configuration["Components:IsMultiTenant"] ?? "false";
 
 #region infrastructure
 var database = builder.AddConnectionString(AppConst.Default);
@@ -19,7 +18,6 @@ var cache = builder.AddConnectionString(AppConst.Cache);
 #region services
 var serviceGroup = builder.AddGroup("Services", "Globe");
 var apiService = builder.AddProject<Projects.ApiService>("ApiService")
-    .WithEnvironment("Components__IsMultiTenant", isMultiTenant)
     .WithParentRelationship(serviceGroup);
 builder.AddJavaScriptApp(
         "frontend",

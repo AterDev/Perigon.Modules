@@ -13,8 +13,6 @@ export interface ResGroup {
   updatedTime: Date;
   /** isDeleted */
   isDeleted: boolean;
-  /** tenantId */
-  tenantId: string;
   /** 分组名称。 */
   name: string;
   /** 分组描述。 */

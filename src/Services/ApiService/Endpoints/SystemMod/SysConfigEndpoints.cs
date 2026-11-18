@@ -1,5 +1,7 @@
 using Perigon.AspNetCore.Models;
 using Perigon.AspNetCore.Utils;
+using Microsoft.AspNetCore.Http.HttpResults;
+using Entity.SystemMod;
 using SystemMod.Managers;
 using SystemMod.Models.SysConfigDtos;
 
@@ -27,7 +29,7 @@ public sealed class SysConfigEndpoints : RestEndpointBase
         SysConfigManager manager,
         CancellationToken cancellationToken) => manager.GetEnumConfigsAsync();
 
-    private static async Task<IResult> AddAsync(
+    private static async Task<Created<SysConfig>> AddAsync(
         SysConfigAddDto dto,
         SysConfigManager manager,
         CancellationToken cancellationToken)
@@ -36,7 +38,7 @@ public sealed class SysConfigEndpoints : RestEndpointBase
         return TypedResults.Created($"/api/SysConfig/{entity.Id}", entity);
     }
 
-    private static async Task<IResult> UpdateAsync(
+    private static async Task<Ok<bool>> UpdateAsync(
         Guid id,
         SysConfigUpdateDto dto,
         SysConfigManager manager,
@@ -46,7 +48,7 @@ public sealed class SysConfigEndpoints : RestEndpointBase
         return TypedResults.Ok(true);
     }
 
-    private static async Task<IResult> GetDetailAsync(
+    private static async Task<Results<NotFound, Ok<SysConfigDetailDto>>> GetDetailAsync(
         Guid id,
         SysConfigManager manager,
         CancellationToken cancellationToken)
@@ -55,7 +57,7 @@ public sealed class SysConfigEndpoints : RestEndpointBase
         return result is null ? TypedResults.NotFound() : TypedResults.Ok(result);
     }
 
-    private static async Task<IResult> DeleteAsync(
+    private static async Task<Results<NotFound, ProblemHttpResult, Ok<bool>>> DeleteAsync(
         Guid id,
         SysConfigManager manager,
         CancellationToken cancellationToken)

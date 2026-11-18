@@ -1,4 +1,5 @@
 using Entity.SystemMod;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Http.Metadata;
 using Microsoft.AspNetCore.RateLimiting;
 using Perigon.AspNetCore.Models;
@@ -32,7 +33,7 @@ public sealed class SysUserEndpoints : RestEndpointBase
         group.MapDelete("/{id}", DeleteAsync).RequireAuthorization(WebConst.SuperAdmin);
     }
 
-    private static async Task<IResult> SendVerifyCodeAsync(
+    private static async Task<Results<BadRequest<string>, Conflict<string>, Ok>> SendVerifyCodeAsync(
         string email,
         SysUserManager manager,
         CacheService cache,
@@ -53,7 +54,7 @@ public sealed class SysUserEndpoints : RestEndpointBase
         return TypedResults.Ok();
     }
 
-    private static IResult GetCaptchaImage(SysUserManager manager) =>
+    private static FileContentHttpResult GetCaptchaImage(SysUserManager manager) =>
         TypedResults.File(manager.GetCaptchaImage(4), "image/png");
 
     private static async Task<AccessTokenDto> LoginAsync(
@@ -66,7 +67,7 @@ public sealed class SysUserEndpoints : RestEndpointBase
         return await manager.LoginAsync(dto, client);
     }
 
-    private static async Task<IResult> GetUserInfoAsync(
+    private static async Task<Results<NotFound<string>, Ok<UserInfoDto>>> GetUserInfoAsync(
         SysUserManager manager,
         SysRoleManager roleManager,
         SysDataScopeGroupManager dataScopeGroupManager,
@@ -94,7 +95,7 @@ public sealed class SysUserEndpoints : RestEndpointBase
         });
     }
 
-    private static async Task<IResult> RefreshTokenAsync(
+    private static async Task<Results<ForbidHttpResult, Ok<AccessTokenDto>>> RefreshTokenAsync(
         string refreshToken,
         SysUserManager manager,
         SysConfigManager configManager,
@@ -130,7 +131,7 @@ public sealed class SysUserEndpoints : RestEndpointBase
         return TypedResults.Ok(token);
     }
 
-    private static async Task<IResult> LogoutAsync(
+    private static async Task<Results<NotFound, Ok>> LogoutAsync(
         Guid id,
         SysUserManager manager,
         CacheService cache,
@@ -150,7 +151,7 @@ public sealed class SysUserEndpoints : RestEndpointBase
         SysUserManager manager,
         CancellationToken cancellationToken) => manager.ToPageAsync(filter);
 
-    private static async Task<IResult> AddAsync(
+    private static async Task<Created<SysUser>> AddAsync(
         SysUserAddDto dto,
         SysUserManager manager,
         SysRoleManager roleManager,
@@ -163,7 +164,7 @@ public sealed class SysUserEndpoints : RestEndpointBase
         return TypedResults.Created($"/api/SysUser/{entity.Id}", entity);
     }
 
-    private static async Task<IResult> UpdateAsync(
+    private static async Task<Ok<SysUser>> UpdateAsync(
         Guid id,
         SysUserUpdateDto dto,
         SysUserManager manager,
@@ -176,7 +177,7 @@ public sealed class SysUserEndpoints : RestEndpointBase
         return TypedResults.Ok(await manager.UpdateAsync(id, dto, roles));
     }
 
-    private static async Task<IResult> ChangePasswordAsync(
+    private static async Task<Results<NotFound<string>, ProblemHttpResult, Ok<bool>>> ChangePasswordAsync(
         string password,
         string newPassword,
         SysUserManager manager,
@@ -198,7 +199,7 @@ public sealed class SysUserEndpoints : RestEndpointBase
         return TypedResults.Ok(await manager.ChangePasswordAsync(entity, newPassword));
     }
 
-    private static async Task<IResult> GetDetailAsync(
+    private static async Task<Results<NotFound, Ok<SysUserDetailDto>>> GetDetailAsync(
         Guid id,
         SysUserManager manager,
         CancellationToken cancellationToken)
@@ -207,7 +208,7 @@ public sealed class SysUserEndpoints : RestEndpointBase
         return result is null ? TypedResults.NotFound() : TypedResults.Ok(result);
     }
 
-    private static async Task<IResult> DeleteAsync(
+    private static async Task<NoContent> DeleteAsync(
         Guid id,
         SysUserManager manager,
         CancellationToken cancellationToken)

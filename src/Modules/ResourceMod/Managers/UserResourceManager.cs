@@ -29,29 +29,56 @@ public class UserResourceManager(
     {
         UserResource? resource = await _dbSet.FirstOrDefaultAsync(item => item.Id == id &&
             (item.UserId == _userContext.UserId || (_userContext.IsAdmin && item.StatusValue == (int)UserResourceStatus.ApplyPublic)));
-        if (resource == null) throw new BusinessException("用户资源不存在或无权访问", StatusCodes.Status403Forbidden);
+        if (resource == null)
+        {
+            throw new BusinessException("用户资源不存在或无权访问", StatusCodes.Status403Forbidden);
+        }
+
         ResDefinition definition = await _dbContext.ResDefinitions.FirstOrDefaultAsync(item => item.Id == resource.DefinitionId)
             ?? throw new BusinessException("资源定义不存在", StatusCodes.Status409Conflict);
         List<UserResValue> values = await _dbContext.UserResValues.Where(item => item.UserResourceId == id)
             .OrderBy(item => item.CreatedTime).ToListAsync();
-        return new UserResourceDetailDto { Id = resource.Id, UserId = resource.UserId, DefinitionId = resource.DefinitionId,
-            DefinitionName = definition.Name, Status = resource.Status, AuditStatus = resource.AuditStatus,
-            ApprovedResourceId = resource.ApprovedResourceId, ReviewComment = resource.ReviewComment, UpdatedTime = resource.UpdatedTime,
-            Values = values.Select(value => new ResourceValueDetailDto { DefinitionPropertyId = value.DefinitionPropertyId,
-                Name = value.PropertyNameSnapshot, ValueType = value.ValueTypeSnapshot, Value = value.Value }).ToList() };
+        return new UserResourceDetailDto
+        {
+            Id = resource.Id,
+            UserId = resource.UserId,
+            DefinitionId = resource.DefinitionId,
+            DefinitionName = definition.Name,
+            Status = resource.Status,
+            AuditStatus = resource.AuditStatus,
+            ApprovedResourceId = resource.ApprovedResourceId,
+            ReviewComment = resource.ReviewComment,
+            UpdatedTime = resource.UpdatedTime,
+            Values = values.Select(value => new ResourceValueDetailDto
+            {
+                DefinitionPropertyId = value.DefinitionPropertyId,
+                Name = value.PropertyNameSnapshot,
+                ValueType = value.ValueTypeSnapshot,
+                Value = value.Value
+            }).ToList()
+        };
     }
 
     public async Task<UserResource> AddAsync(UserResourceAddDto input)
     {
         ValidateStatus(input.Status);
         List<ResourceValueDto> values = await _resourceManager.ValidateAndNormalizeValuesAsync(_dbContext, input.DefinitionId, input.Values);
-        UserResource resource = new() { UserId = _userContext.UserId, DefinitionId = input.DefinitionId, StatusValue = (int)input.Status,
-            AuditStatusValue = (int)GetAuditStatus(input.Status), TenantId = _userContext.TenantId };
+        UserResource resource = new()
+        {
+            UserId = _userContext.UserId,
+            DefinitionId = input.DefinitionId,
+            StatusValue = (int)input.Status,
+            AuditStatusValue = (int)GetAuditStatus(input.Status)
+        };
         List<UserResValue> entities = await BuildValuesAsync(resource.Id, resource.DefinitionId, values);
         return await _dbContext.TransactionAsync(async _ =>
         {
             await _dbSet.InsertAsync(resource);
-            if (entities.Count != 0) await _dbContext.UserResValues.BulkInsertAsync(entities);
+            if (entities.Count != 0)
+            {
+                await _dbContext.UserResValues.BulkInsertAsync(entities);
+            }
+
             return resource;
         });
     }
@@ -60,7 +87,11 @@ public class UserResourceManager(
     {
         ValidateStatus(input.Status);
         UserResource resource = await GetOwnedEntityAsync(id);
-        if (resource.AuditStatus == UserResourceAuditStatus.Approved) throw new BusinessException("审核通过的用户资源不能修改", StatusCodes.Status409Conflict);
+        if (resource.AuditStatus == UserResourceAuditStatus.Approved)
+        {
+            throw new BusinessException("审核通过的用户资源不能修改", StatusCodes.Status409Conflict);
+        }
+
         List<ResourceValueDto> values = await _resourceManager.ValidateAndNormalizeValuesAsync(_dbContext, input.DefinitionId, input.Values);
         List<UserResValue> entities = await BuildValuesAsync(id, input.DefinitionId, values);
         int status = (int)input.Status;
@@ -73,7 +104,11 @@ public class UserResourceManager(
                 .Set(item => item.ApprovedResourceId, (Guid?)null).Set(item => item.ReviewComment, (string?)null)
                 .Set(item => item.UpdatedTime, now));
             await _dbContext.UserResValues.Where(value => value.UserResourceId == id).ExecuteUpdateAsync(s => s.Set(value => value.IsDeleted, true));
-            if (entities.Count != 0) await _dbContext.UserResValues.BulkInsertAsync(entities);
+            if (entities.Count != 0)
+            {
+                await _dbContext.UserResValues.BulkInsertAsync(entities);
+            }
+
             return true;
         });
     }
@@ -81,7 +116,11 @@ public class UserResourceManager(
     public async Task<bool> DeleteAsync(Guid id)
     {
         UserResource resource = await GetOwnedEntityAsync(id);
-        if (resource.AuditStatus == UserResourceAuditStatus.Approved) throw new BusinessException("审核通过的用户资源不能删除", StatusCodes.Status409Conflict);
+        if (resource.AuditStatus == UserResourceAuditStatus.Approved)
+        {
+            throw new BusinessException("审核通过的用户资源不能删除", StatusCodes.Status409Conflict);
+        }
+
         DateTimeOffset now = DateTimeOffset.UtcNow;
         return await _dbContext.TransactionAsync(async _ =>
         {
@@ -104,16 +143,30 @@ public class UserResourceManager(
             if (claimed == 0)
             {
                 UserResource? current = await _dbSet.FirstOrDefaultAsync(resource => resource.Id == id);
-                if (current == null) throw new BusinessException("公开申请不存在", StatusCodes.Status404NotFound);
-                if (current.AuditStatusValue == (int)UserResourceAuditStatus.Approved && current.ApprovedResourceId.HasValue) return true;
+                if (current == null)
+                {
+                    throw new BusinessException("公开申请不存在", StatusCodes.Status404NotFound);
+                }
+
+                if (current.AuditStatusValue == (int)UserResourceAuditStatus.Approved && current.ApprovedResourceId.HasValue)
+                {
+                    return true;
+                }
+
                 throw new BusinessException("公开申请不存在或已审核", StatusCodes.Status409Conflict);
             }
             UserResource resource = await _dbSet.FirstOrDefaultAsync(item => item.Id == id)
                 ?? throw new BusinessException("公开申请不存在或已审核", StatusCodes.Status409Conflict);
             List<UserResValue> values = await _dbContext.UserResValues.Where(value => value.UserResourceId == id).OrderBy(value => value.CreatedTime).ToListAsync();
-            Resource created = await _resourceManager.AddAsync(_dbContext, new ResourceAddDto { EnvironmentId = input.EnvironmentId,
-                CategoryId = input.CategoryId, GroupId = input.GroupId, DefinitionId = resource.DefinitionId, TagNames = input.TagNames,
-                Values = values.Select(value => new ResourceValueDto { DefinitionPropertyId = value.DefinitionPropertyId, Value = value.Value }).ToList() }, saveChanges: false);
+            Resource created = await _resourceManager.AddAsync(_dbContext, new ResourceAddDto
+            {
+                EnvironmentId = input.EnvironmentId,
+                CategoryId = input.CategoryId,
+                GroupId = input.GroupId,
+                DefinitionId = resource.DefinitionId,
+                TagNames = input.TagNames,
+                Values = values.Select(value => new ResourceValueDto { DefinitionPropertyId = value.DefinitionPropertyId, Value = value.Value }).ToList()
+            }, saveChanges: false);
             await _dbSet.Where(item => item.Id == id).ExecuteUpdateAsync(s => s.Set(item => item.ApprovedResourceId, created.Id).Set(item => item.UpdatedTime, now));
             return true;
         });
@@ -140,9 +193,23 @@ public class UserResourceManager(
         List<UserResource> resources = await query.OrderByDescending(resource => resource.UpdatedTime).Skip((filter.PageIndex.GetValueOrDefault(1) - 1) * filter.PageSize.GetValueOrDefault(20)).Take(filter.PageSize.GetValueOrDefault(20)).ToListAsync();
         Guid[] definitionIds = resources.Select(item => item.DefinitionId).Distinct().ToArray();
         Dictionary<Guid, string> definitions = (await _dbContext.ResDefinitions.Where(item => definitionIds.Contains(item.Id)).ToListAsync()).ToDictionary(item => item.Id, item => item.Name);
-        return new PageList<UserResourceItemDto> { Count = count, PageIndex = filter.PageIndex.GetValueOrDefault(1), Data = resources.Select(resource => new UserResourceItemDto { Id = resource.Id,
-            UserId = resource.UserId, DefinitionId = resource.DefinitionId, DefinitionName = definitions[resource.DefinitionId], Status = resource.Status,
-            AuditStatus = resource.AuditStatus, ApprovedResourceId = resource.ApprovedResourceId, ReviewComment = resource.ReviewComment, UpdatedTime = resource.UpdatedTime }).ToList() };
+        return new PageList<UserResourceItemDto>
+        {
+            Count = count,
+            PageIndex = filter.PageIndex.GetValueOrDefault(1),
+            Data = resources.Select(resource => new UserResourceItemDto
+            {
+                Id = resource.Id,
+                UserId = resource.UserId,
+                DefinitionId = resource.DefinitionId,
+                DefinitionName = definitions[resource.DefinitionId],
+                Status = resource.Status,
+                AuditStatus = resource.AuditStatus,
+                ApprovedResourceId = resource.ApprovedResourceId,
+                ReviewComment = resource.ReviewComment,
+                UpdatedTime = resource.UpdatedTime
+            }).ToList()
+        };
     }
 
     private async Task<UserResource> GetOwnedEntityAsync(Guid id)
@@ -162,19 +229,35 @@ public class UserResourceManager(
         List<ResDefinitionPropertyMap> maps = await _dbContext.ResDefinitionPropertyMaps.Where(map => map.DefinitionId == definitionId).OrderBy(map => map.Sort).ToListAsync();
         Guid[] propertyIds = maps.Select(map => map.PropertyId).ToArray();
         Dictionary<Guid, ResDefinitionProperty> lookup = (await _dbContext.ResDefinitionProperties.Where(property => propertyIds.Contains(property.Id)).ToListAsync()).ToDictionary(property => property.Id);
-        return normalizedValues.Select(value => { ResDefinitionProperty property = lookup[value.DefinitionPropertyId]; return new UserResValue { UserResourceId = userResourceId,
-            DefinitionPropertyId = property.Id, Value = value.Value, PropertyNameSnapshot = property.Name, ValueTypeSnapshotValue = property.ValueTypeValue, TenantId = _userContext.TenantId }; }).ToList();
+        return normalizedValues.Select(value =>
+        {
+            ResDefinitionProperty property = lookup[value.DefinitionPropertyId];
+            return new UserResValue
+            {
+                UserResourceId = userResourceId,
+                DefinitionPropertyId = property.Id,
+                Value = value.Value,
+                PropertyNameSnapshot = property.Name,
+                ValueTypeSnapshotValue = property.ValueTypeValue
+            };
+        }).ToList();
     }
 
     private static UserResourceAuditStatus GetAuditStatus(UserResourceStatus status) => status == UserResourceStatus.ApplyPublic ? UserResourceAuditStatus.Pending : UserResourceAuditStatus.NotRequired;
     private static string? NormalizeComment(string? comment) => string.IsNullOrWhiteSpace(comment) ? null : comment.Trim();
     private static void ValidateStatus(UserResourceStatus status)
     {
-        if (status != UserResourceStatus.Private && status != UserResourceStatus.ApplyPublic) throw new BusinessException("用户资源状态无效", StatusCodes.Status400BadRequest);
+        if (status != UserResourceStatus.Private && status != UserResourceStatus.ApplyPublic)
+        {
+            throw new BusinessException("用户资源状态无效", StatusCodes.Status400BadRequest);
+        }
     }
     private void EnsureAdmin()
     {
-        if (!_userContext.IsAdmin) throw new BusinessException("无审核用户资源权限", StatusCodes.Status403Forbidden);
+        if (!_userContext.IsAdmin)
+        {
+            throw new BusinessException("无审核用户资源权限", StatusCodes.Status403Forbidden);
+        }
     }
 }
 

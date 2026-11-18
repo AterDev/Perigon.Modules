@@ -31,8 +31,13 @@ public class UserFavoriteResourceManager(
         List<Resource> resources = await visibleResources
             .Where(item => resourceIds.Contains(item.Id)).ToListAsync();
         Dictionary<Guid, ResourceItemDto> items = await BuildItemsAsync(resources);
-        return new PageList<UserFavoriteResourceItemDto> { Count = count, PageIndex = filter.PageIndex.GetValueOrDefault(1), Data = favorites.Where(item => items.ContainsKey(item.ResourceId))
-            .Select(item => new UserFavoriteResourceItemDto { Id = item.Id, ResourceId = item.ResourceId, CreatedTime = item.CreatedTime, Resource = items[item.ResourceId] }).ToList() };
+        return new PageList<UserFavoriteResourceItemDto>
+        {
+            Count = count,
+            PageIndex = filter.PageIndex.GetValueOrDefault(1),
+            Data = favorites.Where(item => items.ContainsKey(item.ResourceId))
+            .Select(item => new UserFavoriteResourceItemDto { Id = item.Id, ResourceId = item.ResourceId, CreatedTime = item.CreatedTime, Resource = items[item.ResourceId] }).ToList()
+        };
     }
 
     public async Task<UserFavoriteResourceDetailDto> GetAsync(Guid resourceId)
@@ -47,10 +52,20 @@ public class UserFavoriteResourceManager(
     public async Task<UserFavoriteResource> AddAsync(UserFavoriteResourceAddDto input)
     {
         if (!await _resourceManager.GetVisibleQuery(_dbContext).AnyAsync(resource => resource.Id == input.ResourceId))
+        {
             throw new BusinessException("资源不存在或无权收藏", StatusCodes.Status403Forbidden);
+        }
+
         if (await _dbSet.AnyAsync(favorite => favorite.UserId == _userContext.UserId && favorite.ResourceId == input.ResourceId))
+        {
             throw new BusinessException("资源已收藏", StatusCodes.Status409Conflict);
-        UserFavoriteResource favorite = new() { UserId = _userContext.UserId, ResourceId = input.ResourceId, TenantId = _userContext.TenantId };
+        }
+
+        UserFavoriteResource favorite = new()
+        {
+            UserId = _userContext.UserId,
+            ResourceId = input.ResourceId
+        };
         await _dbSet.InsertAsync(favorite);
         return favorite;
     }
@@ -67,7 +82,11 @@ public class UserFavoriteResourceManager(
 
     private async Task<Dictionary<Guid, ResourceItemDto>> BuildItemsAsync(List<Resource> resources)
     {
-        if (resources.Count == 0) return [];
+        if (resources.Count == 0)
+        {
+            return [];
+        }
+
         Guid[] environmentIds = resources.Select(item => item.EnvironmentId).Distinct().ToArray();
         Guid[] categoryIds = resources.Select(item => item.CategoryId).Distinct().ToArray();
         Guid[] groupIds = resources.Where(item => item.GroupId.HasValue).Select(item => item.GroupId!.Value).Distinct().ToArray();
@@ -76,10 +95,20 @@ public class UserFavoriteResourceManager(
         Dictionary<Guid, string> categories = (await _dbContext.ResCategories.Where(item => categoryIds.Contains(item.Id)).ToListAsync()).ToDictionary(item => item.Id, item => item.Name);
         Dictionary<Guid, string> groups = (await _dbContext.ResGroups.Where(item => groupIds.Contains(item.Id)).ToListAsync()).ToDictionary(item => item.Id, item => item.Name);
         Dictionary<Guid, string> definitions = (await _dbContext.ResDefinitions.Where(item => definitionIds.Contains(item.Id)).ToListAsync()).ToDictionary(item => item.Id, item => item.Name);
-        return resources.ToDictionary(resource => resource.Id, resource => new ResourceItemDto { Id = resource.Id, EnvironmentId = resource.EnvironmentId,
-            EnvironmentName = environments[resource.EnvironmentId], CategoryId = resource.CategoryId, CategoryName = categories[resource.CategoryId],
-            GroupId = resource.GroupId, GroupName = resource.GroupId.HasValue && groups.TryGetValue(resource.GroupId.Value, out string? group) ? group : null,
-            DefinitionId = resource.DefinitionId, DefinitionName = definitions[resource.DefinitionId], TagNames = resource.TagNames.ToList(), UpdatedTime = resource.UpdatedTime });
+        return resources.ToDictionary(resource => resource.Id, resource => new ResourceItemDto
+        {
+            Id = resource.Id,
+            EnvironmentId = resource.EnvironmentId,
+            EnvironmentName = environments[resource.EnvironmentId],
+            CategoryId = resource.CategoryId,
+            CategoryName = categories[resource.CategoryId],
+            GroupId = resource.GroupId,
+            GroupName = resource.GroupId.HasValue && groups.TryGetValue(resource.GroupId.Value, out string? group) ? group : null,
+            DefinitionId = resource.DefinitionId,
+            DefinitionName = definitions[resource.DefinitionId],
+            TagNames = resource.TagNames.ToList(),
+            UpdatedTime = resource.UpdatedTime
+        });
     }
 }
 

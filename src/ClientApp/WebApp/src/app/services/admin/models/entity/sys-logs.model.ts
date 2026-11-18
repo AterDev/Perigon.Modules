@@ -13,8 +13,6 @@ export interface SysLogs {
   updatedTime: Date;
   /** isDeleted */
   isDeleted: boolean;
-  /** tenantId */
-  tenantId: string;
   /** 操作人名称 */
   actionUserName: string;
   /** 操作对象名称 */

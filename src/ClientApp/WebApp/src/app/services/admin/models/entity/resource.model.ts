@@ -16,8 +16,6 @@ export interface Resource {
   updatedTime: Date;
   /** isDeleted */
   isDeleted: boolean;
-  /** tenantId */
-  tenantId: string;
   /** 环境 ID。 */
   environmentId: string;
   /** 分类 ID。 */

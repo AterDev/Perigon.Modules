@@ -4,7 +4,6 @@ using EntityFramework.AppDbContext;
 using NotificationMod.Models.InAppNotificationDtos;
 using Perigon.AspNetCore.Constants;
 using Perigon.AspNetCore.Models;
-using Perigon.AspNetCore.Services;
 using Perigon.PostgreSQL;
 using System.Net;
 using System.Net.Http.Json;
@@ -29,7 +28,6 @@ public sealed class NotificationModApiTests
         HttpClient admin = data.HttpClient;
         (HttpClient userA, Guid userAId) = await data.CreateSysUserClientAsync();
         (HttpClient userB, Guid userBId) = await data.CreateSysUserClientAsync();
-        Guid tenantId = GetTenantId(admin);
         List<Guid> notificationIds = [];
         string sharedTitle = $"api-shared-{Guid.CreateVersion7():N}";
         string targetedTitle = $"api-targeted-{Guid.CreateVersion7():N}";
@@ -56,7 +54,9 @@ public sealed class NotificationModApiTests
             InAppNotificationReadDto read = await PostAsync<InAppNotificationReadDto>(
                 userA,
                 $"/api/Notification/{shared.Id}/read",
-                new { },
+                new
+                {
+                },
                 HttpStatusCode.OK);
             await Assert.That(read.Id).IsEqualTo(shared.Id);
             await Assert.That(read.IsRead).IsTrue();
@@ -90,7 +90,7 @@ public sealed class NotificationModApiTests
         }
         finally
         {
-            await SoftDeleteAsync(tenantId, notificationIds);
+            await SoftDeleteAsync(notificationIds);
         }
     }
 
@@ -100,7 +100,6 @@ public sealed class NotificationModApiTests
     {
         HttpClient admin = data.HttpClient;
         (HttpClient existingUser, _) = await data.CreateSysUserClientAsync();
-        Guid tenantId = GetTenantId(admin);
         Guid notificationId = Guid.Empty;
         string title = $"api-snapshot-{Guid.CreateVersion7():N}";
 
@@ -132,7 +131,7 @@ public sealed class NotificationModApiTests
             PageList<InAppNotificationItemDto> existingRows = await MineAsync(existingUser, title);
             await Assert.That(existingRows.Count).IsEqualTo(1);
 
-            await using (DefaultDbContext context = new(ConnectionString, tenantId))
+            await using (DefaultDbContext context = new(ConnectionString))
             {
                 List<InAppNotificationRecipient> recipients = await context.InAppNotificationRecipients
                     .Where(item => item.NotificationId == notificationId)
@@ -146,7 +145,7 @@ public sealed class NotificationModApiTests
         }
         finally
         {
-            await SoftDeleteAsync(tenantId, [notificationId]);
+            await SoftDeleteAsync([notificationId]);
         }
     }
 
@@ -156,7 +155,6 @@ public sealed class NotificationModApiTests
     {
         HttpClient admin = data.HttpClient;
         (HttpClient user, Guid userId) = await data.CreateSysUserClientAsync();
-        Guid tenantId = GetTenantId(admin);
         List<Guid> notificationIds = [];
         string unpublishedTitle = $"api-unpublished-{Guid.CreateVersion7():N}";
         string expiredTitle = $"api-expired-{Guid.CreateVersion7():N}";
@@ -189,7 +187,7 @@ public sealed class NotificationModApiTests
             });
             notificationIds.Add(expired.Id);
 
-            await using (DefaultDbContext context = new(ConnectionString, tenantId))
+            await using (DefaultDbContext context = new(ConnectionString))
             {
                 await context.InAppNotifications.Where(item => item.Id == expired.Id)
                     .ExecuteUpdateAsync(update => update.Set(item => item.ExpiresTime, DateTimeOffset.UtcNow.AddMinutes(-1)));
@@ -202,7 +200,7 @@ public sealed class NotificationModApiTests
         }
         finally
         {
-            await SoftDeleteAsync(tenantId, notificationIds);
+            await SoftDeleteAsync(notificationIds);
         }
     }
 
@@ -265,19 +263,15 @@ public sealed class NotificationModApiTests
         await Assert.That(response.StatusCode).IsEqualTo(expected);
     }
 
-    private static Guid GetTenantId(HttpClient client)
-    {
-        string token = client.DefaultRequestHeaders.Authorization?.Parameter
-            ?? throw new InvalidOperationException("The test client has no bearer token.");
-        return Guid.Parse(JwtService.GetClaimValue(token, CustomClaimTypes.TenantId));
-    }
-
-    private static async Task SoftDeleteAsync(Guid tenantId, IReadOnlyCollection<Guid> ids)
+    private static async Task SoftDeleteAsync(IReadOnlyCollection<Guid> ids)
     {
         Guid[] actualIds = ids.Where(id => id != Guid.Empty).Distinct().ToArray();
-        if (actualIds.Length == 0) return;
+        if (actualIds.Length == 0)
+        {
+            return;
+        }
 
-        await using DefaultDbContext context = new(ConnectionString, tenantId);
+        await using DefaultDbContext context = new(ConnectionString);
         await context.InAppNotificationRecipients.Where(item => actualIds.Contains(item.NotificationId))
             .ExecuteUpdateAsync(update => update.Set(item => item.IsDeleted, true));
         await context.InAppNotifications.Where(item => actualIds.Contains(item.Id))

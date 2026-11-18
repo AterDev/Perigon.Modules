@@ -12,8 +12,6 @@ export interface ArticleCategory {
   updatedTime: Date;
   /** isDeleted */
   isDeleted: boolean;
-  /** tenantId */
-  tenantId: string;
   /** 目录名称 */
   name: string;
   /** 层级 */

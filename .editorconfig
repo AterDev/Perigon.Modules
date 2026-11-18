@@ -18,7 +18,12 @@ dotnet_style_prefer_simplified_interpolation = true:suggestion
 max_line_length = 120
 csharp_using_directive_placement = outside_namespace:suggestion
 csharp_prefer_simple_using_statement = true:suggestion
-csharp_prefer_braces = true:suggestion
+csharp_prefer_braces = true:warning
+dotnet_diagnostic.IDE0011.severity = warning
+csharp_new_line_before_open_brace = all
+csharp_new_line_before_else = true
+csharp_preserve_single_line_blocks = false
+csharp_preserve_single_line_statements = false
 csharp_style_namespace_declarations = file_scoped:suggestion
 csharp_style_prefer_method_group_conversion = true:silent
 csharp_style_prefer_top_level_statements = true:silent
@@ -204,3 +209,6 @@ dotnet_diagnostic.CA1852.severity = suggestion
 dotnet_diagnostic.CA5360.severity = suggestion
 dotnet_diagnostic.CA2215.severity = suggestion
 dotnet_diagnostic.CA2251.severity = suggestion
+
+[src/Definition/Entity/**/*.cs]
+csharp_preserve_single_line_blocks = true

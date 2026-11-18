@@ -4,8 +4,8 @@ using Share.Models.Auth;
 using System.Security.Claims;
 using System.Text.RegularExpressions;
 using Perigon.AspNetCore.Options;
-using Share.Services;
-using Share.Serialization;
+using System.Text.Json;
+using SystemMod.Serialization;
 using SystemMod.Models.SysUserDtos;
 
 namespace SystemMod.Managers;
@@ -13,31 +13,26 @@ namespace SystemMod.Managers;
 public class SysUserManager(
     AppDbFactory dbContextFactory,
     CacheService cache,
-    TenantService tenantService,
     JwtService jwtService,
     SystemLogService logService,
     ILogger<SysUserManager> logger,
     IUserContext userContext,
     Localizer localizer,
     IConfiguration configuration,
-    IServiceProvider serviceProvider,
-    IAppJsonSerializer appJsonSerializer
+    IServiceProvider serviceProvider
 ) : ManagerBase<DefaultDbContext, SysUser>(
     dbContextFactory,
     userContext,
-    logger,
-    allowCatalogContext: true
+    logger
 )
 {
     private static SysUserItemDto MapItem(SysUser x) => new() { Id = x.Id, UserName = x.UserName!, RealName = x.RealName, Email = x.Email, LastLoginTime = x.LastLoginTime, Sex = (GenderType)x.Sex, CreatedTime = x.CreatedTime };
     private static SysUserDetailDto MapDetail(SysUser x) => new() { Id = x.Id, UserName = x.UserName!, RealName = x.RealName, Email = x.Email, EmailConfirmed = x.EmailConfirmed, PhoneNumber = x.PhoneNumber, PhoneNumberConfirmed = x.PhoneNumberConfirmed, TwoFactorEnabled = x.TwoFactorEnabled, LockoutEnd = x.LockoutEnd, LockoutEnabled = x.LockoutEnabled, AccessFailedCount = x.AccessFailedCount, LastLoginTime = x.LastLoginTime, RetryCount = x.RetryCount, Avatar = x.Avatar, Sex = (GenderType)x.Sex, CreatedTime = x.CreatedTime, UpdatedTime = x.UpdatedTime };
     private readonly CacheService _cache = cache;
-    private readonly TenantService _tenantService = tenantService;
     private readonly SystemLogService _logService = logService;
     private readonly Localizer _localizer = localizer;
     private readonly IConfiguration _configuration = configuration;
     private readonly IServiceProvider _serviceProvider = serviceProvider;
-    private readonly IAppJsonSerializer _appJsonSerializer = appJsonSerializer;
 
     private SysUserRoleManager UserRoleManager =>
         _serviceProvider.GetRequiredService<SysUserRoleManager>();
@@ -151,10 +146,8 @@ public class SysUserManager(
         // 通过显式关联表查询用户角色。
         List<SysRole> assignedRoles = await _dbContext.SysRoles
             .Where(role =>
-                role.TenantId == _userContext.TenantId &&
                 _dbContext.SysUserRoles.Any(userRole =>
                     userRole.UserId == user.Id &&
-                    userRole.TenantId == _userContext.TenantId &&
                     userRole.RoleId == role.Id))
             .ToListAsync();
         List<string> roles = assignedRoles
@@ -170,7 +163,6 @@ public class SysUserManager(
         List<Claim> claims = [
             new(ClaimTypes.Email, user.Email),
             new(ClaimTypes.Name, user.UserName??string.Empty),
-            new(CustomClaimTypes.TenantId, _userContext.TenantId.ToString())
         ];
         claims.AddRange(roleIds.Select(roleId => new Claim(
             CustomClaimTypes.RoleId,
@@ -199,7 +191,7 @@ public class SysUserManager(
         user.PasswordHash = HashCrypto.GeneratePwd(newPassword, user.PasswordSalt);
         user.LastPwdEditTime = DateTimeOffset.UtcNow;
         return await _dbSet
-            .Where(item => item.Id == user.Id && item.TenantId == _userContext.TenantId)
+            .Where(item => item.Id == user.Id)
             .ExecuteUpdateAsync(update => update
                 .Set(item => item.PasswordSalt, user.PasswordSalt)
                 .Set(item => item.PasswordHash, user.PasswordHash)
@@ -234,7 +226,6 @@ public class SysUserManager(
     /// <returns></returns>
     public async Task<bool> IsExistAsync(string email)
     {
-        await ResolveTenantAsync(email);
         return await Queryable.Where(q => q.Email == email).AnyAsync();
     }
 
@@ -293,7 +284,6 @@ public class SysUserManager(
 
     public async Task<AccessTokenDto> LoginAsync(SysLoginDto dto, string client)
     {
-        var tenant = await ResolveTenantAsync(dto.Email);
 
         // 查询用户
         var user = await _dbSet
@@ -331,9 +321,7 @@ public class SysUserManager(
                 UserActionType.Login,
                 Localizer.LoginSuccess,
                 user.UserName,
-                user.Id,
-                tenant.Id
-            );
+                user.Id);
             return jwtToken;
         }
         catch (BusinessException)
@@ -351,7 +339,7 @@ public class SysUserManager(
         {
             // 确保用户信息（如重试次数、最后登录时间）被保存
             await _dbSet
-                .Where(item => item.Id == user.Id && item.TenantId == _userContext.TenantId)
+                .Where(item => item.Id == user.Id)
                 .ExecuteUpdateAsync(update => update
                     .Set(item => item.LastLoginTime, user.LastLoginTime)
                     .Set(item => item.RetryCount, user.RetryCount)
@@ -363,7 +351,15 @@ public class SysUserManager(
     {
         return await ExecuteInTransactionAsync(async () =>
         {
-            SysUser entity = new() { UserName = dto.UserName, RealName = dto.RealName, Email = dto.Email, PhoneNumber = dto.PhoneNumber, Avatar = dto.Avatar, Sex = (Sex)dto.Sex };
+            SysUser entity = new()
+            {
+                UserName = dto.UserName,
+                RealName = dto.RealName,
+                Email = dto.Email,
+                PhoneNumber = dto.PhoneNumber,
+                Avatar = dto.Avatar,
+                Sex = (Sex)dto.Sex
+            };
             // 密码处理
             entity.PasswordSalt = HashCrypto.BuildSalt();
             entity.PasswordHash = HashCrypto.GeneratePwd(dto.Password, entity.PasswordSalt);
@@ -403,18 +399,41 @@ public class SysUserManager(
 
             // Perigon PostgreSQL does not track entities; materialize the current
             // row and issue one explicit update for the supplied fields.
-            if (dto.UserName is not null) current.UserName = dto.UserName;
-            if (dto.RealName is not null) current.RealName = dto.RealName;
-            if (dto.Email is not null) current.Email = dto.Email;
-            if (dto.PhoneNumber is not null) current.PhoneNumber = dto.PhoneNumber;
-            if (dto.Avatar is not null) current.Avatar = dto.Avatar;
-            if (dto.Sex is GenderType sex) current.Sex = (Sex)sex;
+            if (dto.UserName is not null)
+            {
+                current.UserName = dto.UserName;
+            }
+
+            if (dto.RealName is not null)
+            {
+                current.RealName = dto.RealName;
+            }
+
+            if (dto.Email is not null)
+            {
+                current.Email = dto.Email;
+            }
+
+            if (dto.PhoneNumber is not null)
+            {
+                current.PhoneNumber = dto.PhoneNumber;
+            }
+
+            if (dto.Avatar is not null)
+            {
+                current.Avatar = dto.Avatar;
+            }
+
+            if (dto.Sex is GenderType sex)
+            {
+                current.Sex = (Sex)sex;
+            }
 
             if (dto.UserName is not null || dto.RealName is not null || dto.Email is not null
                 || dto.PhoneNumber is not null || dto.Avatar is not null || dto.Sex is not null)
             {
                 await _dbSet
-                    .Where(u => u.Id == id && u.TenantId == _userContext.TenantId)
+                    .Where(u => u.Id == id)
                     .ExecuteUpdateAsync(update => update
                         .Set(u => u.UserName, current.UserName)
                         .Set(u => u.RealName, current.RealName)
@@ -471,33 +490,18 @@ public class SysUserManager(
 
     public override async Task<bool> HasPermissionAsync(Guid id)
     {
-        var query = _dbSet.Where(q => q.Id == id && q.TenantId == _userContext.TenantId);
+        var query = _dbSet.Where(q => q.Id == id);
         return await query.AnyAsync();
-    }
-
-    private async Task<Tenant> ResolveTenantAsync(string email)
-    {
-        var domain = email.Split("@").Last();
-        var tenant = await _tenantService.GetByDomainAsync(domain);
-        if (tenant is null || tenant.Disabled)
-        {
-            throw new BusinessException(Localizer.TenantNotExist);
-        }
-
-        _userContext.TenantId = tenant.Id;
-        _userContext.TenantType = tenant.Type.ToString();
-        BindTenantContext(tenant.Id);
-        return tenant;
     }
 
     private async Task<SysUser> LoadUserRolesAsync(SysUser user)
     {
         var links = await _dbContext.SysUserRoles
-            .Where(link => link.UserId == user.Id && link.TenantId == _userContext.TenantId)
+            .Where(link => link.UserId == user.Id)
             .ToListAsync();
         var roleIds = links.Select(link => link.RoleId).Distinct().ToArray();
         var roles = await _dbContext.SysRoles
-            .Where(role => roleIds.Contains(role.Id) && role.TenantId == _userContext.TenantId)
+            .Where(role => roleIds.Contains(role.Id))
             .ToListAsync();
         foreach (var link in links)
         {
@@ -511,11 +515,13 @@ public class SysUserManager(
     private async Task<LoginSecurityPolicyOption> GetLoginSecurityPolicyAsync()
     {
         var configString = await _cache.GetValueAsync<string>(
-            SysConfigManager.GetLoginSecurityPolicyCacheKey(_userContext.TenantId)
+            SysConfigManager.GetLoginSecurityPolicyCacheKey()
         );
-        if (configString is not null)
+        if (!string.IsNullOrWhiteSpace(configString))
         {
-            return _appJsonSerializer.Deserialize<LoginSecurityPolicyOption>(configString)
+            return JsonSerializer.Deserialize(
+                    configString,
+                    SystemModJsonSerializerContext.Default.LoginSecurityPolicyOption)
                 ?? new LoginSecurityPolicyOption();
         }
 

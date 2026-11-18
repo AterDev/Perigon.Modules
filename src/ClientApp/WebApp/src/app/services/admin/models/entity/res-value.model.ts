@@ -14,8 +14,6 @@ export interface ResValue {
   updatedTime: Date;
   /** isDeleted */
   isDeleted: boolean;
-  /** tenantId */
-  tenantId: string;
   /** 资源 ID。 */
   resourceId: string;
   /** 资源定义属性 ID。 */

@@ -2,6 +2,7 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authentication.MicrosoftAccount;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Share.Models.Auth;
 
 namespace ApiService.Endpoints;
@@ -16,13 +17,13 @@ public sealed class ExternalAuthEndpoints : RestEndpointBase
         group.MapGet("/getToken", GetToken);
     }
 
-    private static IResult SignInMicrosoft(HttpContext context, string returnUrl = "/") =>
+    private static ChallengeHttpResult SignInMicrosoft(HttpContext context, string returnUrl = "/") =>
         Challenge(context, MicrosoftAccountDefaults.AuthenticationScheme, returnUrl);
 
-    private static IResult SignInGoogle(HttpContext context, string returnUrl = "/") =>
+    private static ChallengeHttpResult SignInGoogle(HttpContext context, string returnUrl = "/") =>
         Challenge(context, GoogleDefaults.AuthenticationScheme, returnUrl);
 
-    private static IResult Challenge(HttpContext context, string scheme, string returnUrl)
+    private static ChallengeHttpResult Challenge(HttpContext context, string scheme, string returnUrl)
     {
         var redirectUri = $"/api/ExternalAuth/getToken?type={Uri.EscapeDataString(scheme)}&returnUrl={Uri.EscapeDataString(returnUrl)}";
         return TypedResults.Challenge(
@@ -30,7 +31,7 @@ public sealed class ExternalAuthEndpoints : RestEndpointBase
             [scheme]);
     }
 
-    private static async Task<IResult> GetToken(
+    private static async Task<Results<BadRequest<string>, Ok<ExternalUserInfoDto>>> GetToken(
         HttpContext context,
         ILogger<ExternalAuthEndpoints> logger,
         string type,

@@ -39,7 +39,7 @@ public class SysUserRoleManager(
     {
         // 先删除现有的用户角色关联
         await dbContext.SysUserRoles
-            .Where(ur => ur.UserId == userId && ur.TenantId == _userContext.TenantId)
+            .Where(ur => ur.UserId == userId)
             .ExecuteDeleteAsync();
 
         if (roleIds.Count == 0)
@@ -51,7 +51,6 @@ public class SysUserRoleManager(
         {
             UserId = userId,
             RoleId = roleId,
-            TenantId = _userContext.TenantId
         }));
         return true;
     }
@@ -97,12 +96,12 @@ public class SysUserRoleManager(
 
     public override async Task<bool> HasPermissionAsync(Guid id)
     {
-        var query = _dbSet.Where(q => q.Id == id && q.TenantId == _userContext.TenantId).Join(
+        var query = _dbSet.Where(q => q.Id == id).Join(
             _dbContext.SysUsers,
             ur => ur.UserId,
             u => u.Id,
             (ur, u) => u
-        ).Where(u => u.TenantId == _userContext.TenantId);
+        );
         return await query.AnyAsync();
     }
 }

@@ -42,7 +42,7 @@
     <PackageVersion Include="OpenTelemetry.Instrumentation.Runtime" Version="1.21.0" />
     <!-- Security & Authentication -->
     <PackageVersion Include="System.IdentityModel.Tokens.Jwt" Version="8.23.0" />
-    <PackageVersion Include="Perigon.PostgreSQL" Version="0.3.1" />
+    <PackageVersion Include="Perigon.PostgreSQL" Version="[0.3.2-preview.2]" />
     <!-- Third-party Packages -->
     <PackageVersion Include="AWSSDK.S3" Version="4.1.0" />
     <PackageVersion Include="MailKit" Version="5.0.0" />

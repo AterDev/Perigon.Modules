@@ -14,8 +14,6 @@ export interface ResCategory {
   updatedTime: Date;
   /** isDeleted */
   isDeleted: boolean;
-  /** tenantId */
-  tenantId: string;
   /** 分类名称。 */
   name: string;
   /** 分类编码。 */

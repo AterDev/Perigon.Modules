@@ -18,11 +18,17 @@ public class SysLogs : EntityBase
     /// 操作对象名称
     /// </summary>
     [StringLength(100)]
-    public string? TargetName { get; set; }
+    public string? TargetName
+    {
+        get; set;
+    }
 
     [NotMapped]
     [JsonIgnore]
-    public object? Data { get; set; }
+    public object? Data
+    {
+        get; set;
+    }
 
     /// <summary>
     /// 操作路由
@@ -43,13 +49,19 @@ public class SysLogs : EntityBase
 
     [Column("ActionType")]
     [JsonIgnore]
-    public int ActionTypeValue { get; set; }
+    public int ActionTypeValue
+    {
+        get; set;
+    }
 
     /// <summary>
     /// 描述
     /// </summary>
     [StringLength(500)]
-    public string? Description { get; set; }
+    public string? Description
+    {
+        get; set;
+    }
 
     [ForeignKey(nameof(SysUserId))]
     [NotMapped]
@@ -58,7 +70,6 @@ public class SysLogs : EntityBase
     public Guid SysUserId { get; set; } = default!;
 
     public static SysLogs NewLog(
-        Guid tenantId,
         string userName,
         Guid userId,
         object entity,
@@ -69,7 +80,6 @@ public class SysLogs : EntityBase
     {
         return new SysLogs
         {
-            TenantId = tenantId,
             SysUserId = userId,
             ActionUserName = userName,
             Data = entity,

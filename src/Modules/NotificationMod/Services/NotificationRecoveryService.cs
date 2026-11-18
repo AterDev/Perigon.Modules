@@ -1,12 +1,15 @@
 namespace NotificationMod.Services;
 
-/// <summary>Manual, tenant-scoped timeout recovery. The caller must choose a threshold longer than the maximum delivery duration; no automatic lease ownership is claimed.</summary>
+/// <summary>Manual timeout recovery. The caller must choose a threshold longer than the maximum delivery duration; no automatic lease ownership is claimed.</summary>
 public sealed class NotificationRecoveryService(AppDbFactory dbContextFactory)
 {
-    public async Task<(int Deliveries, int Events)> RecoverAsync(Guid tenantId, TimeSpan lease, CancellationToken cancellationToken = default)
+    public async Task<(int Deliveries, int Events)> RecoverAsync(TimeSpan lease, CancellationToken cancellationToken = default)
     {
-        if (tenantId == Guid.Empty || lease <= TimeSpan.Zero) throw new ArgumentOutOfRangeException(nameof(lease));
-        await using DefaultDbContext db = dbContextFactory.CreateDbContext(tenantId);
+        if (lease <= TimeSpan.Zero)
+        {
+            throw new ArgumentOutOfRangeException(nameof(lease));
+        }
+        await using DefaultDbContext db = dbContextFactory.CreateDbContext();
         DateTimeOffset threshold = DateTimeOffset.UtcNow.Subtract(lease);
         int deliveries = await db.Set<NotificationDelivery>().Where(x => x.Status == "pending" && x.CreatedTime < threshold)
             .ExecuteUpdateAsync(set => set.Set(x => x.Status, "unknown").Set(x => x.Error, "处理租约已过期，投递结果未知"), cancellationToken: cancellationToken);
