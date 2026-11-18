@@ -9,25 +9,25 @@ public class ArticleFilterDto : FilterBase
     /// <summary>
     /// 按文章标题筛选。
     /// </summary>
-    [MaxLength(100)]
+    [StringLength(100)]
     public string? Title { get; set; }
 
     /// <summary>
     /// 按文章描述筛选。
     /// </summary>
-    [MaxLength(300)]
+    [StringLength(300)]
     public string? Description { get; set; }
 
     /// <summary>
     /// 按作者名称筛选。
     /// </summary>
-    [MaxLength(200)]
+    [StringLength(200)]
     public string? Authors { get; set; }
 
     /// <summary>
     /// 按翻译后的文章标题筛选。
     /// </summary>
-    [MaxLength(200)]
+    [StringLength(200)]
     public string? TranslateTitle { get; set; }
 
     /// <summary>

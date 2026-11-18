@@ -30,7 +30,7 @@ public class SysLogsManager : ManagerBase<DefaultDbContext, SysLogs>
             var endDate = filter.EndDate.Value.AddDays(1);
             Queryable = Queryable.Between(q => q.CreatedTime, filter.StartDate.Value, endDate);
         }
-        return await PageListAsync<SysLogsFilterDto, SysLogsItemDto>(filter);
+        return await PageListAsync<SysLogsFilterDto, SysLogsItemDto>(filter, MapItem);
     }
 
     /// <summary>
@@ -50,4 +50,5 @@ public class SysLogsManager : ManagerBase<DefaultDbContext, SysLogs>
         var query = _dbSet.Where(q => q.Id == id && q.TenantId == _userContext.TenantId);
         return await query.AnyAsync();
     }
+    private static SysLogsItemDto MapItem(SysLogs x) => new() { Id = x.Id, ActionUserName = x.ActionUserName, TargetName = x.TargetName!, Route = x.Route, ActionType = x.ActionType, Description = x.Description, CreatedTime = x.CreatedTime };
 }

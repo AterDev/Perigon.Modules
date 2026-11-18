@@ -31,7 +31,7 @@ public class UserClaimsTransformation(TenantService tenantService, CacheService 
         if (!string.IsNullOrWhiteSpace(userIdentity)
             && !identity.HasClaim(claim => claim.Type == ClaimTypes.Role))
         {
-            var cacheKey = $"local-user-info:{tenant.Id}:{userIdentity}";
+            var cacheKey = $"local-user-info:bin-v1:{tenant.Id}:{userIdentity}";
 
             // the sample of get user roles from local system, you can replace this with your own implementation, such as query from database or call external service.
             var roles = await cache.GetOrCreateAsync(
@@ -100,3 +100,4 @@ public class UserClaimsTransformation(TenantService tenantService, CacheService 
     }
 
 }
+

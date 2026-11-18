@@ -10,20 +10,20 @@ public class SysMenu : EntityBase, ITreeNode<SysMenu>
     /// <summary>
     /// 菜单名称
     /// </summary>
-    [MaxLength(60)]
+    [StringLength(60)]
     [Required]
     public string Name { get; set; } = string.Empty;
 
     /// <summary>
     /// 菜单路径
     /// </summary>
-    [MaxLength(100)]
+    [StringLength(100)]
     public string? Path { get; set; }
 
     /// <summary>
     /// 图标
     /// </summary>
-    [MaxLength(30)]
+    [StringLength(30)]
     public string? Icon { get; set; }
 
     /// <summary>
@@ -54,7 +54,7 @@ public class SysMenu : EntityBase, ITreeNode<SysMenu>
     /// <summary>
     /// 权限编码
     /// </summary>
-    [MaxLength(50)]
+    [StringLength(50)]
     [Required]
     public string AccessCode { get; set; } = string.Empty;
 

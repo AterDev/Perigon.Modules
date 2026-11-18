@@ -25,7 +25,6 @@
   - `src/Modules/XXXMod/Managers`: 各模块下，实际实现业务逻辑的目录
   - `src/Modules/XXXMod/Models`: 各模块下，Dto模型定义，按实体目录组织
 - `src/Services/ApiService`: 是接口服务项目，基于ASP.NET Core Web API
-- `src/Services/AdminService`: 后台管理服务接口项目
 
 ## 项目运行
 

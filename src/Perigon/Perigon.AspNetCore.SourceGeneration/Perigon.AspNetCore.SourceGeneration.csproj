@@ -1,5 +1,11 @@
 <Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
+		<!-- Analyzer projects are build-time tooling and must not inherit the host's AOT publish. -->
+		<TreatAsLocalProperty>PublishAot;PublishTrimmed;SelfContained;RuntimeIdentifier</TreatAsLocalProperty>
+		<PublishAot>false</PublishAot>
+		<PublishTrimmed>false</PublishTrimmed>
+		<SelfContained>false</SelfContained>
+		<IsPublishable>false</IsPublishable>
 		<TargetFramework>netstandard2.0</TargetFramework>
 		<Nullable>enable</Nullable>
 		<LangVersion>latest</LangVersion>

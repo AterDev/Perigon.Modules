@@ -8,6 +8,7 @@ public class UserResourceRejectDto
     /// <summary>
     /// 驳回原因。
     /// </summary>
-    [MaxLength(500)]
+    [StringLength(500)]
     public string? ReviewComment { get; set; }
 }
+

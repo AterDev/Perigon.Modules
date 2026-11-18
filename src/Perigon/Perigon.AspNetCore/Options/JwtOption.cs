@@ -1,8 +1,18 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace Perigon.AspNetCore.Options;
 
 public class JwtOption
 {
     public const string ConfigPath = "Authentication:Jwt";
+
+    [SetsRequiredMembers]
+    public JwtOption()
+    {
+        ValidAudiences = string.Empty;
+        ValidIssuer = string.Empty;
+        Sign = string.Empty;
+    }
 
     public required string ValidAudiences { get; set; }
     public required string ValidIssuer { get; set; }

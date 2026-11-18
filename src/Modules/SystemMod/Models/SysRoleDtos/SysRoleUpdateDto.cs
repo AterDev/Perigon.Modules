@@ -9,13 +9,13 @@ public class SysRoleUpdateDto
     /// <summary>
     /// 角色名称
     /// </summary>
-    [MaxLength(30)]
+    [StringLength(30)]
     public string? Name { get; set; }
 
     /// <summary>
     /// 角色标识
     /// </summary>
-    [MaxLength(60)]
+    [StringLength(60)]
     public string? NameValue { get; set; }
 
     /// <summary>

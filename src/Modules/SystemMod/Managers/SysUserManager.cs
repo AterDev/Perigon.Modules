@@ -2,9 +2,10 @@ using EntityFramework.AppDbFactory;
 using Entity;
 using Share.Models.Auth;
 using System.Security.Claims;
-using System.Text.Json;
 using System.Text.RegularExpressions;
+using Perigon.AspNetCore.Options;
 using Share.Services;
+using Share.Serialization;
 using SystemMod.Models.SysUserDtos;
 
 namespace SystemMod.Managers;
@@ -19,7 +20,8 @@ public class SysUserManager(
     IUserContext userContext,
     Localizer localizer,
     IConfiguration configuration,
-    IServiceProvider serviceProvider
+    IServiceProvider serviceProvider,
+    IAppJsonSerializer appJsonSerializer
 ) : ManagerBase<DefaultDbContext, SysUser>(
     dbContextFactory,
     userContext,
@@ -27,12 +29,15 @@ public class SysUserManager(
     allowCatalogContext: true
 )
 {
+    private static SysUserItemDto MapItem(SysUser x) => new() { Id = x.Id, UserName = x.UserName!, RealName = x.RealName, Email = x.Email, LastLoginTime = x.LastLoginTime, Sex = (GenderType)x.Sex, CreatedTime = x.CreatedTime };
+    private static SysUserDetailDto MapDetail(SysUser x) => new() { Id = x.Id, UserName = x.UserName!, RealName = x.RealName, Email = x.Email, EmailConfirmed = x.EmailConfirmed, PhoneNumber = x.PhoneNumber, PhoneNumberConfirmed = x.PhoneNumberConfirmed, TwoFactorEnabled = x.TwoFactorEnabled, LockoutEnd = x.LockoutEnd, LockoutEnabled = x.LockoutEnabled, AccessFailedCount = x.AccessFailedCount, LastLoginTime = x.LastLoginTime, RetryCount = x.RetryCount, Avatar = x.Avatar, Sex = (GenderType)x.Sex, CreatedTime = x.CreatedTime, UpdatedTime = x.UpdatedTime };
     private readonly CacheService _cache = cache;
     private readonly TenantService _tenantService = tenantService;
     private readonly SystemLogService _logService = logService;
     private readonly Localizer _localizer = localizer;
     private readonly IConfiguration _configuration = configuration;
     private readonly IServiceProvider _serviceProvider = serviceProvider;
+    private readonly IAppJsonSerializer _appJsonSerializer = appJsonSerializer;
 
     private SysUserRoleManager UserRoleManager =>
         _serviceProvider.GetRequiredService<SysUserRoleManager>();
@@ -219,7 +224,7 @@ public class SysUserManager(
             var roleUserIds = roleLinks.Select(link => link.UserId).Distinct().ToArray();
             Queryable = Queryable.Where(q => roleUserIds.Contains(q.Id));
         }
-        return await PageListAsync<SysUserFilterDto, SysUserItemDto>(filter);
+        return await PageListAsync<SysUserFilterDto, SysUserItemDto>(filter, MapItem);
     }
 
     /// <summary>
@@ -283,7 +288,7 @@ public class SysUserManager(
     // expose DTO getter for controllers
     public async Task<SysUserDetailDto?> GetAsync(Guid id)
     {
-        return await FindAsync<SysUserDetailDto>(d => d.Id == id);
+        return await FindAsync(MapDetail, d => d.Id == id);
     }
 
     public async Task<AccessTokenDto> LoginAsync(SysLoginDto dto, string client)
@@ -358,7 +363,7 @@ public class SysUserManager(
     {
         return await ExecuteInTransactionAsync(async () =>
         {
-            SysUser entity = dto.MapTo<SysUser>();
+            SysUser entity = new() { UserName = dto.UserName, RealName = dto.RealName, Email = dto.Email, PhoneNumber = dto.PhoneNumber, Avatar = dto.Avatar, Sex = (Sex)dto.Sex };
             // 密码处理
             entity.PasswordSalt = HashCrypto.BuildSalt();
             entity.PasswordHash = HashCrypto.GeneratePwd(dto.Password, entity.PasswordSalt);
@@ -510,7 +515,7 @@ public class SysUserManager(
         );
         if (configString is not null)
         {
-            return JsonSerializer.Deserialize<LoginSecurityPolicyOption>(configString)
+            return _appJsonSerializer.Deserialize<LoginSecurityPolicyOption>(configString)
                 ?? new LoginSecurityPolicyOption();
         }
 

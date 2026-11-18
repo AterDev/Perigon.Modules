@@ -8,14 +8,14 @@ public class SysDataScopeGroup : EntityBase
     /// <summary>
     /// 分组名称
     /// </summary>
-    [MaxLength(30)]
+    [StringLength(30)]
     [Required]
     public string Name { get; set; } = string.Empty;
 
     /// <summary>
     /// 权限说明
     /// </summary>
-    [MaxLength(1000)]
+    [StringLength(1000)]
     public string? Description { get; set; }
 
     /// <summary>

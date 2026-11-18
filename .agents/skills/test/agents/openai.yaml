@@ -1,4 +1,4 @@
 interface:
-  display_name: "Module Testing"
-  short_description: "Test modules with TUnit and Aspire hosting"
-  default_prompt: "Use $test to add or run focused tests for a Perigon module."
+  display_name: "MiniApi Testing"
+  short_description: "Test Minimal APIs, Aspire hosting, and AOT behavior"
+  default_prompt: "Use $test to add or run focused tests for MiniApi and record appropriate AOT evidence."

@@ -43,9 +43,9 @@ public class ResourceManager(
 
         int count = await query.CountAsync();
         List<Resource> resources = await query.OrderByDescending(r => r.UpdatedTime)
-            .Skip((filter.PageIndex - 1) * filter.PageSize).Take(filter.PageSize).ToListAsync();
+            .Skip((filter.PageIndex.GetValueOrDefault(1) - 1) * filter.PageSize.GetValueOrDefault(20)).Take(filter.PageSize.GetValueOrDefault(20)).ToListAsync();
 
-        return new PageList<ResourceItemDto> { Count = count, PageIndex = filter.PageIndex, Data = await ToItemsAsync(resources) };
+        return new PageList<ResourceItemDto> { Count = count, PageIndex = filter.PageIndex.GetValueOrDefault(1), Data = await ToItemsAsync(resources) };
     }
 
     public async Task<ResourceDetailDto?> GetAsync(Guid id)
@@ -222,3 +222,4 @@ public class ResourceManager(
         if (!_userContext.IsAdmin) throw new BusinessException("无管理资源权限", StatusCodes.Status403Forbidden);
     }
 }
+

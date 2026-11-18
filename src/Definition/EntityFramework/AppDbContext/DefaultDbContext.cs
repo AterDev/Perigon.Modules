@@ -38,6 +38,9 @@ public partial class DefaultDbContext : ContextBase
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
+        // ValueTuple keeps composite-index expressions AOT-safe while retaining
+        // the property names consumed by Perigon.PostgreSQL's model builder.
+        ConfigureNotificationAndAudit(builder);
         builder.Entity<Article>(entity =>
         {
             entity.ToTable("Articles");
@@ -59,9 +62,9 @@ public partial class DefaultDbContext : ContextBase
             entity.Property(x => x.IsDeleted).HasColumnName("IsDeleted");
             entity.Property(x => x.TenantId).HasColumnName("TenantId");
             entity.HasIndex(x => x.CatalogId).HasDatabaseName("IX_Articles_CatalogId");
-            entity.HasIndex(x => new { x.TenantId, x.CatalogId })
+            entity.HasIndex(x => new ValueTuple<object?, object?>(x.TenantId, x.CatalogId))
                 .HasDatabaseName("IX_Articles_TenantId_CatalogId");
-            entity.HasIndex(x => new { x.TenantId, x.UserId, x.Title }).IsUnique()
+            entity.HasIndex(x => new ValueTuple<object?, object?, object?>(x.TenantId, x.UserId, x.Title)).IsUnique()
                 .HasDatabaseName("IX_Articles_TenantId_UserId_Title")
                 .HasFilter("\"IsDeleted\" = false");
         });
@@ -79,9 +82,9 @@ public partial class DefaultDbContext : ContextBase
             entity.Property(x => x.IsDeleted).HasColumnName("IsDeleted");
             entity.Property(x => x.TenantId).HasColumnName("TenantId");
             entity.HasIndex(x => x.ParentId).HasDatabaseName("IX_ArticleCategories_ParentId");
-            entity.HasIndex(x => new { x.TenantId, x.ParentId })
+            entity.HasIndex(x => new ValueTuple<object?, object?>(x.TenantId, x.ParentId))
                 .HasDatabaseName("IX_ArticleCategories_TenantId_ParentId");
-            entity.HasIndex(x => new { x.TenantId, x.UserId, x.Name }).IsUnique()
+            entity.HasIndex(x => new ValueTuple<object?, object?, object?>(x.TenantId, x.UserId, x.Name)).IsUnique()
                 .HasDatabaseName("IX_ArticleCategories_TenantId_UserId_Name")
                 .HasFilter("\"IsDeleted\" = false");
         });
@@ -111,7 +114,7 @@ public partial class DefaultDbContext : ContextBase
             entity.Property(x => x.UpdatedTime).HasColumnName("UpdatedTime");
             entity.Property(x => x.IsDeleted).HasColumnName("IsDeleted");
             entity.Property(x => x.TenantId).HasColumnName("TenantId");
-            entity.HasIndex(x => new { x.TenantId, x.CatalogCode }).IsUnique()
+            entity.HasIndex(x => new ValueTuple<object?, object?>(x.TenantId, x.CatalogCode)).IsUnique()
                 .HasDatabaseName("IX_ResCategories_TenantId_CatalogCode");
         });
         AddTenantFilters<ResCategory>();
@@ -129,7 +132,7 @@ public partial class DefaultDbContext : ContextBase
             entity.Property(x => x.IsDeleted).HasColumnName("IsDeleted");
             entity.Property(x => x.TenantId).HasColumnName("TenantId");
             entity.HasIndex(x => x.CategoryId).HasDatabaseName("IX_ResGroups_CategoryId");
-            entity.HasIndex(x => new { x.TenantId, x.CategoryId })
+            entity.HasIndex(x => new ValueTuple<object?, object?>(x.TenantId, x.CategoryId))
                 .HasDatabaseName("IX_ResGroups_TenantId_CategoryId");
         });
         AddTenantFilters<ResGroup>();
@@ -170,7 +173,7 @@ public partial class DefaultDbContext : ContextBase
             entity.Property(x => x.UpdatedTime).HasColumnName("UpdatedTime");
             entity.Property(x => x.IsDeleted).HasColumnName("IsDeleted");
             entity.Property(x => x.TenantId).HasColumnName("TenantId");
-            entity.HasIndex(x => new { x.TenantId, x.Name }).IsUnique()
+            entity.HasIndex(x => new ValueTuple<object?, object?>(x.TenantId, x.Name)).IsUnique()
                 .HasDatabaseName("IX_ResDefinitionProperties_TenantId_Name");
         });
         AddTenantFilters<ResDefinitionProperty>();
@@ -187,10 +190,10 @@ public partial class DefaultDbContext : ContextBase
             entity.Property(x => x.TenantId).HasColumnName("TenantId");
             entity.HasIndex(x => x.DefinitionId).HasDatabaseName("IX_ResDefinitionPropertyMaps_DefinitionId");
             entity.HasIndex(x => x.PropertyId).HasDatabaseName("IX_ResDefinitionPropertyMaps_PropertyId");
-            entity.HasIndex(x => new { x.TenantId, x.DefinitionId, x.PropertyId }).IsUnique()
+            entity.HasIndex(x => new ValueTuple<object?, object?, object?>(x.TenantId, x.DefinitionId, x.PropertyId)).IsUnique()
                 .HasDatabaseName("IX_ResDefinitionPropertyMaps_TenantId_DefinitionId_PropertyId")
                 .HasFilter("\"IsDeleted\" = false");
-            entity.HasIndex(x => new { x.TenantId, x.PropertyId })
+            entity.HasIndex(x => new ValueTuple<object?, object?>(x.TenantId, x.PropertyId))
                 .HasDatabaseName("IX_ResDefinitionPropertyMaps_TenantId_PropertyId");
         });
         AddTenantFilters<ResDefinitionPropertyMap>();
@@ -211,13 +214,13 @@ public partial class DefaultDbContext : ContextBase
             entity.HasIndex(x => x.DefinitionId).HasDatabaseName("IX_Resources_DefinitionId");
             entity.HasIndex(x => x.EnvironmentId).HasDatabaseName("IX_Resources_EnvironmentId");
             entity.HasIndex(x => x.GroupId).HasDatabaseName("IX_Resources_GroupId");
-            entity.HasIndex(x => new { x.TenantId, x.CategoryId })
+            entity.HasIndex(x => new ValueTuple<object?, object?>(x.TenantId, x.CategoryId))
                 .HasDatabaseName("IX_Resources_TenantId_CategoryId");
-            entity.HasIndex(x => new { x.TenantId, x.DefinitionId })
+            entity.HasIndex(x => new ValueTuple<object?, object?>(x.TenantId, x.DefinitionId))
                 .HasDatabaseName("IX_Resources_TenantId_DefinitionId");
-            entity.HasIndex(x => new { x.TenantId, x.EnvironmentId })
+            entity.HasIndex(x => new ValueTuple<object?, object?>(x.TenantId, x.EnvironmentId))
                 .HasDatabaseName("IX_Resources_TenantId_EnvironmentId");
-            entity.HasIndex(x => new { x.TenantId, x.GroupId })
+            entity.HasIndex(x => new ValueTuple<object?, object?>(x.TenantId, x.GroupId))
                 .HasDatabaseName("IX_Resources_TenantId_GroupId");
         });
         AddTenantFilters<Resource>();
@@ -236,11 +239,11 @@ public partial class DefaultDbContext : ContextBase
             entity.Property(x => x.IsDeleted).HasColumnName("IsDeleted");
             entity.Property(x => x.TenantId).HasColumnName("TenantId");
             entity.HasIndex(x => x.DefinitionId).HasDatabaseName("IX_UserResources_DefinitionId");
-            entity.HasIndex(x => new { x.TenantId, x.AuditStatusValue })
+            entity.HasIndex(x => new ValueTuple<object?, object?>(x.TenantId, x.AuditStatusValue))
                 .HasDatabaseName("IX_UserResources_TenantId_AuditStatus");
-            entity.HasIndex(x => new { x.TenantId, x.DefinitionId })
+            entity.HasIndex(x => new ValueTuple<object?, object?>(x.TenantId, x.DefinitionId))
                 .HasDatabaseName("IX_UserResources_TenantId_DefinitionId");
-            entity.HasIndex(x => new { x.TenantId, x.UserId })
+            entity.HasIndex(x => new ValueTuple<object?, object?>(x.TenantId, x.UserId))
                 .HasDatabaseName("IX_UserResources_TenantId_UserId");
         });
         AddTenantFilters<UserResource>();
@@ -259,9 +262,9 @@ public partial class DefaultDbContext : ContextBase
             entity.Property(x => x.TenantId).HasColumnName("TenantId");
             entity.HasIndex(x => x.DefinitionPropertyId)
                 .HasDatabaseName("IX_UserResValues_DefinitionPropertyId");
-            entity.HasIndex(x => new { x.TenantId, x.DefinitionPropertyId })
+            entity.HasIndex(x => new ValueTuple<object?, object?>(x.TenantId, x.DefinitionPropertyId))
                 .HasDatabaseName("IX_UserResValues_TenantId_DefinitionPropertyId");
-            entity.HasIndex(x => new { x.TenantId, x.UserResourceId, x.DefinitionPropertyId }).IsUnique()
+            entity.HasIndex(x => new ValueTuple<object?, object?, object?>(x.TenantId, x.UserResourceId, x.DefinitionPropertyId)).IsUnique()
                 .HasDatabaseName("IX_UserResValues_TenantId_UserResourceId_DefinitionPropertyId")
                 .HasFilter("\"IsDeleted\" = false");
             entity.HasIndex(x => x.UserResourceId)
@@ -280,9 +283,9 @@ public partial class DefaultDbContext : ContextBase
             entity.Property(x => x.TenantId).HasColumnName("TenantId");
             entity.HasIndex(x => x.ResourceId)
                 .HasDatabaseName("IX_UserFavoriteResources_ResourceId");
-            entity.HasIndex(x => new { x.TenantId, x.ResourceId })
+            entity.HasIndex(x => new ValueTuple<object?, object?>(x.TenantId, x.ResourceId))
                 .HasDatabaseName("IX_UserFavoriteResources_TenantId_ResourceId");
-            entity.HasIndex(x => new { x.TenantId, x.UserId, x.ResourceId }).IsUnique()
+            entity.HasIndex(x => new ValueTuple<object?, object?, object?>(x.TenantId, x.UserId, x.ResourceId)).IsUnique()
                 .HasDatabaseName("IX_UserFavoriteResources_TenantId_UserId_ResourceId")
                 .HasFilter("\"IsDeleted\" = false");
         });
@@ -303,9 +306,9 @@ public partial class DefaultDbContext : ContextBase
             entity.HasIndex(x => x.DefinitionPropertyId)
                 .HasDatabaseName("IX_ResValues_DefinitionPropertyId");
             entity.HasIndex(x => x.ResourceId).HasDatabaseName("IX_ResValues_ResourceId");
-            entity.HasIndex(x => new { x.TenantId, x.DefinitionPropertyId })
+            entity.HasIndex(x => new ValueTuple<object?, object?>(x.TenantId, x.DefinitionPropertyId))
                 .HasDatabaseName("IX_ResValues_TenantId_DefinitionPropertyId");
-            entity.HasIndex(x => new { x.TenantId, x.ResourceId, x.DefinitionPropertyId }).IsUnique()
+            entity.HasIndex(x => new ValueTuple<object?, object?, object?>(x.TenantId, x.ResourceId, x.DefinitionPropertyId)).IsUnique()
                 .HasDatabaseName("IX_ResValues_TenantId_ResourceId_DefinitionPropertyId")
                 .HasFilter("\"IsDeleted\" = false");
         });
@@ -323,11 +326,11 @@ public partial class DefaultDbContext : ContextBase
             entity.Property(x => x.TenantId).HasColumnName("TenantId");
             entity.HasIndex(x => x.CategoryId).HasDatabaseName("IX_ResPermissions_CategoryId");
             entity.HasIndex(x => x.EnvironmentId).HasDatabaseName("IX_ResPermissions_EnvironmentId");
-            entity.HasIndex(x => new { x.TenantId, x.CategoryId })
+            entity.HasIndex(x => new ValueTuple<object?, object?>(x.TenantId, x.CategoryId))
                 .HasDatabaseName("IX_ResPermissions_TenantId_CategoryId");
-            entity.HasIndex(x => new { x.TenantId, x.EnvironmentId })
+            entity.HasIndex(x => new ValueTuple<object?, object?>(x.TenantId, x.EnvironmentId))
                 .HasDatabaseName("IX_ResPermissions_TenantId_EnvironmentId");
-            entity.HasIndex(x => new { x.TenantId, x.RoleId, x.EnvironmentId, x.CategoryId }).IsUnique()
+            entity.HasIndex(x => new ValueTuple<object?, object?, object?, object?>(x.TenantId, x.RoleId, x.EnvironmentId, x.CategoryId)).IsUnique()
                 .HasDatabaseName("IX_ResPermissions_TenantId_RoleId_EnvironmentId_CategoryId");
         });
         AddTenantFilters<ResPermission>();
@@ -345,7 +348,7 @@ public partial class DefaultDbContext : ContextBase
             entity.Property(x => x.UpdatedTime).HasColumnName("UpdatedTime");
             entity.Property(x => x.IsDeleted).HasColumnName("IsDeleted");
             entity.Property(x => x.TenantId).HasColumnName("TenantId");
-            entity.HasIndex(x => new { x.TenantId, x.GroupName, x.Key }).IsUnique()
+            entity.HasIndex(x => new ValueTuple<object?, object?, object?>(x.TenantId, x.GroupName, x.Key)).IsUnique()
                 .HasDatabaseName("IX_SysConfigs_TenantId_GroupName_Key")
                 .HasFilter("\"IsDeleted\" = false");
         });
@@ -365,13 +368,13 @@ public partial class DefaultDbContext : ContextBase
             entity.Property(x => x.IsDeleted).HasColumnName("IsDeleted");
             entity.Property(x => x.TenantId).HasColumnName("TenantId");
             entity.HasIndex(x => x.SysUserId).HasDatabaseName("IX_SysLogs_SysUserId");
-            entity.HasIndex(x => new { x.TenantId, x.ActionTypeValue, x.CreatedTime })
+            entity.HasIndex(x => new ValueTuple<object?, object?, object?>(x.TenantId, x.ActionTypeValue, x.CreatedTime))
                 .HasDatabaseName("IX_SysLogs_TenantId_ActionType_CreatedTime");
-            entity.HasIndex(x => new { x.TenantId, x.ActionUserName, x.CreatedTime })
+            entity.HasIndex(x => new ValueTuple<object?, object?, object?>(x.TenantId, x.ActionUserName, x.CreatedTime))
                 .HasDatabaseName("IX_SysLogs_TenantId_ActionUserName_CreatedTime");
-            entity.HasIndex(x => new { x.TenantId, x.CreatedTime })
+            entity.HasIndex(x => new ValueTuple<object?, object?>(x.TenantId, x.CreatedTime))
                 .HasDatabaseName("IX_SysLogs_TenantId_CreatedTime");
-            entity.HasIndex(x => new { x.TenantId, x.SysUserId })
+            entity.HasIndex(x => new ValueTuple<object?, object?>(x.TenantId, x.SysUserId))
                 .HasDatabaseName("IX_SysLogs_TenantId_SysUserId");
         });
         AddTenantFilters<SysLogs>();
@@ -392,11 +395,11 @@ public partial class DefaultDbContext : ContextBase
             entity.Property(x => x.UpdatedTime).HasColumnName("UpdatedTime");
             entity.Property(x => x.IsDeleted).HasColumnName("IsDeleted");
             entity.Property(x => x.TenantId).HasColumnName("TenantId");
-            entity.HasIndex(x => new { x.TenantId, x.AccessCode }).IsUnique()
+            entity.HasIndex(x => new ValueTuple<object?, object?>(x.TenantId, x.AccessCode)).IsUnique()
                 .HasDatabaseName("IX_SysMenus_TenantId_AccessCode")
                 .HasFilter("\"IsDeleted\" = false");
             entity.HasIndex(x => x.ParentId).HasDatabaseName("IX_SysMenus_ParentId");
-            entity.HasIndex(x => new { x.TenantId, x.ParentId })
+            entity.HasIndex(x => new ValueTuple<object?, object?>(x.TenantId, x.ParentId))
                 .HasDatabaseName("IX_SysMenus_TenantId_ParentId");
         });
         AddTenantFilters<SysMenu>();
@@ -412,9 +415,9 @@ public partial class DefaultDbContext : ContextBase
             entity.Property(x => x.TenantId).HasColumnName("TenantId");
             entity.HasIndex(x => x.MenuId).HasDatabaseName("IX_SysMenuRoles_MenuId");
             entity.HasIndex(x => x.RoleId).HasDatabaseName("IX_SysMenuRoles_RoleId");
-            entity.HasIndex(x => new { x.TenantId, x.MenuId })
+            entity.HasIndex(x => new ValueTuple<object?, object?>(x.TenantId, x.MenuId))
                 .HasDatabaseName("IX_SysMenuRoles_TenantId_MenuId");
-            entity.HasIndex(x => new { x.TenantId, x.RoleId, x.MenuId }).IsUnique()
+            entity.HasIndex(x => new ValueTuple<object?, object?, object?>(x.TenantId, x.RoleId, x.MenuId)).IsUnique()
                 .HasDatabaseName("IX_SysMenuRoles_TenantId_RoleId_MenuId")
                 .HasFilter("\"IsDeleted\" = false");
         });
@@ -430,9 +433,9 @@ public partial class DefaultDbContext : ContextBase
             entity.Property(x => x.IsDeleted).HasColumnName("IsDeleted");
             entity.Property(x => x.TenantId).HasColumnName("TenantId");
             entity.HasIndex(x => x.ParentId).HasDatabaseName("IX_SysOrganizations_ParentId");
-            entity.HasIndex(x => new { x.TenantId, x.Name })
+            entity.HasIndex(x => new ValueTuple<object?, object?>(x.TenantId, x.Name))
                 .HasDatabaseName("IX_SysOrganizations_TenantId_Name");
-            entity.HasIndex(x => new { x.TenantId, x.ParentId })
+            entity.HasIndex(x => new ValueTuple<object?, object?>(x.TenantId, x.ParentId))
                 .HasDatabaseName("IX_SysOrganizations_TenantId_ParentId");
         });
         AddTenantFilters<SysOrganization>();
@@ -450,9 +453,9 @@ public partial class DefaultDbContext : ContextBase
             entity.Property(x => x.IsDeleted).HasColumnName("IsDeleted");
             entity.Property(x => x.TenantId).HasColumnName("TenantId");
             entity.HasIndex(x => x.GroupId).HasDatabaseName("IX_SysDataScopes_GroupId");
-            entity.HasIndex(x => new { x.TenantId, x.GroupId })
+            entity.HasIndex(x => new ValueTuple<object?, object?>(x.TenantId, x.GroupId))
                 .HasDatabaseName("IX_SysDataScopes_TenantId_GroupId");
-            entity.HasIndex(x => new { x.TenantId, x.Name })
+            entity.HasIndex(x => new ValueTuple<object?, object?>(x.TenantId, x.Name))
                 .HasDatabaseName("IX_SysDataScopes_TenantId_Name");
         });
         AddTenantFilters<SysDataScope>();
@@ -467,7 +470,7 @@ public partial class DefaultDbContext : ContextBase
             entity.Property(x => x.UpdatedTime).HasColumnName("UpdatedTime");
             entity.Property(x => x.IsDeleted).HasColumnName("IsDeleted");
             entity.Property(x => x.TenantId).HasColumnName("TenantId");
-            entity.HasIndex(x => new { x.TenantId, x.Name })
+            entity.HasIndex(x => new ValueTuple<object?, object?>(x.TenantId, x.Name))
                 .HasDatabaseName("IX_SysDataScopeGroups_TenantId_Name");
         });
         AddTenantFilters<SysDataScopeGroup>();
@@ -483,9 +486,9 @@ public partial class DefaultDbContext : ContextBase
             entity.Property(x => x.TenantId).HasColumnName("TenantId");
             entity.HasIndex(x => x.DataScopeGroupId)
                 .HasDatabaseName("IX_SysUserDataScopeGroups_DataScopeGroupId");
-            entity.HasIndex(x => new { x.TenantId, x.DataScopeGroupId })
+            entity.HasIndex(x => new ValueTuple<object?, object?>(x.TenantId, x.DataScopeGroupId))
                 .HasDatabaseName("IX_SysUserDataScopeGroups_TenantId_DataScopeGroupId");
-            entity.HasIndex(x => new { x.TenantId, x.UserId, x.DataScopeGroupId }).IsUnique()
+            entity.HasIndex(x => new ValueTuple<object?, object?, object?>(x.TenantId, x.UserId, x.DataScopeGroupId)).IsUnique()
                 .HasDatabaseName("IX_SysUserDataScopeGroups_TenantId_UserId_DataScopeGroupId")
                 .HasFilter("\"IsDeleted\" = false");
             entity.HasIndex(x => x.UserId).HasDatabaseName("IX_SysUserDataScopeGroups_UserId");
@@ -503,9 +506,9 @@ public partial class DefaultDbContext : ContextBase
             entity.Property(x => x.TenantId).HasColumnName("TenantId");
             entity.HasIndex(x => x.OrganizationId)
                 .HasDatabaseName("IX_SysUserOrganizations_OrganizationId");
-            entity.HasIndex(x => new { x.TenantId, x.OrganizationId })
+            entity.HasIndex(x => new ValueTuple<object?, object?>(x.TenantId, x.OrganizationId))
                 .HasDatabaseName("IX_SysUserOrganizations_TenantId_OrganizationId");
-            entity.HasIndex(x => new { x.TenantId, x.UserId, x.OrganizationId }).IsUnique()
+            entity.HasIndex(x => new ValueTuple<object?, object?, object?>(x.TenantId, x.UserId, x.OrganizationId)).IsUnique()
                 .HasDatabaseName("IX_SysUserOrganizations_TenantId_UserId_OrganizationId")
                 .HasFilter("\"IsDeleted\" = false");
             entity.HasIndex(x => x.UserId).HasDatabaseName("IX_SysUserOrganizations_UserId");
@@ -523,9 +526,9 @@ public partial class DefaultDbContext : ContextBase
             entity.Property(x => x.UpdatedTime).HasColumnName("UpdatedTime");
             entity.Property(x => x.IsDeleted).HasColumnName("IsDeleted");
             entity.Property(x => x.TenantId).HasColumnName("TenantId");
-            entity.HasIndex(x => new { x.TenantId, x.Name })
+            entity.HasIndex(x => new ValueTuple<object?, object?>(x.TenantId, x.Name))
                 .HasDatabaseName("IX_SysRoles_TenantId_Name");
-            entity.HasIndex(x => new { x.TenantId, x.NameValue }).IsUnique()
+            entity.HasIndex(x => new ValueTuple<object?, object?>(x.TenantId, x.NameValue)).IsUnique()
                 .HasDatabaseName("IX_SysRoles_TenantId_NameValue")
                 .HasFilter("\"IsDeleted\" = false");
         });
@@ -555,10 +558,10 @@ public partial class DefaultDbContext : ContextBase
             entity.Property(x => x.UpdatedTime).HasColumnName("UpdatedTime");
             entity.Property(x => x.IsDeleted).HasColumnName("IsDeleted");
             entity.Property(x => x.TenantId).HasColumnName("TenantId");
-            entity.HasIndex(x => new { x.TenantId, x.Email }).IsUnique()
+            entity.HasIndex(x => new ValueTuple<object?, object?>(x.TenantId, x.Email)).IsUnique()
                 .HasDatabaseName("IX_SysUsers_TenantId_Email")
                 .HasFilter("\"IsDeleted\" = false");
-            entity.HasIndex(x => new { x.TenantId, x.PhoneNumber }).IsUnique()
+            entity.HasIndex(x => new ValueTuple<object?, object?>(x.TenantId, x.PhoneNumber)).IsUnique()
                 .HasDatabaseName("IX_SysUsers_TenantId_PhoneNumber")
                 .HasFilter("\"IsDeleted\" = false");
         });
@@ -574,9 +577,9 @@ public partial class DefaultDbContext : ContextBase
             entity.Property(x => x.IsDeleted).HasColumnName("IsDeleted");
             entity.Property(x => x.TenantId).HasColumnName("TenantId");
             entity.HasIndex(x => x.RoleId).HasDatabaseName("IX_SysUserRoles_RoleId");
-            entity.HasIndex(x => new { x.TenantId, x.RoleId })
+            entity.HasIndex(x => new ValueTuple<object?, object?>(x.TenantId, x.RoleId))
                 .HasDatabaseName("IX_SysUserRoles_TenantId_RoleId");
-            entity.HasIndex(x => new { x.TenantId, x.UserId, x.RoleId }).IsUnique()
+            entity.HasIndex(x => new ValueTuple<object?, object?, object?>(x.TenantId, x.UserId, x.RoleId)).IsUnique()
                 .HasDatabaseName("IX_SysUserRoles_TenantId_UserId_RoleId")
                 .HasFilter("\"IsDeleted\" = false");
             entity.HasIndex(x => x.UserId).HasDatabaseName("IX_SysUserRoles_UserId");

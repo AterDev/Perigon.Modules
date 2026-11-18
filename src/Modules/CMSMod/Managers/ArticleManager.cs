@@ -32,8 +32,10 @@ public class ArticleManager(
             .WhereNotNull(filter.CatalogId, q => q.CatalogId == filter.CatalogId);
 
 
-        return await PageListAsync<ArticleFilterDto, ArticleItemDto>(filter);
+        return await PageListAsync<ArticleFilterDto, ArticleItemDto>(filter, MapItem);
     }
+
+    private static ArticleItemDto MapItem(Article x) => new() { Id = x.Id, Title = x.Title, Description = x.Description, Authors = x.Authors, LanguageType = x.LanguageType, BlogType = x.ContentType, IsAudit = x.IsAudit, IsPublic = x.IsPublic, IsOriginal = x.IsOriginal, UserId = x.UserId, CatalogId = x.CatalogId, ViewCount = x.ViewCount, CreatedTime = x.CreatedTime, UpdatedTime = x.UpdatedTime };
 
     public async Task<Article> AddAsync(ArticleAddDto dto)
     {

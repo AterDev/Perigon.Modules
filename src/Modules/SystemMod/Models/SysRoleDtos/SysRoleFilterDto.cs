@@ -9,7 +9,7 @@ public class SysRoleFilterDto : FilterBase
     /// <summary>
     /// 角色显示名称
     /// </summary>
-    [MaxLength(30)]
+    [StringLength(30)]
     public string? Name { get; set; }
 
     /// <summary>

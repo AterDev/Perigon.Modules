@@ -9,20 +9,20 @@ public class SysUserDetailDto
     /// <summary>
     /// 用户名
     /// </summary>
-    [MaxLength(30)]
+    [StringLength(30)]
     public string UserName { get; set; } = default!;
 
     /// <summary>
     /// 真实姓名
     /// </summary>
-    [MaxLength(30)]
+    [StringLength(30)]
     public string? RealName { get; set; }
 
-    [MaxLength(100)]
+    [StringLength(100)]
     public string? Email { get; set; }
     public bool EmailConfirmed { get; set; }
 
-    [MaxLength(20)]
+    [StringLength(20)]
     public string? PhoneNumber { get; set; }
     public bool PhoneNumberConfirmed { get; set; }
     public bool TwoFactorEnabled { get; set; }
@@ -43,7 +43,7 @@ public class SysUserDetailDto
     /// <summary>
     /// 头像url
     /// </summary>
-    [MaxLength(200)]
+    [StringLength(200)]
     public string? Avatar { get; set; }
 
     /// <summary>

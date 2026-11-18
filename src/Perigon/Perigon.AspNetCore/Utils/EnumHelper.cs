@@ -1,4 +1,5 @@
 using System.Reflection;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Perigon.AspNetCore.Utils;
 
@@ -11,6 +12,8 @@ public static class EnumHelper
     /// 枚举转数组
     /// </summary>
     /// <returns></returns>
+    [RequiresUnreferencedCode("Enum field metadata and DescriptionAttribute values must be preserved.")]
+    [RequiresDynamicCode("Enum values are requested through a runtime Type.")]
     public static List<EnumDictionary> ToList(Type type)
     {
         List<EnumDictionary> result = [];
@@ -40,10 +43,37 @@ public static class EnumHelper
     }
 
     /// <summary>
+    /// Gets enum information through the generic enum API. This overload is safe for
+    /// Native AOT and uses the supplied descriptions instead of reflecting over fields.
+    /// </summary>
+    public static List<EnumDictionary> ToList<TEnum>(
+        params (TEnum Value, string Description)[] descriptions
+    ) where TEnum : struct, Enum
+    {
+        Dictionary<TEnum, string> descriptionByValue = descriptions.ToDictionary(
+            item => item.Value,
+            item => item.Description
+        );
+        List<EnumDictionary> result = [];
+        foreach (TEnum value in Enum.GetValues<TEnum>())
+        {
+            string name = value.ToString();
+            result.Add(new EnumDictionary
+            {
+                Name = name,
+                Description = descriptionByValue.GetValueOrDefault(value, name),
+                Value = Convert.ToInt32(value),
+            });
+        }
+        return result;
+    }
+
+    /// <summary>
     /// 获取枚举描述
     /// </summary>
     /// <param name="value"></param>
     /// <returns></returns>
+    [RequiresUnreferencedCode("Enum field metadata and DescriptionAttribute values must be preserved.")]
     public static string GetDescription(this Enum value)
     {
         var field = value
@@ -62,6 +92,7 @@ public static class EnumHelper
     /// </summary>
     /// <param name="assembly"></param>
     /// <returns></returns>
+    [RequiresUnreferencedCode("Assembly enum types may be removed by trimming.")]
     public static Type[] GetEnumTypes(this Assembly assembly)
     {
         return assembly.GetTypes().Where(t => t.IsEnum).ToArray();
@@ -71,6 +102,8 @@ public static class EnumHelper
     /// 获取程序集所有枚举信息
     /// </summary>
     /// <returns></returns>
+    [RequiresUnreferencedCode("Assembly scanning and enum field metadata are not trim-safe.")]
+    [RequiresDynamicCode("Enum values are requested through runtime Type instances.")]
     public static Dictionary<string, List<EnumDictionary>> GetAllEnumInfo(
         List<string>? myAssemblies = null
     )
@@ -81,7 +114,7 @@ public static class EnumHelper
         List<Type> allTypes = [];
         var assemblies = AppDomain
             .CurrentDomain.GetAssemblies()
-            .Where(a => myAssemblies.Contains(a.ManifestModule.Name))
+            .Where(a => myAssemblies.Contains($"{a.GetName().Name}.dll"))
             .ToList();
         assemblies.ForEach(assembly =>
         {
@@ -95,6 +128,21 @@ public static class EnumHelper
             res.Add(type.Name, enumDict);
         }
         return res;
+    }
+
+    /// <summary>
+    /// Creates an enum catalog from statically registered enum entries.
+    /// </summary>
+    public static Dictionary<string, List<EnumDictionary>> CreateEnumInfo(
+        params (string Name, List<EnumDictionary> Values)[] enumInfos
+    )
+    {
+        Dictionary<string, List<EnumDictionary>> result = [];
+        foreach ((string name, List<EnumDictionary> values) in enumInfos)
+        {
+            result.Add(name, values);
+        }
+        return result;
     }
 }
 

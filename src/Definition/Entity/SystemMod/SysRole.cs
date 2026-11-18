@@ -8,14 +8,14 @@ public class SysRole : EntityBase
     /// <summary>
     /// 角色名称
     /// </summary>
-    [MaxLength(30)]
+    [StringLength(30)]
     [Required]
     public string Name { get; set; } = string.Empty;
 
     /// <summary>
     /// 角色标识
     /// </summary>
-    [MaxLength(60)]
+    [StringLength(60)]
     [Required]
     public string NameValue { get; set; } = string.Empty;
 
@@ -27,7 +27,7 @@ public class SysRole : EntityBase
     /// <summary>
     /// 图标
     /// </summary>
-    [MaxLength(30)]
+    [StringLength(30)]
     public string? Icon { get; set; }
     [NotMapped]
     public ICollection<SysUserRole> SysUserRoles { get; set; } = [];

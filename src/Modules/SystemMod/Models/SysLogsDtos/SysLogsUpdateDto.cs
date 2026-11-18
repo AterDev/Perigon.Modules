@@ -9,19 +9,19 @@ public class SysLogsUpdateDto
     /// <summary>
     /// 操作人名称
     /// </summary>
-    [MaxLength(100)]
+    [StringLength(100)]
     public string? ActionUserName { get; set; }
 
     /// <summary>
     /// 操作对象名称
     /// </summary>
-    [MaxLength(100)]
+    [StringLength(100)]
     public string? TargetName { get; set; }
 
     /// <summary>
     /// 操作路由
     /// </summary>
-    [MaxLength(200)]
+    [StringLength(200)]
     public string? Route { get; set; }
 
     /// <summary>
@@ -32,6 +32,6 @@ public class SysLogsUpdateDto
     /// <summary>
     /// 描述
     /// </summary>
-    [MaxLength(200)]
+    [StringLength(200)]
     public string? Description { get; set; }
 }

@@ -51,7 +51,7 @@ public class UserResource : EntityBase
     /// <summary>
     /// 审核意见或驳回原因。
     /// </summary>
-    [MaxLength(500)]
+    [StringLength(500)]
     public string? ReviewComment { get; set; }
 
     /// <summary>

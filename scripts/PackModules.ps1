@@ -156,6 +156,9 @@ $frontendModulesRoot = Join-Path $projectRoot 'src\ClientApp\WebApp\src\app\modu
 $packageRoot = Join-Path $projectRoot 'package_modules'
 $modulesJsonPath = Join-Path $projectRoot 'modules.json'
 $serviceName = 'AdminService'
+if (-not (Test-Path -LiteralPath (Join-Path $projectRoot 'src\Services\AdminService\AdminService.csproj') -PathType Leaf)) {
+	throw '旧打包流程只支持 MVC Controllers。请先更新 Perigon CLI 的模块打包流程以支持 ApiService Minimal API Endpoints。'
+}
 
 if (-not (Test-Path -LiteralPath $modulesRoot -PathType Container)) {
 	throw "模块目录不存在：$modulesRoot"

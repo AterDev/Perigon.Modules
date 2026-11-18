@@ -1,0 +1,16 @@
+global using Entity.AuditMod;
+global using Entity.NotificationMod;
+global using EntityFramework.AppDbContext;
+global using EntityFramework.AppDbFactory;
+global using Microsoft.AspNetCore.Http;
+global using System.ComponentModel.DataAnnotations;
+global using Microsoft.Extensions.DependencyInjection;
+global using Microsoft.Extensions.Logging;
+global using Perigon.AspNetCore.Abstraction;
+global using Perigon.AspNetCore.Models;
+global using Perigon.PostgreSQL;
+global using Share.Exceptions;
+global using Share.Implement;
+global using AuditMod.Models.AuditFlowDtos;
+global using AuditMod.Models.AuditRecordDtos;
+global using AuditMod.Models.AuditTaskDtos;

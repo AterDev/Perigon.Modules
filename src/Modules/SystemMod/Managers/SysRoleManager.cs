@@ -17,7 +17,7 @@ public class SysRoleManager(
     /// <returns></returns>
     public async Task<SysRole> AddAsync(SysRoleAddDto dto)
     {
-        var entity = dto.MapTo<SysRole>();
+        var entity = new SysRole { Name = dto.Name, NameValue = dto.NameValue, IsSystem = dto.IsSystem };
         await InsertAsync(entity);
         return entity;
     }
@@ -27,7 +27,7 @@ public class SysRoleManager(
         Queryable = Queryable
             .WhereNotNull(filter.Name, q => q.Name.Contains(filter.Name!))
             .WhereNotNull(filter.NameValue, q => q.NameValue == filter.NameValue);
-        return await PageListAsync<SysRoleFilterDto, SysRoleItemDto>(filter);
+        return await PageListAsync<SysRoleFilterDto, SysRoleItemDto>(filter, MapItem);
     }
 
     /// <summary>
@@ -145,9 +145,12 @@ public class SysRoleManager(
         return await _dbContext.SysRoles.Where(whereExp ?? (e => true)).ToListAsync();
     }
 
+    private static SysRoleItemDto MapItem(SysRole x) => new() { Id = x.Id, Name = x.Name, NameValue = x.NameValue, IsSystem = x.IsSystem, CreatedTime = x.CreatedTime };
+    private static SysRoleDetailDto MapDetail(SysRole x) => new() { Id = x.Id, Name = x.Name, NameValue = x.NameValue, IsSystem = x.IsSystem, Icon = x.Icon, CreatedTime = x.CreatedTime, UpdatedTime = x.UpdatedTime };
+
     public async Task<SysRoleDetailDto?> GetAsync(Guid id)
     {
-        return await FindAsync<SysRoleDetailDto>(d => d.Id == id);
+        return await FindAsync(MapDetail, d => d.Id == id);
     }
 
     public async Task<int> DeleteAsync(Guid id)

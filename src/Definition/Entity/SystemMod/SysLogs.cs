@@ -10,14 +10,14 @@ public class SysLogs : EntityBase
     /// <summary>
     /// 操作人名称
     /// </summary>
-    [MaxLength(100)]
+    [StringLength(100)]
     [Required]
     public string ActionUserName { get; set; } = string.Empty;
 
     /// <summary>
     /// 操作对象名称
     /// </summary>
-    [MaxLength(100)]
+    [StringLength(100)]
     public string? TargetName { get; set; }
 
     [NotMapped]
@@ -27,7 +27,7 @@ public class SysLogs : EntityBase
     /// <summary>
     /// 操作路由
     /// </summary>
-    [MaxLength(200)]
+    [StringLength(200)]
     [Required]
     public string Route { get; set; } = string.Empty;
 
@@ -48,7 +48,7 @@ public class SysLogs : EntityBase
     /// <summary>
     /// 描述
     /// </summary>
-    [MaxLength(500)]
+    [StringLength(500)]
     public string? Description { get; set; }
 
     [ForeignKey(nameof(SysUserId))]

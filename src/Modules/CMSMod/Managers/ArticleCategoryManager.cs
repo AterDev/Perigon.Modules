@@ -94,8 +94,10 @@ public class ArticleCategoryManager(
         Queryable = Queryable.WhereNotNull(filter.Name, q => q
             .Name
             .Contains(filter.Name!));
-        return await PageListAsync<ArticleCategoryFilterDto, ArticleCategoryItemDto>(filter);
+        return await PageListAsync<ArticleCategoryFilterDto, ArticleCategoryItemDto>(filter, MapItem);
     }
+
+    private static ArticleCategoryItemDto MapItem(ArticleCategory x) => new() { Id = x.Id, Name = x.Name, Level = x.Level, ParentId = x.ParentId, CreatedTime = x.CreatedTime };
 
     public async Task<bool> DeleteAsync(IEnumerable<Guid> ids, bool isDelete = false)
     {

@@ -3,7 +3,10 @@
 // Author: Ater Team
 // Description: Provides utility methods for common operations on JsonElement and JsonNode, supporting multi-level path access and node CRUD.
 // -----------------------------------------------------------------------------
+using System.Text.Json;
 using System.Text.Json.Nodes;
+using System.Diagnostics.CodeAnalysis;
+using System.Text.Json.Serialization.Metadata;
 
 namespace Perigon.AspNetCore.Utils;
 
@@ -102,6 +105,8 @@ public class JsonHelper
     /// <param name="keyPath">Dot-separated multi-level path.</param>
     /// <param name="newValue">The new value to set.</param>
     /// <exception cref="ArgumentNullException">Thrown if root is null.</exception>
+    [RequiresUnreferencedCode("Use the overload that accepts JsonTypeInfo for Native AOT.")]
+    [RequiresDynamicCode("Use the overload that accepts JsonTypeInfo for Native AOT.")]
     public static void AddOrUpdateJsonNode(JsonNode root, string keyPath, object? newValue)
     {
         ArgumentNullException.ThrowIfNull(root, nameof(root));
@@ -121,6 +126,28 @@ public class JsonHelper
             }
         }
         current[paths[^1]] = JsonValue.Create(newValue);
+    }
+
+    /// <summary>Adds or updates a node using compile-time JSON metadata.</summary>
+    public static void AddOrUpdateJsonNode<T>(JsonNode root, string keyPath, T newValue, JsonTypeInfo<T> typeInfo)
+    {
+        ArgumentNullException.ThrowIfNull(root, nameof(root));
+        var paths = keyPath.Split('.');
+        var current = root;
+        for (var i = 0; i < paths.Length - 1; i++)
+        {
+            if (current[paths[i]] is JsonObject obj)
+            {
+                current = obj;
+            }
+            else
+            {
+                var newNode = new JsonObject();
+                current[paths[i]] = newNode;
+                current = newNode;
+            }
+        }
+        current[paths[^1]] = JsonSerializer.SerializeToNode(newValue, typeInfo);
     }
 
     /// <summary>

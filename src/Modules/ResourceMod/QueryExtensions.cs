@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Linq.Expressions;
 
 namespace ResourceMod;
@@ -8,12 +9,16 @@ namespace ResourceMod;
 /// </summary>
 internal static class QueryExtensions
 {
-    public static Task<T?> FirstOrDefaultAsync<T>(this IQueryable<T> source,
+    public static Task<T?> FirstOrDefaultAsync<
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)] T>(
+        this IQueryable<T> source,
         Expression<Func<T, bool>> predicate, CancellationToken cancellationToken = default)
         where T : class, new()
         => source.Where(predicate).FirstOrDefaultAsync(cancellationToken);
 
-    public static Task<bool> AnyAsync<T>(this IQueryable<T> source,
+    public static Task<bool> AnyAsync<
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)] T>(
+        this IQueryable<T> source,
         Expression<Func<T, bool>> predicate, CancellationToken cancellationToken = default)
         where T : class
         => source.Where(predicate).AnyAsync(cancellationToken);

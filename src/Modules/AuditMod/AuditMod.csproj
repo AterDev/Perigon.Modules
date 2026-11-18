@@ -1,0 +1,9 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup><TargetFramework>net11.0</TargetFramework><ImplicitUsings>enable</ImplicitUsings><GenerateDocumentationFile>true</GenerateDocumentationFile><Nullable>enable</Nullable><NoWarn>1701;1702;1591</NoWarn></PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\Definition\Share\Share.csproj" />
+    <ProjectReference Include="..\..\Definition\Entity\Entity.csproj" />
+    <ProjectReference Include="..\..\Definition\EntityFramework\EntityFramework.csproj" />
+    <ProjectReference Include="..\..\Perigon\Perigon.AspNetCore.Toolkit\Perigon.AspNetCore.Toolkit.csproj" />
+  </ItemGroup>
+</Project>

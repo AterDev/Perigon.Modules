@@ -8,7 +8,7 @@ public class SysOrganization : EntityBase, ITreeNode<SysOrganization>
     /// <summary>
     /// 名称
     /// </summary>
-    [MaxLength(100)]
+    [StringLength(100)]
     [Required]
     public string Name { get; set; } = string.Empty;
 

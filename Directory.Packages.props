@@ -5,49 +5,48 @@
   </PropertyGroup>
   <ItemGroup>
     <!-- Aspire Packages -->
-    <PackageVersion Include="Aspire.Hosting.Nats" Version="13.5.0" />
-    <PackageVersion Include="Aspire.Hosting.JavaScript" Version="13.5.0" />
-    <PackageVersion Include="Aspire.Hosting.Qdrant" Version="13.5.0" />
-    <PackageVersion Include="Aspire.Hosting.Redis" Version="13.5.0" />
-    <PackageVersion Include="Aspire.Hosting.PostgreSQL" Version="13.5.0" />
+    <PackageVersion Include="Aspire.Hosting.Nats" Version="13.6.5" />
+    <PackageVersion Include="Aspire.Hosting.JavaScript" Version="13.6.5" />
+    <PackageVersion Include="Aspire.Hosting.Qdrant" Version="13.6.5" />
+    <PackageVersion Include="Aspire.Hosting.Redis" Version="13.6.5" />
+    <PackageVersion Include="Aspire.Hosting.PostgreSQL" Version="13.6.5" />
     <PackageVersion Include="Aspire.Hosting.Kubernetes" Version="13.5.0-preview.1.26417.10" />
-    <PackageVersion Include="Aspire.NATS.Net" Version="13.4.6" />
-    <PackageVersion Include="Aspire.Qdrant.Client" Version="13.4.6" />
-    <PackageVersion Include="Aspire.StackExchange.Redis.DistributedCaching" Version="13.5.0" />
+    <PackageVersion Include="Aspire.NATS.Net" Version="13.6.5" />
+    <PackageVersion Include="Aspire.Qdrant.Client" Version="13.6.5" />
+    <PackageVersion Include="Aspire.StackExchange.Redis.DistributedCaching" Version="13.6.5" />
     <!--Test -->
-    <PackageVersion Include="Aspire.Hosting.Testing" Version="13.4.6" />
-    <PackageVersion Include="TUnit" Version="1.58.0" />
+    <PackageVersion Include="Aspire.Hosting.Testing" Version="13.6.5" />
+    <PackageVersion Include="TUnit" Version="1.83.8" />
     <!-- Microsoft ASP.NET Core Packages -->
-    <PackageVersion Include="Microsoft.AspNetCore.Authentication.Google" Version="10.0.9" />
-    <PackageVersion Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.9" />
-    <PackageVersion Include="Microsoft.AspNetCore.Authentication.MicrosoftAccount" Version="10.0.9" />
-    <PackageVersion Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="10.0.9" />
-    <PackageVersion Include="Microsoft.AspNetCore.SpaProxy" Version="10.0.9" />
-    <PackageVersion Include="Swashbuckle.AspNetCore.SwaggerGen" Version="10.2.3" />
-    <PackageVersion Include="Swashbuckle.AspNetCore.SwaggerUI" Version="10.2.3" />
+    <PackageVersion Include="Microsoft.AspNetCore.Authentication.Google" Version="11.0.0" />
+    <PackageVersion Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="11.0.0" />
+    <PackageVersion Include="Microsoft.AspNetCore.Authentication.MicrosoftAccount" Version="11.0.0" />
+    <PackageVersion Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="11.0.0" />
+    <PackageVersion Include="Microsoft.AspNetCore.OpenApi" Version="11.0.0" />
+    <PackageVersion Include="Perigon.AspNetCore.SourceGeneration" Version="1.1.1" />
+    <PackageVersion Include="Microsoft.AspNetCore.SpaProxy" Version="11.0.0" />
     <!-- Microsoft Entity Framework Core Packages -->
-    <PackageVersion Include="Npgsql" Version="10.0.2" />
+    <PackageVersion Include="Npgsql" Version="10.0.3" />
     <!-- Microsoft Extensions Packages -->
-    <PackageVersion Include="Microsoft.Extensions.Caching.Hybrid" Version="10.7.0" />
-    <PackageVersion Include="Microsoft.Extensions.Hosting" Version="10.0.9" />
-    <PackageVersion Include="Microsoft.Extensions.Http.Resilience" Version="10.7.0" />
-    <PackageVersion Include="Microsoft.Extensions.Localization.Abstractions" Version="10.0.9" />
-    <PackageVersion Include="Microsoft.Extensions.ServiceDiscovery" Version="10.7.0" />
-    <PackageVersion Include="Microsoft.CodeAnalysis.CSharp" Version="5.0.0" />
+    <PackageVersion Include="Microsoft.Extensions.Caching.Hybrid" Version="11.0.0" />
+    <PackageVersion Include="Microsoft.Extensions.Hosting" Version="11.0.0" />
+    <PackageVersion Include="Microsoft.Extensions.Http.Resilience" Version="11.0.0" />
+    <PackageVersion Include="Microsoft.Extensions.Localization.Abstractions" Version="11.0.0" />
+    <PackageVersion Include="Microsoft.Extensions.ServiceDiscovery" Version="11.0.0" />
+    <PackageVersion Include="Microsoft.CodeAnalysis.CSharp" Version="5.9.0" />
     <!-- OpenTelemetry Packages -->
-    <PackageVersion Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.16.0" />
-    <PackageVersion Include="OpenTelemetry.Extensions.Hosting" Version="1.16.0" />
-    <PackageVersion Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.16.0" />
-    <PackageVersion Include="OpenTelemetry.Instrumentation.Http" Version="1.16.0" />
-    <PackageVersion Include="OpenTelemetry.Instrumentation.Runtime" Version="1.15.1" />
+    <PackageVersion Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.21.0" />
+    <PackageVersion Include="OpenTelemetry.Extensions.Hosting" Version="1.21.0" />
+    <PackageVersion Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.21.0" />
+    <PackageVersion Include="OpenTelemetry.Instrumentation.Http" Version="1.21.0" />
+    <PackageVersion Include="OpenTelemetry.Instrumentation.Runtime" Version="1.21.0" />
     <!-- Security & Authentication -->
-    <PackageVersion Include="System.IdentityModel.Tokens.Jwt" Version="8.19.1" />
-    <PackageVersion Include="Perigon.PostgreSQL" Version="0.2.2" />
+    <PackageVersion Include="System.IdentityModel.Tokens.Jwt" Version="8.23.0" />
+    <PackageVersion Include="Perigon.PostgreSQL" Version="0.3.1" />
     <!-- Third-party Packages -->
-    <PackageVersion Include="AWSSDK.S3" Version="4.0.100.1" />
-    <PackageVersion Include="MailKit" Version="4.17.0" />
-    <PackageVersion Include="Mapster" Version="10.0.10" />
-    <PackageVersion Include="MiniExcel" Version="2.0.0-preview.4" />
+    <PackageVersion Include="AWSSDK.S3" Version="4.1.0" />
+    <PackageVersion Include="MailKit" Version="5.0.0" />
+    <PackageVersion Include="MiniExcel" Version="2.0.0-preview.5" />
     <PackageVersion Include="SixLabors.Fonts" Version="2.1.3" />
     <PackageVersion Include="SixLabors.ImageSharp" Version="3.1.12" />
     <PackageVersion Include="SixLabors.ImageSharp.Drawing" Version="2.1.7" />

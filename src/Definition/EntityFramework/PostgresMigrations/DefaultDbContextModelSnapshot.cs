@@ -57,6 +57,277 @@ public sealed class DefaultDbContextModelSnapshot : MigrationModelSnapshot
             new MigrationIndex("IX_Articles_TenantId_CatalogId", new string[] { "TenantId", "CatalogId" }, false, global::System.Array.Empty<string>(), null, null),
             new MigrationIndex("IX_Articles_TenantId_UserId_Title", new string[] { "TenantId", "UserId", "Title" }, true, global::System.Array.Empty<string>(), "\u0022IsDeleted\u0022 = false", null),
         }),
+        new MigrationTable(null, "AuditFlows", null, new MigrationColumn[]
+        {
+            new MigrationColumn("created_time", "timestamp with time zone", false, false, false, null, null, null),
+            new MigrationColumn("flow_key", "character varying(100)", false, false, false, null, null, null),
+            new MigrationColumn("id", "uuid", false, false, false, null, null, null),
+            new MigrationColumn("is_deleted", "boolean", false, false, false, null, null, null),
+            new MigrationColumn("is_enabled", "boolean", false, false, false, null, null, null),
+            new MigrationColumn("name", "character varying(200)", false, false, false, null, null, null),
+            new MigrationColumn("scene_code", "character varying(100)", false, false, false, null, null, null),
+            new MigrationColumn("tenant_id", "uuid", false, false, false, null, null, null),
+            new MigrationColumn("updated_time", "timestamp with time zone", false, false, false, null, null, null),
+        }, new MigrationPrimaryKey("PK_AuditFlows", new string[] { "id" }), new MigrationForeignKey[]
+        {
+        }, new MigrationIndex[]
+        {
+            new MigrationIndex("UX_AuditFlow_Tenant_EnabledScene", new string[] { "tenant_id", "scene_code" }, true, global::System.Array.Empty<string>(), "\u0022is_deleted\u0022 = false AND \u0022is_enabled\u0022 = true", null),
+            new MigrationIndex("UX_AuditFlow_Tenant_Key", new string[] { "tenant_id", "flow_key" }, true, global::System.Array.Empty<string>(), "\u0022is_deleted\u0022 = false", null),
+        }),
+        new MigrationTable(null, "AuditRecordDetails", null, new MigrationColumn[]
+        {
+            new MigrationColumn("audit_mode_snapshot_value", "integer", false, false, false, null, null, null),
+            new MigrationColumn("audit_record_id", "uuid", false, false, false, null, null, null),
+            new MigrationColumn("completed_time", "timestamp with time zone", true, false, false, null, null, null),
+            new MigrationColumn("created_time", "timestamp with time zone", false, false, false, null, null, null),
+            new MigrationColumn("id", "uuid", false, false, false, null, null, null),
+            new MigrationColumn("is_deleted", "boolean", false, false, false, null, null, null),
+            new MigrationColumn("started_time", "timestamp with time zone", true, false, false, null, null, null),
+            new MigrationColumn("status_value", "integer", false, false, false, null, null, null),
+            new MigrationColumn("step_definition_id", "uuid", false, false, false, null, null, null),
+            new MigrationColumn("step_name_snapshot", "character varying(200)", false, false, false, null, null, null),
+            new MigrationColumn("step_no_snapshot", "integer", false, false, false, null, null, null),
+            new MigrationColumn("tenant_id", "uuid", false, false, false, null, null, null),
+            new MigrationColumn("updated_time", "timestamp with time zone", false, false, false, null, null, null),
+        }, new MigrationPrimaryKey("PK_AuditRecordDetails", new string[] { "id" }), new MigrationForeignKey[]
+        {
+        }, new MigrationIndex[]
+        {
+            new MigrationIndex("UX_AuditDetail_Tenant_Record_Number", new string[] { "tenant_id", "audit_record_id", "step_no_snapshot" }, true, global::System.Array.Empty<string>(), "\u0022is_deleted\u0022 = false", null),
+        }),
+        new MigrationTable(null, "AuditRecords", null, new MigrationColumn[]
+        {
+            new MigrationColumn("applicant_name_snapshot", "character varying(100)", false, false, false, null, null, null),
+            new MigrationColumn("applicant_user_id", "uuid", false, false, false, null, null, null),
+            new MigrationColumn("apply_reason", "character varying(2000)", false, false, false, null, null, null),
+            new MigrationColumn("biz_id", "character varying(200)", false, false, false, null, null, null),
+            new MigrationColumn("completed_time", "timestamp with time zone", true, false, false, null, null, null),
+            new MigrationColumn("created_time", "timestamp with time zone", false, false, false, null, null, null),
+            new MigrationColumn("current_step_no", "integer", true, false, false, null, null, null),
+            new MigrationColumn("flow_id", "uuid", false, false, false, null, null, null),
+            new MigrationColumn("flow_name_snapshot", "character varying(200)", false, false, false, null, null, null),
+            new MigrationColumn("form_snapshot_json", "text", true, false, false, null, null, null),
+            new MigrationColumn("id", "uuid", false, false, false, null, null, null),
+            new MigrationColumn("is_deleted", "boolean", false, false, false, null, null, null),
+            new MigrationColumn("scene_code", "character varying(100)", false, false, false, null, null, null),
+            new MigrationColumn("status_value", "integer", false, false, false, null, null, null),
+            new MigrationColumn("submitted_time", "timestamp with time zone", false, false, false, null, null, null),
+            new MigrationColumn("tenant_id", "uuid", false, false, false, null, null, null),
+            new MigrationColumn("updated_time", "timestamp with time zone", false, false, false, null, null, null),
+            new MigrationColumn("withdraw_reason", "character varying(2000)", true, false, false, null, null, null),
+            new MigrationColumn("withdrawn_time", "timestamp with time zone", true, false, false, null, null, null),
+        }, new MigrationPrimaryKey("PK_AuditRecords", new string[] { "id" }), new MigrationForeignKey[]
+        {
+        }, new MigrationIndex[]
+        {
+            new MigrationIndex("UX_AuditRecord_Tenant_ActiveBusiness", new string[] { "tenant_id", "applicant_user_id", "scene_code", "biz_id" }, true, global::System.Array.Empty<string>(), "\u0022is_deleted\u0022 = false AND \u0022status_value\u0022 = 0", null),
+        }),
+        new MigrationTable(null, "AuditStepDefinitions", null, new MigrationColumn[]
+        {
+            new MigrationColumn("audit_mode_value", "integer", false, false, false, null, null, null),
+            new MigrationColumn("auditor_user_ids", "uuid[]", false, false, false, null, null, null),
+            new MigrationColumn("created_time", "timestamp with time zone", false, false, false, null, null, null),
+            new MigrationColumn("flow_id", "uuid", false, false, false, null, null, null),
+            new MigrationColumn("id", "uuid", false, false, false, null, null, null),
+            new MigrationColumn("is_deleted", "boolean", false, false, false, null, null, null),
+            new MigrationColumn("name", "character varying(200)", false, false, false, null, null, null),
+            new MigrationColumn("step_no", "integer", false, false, false, null, null, null),
+            new MigrationColumn("tenant_id", "uuid", false, false, false, null, null, null),
+            new MigrationColumn("updated_time", "timestamp with time zone", false, false, false, null, null, null),
+        }, new MigrationPrimaryKey("PK_AuditStepDefinitions", new string[] { "id" }), new MigrationForeignKey[]
+        {
+        }, new MigrationIndex[]
+        {
+            new MigrationIndex("UX_AuditStep_Tenant_Flow_Number", new string[] { "tenant_id", "flow_id", "step_no" }, true, global::System.Array.Empty<string>(), "\u0022is_deleted\u0022 = false", null),
+        }),
+        new MigrationTable(null, "AuditTasks", null, new MigrationColumn[]
+        {
+            new MigrationColumn("acted_time", "timestamp with time zone", true, false, false, null, null, null),
+            new MigrationColumn("assignee_name_snapshot", "character varying(100)", false, false, false, null, null, null),
+            new MigrationColumn("assignee_user_id", "uuid", false, false, false, null, null, null),
+            new MigrationColumn("audit_record_detail_id", "uuid", false, false, false, null, null, null),
+            new MigrationColumn("comment", "character varying(2000)", true, false, false, null, null, null),
+            new MigrationColumn("created_time", "timestamp with time zone", false, false, false, null, null, null),
+            new MigrationColumn("id", "uuid", false, false, false, null, null, null),
+            new MigrationColumn("is_deleted", "boolean", false, false, false, null, null, null),
+            new MigrationColumn("status_value", "integer", false, false, false, null, null, null),
+            new MigrationColumn("tenant_id", "uuid", false, false, false, null, null, null),
+            new MigrationColumn("updated_time", "timestamp with time zone", false, false, false, null, null, null),
+        }, new MigrationPrimaryKey("PK_AuditTasks", new string[] { "id" }), new MigrationForeignKey[]
+        {
+        }, new MigrationIndex[]
+        {
+            new MigrationIndex("UX_AuditTask_Tenant_Detail_User", new string[] { "tenant_id", "audit_record_detail_id", "assignee_user_id" }, true, global::System.Array.Empty<string>(), "\u0022is_deleted\u0022 = false", null),
+        }),
+        new MigrationTable(null, "InAppNotificationRecipients", null, new MigrationColumn[]
+        {
+            new MigrationColumn("created_time", "timestamp with time zone", false, false, false, null, null, null),
+            new MigrationColumn("id", "uuid", false, false, false, null, null, null),
+            new MigrationColumn("is_deleted", "boolean", false, false, false, null, null, null),
+            new MigrationColumn("is_read", "boolean", false, false, false, null, null, null),
+            new MigrationColumn("notification_id", "uuid", false, false, false, null, null, null),
+            new MigrationColumn("read_time", "timestamp with time zone", true, false, false, null, null, null),
+            new MigrationColumn("tenant_id", "uuid", false, false, false, null, null, null),
+            new MigrationColumn("updated_time", "timestamp with time zone", false, false, false, null, null, null),
+            new MigrationColumn("user_id", "uuid", false, false, false, null, null, null),
+        }, new MigrationPrimaryKey("PK_InAppNotificationRecipients", new string[] { "id" }), new MigrationForeignKey[]
+        {
+        }, new MigrationIndex[]
+        {
+            new MigrationIndex("IX_InAppRecipient_Tenant_User_Read_Created", new string[] { "tenant_id", "user_id", "is_read", "created_time" }, false, global::System.Array.Empty<string>(), null, null),
+            new MigrationIndex("UX_InAppRecipient_Tenant_Notification_User", new string[] { "tenant_id", "notification_id", "user_id" }, true, global::System.Array.Empty<string>(), "\u0022is_deleted\u0022 = false", null),
+        }),
+        new MigrationTable(null, "InAppNotifications", null, new MigrationColumn[]
+        {
+            new MigrationColumn("content", "character varying(20000)", false, false, false, null, null, null),
+            new MigrationColumn("created_by", "uuid", true, false, false, null, null, null),
+            new MigrationColumn("created_time", "timestamp with time zone", false, false, false, null, null, null),
+            new MigrationColumn("expires_time", "timestamp with time zone", true, false, false, null, null, null),
+            new MigrationColumn("id", "uuid", false, false, false, null, null, null),
+            new MigrationColumn("is_deleted", "boolean", false, false, false, null, null, null),
+            new MigrationColumn("is_published", "boolean", false, false, false, null, null, null),
+            new MigrationColumn("link", "character varying(1200)", false, false, false, null, null, null),
+            new MigrationColumn("published_time", "timestamp with time zone", true, false, false, null, null, null),
+            new MigrationColumn("target_user_ids", "uuid[]", false, false, false, null, null, null),
+            new MigrationColumn("tenant_id", "uuid", false, false, false, null, null, null),
+            new MigrationColumn("title", "character varying(200)", false, false, false, null, null, null),
+            new MigrationColumn("type", "character varying(40)", false, false, false, null, null, null),
+            new MigrationColumn("updated_time", "timestamp with time zone", false, false, false, null, null, null),
+        }, new MigrationPrimaryKey("PK_InAppNotifications", new string[] { "id" }), new MigrationForeignKey[]
+        {
+        }, new MigrationIndex[]
+        {
+        }),
+        new MigrationTable(null, "NotificationDeliveries", null, new MigrationColumn[]
+        {
+            new MigrationColumn("created_time", "timestamp with time zone", false, false, false, null, null, null),
+            new MigrationColumn("error", "character varying(2000)", true, false, false, null, null, null),
+            new MigrationColumn("event_id", "uuid", false, false, false, null, null, null),
+            new MigrationColumn("id", "uuid", false, false, false, null, null, null),
+            new MigrationColumn("is_deleted", "boolean", false, false, false, null, null, null),
+            new MigrationColumn("receiver_id", "uuid", false, false, false, null, null, null),
+            new MigrationColumn("receiver_name", "character varying(100)", false, false, false, null, null, null),
+            new MigrationColumn("sent_at", "timestamp with time zone", true, false, false, null, null, null),
+            new MigrationColumn("status", "character varying(20)", false, false, false, null, null, null),
+            new MigrationColumn("tenant_id", "uuid", false, false, false, null, null, null),
+            new MigrationColumn("updated_time", "timestamp with time zone", false, false, false, null, null, null),
+        }, new MigrationPrimaryKey("PK_NotificationDeliveries", new string[] { "id" }), new MigrationForeignKey[]
+        {
+        }, new MigrationIndex[]
+        {
+            new MigrationIndex("UX_NotificationDelivery_Tenant_Event_Receiver", new string[] { "tenant_id", "event_id", "receiver_id" }, true, global::System.Array.Empty<string>(), "\u0022is_deleted\u0022 = false", null),
+        }),
+        new MigrationTable(null, "NotificationEvents", null, new MigrationColumn[]
+        {
+            new MigrationColumn("action", "character varying(50)", false, false, false, null, null, null),
+            new MigrationColumn("actor_name", "character varying(300)", false, false, false, null, null, null),
+            new MigrationColumn("content", "character varying(8000)", false, false, false, null, null, null),
+            new MigrationColumn("created_time", "timestamp with time zone", false, false, false, null, null, null),
+            new MigrationColumn("duration", "double precision", true, false, false, null, null, null),
+            new MigrationColumn("event_key", "character varying(128)", false, false, false, null, null, null),
+            new MigrationColumn("event_type", "character varying(50)", false, false, false, null, null, null),
+            new MigrationColumn("finished_at", "timestamp with time zone", true, false, false, null, null, null),
+            new MigrationColumn("id", "uuid", false, false, false, null, null, null),
+            new MigrationColumn("is_deleted", "boolean", false, false, false, null, null, null),
+            new MigrationColumn("namespace", "character varying(500)", false, false, false, null, null, null),
+            new MigrationColumn("object_id", "character varying(100)", false, false, false, null, null, null),
+            new MigrationColumn("occurred_at", "timestamp with time zone", true, false, false, null, null, null),
+            new MigrationColumn("processing_status", "character varying(20)", false, false, false, null, null, null),
+            new MigrationColumn("project_id", "bigint", false, false, false, null, null, null),
+            new MigrationColumn("project_name", "character varying(300)", false, false, false, null, null, null),
+            new MigrationColumn("ref", "character varying(300)", false, false, false, null, null, null),
+            new MigrationColumn("sha", "character varying(64)", false, false, false, null, null, null),
+            new MigrationColumn("source_id", "uuid", false, false, false, null, null, null),
+            new MigrationColumn("status", "character varying(40)", false, false, false, null, null, null),
+            new MigrationColumn("tag", "boolean", false, false, false, null, null, null),
+            new MigrationColumn("tenant_id", "uuid", false, false, false, null, null, null),
+            new MigrationColumn("title", "character varying(500)", false, false, false, null, null, null),
+            new MigrationColumn("updated_time", "timestamp with time zone", false, false, false, null, null, null),
+            new MigrationColumn("url", "character varying(1200)", false, false, false, null, null, null),
+        }, new MigrationPrimaryKey("PK_NotificationEvents", new string[] { "id" }), new MigrationForeignKey[]
+        {
+        }, new MigrationIndex[]
+        {
+            new MigrationIndex("UX_NotificationEvent_Tenant_Source_Key", new string[] { "tenant_id", "source_id", "event_key" }, true, global::System.Array.Empty<string>(), "\u0022is_deleted\u0022 = false", null),
+        }),
+        new MigrationTable(null, "NotificationReceivers", null, new MigrationColumn[]
+        {
+            new MigrationColumn("auth_name", "character varying(100)", false, false, false, null, null, null),
+            new MigrationColumn("auth_scheme", "character varying(40)", false, false, false, null, null, null),
+            new MigrationColumn("auth_type", "character varying(20)", false, false, false, null, null, null),
+            new MigrationColumn("body_template", "character varying(8000)", false, false, false, null, null, null),
+            new MigrationColumn("created_time", "timestamp with time zone", false, false, false, null, null, null),
+            new MigrationColumn("enabled", "boolean", false, false, false, null, null, null),
+            new MigrationColumn("endpoint", "character varying(2000)", false, false, false, null, null, null),
+            new MigrationColumn("http_method", "character varying(10)", false, false, false, null, null, null),
+            new MigrationColumn("id", "uuid", false, false, false, null, null, null),
+            new MigrationColumn("is_deleted", "boolean", false, false, false, null, null, null),
+            new MigrationColumn("name", "character varying(100)", false, false, false, null, null, null),
+            new MigrationColumn("protected_secret", "character varying(2048)", false, false, false, null, null, null),
+            new MigrationColumn("rate_limit_per_minute", "integer", false, false, false, null, null, null),
+            new MigrationColumn("success_field", "character varying(100)", false, false, false, null, null, null),
+            new MigrationColumn("success_value", "character varying(200)", false, false, false, null, null, null),
+            new MigrationColumn("tenant_id", "uuid", false, false, false, null, null, null),
+            new MigrationColumn("timeout_seconds", "integer", false, false, false, null, null, null),
+            new MigrationColumn("type", "character varying(40)", false, false, false, null, null, null),
+            new MigrationColumn("updated_time", "timestamp with time zone", false, false, false, null, null, null),
+        }, new MigrationPrimaryKey("PK_NotificationReceivers", new string[] { "id" }), new MigrationForeignKey[]
+        {
+        }, new MigrationIndex[]
+        {
+        }),
+        new MigrationTable(null, "NotificationRuleReceivers", null, new MigrationColumn[]
+        {
+            new MigrationColumn("created_time", "timestamp with time zone", false, false, false, null, null, null),
+            new MigrationColumn("id", "uuid", false, false, false, null, null, null),
+            new MigrationColumn("is_deleted", "boolean", false, false, false, null, null, null),
+            new MigrationColumn("receiver_id", "uuid", false, false, false, null, null, null),
+            new MigrationColumn("rule_id", "uuid", false, false, false, null, null, null),
+            new MigrationColumn("tenant_id", "uuid", false, false, false, null, null, null),
+            new MigrationColumn("updated_time", "timestamp with time zone", false, false, false, null, null, null),
+        }, new MigrationPrimaryKey("PK_NotificationRuleReceivers", new string[] { "id" }), new MigrationForeignKey[]
+        {
+        }, new MigrationIndex[]
+        {
+            new MigrationIndex("UX_NotificationRuleReceiver_Tenant_Rule_Receiver", new string[] { "tenant_id", "rule_id", "receiver_id" }, true, global::System.Array.Empty<string>(), "\u0022is_deleted\u0022 = false", null),
+        }),
+        new MigrationTable(null, "NotificationRules", null, new MigrationColumn[]
+        {
+            new MigrationColumn("created_time", "timestamp with time zone", false, false, false, null, null, null),
+            new MigrationColumn("enabled", "boolean", false, false, false, null, null, null),
+            new MigrationColumn("event_types", "text[]", false, false, false, null, null, null),
+            new MigrationColumn("id", "uuid", false, false, false, null, null, null),
+            new MigrationColumn("is_deleted", "boolean", false, false, false, null, null, null),
+            new MigrationColumn("name", "character varying(100)", false, false, false, null, null, null),
+            new MigrationColumn("project_ids", "bigint[]", false, false, false, null, null, null),
+            new MigrationColumn("source_id", "uuid", false, false, false, null, null, null),
+            new MigrationColumn("statuses", "text[]", false, false, false, null, null, null),
+            new MigrationColumn("tenant_id", "uuid", false, false, false, null, null, null),
+            new MigrationColumn("updated_time", "timestamp with time zone", false, false, false, null, null, null),
+        }, new MigrationPrimaryKey("PK_NotificationRules", new string[] { "id" }), new MigrationForeignKey[]
+        {
+        }, new MigrationIndex[]
+        {
+        }),
+        new MigrationTable(null, "NotificationSources", null, new MigrationColumn[]
+        {
+            new MigrationColumn("auth_type", "character varying(20)", false, false, false, null, null, null),
+            new MigrationColumn("created_time", "timestamp with time zone", false, false, false, null, null, null),
+            new MigrationColumn("enabled", "boolean", false, false, false, null, null, null),
+            new MigrationColumn("header_key", "character varying(100)", false, false, false, null, null, null),
+            new MigrationColumn("id", "uuid", false, false, false, null, null, null),
+            new MigrationColumn("is_deleted", "boolean", false, false, false, null, null, null),
+            new MigrationColumn("name", "character varying(100)", false, false, false, null, null, null),
+            new MigrationColumn("protected_secret", "character varying(2048)", false, false, false, null, null, null),
+            new MigrationColumn("tenant_id", "uuid", false, false, false, null, null, null),
+            new MigrationColumn("type", "character varying(40)", false, false, false, null, null, null),
+            new MigrationColumn("updated_time", "timestamp with time zone", false, false, false, null, null, null),
+        }, new MigrationPrimaryKey("PK_NotificationSources", new string[] { "id" }), new MigrationForeignKey[]
+        {
+        }, new MigrationIndex[]
+        {
+        }),
         new MigrationTable(null, "ResCategories", null, new MigrationColumn[]
         {
             new MigrationColumn("CatalogCode", "character varying(60)", false, false, false, null, null, null),

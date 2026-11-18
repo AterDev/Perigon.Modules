@@ -2,170 +2,14 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authentication.MicrosoftAccount;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.HttpOverrides;
-using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.OpenApi;
-using Perigon.AspNetCore.Converters;
 using ServiceDefaults;
-using ServiceDefaults.Middleware;
-using System.Text.Encodings.Web;
-using System.Text.Unicode;
 using System.Threading.RateLimiting;
 
 namespace ServiceDefaults;
 
 public static class WebExtensions
 {
-    /// <summary>
-    /// 注册和配置Web服务依赖
-    /// </summary>
-    /// <param name="builder"></param>
-    /// <returns></returns>
-    public static IServiceCollection AddMiddlewareServices(this WebApplicationBuilder builder)
-    {
-        builder.Services.ConfigureWebMiddleware(builder.Configuration);
-        builder
-            .Services.AddControllers()
-            .AddJsonOptions(options =>
-            {
-                options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
-                options.JsonSerializerOptions.Encoder = JavaScriptEncoder.Create(UnicodeRanges.All);
-                options.JsonSerializerOptions.Converters.Add(new DateOnlyJsonConverter());
-            });
-        return builder.Services;
-    }
-
-    /// <summary>
-    /// 添加web服务组件，如身份认证/授权/swagger/cors
-    /// </summary>
-    /// <param name="services"></param>
-    /// <param name="configuration"></param>
-    /// <returns></returns>
-    public static IServiceCollection ConfigureWebMiddleware(
-        this IServiceCollection services,
-        IConfiguration configuration
-    )
-    {
-        services.AddAuthentication(configuration);
-        services.AddThirdAuthentication(configuration);
-
-        services.AddAuthorize();
-        services.AddCors(configuration);
-        services.AddRateLimiter();
-        services.Configure<ForwardedHeadersOptions>(options =>
-        {
-            options.ForwardedHeaders = ForwardedHeaders.XForwardedFor
-                | ForwardedHeaders.XForwardedProto
-                | ForwardedHeaders.XForwardedHost;
-        });
-
-        services.AddOutputCache(options =>
-        {
-            options.AddPolicy("openapi", policy => policy.Expire(TimeSpan.FromMinutes(10)));
-        });
-
-        services.AddSwagger();
-        services.AddLocalizer();
-        return services;
-    }
-
-    public static WebApplication UseMiddlewareServices(this WebApplication app)
-    {
-        app.UseForwardedHeaders();
-
-        if (app.Environment.IsProduction())
-        {
-            app.UseHsts();
-            app.UseHttpsRedirection();
-        }
-
-        app.UseStaticFiles();
-        app.UseRequestLocalization();
-        app.UseRouting();
-        app.UseCors(app.Environment.IsProduction() ? WebConst.Limited : WebConst.Default);
-        app.UseRateLimiter();
-        app.UseOutputCache();
-
-        if (!app.Environment.IsProduction())
-        {
-            app.MapSwagger().CacheOutput("openapi");
-            app.UseSwaggerUI(options => options.SwaggerEndpoint("./v1/swagger.json", "v1"));
-        }
-
-        //app.UseMiddleware<JwtMiddleware>();
-        app.UseMiddleware<GlobalExceptionMiddleware>();
-        app.UseAuthentication();
-
-        // Tenant resolution is always enabled. Authenticated requests must carry a valid
-        // TenantId; the seeded default tenant only guarantees catalog initialization.
-        app.UseMiddleware<TenantResolutionMiddleware>();
-        app.UseAuthorization();
-        app.MapControllers();
-        return app;
-    }
-
-    public static IServiceCollection AddSwagger(this IServiceCollection services)
-    {
-        services.AddSwaggerGen(c =>
-        {
-            c.AddSecurityDefinition(
-                "Bearer",
-                new OpenApiSecurityScheme
-                {
-                    In = ParameterLocation.Header,
-                    Description = "Please enter a valid token",
-                    Name = "Authorization",
-                    Type = SecuritySchemeType.Http,
-                    BearerFormat = "JWT",
-                    Scheme = "Bearer",
-                }
-            );
-            // Microsoft.OpenApi 2.0: requirement uses OpenApiSecuritySchemeReference keys
-            c.AddSecurityRequirement(_ => new OpenApiSecurityRequirement
-            {
-                { new OpenApiSecuritySchemeReference("Bearer"), new List<string>() },
-            });
-
-            c.SwaggerDoc(
-                "v1",
-                new OpenApiInfo
-                {
-                    Title = AppDomain.CurrentDomain.FriendlyName,
-                    Description =
-                        "Admin API 文档. 更新时间:" + DateTime.Now.ToString("yyyy-MM-dd H:mm:ss"),
-                    Version = "v1",
-                }
-            );
-
-            var xmlFiles = Directory.GetFiles(
-                AppContext.BaseDirectory,
-                "*.xml",
-                SearchOption.TopDirectoryOnly
-            );
-            foreach (var item in xmlFiles)
-            {
-                try
-                {
-                    c.IncludeXmlComments(item, includeControllerXmlComments: true);
-                }
-                catch (Exception) { }
-            }
-            c.SupportNonNullableReferenceTypes();
-            c.DescribeAllParametersInCamelCase();
-            c.CustomOperationIds(
-                (z) =>
-                {
-                    var descriptor = (ControllerActionDescriptor)z.ActionDescriptor;
-                    return $"{descriptor.ControllerName}_{descriptor.ActionName}";
-                }
-            );
-            c.CustomSchemaIds(type => type.FullName ?? type.Name);
-            c.SchemaFilter<SwaggerSchemaFilter>();
-            c.OperationFilter<SwagerOperationFilter>();
-        });
-        return services;
-    }
 
     /// <summary>
     /// 添加速率限制
@@ -383,9 +227,14 @@ public static class WebExtensions
     {
         var section = configuration.GetSection("Cors");
         //get origins array
-        var origins = section?.GetSection("AllowedOrigins").Get<string[]>() ?? [];
-
-        var allowedSubdomains = section?.GetValue<bool>("AllowedSubdomains") ?? false;
+        // Read the primitive configuration values without ConfigurationBinder.Get<T>.
+        // The generic binder uses reflection and is not trim-safe for Native AOT.
+        var origins = section?.GetSection("AllowedOrigins").GetChildren()
+            .Select(child => child.Value)
+            .OfType<string>()
+            .ToArray() ?? [];
+        var allowedSubdomains = bool.TryParse(section?["AllowedSubdomains"], out var parsedAllowedSubdomains)
+            && parsedAllowedSubdomains;
 
         services.AddCors(options =>
         {

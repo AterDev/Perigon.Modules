@@ -8,10 +8,10 @@ public class SysConfigItemDto
 {
     public Guid Id { get; set; }
 
-    [MaxLength(100)]
+    [StringLength(100)]
     public string Key { get; set; } = default!;
 
-    [MaxLength(500)]
+    [StringLength(500)]
     public string? Description { get; set; }
     public bool Valid { get; set; } = true;
 
@@ -28,6 +28,6 @@ public class SysConfigItemDto
     /// <summary>
     /// 以json字符串形式存储
     /// </summary>
-    [MaxLength(2000)]
+    [StringLength(2000)]
     public string? Value { get; set; }
 }

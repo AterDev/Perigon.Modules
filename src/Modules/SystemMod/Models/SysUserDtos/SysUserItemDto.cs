@@ -9,16 +9,16 @@ public class SysUserItemDto
     /// <summary>
     /// 用户名
     /// </summary>
-    [MaxLength(30)]
+    [StringLength(30)]
     public string UserName { get; set; } = default!;
 
     /// <summary>
     /// 真实姓名
     /// </summary>
-    [MaxLength(30)]
+    [StringLength(30)]
     public string? RealName { get; set; }
 
-    [MaxLength(100)]
+    [StringLength(100)]
     public string? Email { get; set; }
 
     /// <summary>

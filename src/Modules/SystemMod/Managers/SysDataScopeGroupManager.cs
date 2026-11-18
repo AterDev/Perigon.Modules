@@ -22,7 +22,7 @@ public class SysDataScopeGroupManager(
             .WhereNotNull(filter.Name, group => group.Name.Contains(filter.Name!))
             .WhereNotNull(filter.IsEnabled, group => group.IsEnabled == filter.IsEnabled);
 
-        return await PageListAsync<SysDataScopeGroupFilterDto, SysDataScopeGroupItemDto>(filter);
+        return await PageListAsync<SysDataScopeGroupFilterDto, SysDataScopeGroupItemDto>(filter, MapItem);
     }
 
     public async Task<SysDataScopeGroupDetailDto?> GetAsync(Guid id)
@@ -55,7 +55,7 @@ public class SysDataScopeGroupManager(
 
     public async Task<SysDataScopeGroup> AddAsync(SysDataScopeGroupAddDto dto)
     {
-        SysDataScopeGroup entity = dto.MapTo<SysDataScopeGroup>();
+        SysDataScopeGroup entity = new() { Name = dto.Name, Description = dto.Description, IsEnabled = dto.IsEnabled };
         entity.Name = dto.Name.Trim();
         await InsertAsync(entity);
         return entity;
@@ -190,6 +190,8 @@ public class SysDataScopeGroupManager(
             throw new BusinessException(Localizer.NotFoundResource, StatusCodes.Status404NotFound);
         }
     }
+
+    private static SysDataScopeGroupItemDto MapItem(SysDataScopeGroup group) => new() { Id = group.Id, Name = group.Name, Description = group.Description, IsEnabled = group.IsEnabled };
 
     private static SysDataScopeGroupDetailDto MapDetail(SysDataScopeGroup group, List<Guid> userIds)
     {

@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Http;
 using Perigon.PostgreSQL;
 using ResourceMod.Models;
 using Share.Exceptions;
+using System.Diagnostics.CodeAnalysis;
 using System.Text.RegularExpressions;
 
 namespace ResourceMod.Managers;
@@ -772,7 +773,9 @@ public class ResourceConfigurationManager(
         }
     }
 
-    private async Task<T> GetTenantEntityAsync<T>(DbSet<T> set, Guid id, string message)
+    private async Task<T> GetTenantEntityAsync<
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)] T>(
+        DbSet<T> set, Guid id, string message)
         where T : EntityBase, new()
     {
         return await set.FirstOrDefaultAsync(e => e.Id == id && e.TenantId == _userContext.TenantId)

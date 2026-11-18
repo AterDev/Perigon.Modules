@@ -13,5 +13,6 @@ public class ResourceValueDto
     /// <summary>
     /// 属性值；保存时会根据属性类型规范化，最大长度为 1000。
     /// </summary>
-    [MaxLength(1000)] public required string Value { get; set; }
+    [StringLength(1000)] public required string Value { get; set; }
 }
+

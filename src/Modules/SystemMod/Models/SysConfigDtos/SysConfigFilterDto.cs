@@ -6,7 +6,7 @@ namespace SystemMod.Models.SysConfigDtos;
 /// <see cref="SysConfig"/>
 public class SysConfigFilterDto : FilterBase
 {
-    [MaxLength(100)]
+    [StringLength(100)]
     public string? Key { get; set; }
 
     /// <summary>

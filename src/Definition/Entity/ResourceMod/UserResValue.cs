@@ -18,13 +18,13 @@ public class UserResValue : EntityBase
     /// <summary>
     /// 规范化后的属性值。
     /// </summary>
-    [MaxLength(1000)]
+    [StringLength(1000)]
     public string Value { get; set; } = string.Empty;
 
     /// <summary>
     /// 保存时的属性名称快照。
     /// </summary>
-    [MaxLength(60)]
+    [StringLength(60)]
     public string PropertyNameSnapshot { get; set; } = string.Empty;
 
     /// <summary>

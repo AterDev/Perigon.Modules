@@ -14,7 +14,7 @@ public class ResDefinitionPropertyDto
     /// <summary>
     /// 属性名称。
     /// </summary>
-    [MaxLength(60)] public required string Name { get; set; }
+    [StringLength(60)] public required string Name { get; set; }
 
     /// <summary>
     /// 属性值类型。
@@ -36,3 +36,4 @@ public class ResDefinitionPropertyDto
     /// </summary>
     public int Sort { get; set; }
 }
+

@@ -9,13 +9,13 @@ public class SysRoleAddDto
     /// <summary>
     /// 角色名称
     /// </summary>
-    [MaxLength(30)]
+    [StringLength(30)]
     public required string Name { get; set; }
 
     /// <summary>
     /// 角色标识
     /// </summary>
-    [MaxLength(60)]
+    [StringLength(60)]
     public required string NameValue { get; set; } = string.Empty;
 
     /// <summary>

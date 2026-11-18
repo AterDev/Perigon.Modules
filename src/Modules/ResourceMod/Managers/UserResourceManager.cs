@@ -137,10 +137,10 @@ public class UserResourceManager(
     {
         query = query.WhereNotNull(filter.Status, resource => resource.StatusValue == (int?)filter.Status).WhereNotNull(filter.AuditStatus, resource => resource.AuditStatusValue == (int?)filter.AuditStatus);
         int count = await query.CountAsync();
-        List<UserResource> resources = await query.OrderByDescending(resource => resource.UpdatedTime).Skip((filter.PageIndex - 1) * filter.PageSize).Take(filter.PageSize).ToListAsync();
+        List<UserResource> resources = await query.OrderByDescending(resource => resource.UpdatedTime).Skip((filter.PageIndex.GetValueOrDefault(1) - 1) * filter.PageSize.GetValueOrDefault(20)).Take(filter.PageSize.GetValueOrDefault(20)).ToListAsync();
         Guid[] definitionIds = resources.Select(item => item.DefinitionId).Distinct().ToArray();
         Dictionary<Guid, string> definitions = (await _dbContext.ResDefinitions.Where(item => definitionIds.Contains(item.Id)).ToListAsync()).ToDictionary(item => item.Id, item => item.Name);
-        return new PageList<UserResourceItemDto> { Count = count, PageIndex = filter.PageIndex, Data = resources.Select(resource => new UserResourceItemDto { Id = resource.Id,
+        return new PageList<UserResourceItemDto> { Count = count, PageIndex = filter.PageIndex.GetValueOrDefault(1), Data = resources.Select(resource => new UserResourceItemDto { Id = resource.Id,
             UserId = resource.UserId, DefinitionId = resource.DefinitionId, DefinitionName = definitions[resource.DefinitionId], Status = resource.Status,
             AuditStatus = resource.AuditStatus, ApprovedResourceId = resource.ApprovedResourceId, ReviewComment = resource.ReviewComment, UpdatedTime = resource.UpdatedTime }).ToList() };
     }
@@ -177,3 +177,4 @@ public class UserResourceManager(
         if (!_userContext.IsAdmin) throw new BusinessException("无审核用户资源权限", StatusCodes.Status403Forbidden);
     }
 }
+

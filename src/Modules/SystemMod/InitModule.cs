@@ -1,7 +1,8 @@
-using System.Text.Json;
 using Entity;
 using EntityFramework.AppDbFactory;
+using Perigon.AspNetCore.Options;
 using Share.Services;
+using Share.Serialization;
 using SystemMod.Managers;
 
 namespace SystemMod;
@@ -20,6 +21,7 @@ public class InitModule
         var configuration = provider.GetRequiredService<IConfiguration>();
         var cache = provider.GetRequiredService<CacheService>();
         var tenantService = provider.GetRequiredService<TenantService>();
+        var appJsonSerializer = provider.GetRequiredService<IAppJsonSerializer>();
 
         try
         {
@@ -45,7 +47,7 @@ public class InitModule
 
                 if (!await context.SysConfigs.AnyAsync())
                 {
-                    await InitConfigAsync(context, configuration, logger);
+                    await InitConfigAsync(context, configuration, logger, appJsonSerializer);
                 }
 
                 await InitCacheAsync(context, cache, tenant.Id, logger);
@@ -107,7 +109,8 @@ public class InitModule
     private static async Task InitConfigAsync(
         DefaultDbContext context,
         IConfiguration configuration,
-        ILogger logger
+        ILogger logger,
+        IAppJsonSerializer appJsonSerializer
     )
     {
         var initConfig = SysConfig.NewSysConfig(
@@ -124,7 +127,7 @@ public class InitModule
         var loginSecurityPolicyConfig = SysConfig.NewSysConfig(
             WebConst.SystemGroup,
             WebConst.LoginSecurityPolicy,
-            JsonSerializer.Serialize(loginSecurityPolicy)
+            appJsonSerializer.Serialize(loginSecurityPolicy)
         );
         loginSecurityPolicyConfig.TenantId = context.RequiredTenantId;
 

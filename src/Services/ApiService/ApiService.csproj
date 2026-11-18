@@ -1,18 +1,34 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
 	<PropertyGroup>
-		<TargetFramework>net10.0</TargetFramework>
+		<TargetFramework>net11.0</TargetFramework>
 		<Nullable>enable</Nullable>
 		<GenerateDocumentationFile>True</GenerateDocumentationFile>
 		<NoWarn>1701;1702;1591</NoWarn>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<UserSecretsId>1e75aae5-d684-4140-a34b-a1afb03ab13f</UserSecretsId>
+		<IsAotCompatible>true</IsAotCompatible>
+		<EnableRequestDelegateGenerator>true</EnableRequestDelegateGenerator>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)' == 'Release'">
+		<PublishAot>true</PublishAot>
+		<RuntimeIdentifier Condition="'$(RuntimeIdentifier)' == ''">linux-x64</RuntimeIdentifier>
+		<SelfContained>true</SelfContained>
+		<StripSymbols>true</StripSymbols>
 	</PropertyGroup>
 	<ItemGroup>
 		<PackageReference Include="Microsoft.AspNetCore.SpaProxy" />
+		<Compile Remove="Controllers\**\*.cs" />
 	</ItemGroup>
 	<ItemGroup>
-		<ProjectReference Include="..\..\Perigon\Perigon.AspNetCore.SourceGeneration\Perigon.AspNetCore.SourceGeneration.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+		<PackageReference Include="Perigon.AspNetCore.SourceGeneration" PrivateAssets="all" />
+		<ProjectReference Include="..\\..\\Perigon\\Perigon.OpenApi.SourceGeneration\\Perigon.OpenApi.SourceGeneration.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" GlobalPropertiesToRemove="PublishAot;PublishTrimmed;SelfContained;RuntimeIdentifier" AdditionalProperties="PublishAot=false;PublishTrimmed=false;SelfContained=false" />
+		<PackageReference Include="Microsoft.AspNetCore.OpenApi" />
 		<ProjectReference Include="..\..\Definition\ServiceDefaults\ServiceDefaults.csproj" />
+		<ProjectReference Include="..\..\Modules\SystemMod\SystemMod.csproj" />
+		<ProjectReference Include="..\..\Modules\CMSMod\CMSMod.csproj" />
+		<ProjectReference Include="..\..\Modules\ResourceMod\ResourceMod.csproj" />
+		<ProjectReference Include="..\..\Modules\NotificationMod\NotificationMod.csproj" />
+		<ProjectReference Include="..\..\Modules\AuditMod\AuditMod.csproj" />
 	</ItemGroup>
 
 </Project>

@@ -5,17 +5,17 @@ namespace Entity.SystemMod;
 /// </summary>
 public class SysConfig : EntityBase
 {
-    [MaxLength(100)]
+    [StringLength(100)]
     [Required]
     public string Key { get; set; } = string.Empty;
 
     /// <summary>
     /// 以json字符串形式存储
     /// </summary>
-    [MaxLength(2000)]
+    [StringLength(2000)]
     public string Value { get; set; } = string.Empty;
 
-    [MaxLength(500)]
+    [StringLength(500)]
     public string? Description { get; set; }
     public bool Valid { get; set; } = true;
 
@@ -27,7 +27,7 @@ public class SysConfig : EntityBase
     /// <summary>
     /// 组
     /// </summary>
-    [MaxLength(60)]
+    [StringLength(60)]
     public string GroupName { get; set; } = string.Empty;
 
     /// <summary>

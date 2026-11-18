@@ -10,14 +10,14 @@ public class SysDataScope : EntityBase
     /// <summary>
     /// 权限名称标识
     /// </summary>
-    [MaxLength(60)]
+    [StringLength(60)]
     [Required]
     public string Name { get; set; } = string.Empty;
 
     /// <summary>
     /// 数据标识Code
     /// </summary>
-    [MaxLength(30)]
+    [StringLength(30)]
     [Required]
     public string ResourceCode { get; set; } = string.Empty;
 

@@ -9,13 +9,13 @@ public class ArticleDetailDto
     /// <summary>
     /// 文章标题。
     /// </summary>
-    [MaxLength(100)]
+    [StringLength(100)]
     public string Title { get; set; } = default!;
 
     /// <summary>
     /// 文章描述。
     /// </summary>
-    [MaxLength(300)]
+    [StringLength(300)]
     public string? Description { get; set; }
 
     /// <summary>
@@ -26,13 +26,13 @@ public class ArticleDetailDto
     /// <summary>
     /// 作者名称。
     /// </summary>
-    [MaxLength(200)]
+    [StringLength(200)]
     public string Authors { get; set; } = default!;
 
     /// <summary>
     /// 翻译后的文章标题。
     /// </summary>
-    [MaxLength(200)]
+    [StringLength(200)]
     public string? TranslateTitle { get; set; }
 
     /// <summary>

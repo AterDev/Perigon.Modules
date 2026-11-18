@@ -6,16 +6,16 @@ namespace SystemMod.Models.SysConfigDtos;
 /// <see cref="SysConfig"/>
 public class SysConfigAddDto
 {
-    [MaxLength(100)]
+    [StringLength(100)]
     public required string Key { get; set; }
 
     /// <summary>
     /// 以json字符串形式存储
     /// </summary>
-    [MaxLength(2000)]
+    [StringLength(2000)]
     public string Value { get; set; } = string.Empty;
 
-    [MaxLength(500)]
+    [StringLength(500)]
     public string? Description { get; set; }
     public bool Valid { get; set; } = true;
 

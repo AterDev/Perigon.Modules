@@ -30,7 +30,7 @@
 - DTO 的嵌套属性也必须引用符合上述规则的 DTO；不要通过 `Input` 或实体类型充当 DTO 的替代品。
 - 新增或修改模块时，必须同时检查目录、文件粒度、类型命名和所有引用；生成代码后也必须按此规则整理并完成构建验证。
 
-当前技术基线由仓库配置决定：.NET 10、C# 14、EF Core 10、Aspire 13、Angular 21、TypeScript 5.9、TUnit 和 Microsoft.Testing.Platform。NuGet 版本集中维护在 `Directory.Packages.props`，测试运行器由 `global.json` 指定。
+当前技术基线由仓库配置决定：.NET 11、Perigon.PostgreSQL 0.3.1、Aspire 13、Angular 21、TypeScript 5.9、TUnit 和 Microsoft.Testing.Platform。后端迁移至 MiniApi Minimal API 与 Native AOT，保留租户感知数据库工厂；DTO 使用显式映射。NuGet 版本集中维护在 `Directory.Packages.props`，测试运行器由 `global.json` 指定。
 
 ## 工具优先级
 
@@ -62,3 +62,4 @@
 1. 命名清晰、简洁、易理解，充分利用语言的表达能力和类型系统，写出结构清晰、可维护的代码。
 2. 代码结构清晰，模块划分合理，以面向对象思维定义和组织类和方法。
 3. 方法和类符合单一职责原则，并补充必要说明。
+

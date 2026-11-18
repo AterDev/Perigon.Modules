@@ -13,19 +13,19 @@ public sealed class Tenant : IEntityBase
     [AutoTimestamp] public DateTimeOffset CreatedTime { get; set; }
     [AutoTimestamp(onUpdate: true)] public DateTimeOffset UpdatedTime { get; set; }
     public bool IsDeleted { get; set; }
-    [MaxLength(100)]
+    [StringLength(100)]
     public required string Name { get; set; }
 
-    [MaxLength(500)]
+    [StringLength(500)]
     public string? Description { get; set; }
 
-    [MaxLength(500)]
+    [StringLength(500)]
     public string? DbConnectionString { get; set; }
 
-    [MaxLength(500)]
+    [StringLength(500)]
     public string? AnalysisConnectionString { get; set; }
 
-    [MaxLength(200)]
+    [StringLength(200)]
     public required string Domain { get; set; }
 
     [JsonIgnore]

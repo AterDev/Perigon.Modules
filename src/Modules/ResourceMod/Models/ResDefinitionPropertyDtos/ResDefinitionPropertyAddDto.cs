@@ -9,7 +9,7 @@ public class ResDefinitionPropertyAddDto
     /// <summary>
     /// 属性名称。
     /// </summary>
-    [MaxLength(60)] public required string Name { get; set; }
+    [StringLength(60)] public required string Name { get; set; }
 
     /// <summary>
     /// 属性值类型。
@@ -26,3 +26,4 @@ public class ResDefinitionPropertyAddDto
     /// </summary>
     [Range(1, 1000)] public int MaxLength { get; set; } = 200;
 }
+

@@ -1,6 +1,6 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
-		<TargetFramework>net10.0</TargetFramework>
+		<TargetFramework>net11.0</TargetFramework>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
 		<IsPackable>false</IsPackable>
@@ -14,7 +14,7 @@
 
 	<ItemGroup>
 	  <ProjectReference Include="..\..\src\AppHost\AppHost.csproj" />
-	  <ProjectReference Include="..\..\src\Services\AdminService\AdminService.csproj" />
+	  <ProjectReference Include="..\..\src\Services\ApiService\ApiService.csproj" />
 	  <ProjectReference Include="..\..\src\Definition\EntityFramework\EntityFramework.csproj" IsAspireProjectResource="false" />
 	</ItemGroup>
 

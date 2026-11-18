@@ -9,6 +9,6 @@ public class ArticleCategoryUpdateDto
     /// <summary>
     /// 目录名称
     /// </summary>
-    [MaxLength(50)]
+    [StringLength(50)]
     public string Name { get; set; } = default!;
 }

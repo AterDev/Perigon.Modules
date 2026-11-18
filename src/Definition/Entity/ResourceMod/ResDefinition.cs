@@ -4,10 +4,10 @@ namespace Entity.ResourceMod;
 public class ResDefinition : EntityBase
 {
     /// <summary>资源定义名称。</summary>
-    [MaxLength(60)]
+    [StringLength(60)]
     public string Name { get; set; } = string.Empty;
     /// <summary>Material Icons 图标名称，以字符串形式持久化。</summary>
-    [MaxLength(60)]
+    [StringLength(60)]
     public string? Icon { get; set; }
     /// <summary>定义与属性的关联。</summary>
     [JsonIgnore]

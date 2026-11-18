@@ -28,6 +28,7 @@ public class UserResourceReviewDto
     /// <summary>
     /// 审核意见。
     /// </summary>
-    [MaxLength(500)]
+    [StringLength(500)]
     public string? ReviewComment { get; set; }
 }
+

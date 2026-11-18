@@ -8,7 +8,7 @@ public class ArticleCategory : EntityBase, ITreeNode<ArticleCategory>
     /// <summary>
     /// 目录名称
     /// </summary>
-    [Required, MaxLength(50)]
+    [Required, StringLength(50)]
     public string Name { get; set; } = string.Empty;
 
     /// <summary>

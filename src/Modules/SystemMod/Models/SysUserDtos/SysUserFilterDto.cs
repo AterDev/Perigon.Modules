@@ -9,7 +9,7 @@ public class SysUserFilterDto : FilterBase
     /// <summary>
     /// 用户名
     /// </summary>
-    [MaxLength(30)]
+    [StringLength(30)]
     public string? UserName { get; set; }
 
     /// <summary>

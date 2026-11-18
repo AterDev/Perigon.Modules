@@ -1,8 +1,8 @@
 using Entity;
 using EntityFramework.AppDbContext;
 using EntityFramework.AppDbFactory;
-using Mapster;
 using Perigon.PostgreSQL;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq.Expressions;
 
 namespace Share.Implement;
@@ -19,7 +19,7 @@ public abstract class ManagerBase<TDbContext>(TDbContext dbContext, ILogger logg
 }
 
 /// <summary>Tenant-scoped operations without change tracking.</summary>
-public abstract class ManagerBase<TDbContext, TEntity> : IDisposable
+public abstract class ManagerBase<TDbContext, [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)] TEntity> : IDisposable
     where TDbContext : ContextBase
     where TEntity : class, IEntityBase, new()
 {
@@ -58,32 +58,32 @@ public abstract class ManagerBase<TDbContext, TEntity> : IDisposable
     public Task<TEntity?> FindAsync(Guid id, CancellationToken cancellationToken = default) =>
         _dbSet.Where(entity => entity.Id == id).FirstOrDefaultAsync(cancellationToken);
 
-    protected async Task<TDto?> FindAsync<TDto>(Expression<Func<TEntity, bool>>? whereExp = null, CancellationToken cancellationToken = default) where TDto : class
+    protected async Task<TDto?> FindAsync<TDto>(Func<TEntity, TDto> mapper, Expression<Func<TEntity, bool>>? whereExp = null, CancellationToken cancellationToken = default) where TDto : class
     {
         var query = whereExp is null ? (IQueryable<TEntity>)_dbSet : _dbSet.Where(whereExp);
         var entity = await query.FirstOrDefaultAsync(cancellationToken);
-        return entity is null ? null : entity.Adapt<TDto>();
+        return entity is null ? null : mapper(entity);
     }
 
     public Task<bool> ExistAsync(Guid id, CancellationToken cancellationToken = default) =>
         _dbSet.Where(entity => entity.Id == id).AnyAsync(cancellationToken);
 
-    protected async Task<List<TDto>> ListAsync<TDto>(Expression<Func<TEntity, bool>>? whereExp = null, CancellationToken cancellationToken = default) where TDto : class
+    protected async Task<List<TDto>> ListAsync<TDto>(Func<TEntity, TDto> mapper, Expression<Func<TEntity, bool>>? whereExp = null, CancellationToken cancellationToken = default) where TDto : class
     {
         IQueryable<TEntity> query = IgnoreQueryFilter ? _dbContext.SetWithoutFilters<TEntity>(ContextBase.SoftDeletionFilterName) : _dbSet;
         if (whereExp is not null) query = query.Where(whereExp);
-        return (await query.ToListAsync(cancellationToken)).Adapt<List<TDto>>();
+        return (await query.ToListAsync(cancellationToken)).Select(mapper).ToList();
     }
 
-    public async Task<PageList<TItem>> PageListAsync<TFilter, TItem>(TFilter filter, CancellationToken cancellationToken = default)
+    public async Task<PageList<TItem>> PageListAsync<TFilter, TItem>(TFilter filter, Func<TEntity, TItem> mapper, CancellationToken cancellationToken = default)
         where TFilter : FilterBase where TItem : class
     {
         try
         {
-            var ordered = filter.OrderBy is { Count: > 0 } ? Queryable.OrderBy(filter.OrderBy) : Queryable.OrderByDescending(item => item.CreatedTime);
+            var ordered = Queryable.OrderByDescending(item => item.CreatedTime);
             var count = await ordered.CountAsync(cancellationToken);
-            var entities = await ordered.Skip((filter.PageIndex - 1) * filter.PageSize).Take(filter.PageSize).ToListAsync(cancellationToken);
-            return new PageList<TItem> { Count = count, Data = entities.Adapt<List<TItem>>(), PageIndex = filter.PageIndex };
+            var entities = await ordered.Skip((filter.PageIndex.GetValueOrDefault(1) - 1) * filter.PageSize.GetValueOrDefault(20)).Take(filter.PageSize.GetValueOrDefault(20)).ToListAsync(cancellationToken);
+            return new PageList<TItem> { Count = count, Data = entities.Select(mapper).ToList(), PageIndex = filter.PageIndex.GetValueOrDefault(1) };
         }
         finally { ResetQuery(); }
     }
@@ -133,3 +133,4 @@ public abstract class ManagerBase<TDbContext, TEntity> : IDisposable
     public abstract Task<bool> HasPermissionAsync(Guid id);
     public void Dispose() => _dbContext.Dispose();
 }
+

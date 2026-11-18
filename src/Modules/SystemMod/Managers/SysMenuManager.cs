@@ -19,7 +19,7 @@ public class SysMenuManager(
     /// <returns></returns>
     public async Task<SysMenu> AddAsync(SysMenuAddDto dto)
     {
-        var entity = dto.MapTo<SysMenu>();
+        var entity = new SysMenu { Name = dto.Name, Path = dto.Path, Icon = dto.Icon, ParentId = dto.ParentId, IsValid = dto.IsValid, AccessCode = dto.AccessCode, MenuType = dto.MenuType, Sort = dto.Sort, Hidden = dto.Hidden };
         // other property set
         if (dto.ParentId != null)
         {
@@ -170,13 +170,13 @@ public class SysMenuManager(
             menus = await Queryable
                 .OrderByDescending(t => t.Sort)
                 .ThenByDescending(t => t.CreatedTime)
-                .Skip((filter.PageIndex - 1) * filter.PageSize)
-                .Take(filter.PageSize)
+                .Skip((filter.PageIndex.GetValueOrDefault(1) - 1) * filter.PageSize.GetValueOrDefault(20))
+                .Take(filter.PageSize.GetValueOrDefault(20))
                 .ToListAsync();
             menus = menus.BuildTree();
         }
 
-        return new PageList<SysMenu>() { Data = menus, PageIndex = filter.PageIndex };
+        return new PageList<SysMenu>() { Data = menus, PageIndex = filter.PageIndex.GetValueOrDefault(1) };
     }
 
     public async Task<bool> DeleteAsync(IEnumerable<Guid> ids, bool isDelete = false)
@@ -232,3 +232,4 @@ public class SysMenuManager(
         return ownedMenus.Select(menu => menu.Id).ToList();
     }
 }
+

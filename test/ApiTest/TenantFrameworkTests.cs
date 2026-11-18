@@ -39,7 +39,7 @@ public sealed class TenantFrameworkTests
         if (GlobalHooks.NotificationService is not null)
         {
             await GlobalHooks.NotificationService
-                .WaitForResourceAsync("AdminService", KnownResourceStates.Running)
+                .WaitForResourceAsync("ApiService", KnownResourceStates.Running)
                 .WaitAsync(TimeSpan.FromSeconds(60));
         }
     }

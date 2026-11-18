@@ -5,23 +5,20 @@ namespace Perigon.AspNetCore.Models;
 /// </summary>
 public class FilterBase
 {
-    public int PageIndex
+    public int? PageIndex
     {
-        get { return field; }
-        set { field = value < 1 ? 1 : value; }
+        get;
+        set { field = value is null or < 1 ? 1 : value; }
     } = 1;
 
     /// <summary>
     /// max 10000
     /// </summary>
-    public int PageSize
+    public int? PageSize
     {
-        get { return field; }
-        set { field = value > 10000 ? 10000 : value < 0 ? 0 : value; }
+        get;
+        set { field = value is null ? 20 : value > 10000 ? 10000 : value < 0 ? 0 : value; }
     } = 20;
 
-    /// <summary>
-    /// 排序,field=>是否正序
-    /// </summary>
-    public Dictionary<string, bool>? OrderBy { get; set; }
 }
+

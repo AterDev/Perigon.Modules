@@ -9,31 +9,31 @@ public class ArticleAddDto
     /// <summary>
     /// 文章标题。
     /// </summary>
-    [MaxLength(100)]
+    [StringLength(100)]
     public required string Title { get; set; }
 
     /// <summary>
     /// 文章描述。
     /// </summary>
-    [MaxLength(300)]
+    [StringLength(300)]
     public string? Description { get; set; }
 
     /// <summary>
     /// 文章正文内容。
     /// </summary>
-    [MaxLength(200000)]
+    [StringLength(200000)]
     public required string Content { get; set; }
 
     /// <summary>
     /// 翻译后的文章标题。
     /// </summary>
-    [MaxLength(200)]
+    [StringLength(200)]
     public string? TranslateTitle { get; set; }
 
     /// <summary>
     /// 翻译后的文章正文内容。
     /// </summary>
-    [MaxLength(12000)]
+    [StringLength(12000)]
     public string? TranslateContent { get; set; }
 
     /// <summary>

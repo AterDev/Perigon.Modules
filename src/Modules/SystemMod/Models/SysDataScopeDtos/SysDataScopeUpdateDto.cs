@@ -5,10 +5,10 @@ namespace SystemMod.Models.SysDataScopeDtos;
 /// </summary>
 public class SysDataScopeUpdateDto
 {
-    [MaxLength(60)]
+    [StringLength(60)]
     public string? Name { get; set; }
 
-    [MaxLength(30)]
+    [StringLength(30)]
     public string? ResourceCode { get; set; }
 
     public List<Guid>? TargetIds { get; set; }

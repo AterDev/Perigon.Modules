@@ -8,25 +8,25 @@ public class Article : EntityBase
     /// <summary>
     /// 标题
     /// </summary>
-    [Required, MaxLength(100)]
+    [Required, StringLength(100)]
     public string Title { get; set; } = string.Empty;
 
     /// <summary>
     /// 描述
     /// </summary>
-    [MaxLength(300)]
+    [StringLength(300)]
     public string? Description { get; set; }
 
     /// <summary>
     /// 内容
     /// </summary>
-    [Required, MaxLength(200000)]
+    [Required, StringLength(200000)]
     public string Content { get; set; } = string.Empty;
 
     /// <summary>
     /// 作者
     /// </summary>
-    [Required, MaxLength(200)]
+    [Required, StringLength(200)]
     public string Authors { get; set; } = string.Empty;
 
     /// <summary>

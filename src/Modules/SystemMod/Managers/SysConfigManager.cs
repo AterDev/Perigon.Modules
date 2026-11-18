@@ -1,5 +1,6 @@
 using EntityFramework.AppDbFactory;
-using System.Text.Json;
+using Perigon.AspNetCore.Options;
+using Share.Serialization;
 using SystemMod.Models.SysConfigDtos;
 
 namespace SystemMod.Managers;
@@ -12,11 +13,13 @@ public class SysConfigManager(
     ILogger<SysConfigManager> logger,
     IUserContext userContext,
     IConfiguration configuration,
-    CacheService cache
+    CacheService cache,
+    IAppJsonSerializer appJsonSerializer
 ) : ManagerBase<DefaultDbContext, SysConfig>(dbContextFactory, userContext, logger)
 {
     private readonly IConfiguration _configuration = configuration;
     private readonly CacheService _cache = cache;
+    private readonly IAppJsonSerializer _appJsonSerializer = appJsonSerializer;
 
     /// <summary>
     /// 获取枚举信息
@@ -30,7 +33,7 @@ public class SysConfigManager(
         );
         if (res == null || res.Count == 0)
         {
-            Dictionary<string, List<EnumDictionary>> data = EnumHelper.GetAllEnumInfo();
+            Dictionary<string, List<EnumDictionary>> data = SystemEnumCatalog.Create();
             await _cache.SetValueAsync(WebConst.EnumCacheName, data, null);
             return data;
         }
@@ -62,7 +65,8 @@ public class SysConfigManager(
         );
         if (configString != null)
         {
-            policy = JsonSerializer.Deserialize<LoginSecurityPolicyOption>(configString);
+            policy = _appJsonSerializer.Deserialize<LoginSecurityPolicyOption>(configString)
+                ?? new LoginSecurityPolicyOption();
         }
         else
         {
@@ -85,7 +89,7 @@ public class SysConfigManager(
     /// </summary>
     public async Task<SysConfig> AddAsync(SysConfigAddDto dto)
     {
-        var entity = dto.MapTo<SysConfig>();
+        var entity = new SysConfig { Key = dto.Key, Value = dto.Value, Description = dto.Description, Valid = dto.Valid, IsSystem = dto.IsSystem, GroupName = dto.GroupName ?? string.Empty };
         await InsertAsync(entity);
         return entity;
     }
@@ -121,7 +125,7 @@ public class SysConfigManager(
     /// </summary>
     public async Task<SysConfigDetailDto?> GetAsync(Guid id)
     {
-        return await FindAsync<SysConfigDetailDto>(c => c.Id == id);
+        return await FindAsync(MapDetail, c => c.Id == id);
     }
 
     /// <summary>
@@ -139,7 +143,7 @@ public class SysConfigManager(
             )
             .WhereNotNull(filter.GroupName, q => q.GroupName == filter.GroupName);
 
-        return await PageListAsync<SysConfigFilterDto, SysConfigItemDto>(filter);
+        return await PageListAsync<SysConfigFilterDto, SysConfigItemDto>(filter, MapItem);
     }
 
     /// <summary>
@@ -153,6 +157,9 @@ public class SysConfigManager(
         }
         throw new BusinessException(Localizer.NoPermission);
     }
+
+    private static SysConfigDetailDto MapDetail(SysConfig x) => new() { Key = x.Key, Description = x.Description, Valid = x.Valid, IsSystem = x.IsSystem, GroupName = x.GroupName };
+    private static SysConfigItemDto MapItem(SysConfig x) => new() { Id = x.Id, Key = x.Key, Value = x.Value, Description = x.Description, Valid = x.Valid, IsSystem = x.IsSystem, GroupName = x.GroupName };
 
     public override Task<bool> HasPermissionAsync(Guid id)
     {

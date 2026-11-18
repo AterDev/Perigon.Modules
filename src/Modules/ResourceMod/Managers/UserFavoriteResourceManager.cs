@@ -26,12 +26,12 @@ public class UserFavoriteResourceManager(
         int count = await query.CountAsync();
         List<UserFavoriteResource> favorites = await query
             .OrderByDescending(favorite => favorite.CreatedTime)
-            .Skip((filter.PageIndex - 1) * filter.PageSize).Take(filter.PageSize).ToListAsync();
+            .Skip((filter.PageIndex.GetValueOrDefault(1) - 1) * filter.PageSize.GetValueOrDefault(20)).Take(filter.PageSize.GetValueOrDefault(20)).ToListAsync();
         Guid[] resourceIds = favorites.Select(item => item.ResourceId).ToArray();
         List<Resource> resources = await visibleResources
             .Where(item => resourceIds.Contains(item.Id)).ToListAsync();
         Dictionary<Guid, ResourceItemDto> items = await BuildItemsAsync(resources);
-        return new PageList<UserFavoriteResourceItemDto> { Count = count, PageIndex = filter.PageIndex, Data = favorites.Where(item => items.ContainsKey(item.ResourceId))
+        return new PageList<UserFavoriteResourceItemDto> { Count = count, PageIndex = filter.PageIndex.GetValueOrDefault(1), Data = favorites.Where(item => items.ContainsKey(item.ResourceId))
             .Select(item => new UserFavoriteResourceItemDto { Id = item.Id, ResourceId = item.ResourceId, CreatedTime = item.CreatedTime, Resource = items[item.ResourceId] }).ToList() };
     }
 
@@ -82,3 +82,4 @@ public class UserFavoriteResourceManager(
             DefinitionId = resource.DefinitionId, DefinitionName = definitions[resource.DefinitionId], TagNames = resource.TagNames.ToList(), UpdatedTime = resource.UpdatedTime });
     }
 }
+

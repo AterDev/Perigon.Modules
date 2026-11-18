@@ -9,7 +9,7 @@ public class SysRoleDetailDto
     /// <summary>
     /// 角色名称
     /// </summary>
-    [MaxLength(30)]
+    [StringLength(30)]
     public string Name { get; set; } = default!;
 
     /// <summary>
@@ -25,7 +25,7 @@ public class SysRoleDetailDto
     /// <summary>
     /// 图标
     /// </summary>
-    [MaxLength(30)]
+    [StringLength(30)]
     public string? Icon { get; set; }
     public Guid Id { get; set; } = Guid.NewGuid();
     public DateTimeOffset CreatedTime { get; set; } = DateTimeOffset.UtcNow;

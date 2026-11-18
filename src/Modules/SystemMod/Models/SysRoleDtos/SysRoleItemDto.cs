@@ -11,7 +11,7 @@ public class SysRoleItemDto
     /// <summary>
     /// 角色名称
     /// </summary>
-    [MaxLength(30)]
+    [StringLength(30)]
     public string Name { get; set; } = default!;
 
     /// <summary>

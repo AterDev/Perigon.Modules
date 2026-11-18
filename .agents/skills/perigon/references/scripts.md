@@ -1,61 +1,33 @@
-# 项目脚本
+# MiniApi 项目脚本
 
-从解决方案根目录使用 PowerShell 7 运行脚本。先阅读当前脚本的参数和目标；脚本实现优先于文档示例。
+先读取脚本参数与实现再执行；占位、空文件或文档示例不能当作有效验证。
 
-## 共同脚本
+## `scripts/CleanBinObj.ps1`
 
-### `CleanBinObj.ps1`
+清理 `bin`、`obj`、`.vs` 等生成目录。执行前确认工作树并保留源码、迁移、配置和用户资产。
 
-递归删除所有 csproj 所在目录的 `bin` / `obj`。这是破坏性清理，先用：
+## `scripts/PublishDocker.ps1`
 
-```powershell
-pwsh ./scripts/CleanBinObj.ps1 -WhatIf
-```
-
-只在确有缓存/锁定问题或明确清理需求时执行，不作为每次构建的默认步骤。
-
-### `PublishDocker.ps1`
-
-发布单个 Service 并用其 Dockerfile 构建镜像；不编排数据库、缓存、迁移、连接字符串或服务顺序。
+用于单个 ApiService 的 `linux-x64` 自包含 Native AOT 发布和 Docker 镜像构建。Dockerfile 基于 Ubuntu 24.04 Noble 的 `mcr.microsoft.com/dotnet/runtime-deps:10.0-noble`，与 glibc `linux-x64` 运行时匹配：
 
 ```powershell
-pwsh ./scripts/PublishDocker.ps1 -Service ApiService -ImageName perigon.modules-api-service -Tag v1
+./scripts/PublishDocker.ps1 -Service ApiService -ImageName myprojectname-api-service
 ```
 
-- ApiStandard：framework-dependent，明确关闭 Trim/AOT。
-- MiniApi：`linux-musl-x64` self-contained NativeAOT，开启 Trim/AOT。
-- `-NoRestore` 只在目标 RID 已完成 restore 时使用。
-- 只有验证码、报表、PDF、图片文字等服务端渲染场景才安装字体。
-- 发布前先 Release build；之后检查镜像大小、启动日志、健康端点和运行架构。
+- 运行前检查 Docker/Podman、目标 RID、项目 restore、Dockerfile 和输出目录。
+- `-NoRestore` 只在目标 RID 已恢复时使用。
+- 只有确需服务端字体渲染时才使用 `-InstallFonts`；该选项通过 Ubuntu `apt` 安装 `fontconfig`、`fonts-dejavu-core`、`fonts-noto-color-emoji` 以及一个 CJK 字体包。默认包为 `fonts-wqy-zenhei`，也可选择 `fonts-noto-cjk`。
+- 成功构建后必须启动镜像并检查 `/health`、`/alive` 和受影响 endpoint；镜像存在不代表运行正确。
+- 脚本会删除临时 publish 目录，执行时不要把用户文件放入该目录。
 
-### `UpdateMenus.ps1`
+## `UpdateMenus.ps1`
 
-把 Angular `menus.json` POST 到服务。脚本包含项目占位 key 和本地/生产 URL，执行前必须核对 URL、路由、认证、目标环境和差异；不得把示例 production URL 当真实部署配置。MiniApi 默认没有 AdminService，只有安装了对应后台能力并修正目标后才可使用。
+脚本包含项目占位 key 和 URL。执行前核对目标服务、路由、认证、环境和差异；MiniApi 默认没有 AdminService，未安装对应后台能力时不要执行。
 
-## 仅 ApiStandard
+## Schema 与 OpenAPI
 
-### `EFMigrations.ps1`
+MiniApi 没有内置 `EFMigrations.ps1` 或 `GenSwagger.ps1`。数据库 schema 使用项目选定的独立管线/工具管理；OpenAPI 从运行中的 `/openapi/v1.json` 获取。任何外部写操作必须先确认目标环境。
 
-读取 AppHost 的 Database / IsMultiTenant，恢复本地 dotnet tools，以 AdminService 为 startup project、EntityFramework 为 migrations project：
+## AOT 验证占位
 
-```powershell
-pwsh ./scripts/EFMigrations.ps1 -Name AddOrderStatus
-pwsh ./scripts/EFMigrations.ps1 -Name Remove
-```
-
-实体、映射、约定或 schema 变化后生成描述性迁移。运行前确认开发数据库类型和工作树；运行后审查迁移，不手写或修改已发布历史迁移。AppHost 迁移资源负责本地应用和发布产物中的一次性迁移流程。
-
-### `GenSwagger.ps1`
-
-构建目标服务，用本地 swagger tool 输出 `src/Services/{Service}/swagger.json` 并规范 title：
-
-```powershell
-dotnet tool restore
-pwsh ./scripts/GenSwagger.ps1 -ServiceName ApiService -DocumentName v1
-```
-
-公开端点或契约变化后、生成客户端前执行。审查 OperationId、schema、枚举、状态码和 swagger diff。
-
-## MiniApi 特别说明
-
-MiniApi 没有 `EFMigrations.ps1` 和 `GenSwagger.ps1`；schema 由独立管线/工具负责，OpenAPI 从运行时文档端点获取。当前 `TestAotDockerBuild.ps1` 为空，不能视为验证；使用实际 `dotnet publish` 和 Docker 构建/启动检查。
+若 `TestAotDockerBuild.ps1` 或 `Dockerfile.aot-test` 为空，不能视为测试入口。使用 `native-aot` 中的真实 `dotnet publish`，再执行 Docker 构建/启动；若基线失败，在 PT 记录首个根因和 blocker。

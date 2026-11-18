@@ -9,7 +9,7 @@ public class ArticleCategoryAddDto
     /// <summary>
     /// 目录名称
     /// </summary>
-    [MaxLength(50)]
+    [StringLength(50)]
     public required string Name { get; set; }
     public Guid? ParentId { get; set; }
 }

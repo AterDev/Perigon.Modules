@@ -20,12 +20,12 @@ public class TestHttpClientData : IAsyncInitializer, IAsyncDisposable
     public async Task InitializeAsync()
     {
         HttpClient = (GlobalHooks.App ?? throw new NullReferenceException())
-            .CreateHttpClient("AdminService");
+            .CreateHttpClient("ApiService");
 
         if (GlobalHooks.NotificationService != null)
         {
             await GlobalHooks.NotificationService
-                .WaitForResourceAsync("AdminService", KnownResourceStates.Running)
+                .WaitForResourceAsync("ApiService", KnownResourceStates.Running)
                 .WaitAsync(TimeSpan.FromSeconds(30));
         }
 
@@ -74,7 +74,7 @@ public class TestHttpClientData : IAsyncInitializer, IAsyncDisposable
         Guid userId = created.RootElement.GetProperty("id").GetGuid();
 
         HttpClient client = (GlobalHooks.App ?? throw new NullReferenceException())
-            .CreateHttpClient("AdminService");
+            .CreateHttpClient("ApiService");
         using HttpResponseMessage loginResponse = await client.PostAsJsonAsync(
             "/api/SysUser/authorize",
             new SysLoginDto { Email = email, Password = password });

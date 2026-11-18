@@ -1,6 +1,5 @@
 using EntityFramework.AppDbContext;
 using EntityFramework.AppDbFactory;
-using Mapster;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.Caching.Hybrid;
@@ -22,8 +21,6 @@ public static class FrameworkExtensions
     {
         public IHostApplicationBuilder AddFrameworkServices()
         {
-            TypeAdapterConfig.GlobalSettings.Default.IgnoreNullValues(true);
-
             builder.Services.AddHttpContextAccessor();
             builder.Services.AddScoped<IUserContext, UserContext>();
             builder.Services.AddTransient<IClaimsTransformation, UserClaimsTransformation>();
@@ -73,7 +70,6 @@ public static class FrameworkExtensions
         /// <returns></returns>
         public IHostApplicationBuilder AddDbFactory()
         {
-            builder.Services.AddSingleton<UniversalDbFactory>();
             builder.Services.AddSingleton<AppDbFactory>();
             return builder;
         }
@@ -111,6 +107,7 @@ public static class FrameworkExtensions
             var cacheOption = builder
                 .Configuration.GetSection(CacheOption.ConfigPath)
                 .Get<CacheOption>();
+            builder.Services.AddSingleton<IHybridCacheSerializerFactory, RejectUnknownCacheSerializerFactory>();
             builder.Services.AddHybridCache(options =>
             {
                 HybridCacheEntryFlags? flags = components.Cache switch
@@ -130,7 +127,9 @@ public static class FrameworkExtensions
                         cacheOption?.LocalCacheExpiration ?? 10
                     ),
                 };
-            });
+            })
+                .AddSerializer(new BinaryStringArrayCacheSerializer())
+                .AddSerializer(new EnumDictionaryCacheSerializer());
 
             builder.Services.AddSingleton<CacheService>();
             return builder;
@@ -170,3 +169,6 @@ public static class FrameworkExtensions
         }
     }
 }
+
+
+

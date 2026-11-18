@@ -20,23 +20,16 @@ public class SysDataScopeManager(
             .WhereNotNull(filter.ScopeType, scope => scope.ScopeTypeValue == (int)filter.ScopeType!.Value)
             .WhereNotNull(filter.GroupId, scope => scope.GroupId == filter.GroupId);
 
-        return await PageListAsync<SysDataScopeFilterDto, SysDataScopeItemDto>(filter);
+        return await PageListAsync<SysDataScopeFilterDto, SysDataScopeItemDto>(filter, MapItem);
     }
 
     public async Task<SysDataScopeDetailDto?> GetAsync(Guid id)
     {
-        return await _dbSet
+        SysDataScope? entity = await _dbSet
             .Where(scope => scope.Id == id)
-            .Select(scope => new SysDataScopeDetailDto
-            {
-                Id = scope.Id,
-                Name = scope.Name,
-                ResourceCode = scope.ResourceCode,
-                TargetIds = scope.TargetIds,
-                ScopeType = scope.ScopeType,
-                GroupId = scope.GroupId,
-            })
             .SingleOrDefaultAsync();
+
+        return entity is null ? null : MapDetail(entity);
     }
 
     public async Task<SysDataScope> AddAsync(SysDataScopeAddDto dto)
@@ -44,7 +37,7 @@ public class SysDataScopeManager(
         await EnsureGroupExistsAsync(dto.GroupId);
         ValidateScopeType(dto.ScopeType);
 
-        SysDataScope entity = dto.MapTo<SysDataScope>();
+        SysDataScope entity = new() { Name = dto.Name, ResourceCode = dto.ResourceCode, TargetIds = dto.TargetIds, ScopeType = dto.ScopeType, GroupId = dto.GroupId };
         entity.Name = dto.Name.Trim();
         entity.ResourceCode = dto.ResourceCode.Trim();
         entity.TargetIds = NormalizeTargetIds(dto.TargetIds, dto.ScopeType);
@@ -129,6 +122,9 @@ public class SysDataScopeManager(
     {
         return scopeType == DataScopeType.Include ? targetIds.Distinct().ToList() : [];
     }
+
+    private static SysDataScopeItemDto MapItem(SysDataScope x) => new() { Id = x.Id, Name = x.Name, ResourceCode = x.ResourceCode, TargetIds = x.TargetIds, ScopeType = x.ScopeType, GroupId = x.GroupId };
+    private static SysDataScopeDetailDto MapDetail(SysDataScope x) => new() { Id = x.Id, Name = x.Name, ResourceCode = x.ResourceCode, TargetIds = x.TargetIds, ScopeType = x.ScopeType, GroupId = x.GroupId };
 
     private static void ValidateScopeType(DataScopeType scopeType)
     {

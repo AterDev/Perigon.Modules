@@ -10,34 +10,31 @@ public class SysUser : EntityBase
     /// <summary>
     /// 用户名
     /// </summary>
-    [MaxLength(30)]
-    [MinLength(4)]
+    [StringLength(30, MinimumLength = 4)]
     public string? UserName { get; set; }
 
     /// <summary>
     /// 真实姓名
     /// </summary>
-    [MaxLength(30)]
-    [Length(2, 30)]
+    [StringLength(30, MinimumLength = 2)]
     public string? RealName { get; set; }
 
-    [MaxLength(100)]
-    [MinLength(6)]
+    [StringLength(100, MinimumLength = 6)]
     [EmailAddress]
     [Required]
     public string Email { get; set; } = string.Empty;
     public bool EmailConfirmed { get; set; }
 
     [JsonIgnore]
-    [MaxLength(100)]
+    [StringLength(100)]
     public string PasswordHash { get; set; } = default!;
 
     [JsonIgnore]
-    [MaxLength(100)]
+    [StringLength(100)]
     public string PasswordSalt { get; set; } = default!;
 
     [Phone]
-    [MaxLength(20)]
+    [StringLength(20)]
     public string? PhoneNumber { get; set; }
     public bool PhoneNumberConfirmed { get; set; }
     public bool TwoFactorEnabled { get; set; }
@@ -63,7 +60,7 @@ public class SysUser : EntityBase
     /// <summary>
     /// 头像url
     /// </summary>
-    [MaxLength(200)]
+    [StringLength(200)]
     public string? Avatar { get; set; }
     [NotMapped]
     public ICollection<SysUserRole> SysUserRoles { get; set; } = [];

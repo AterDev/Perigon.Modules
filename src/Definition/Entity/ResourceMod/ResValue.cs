@@ -8,10 +8,10 @@ public class ResValue : EntityBase
     /// <summary>资源定义属性 ID。</summary>
     public Guid DefinitionPropertyId { get; set; }
     /// <summary>以字符串形式持久化的属性值。</summary>
-    [MaxLength(1000)]
+    [StringLength(1000)]
     public string Value { get; set; } = string.Empty;
     /// <summary>保存时的属性名称快照。</summary>
-    [MaxLength(60)]
+    [StringLength(60)]
     public string PropertyNameSnapshot { get; set; } = string.Empty;
     /// <summary>保存时的属性值类型快照的整数存储值。</summary>
     [JsonIgnore]

@@ -6,10 +6,10 @@ namespace SystemMod.Models.SysConfigDtos;
 /// <see cref="SysConfig"/>
 public class SysConfigDetailDto
 {
-    [MaxLength(100)]
+    [StringLength(100)]
     public string Key { get; set; } = default!;
 
-    [MaxLength(500)]
+    [StringLength(500)]
     public string? Description { get; set; }
     public bool Valid { get; set; } = true;
 

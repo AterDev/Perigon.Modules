@@ -9,13 +9,13 @@ public class SysLogsFilterDto : FilterBase
     /// <summary>
     /// 操作人名称
     /// </summary>
-    [MaxLength(100)]
+    [StringLength(100)]
     public string? ActionUserName { get; set; }
 
     /// <summary>
     /// 操作对象名称
     /// </summary>
-    [MaxLength(100)]
+    [StringLength(100)]
     public string? TargetName { get; set; }
 
     /// <summary>

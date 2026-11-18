@@ -1,4 +1,3 @@
-using System.Reflection;
 using EntityFramework.AppDbFactory;
 using Perigon.AspNetCore.Attributes;
 using Microsoft.Extensions.Hosting;
@@ -70,19 +69,16 @@ public class SystemLogTaskHostedService(
             }
             else if (entity != null)
             {
-                var type = entity.GetType();
-                var attribute = type?.GetCustomAttribute<LogDescriptionAttribute>();
+                var attribute = entity.GetType().GetCustomAttributes(typeof(LogDescriptionAttribute), inherit: false)
+                    .OfType<LogDescriptionAttribute>()
+                    .FirstOrDefault();
                 if (attribute != null)
                 {
                     log.TargetName = attribute.Description;
                     log.Description ??= log.ActionType + attribute.Description;
-                    if (attribute.FieldName != null)
+                    if (entity is ILogDescriptionTarget target && !string.IsNullOrWhiteSpace(target.LogTargetName))
                     {
-                        var fieldValue = type!.GetProperty(attribute.FieldName)?.GetValue(entity);
-                        if (fieldValue != null)
-                        {
-                            log.TargetName = fieldValue as string;
-                        }
+                        log.TargetName = target.LogTargetName;
                     }
                 }
             }

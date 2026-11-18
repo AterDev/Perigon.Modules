@@ -4,7 +4,7 @@ namespace Entity.ResourceMod;
 public class ResDefinitionProperty : EntityBase
 {
     /// <summary>属性名称。</summary>
-    [MaxLength(60)]
+    [StringLength(60)]
     public string Name { get; set; } = string.Empty;
     /// <summary>属性值类型的整数存储值。</summary>
     [JsonIgnore]
