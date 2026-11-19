@@ -39,10 +39,22 @@ export class ArticleEditComponent {
   ] as const;
   readonly types = [
     { value: ContentType.News, labelKey: I18N_KEYS.cms.contentTypes.News },
-    { value: ContentType.ViewPoint, labelKey: I18N_KEYS.cms.contentTypes.ViewPoint },
-    { value: ContentType.Knowledge, labelKey: I18N_KEYS.cms.contentTypes.Knowledge },
-    { value: ContentType.Documentary, labelKey: I18N_KEYS.cms.contentTypes.Documentary },
-    { value: ContentType.Private, labelKey: I18N_KEYS.cms.contentTypes.Private },
+    {
+      value: ContentType.ViewPoint,
+      labelKey: I18N_KEYS.cms.contentTypes.ViewPoint,
+    },
+    {
+      value: ContentType.Knowledge,
+      labelKey: I18N_KEYS.cms.contentTypes.Knowledge,
+    },
+    {
+      value: ContentType.Documentary,
+      labelKey: I18N_KEYS.cms.contentTypes.Documentary,
+    },
+    {
+      value: ContentType.Private,
+      labelKey: I18N_KEYS.cms.contentTypes.Private,
+    },
   ] as const;
   saving = false;
   readonly form = this.fb.nonNullable.group({

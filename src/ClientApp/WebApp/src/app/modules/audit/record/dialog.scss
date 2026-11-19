@@ -1,0 +1,28 @@
+.summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+  margin-bottom: 18px;
+}
+.summary div {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.summary span {
+  color: var(--mat-sys-outline);
+  font-size: 0.85rem;
+}
+.reason {
+  white-space: pre-wrap;
+}
+.task {
+  display: grid;
+  grid-template-columns: minmax(120px, 1fr) 100px minmax(140px, 2fr);
+  gap: 12px;
+  padding: 8px 0;
+  border-bottom: 1px solid #eee;
+}
+mat-dialog-content {
+  min-width: min(720px, 80vw);
+}

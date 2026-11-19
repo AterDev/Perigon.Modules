@@ -26,6 +26,9 @@ public sealed class SysUserEndpoints : RestEndpointBase
         group.MapGet("/refresh_token", RefreshTokenAsync).AllowAnonymous().RequireRateLimiting(WebConst.Limited);
         group.MapPost("/logout/{id}", LogoutAsync);
         group.MapGet("", FilterAsync).RequireAuthorization(WebConst.SuperAdmin);
+        group.MapGet("/options", SearchOptionsAsync)
+            .WithSummary("按姓名、账号、邮箱或 ID 查询审核人与通知收件人")
+            .RequireAuthorization(WebConst.AdminUser);
         group.MapPost("", AddAsync).RequireAuthorization(WebConst.SuperAdmin);
         group.MapPatch("/changePassword", ChangePasswordAsync);
         group.MapPatch("/{id}", UpdateAsync).RequireAuthorization(WebConst.SuperAdmin);
@@ -151,14 +154,20 @@ public sealed class SysUserEndpoints : RestEndpointBase
         SysUserManager manager,
         CancellationToken cancellationToken) => manager.ToPageAsync(filter);
 
+    private static Task<SysUserOptionDto[]> SearchOptionsAsync(
+        string? search,
+        SysUserManager manager,
+        CancellationToken cancellationToken) => manager.SearchOptionsAsync(search, cancellationToken);
+
     private static async Task<Created<SysUser>> AddAsync(
         SysUserAddDto dto,
         SysUserManager manager,
         SysRoleManager roleManager,
         CancellationToken cancellationToken)
     {
-        List<SysRole>? roles = dto.RoleIds is { Count: > 0 }
-            ? await roleManager.ListAsync(r => dto.RoleIds!.Contains(r.Id))
+        Guid[]? roleIds = dto.RoleIds?.ToArray();
+        List<SysRole>? roles = roleIds is { Length: > 0 }
+            ? await roleManager.ListAsync(r => roleIds.Contains(r.Id))
             : null;
         var entity = await manager.AddAsync(dto, roles);
         return TypedResults.Created($"/api/SysUser/{entity.Id}", entity);
@@ -171,9 +180,13 @@ public sealed class SysUserEndpoints : RestEndpointBase
         SysRoleManager roleManager,
         CancellationToken cancellationToken)
     {
-        List<SysRole>? roles = dto.RoleIds is not null
-            ? await roleManager.ListAsync(r => dto.RoleIds.Contains(r.Id))
-            : null;
+        Guid[]? roleIds = dto.RoleIds?.ToArray();
+        List<SysRole>? roles = roleIds switch
+        {
+            null => null,
+            [] => [],
+            _ => await roleManager.ListAsync(r => roleIds.Contains(r.Id))
+        };
         return TypedResults.Ok(await manager.UpdateAsync(id, dto, roles));
     }
 

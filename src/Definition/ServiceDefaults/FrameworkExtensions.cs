@@ -6,6 +6,7 @@ using Microsoft.Extensions.Logging;
 using Perigon.AspNetCore.Abstraction;
 using Perigon.AspNetCore.Services;
 using Perigon.AspNetCore.Toolkit.Services;
+using Perigon.PostgreSQL;
 using Share.Implement;
 
 namespace ServiceDefaults;
@@ -73,8 +74,12 @@ public static class FrameworkExtensions
         /// <returns></returns>
         public IHostApplicationBuilder AddDbContext()
         {
-            builder.Services.AddScoped<DefaultDbContext>(services =>
-                services.GetRequiredService<AppDbFactory>().CreateDbContext());
+            builder.Services.AddDbContextPool<DefaultDbContext>(options =>
+            {
+                var connection = builder.Configuration.GetConnectionString(AppConst.Default)
+                    ?? throw new InvalidOperationException("The default database connection is missing.");
+                options.UsePostgres(connection);
+            });
             return builder;
         }
 

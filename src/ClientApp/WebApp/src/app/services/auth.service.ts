@@ -24,8 +24,8 @@ export class AuthService {
     this.isLogin = true;
     this.userName = userinfo.username;
     this.id = userinfo.id;
-    this.isAdmin = userinfo.roles.some((role) =>
-      role.toLowerCase().includes('admin'),
+    this.isAdmin = userinfo.roles.some(
+      (role) => role === 'AdminUser' || role === 'SuperAdmin',
     );
     localStorage.setItem('username', userinfo.username);
     localStorage.setItem('userId', userinfo.id);

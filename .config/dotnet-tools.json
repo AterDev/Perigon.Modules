@@ -3,7 +3,7 @@
   "isRoot": true,
   "tools": {
     "perigon.postgresql.tools": {
-      "version": "0.3.2-preview.2",
+      "version": "0.3.7",
       "commands": [
         "dotnet-perigon"
       ]

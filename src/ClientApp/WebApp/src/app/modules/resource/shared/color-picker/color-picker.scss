@@ -24,7 +24,9 @@
   border-radius: 50%;
   color: white;
   text-shadow: 0 1px 2px rgb(0 0 0 / 70%);
-  transition: transform 120ms ease, border-color 120ms ease;
+  transition:
+    transform 120ms ease,
+    border-color 120ms ease;
 }
 
 .resource-color-option:hover:not(:disabled),
@@ -34,7 +36,9 @@
 
 .resource-color-option.selected {
   border-color: var(--mat-sys-on-surface);
-  box-shadow: 0 0 0 2px var(--mat-sys-surface), 0 0 0 4px var(--mat-sys-primary);
+  box-shadow:
+    0 0 0 2px var(--mat-sys-surface),
+    0 0 0 4px var(--mat-sys-primary);
 }
 
 .resource-color-footer {
@@ -60,7 +64,9 @@
 
 .resource-custom-color-preview.selected {
   border-color: var(--mat-sys-on-surface);
-  box-shadow: 0 0 0 2px var(--mat-sys-surface), 0 0 0 4px var(--mat-sys-primary);
+  box-shadow:
+    0 0 0 2px var(--mat-sys-surface),
+    0 0 0 4px var(--mat-sys-primary);
 }
 
 .resource-native-color-input {

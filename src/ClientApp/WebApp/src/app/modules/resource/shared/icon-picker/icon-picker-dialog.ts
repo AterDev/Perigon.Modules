@@ -1,6 +1,16 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
-import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  inject,
+  signal,
+} from '@angular/core';
+import {
+  MAT_DIALOG_DATA,
+  MatDialogModule,
+  MatDialogRef,
+} from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
@@ -47,15 +57,18 @@ export class ResourceIconPickerDialogComponent {
   readonly filteredIcons = computed(() => {
     const query = this.query().trim().toLowerCase();
     const currentName = this.currentName;
-    const options = currentName && !this.icons.includes(currentName as never)
-      ? [currentName, ...this.icons]
-      : this.icons;
+    const options =
+      currentName && !this.icons.includes(currentName as never)
+        ? [currentName, ...this.icons]
+        : this.icons;
     return query
       ? options.filter((icon) => icon.toLowerCase().includes(query))
       : options;
   });
   private readonly data = inject<ResourceIconPickerDialogData>(MAT_DIALOG_DATA);
-  private readonly dialogRef = inject(MatDialogRef<ResourceIconPickerDialogComponent>);
+  private readonly dialogRef = inject(
+    MatDialogRef<ResourceIconPickerDialogComponent>,
+  );
 
   constructor() {
     this.currentName = resourceIconName(this.data.value);

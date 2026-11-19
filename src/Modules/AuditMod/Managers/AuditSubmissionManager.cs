@@ -18,7 +18,7 @@ public sealed class AuditSubmissionManager(AppDbFactory dbContextFactory, IUserC
             throw new BusinessException("审核业务参数长度超出限制。", StatusCodes.Status400BadRequest);
         }
 
-        if (await _dbSet.AnyAsync(x => x.ApplicantUserId == _userContext.UserId && x.SceneCode == sceneCode && x.BizId == bizId && x.StatusValue == (int)AuditRecordStatus.InProgress, cancellationToken))
+        if (await _dbSet.AnyAsync(x => x.ApplicantUserId == _userContext.UserId && x.SceneCode == sceneCode && x.BizId == bizId && x.Status == AuditRecordStatus.InProgress, cancellationToken))
         {
             throw new BusinessException("已提交申请。", StatusCodes.Status409Conflict);
         }
@@ -47,11 +47,11 @@ public sealed class AuditSubmissionManager(AppDbFactory dbContextFactory, IUserC
             for (var i = 0; i < definitions.Count; i++)
             {
                 var definition = definitions[i];
-                var detail = new AuditRecordDetail { AuditRecordId = record.Id, StepDefinitionId = definition.Id, StepNoSnapshot = definition.StepNo, StepNameSnapshot = definition.Name, AuditModeSnapshotValue = definition.AuditModeValue, StatusValue = i == 0 ? (int)AuditStepStatus.Pending : (int)AuditStepStatus.Waiting, StartedTime = i == 0 ? DateTimeOffset.UtcNow : null };
+                var detail = new AuditRecordDetail { AuditRecordId = record.Id, StepDefinitionId = definition.Id, StepNoSnapshot = definition.StepNo, StepNameSnapshot = definition.Name, AuditModeSnapshot = definition.AuditMode, Status = i == 0 ? AuditStepStatus.Pending : AuditStepStatus.Waiting, StartedTime = i == 0 ? DateTimeOffset.UtcNow : null };
                 details.Add(detail);
                 foreach (var userId in definition.AuditorUserIds)
                 {
-                    tasks.Add(new AuditTask { AuditRecordDetailId = detail.Id, AssigneeUserId = userId, AssigneeNameSnapshot = names[userId], StatusValue = i == 0 ? (int)AuditTaskStatus.Pending : (int)AuditTaskStatus.Waiting });
+                    tasks.Add(new AuditTask { AuditRecordDetailId = detail.Id, AssigneeUserId = userId, AssigneeNameSnapshot = names[userId], Status = i == 0 ? AuditTaskStatus.Pending : AuditTaskStatus.Waiting });
                 }
             }
             await _dbContext.AuditRecordDetails.BulkInsertAsync(details, cancellationToken: cancellationToken);

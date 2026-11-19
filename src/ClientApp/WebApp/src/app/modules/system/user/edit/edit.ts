@@ -1,4 +1,9 @@
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  inject,
+  signal,
+} from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -28,7 +33,10 @@ export class SysUserEditComponent {
   readonly roles = signal<SysRoleItemDto[]>([]);
   readonly genders = [
     { value: GenderType.Male, labelKey: I18N_KEYS.systemUser.genderTypes.male },
-    { value: GenderType.Female, labelKey: I18N_KEYS.systemUser.genderTypes.female },
+    {
+      value: GenderType.Female,
+      labelKey: I18N_KEYS.systemUser.genderTypes.female,
+    },
     { value: GenderType.Else, labelKey: I18N_KEYS.systemUser.genderTypes.else },
   ] as const;
   saving = false;
@@ -71,7 +79,7 @@ export class SysUserEditComponent {
       .subscribe({
         next: () => {
           this.snackBar.open(
-          this.translate.instant(this.i18nKeys.systemUser.updateSuccess),
+            this.translate.instant(this.i18nKeys.systemUser.updateSuccess),
             this.translate.instant(this.i18nKeys.common.close),
             { duration: 2500 },
           );

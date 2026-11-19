@@ -1,4 +1,9 @@
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  inject,
+  signal,
+} from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { FormBuilder, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -42,7 +47,9 @@ export class UserResourceReviewDialogComponent {
   private readonly client = inject(AdminClient);
   private readonly snackBar = inject(MatSnackBar);
   private readonly translate = inject(TranslateService);
-  private readonly dialogRef = inject(MatDialogRef<UserResourceReviewDialogComponent>);
+  private readonly dialogRef = inject(
+    MatDialogRef<UserResourceReviewDialogComponent>,
+  );
   private readonly data = inject<{ id: string }>(MAT_DIALOG_DATA);
   saving = false;
 
@@ -78,12 +85,13 @@ export class UserResourceReviewDialogComponent {
     if (!categoryId) return;
 
     this.groupsLoading.set(true);
-    this.client.resourceConfiguration.groups(categoryId).pipe(
-      finalize(() => this.groupsLoading.set(false)),
-    ).subscribe({
-      next: (groups) => this.groups.set(groups),
-      error: () => this.loadError.set(true),
-    });
+    this.client.resourceConfiguration
+      .groups(categoryId)
+      .pipe(finalize(() => this.groupsLoading.set(false)))
+      .subscribe({
+        next: (groups) => this.groups.set(groups),
+        error: () => this.loadError.set(true),
+      });
   }
 
   approve(): void {

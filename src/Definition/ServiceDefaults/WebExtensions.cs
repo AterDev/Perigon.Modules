@@ -3,13 +3,62 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authentication.MicrosoftAccount;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.IdentityModel.Tokens;
-using ServiceDefaults;
+using Microsoft.AspNetCore.HttpOverrides;
+using Perigon.AspNetCore.Converters;
+using ServiceDefaults.Middleware;
+using System.Text.Encodings.Web;
+using System.Text.Unicode;
 using System.Threading.RateLimiting;
 
 namespace ServiceDefaults;
 
 public static class WebExtensions
 {
+    public static IServiceCollection AddMiddlewareServices(this WebApplicationBuilder builder)
+    {
+        var services = builder.Services;
+        services.AddAuthentication(builder.Configuration);
+        services.AddThirdAuthentication(builder.Configuration);
+        services.AddAuthorize();
+        services.AddCors(builder.Configuration);
+        services.AddRateLimiter();
+        services.AddLocalizer();
+        services.AddOpenApi();
+        services.AddProblemDetails();
+        services.Configure<ForwardedHeadersOptions>(options => options.ForwardedHeaders =
+            ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto | ForwardedHeaders.XForwardedHost);
+        services.ConfigureHttpJsonOptions(options =>
+        {
+            options.SerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+            options.SerializerOptions.Encoder = JavaScriptEncoder.Create(UnicodeRanges.All);
+            options.SerializerOptions.Converters.Add(new DateOnlyJsonConverter());
+        });
+        return services;
+    }
+
+    public static WebApplication UseMiddlewareServices(this WebApplication app)
+    {
+        app.UseForwardedHeaders();
+        if (app.Environment.IsProduction())
+        {
+            app.UseHsts();
+            app.UseHttpsRedirection();
+        }
+        app.UseStaticFiles();
+        app.UseRequestLocalization();
+        app.UseRouting();
+        app.UseCors(app.Environment.IsProduction() ? WebConst.Limited : WebConst.Default);
+        app.UseStatusCodePages();
+        app.UseRateLimiter();
+        if (!app.Environment.IsProduction())
+        {
+            app.MapOpenApi();
+        }
+        app.UseMiddleware<GlobalExceptionMiddleware>();
+        app.UseAuthentication();
+        app.UseAuthorization();
+        return app;
+    }
 
     /// <summary>
     /// 添加速率限制
@@ -156,7 +205,6 @@ public static class WebExtensions
                     },
                     OnTokenValidated = context =>
                     {
-                        Console.WriteLine("Token validated for user: {0}", context.Principal?.Identity?.Name);
                         return Task.CompletedTask;
                     },
                 };

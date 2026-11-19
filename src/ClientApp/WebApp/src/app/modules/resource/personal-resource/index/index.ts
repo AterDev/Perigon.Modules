@@ -1,4 +1,9 @@
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  inject,
+  signal,
+} from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { TranslateService } from '@ngx-translate/core';
@@ -91,9 +96,12 @@ export class UserResourceIndexComponent {
       .open(ConfirmDialogComponent, {
         data: {
           title: this.translate.instant(this.i18nKeys.common.confirmDelete),
-          content: this.translate.instant(this.i18nKeys.resource.userDeleteConfirm, {
-            name: resource.definitionName,
-          }),
+          content: this.translate.instant(
+            this.i18nKeys.resource.userDeleteConfirm,
+            {
+              name: resource.definitionName,
+            },
+          ),
         },
       })
       .afterClosed()
@@ -126,7 +134,8 @@ export class UserResourceIndexComponent {
 
   auditLabel(status: UserResourceAuditStatus): string {
     const keys = {
-      [UserResourceAuditStatus.NotRequired]: this.i18nKeys.resource.auditNotRequired,
+      [UserResourceAuditStatus.NotRequired]:
+        this.i18nKeys.resource.auditNotRequired,
       [UserResourceAuditStatus.Pending]: this.i18nKeys.resource.auditPending,
       [UserResourceAuditStatus.Approved]: this.i18nKeys.resource.auditApproved,
       [UserResourceAuditStatus.Rejected]: this.i18nKeys.resource.auditRejected,

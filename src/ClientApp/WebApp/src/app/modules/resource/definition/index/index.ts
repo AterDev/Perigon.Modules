@@ -1,4 +1,9 @@
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  inject,
+  signal,
+} from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { HttpErrorResponse } from '@angular/common/http';
@@ -18,7 +23,10 @@ import {
 import { ResDefinitionProperty } from 'src/app/services/admin/models/entity/res-definition-property.model';
 import { ResDefinitionPropertyAddDto } from 'src/app/services/admin/models/resource-mod/res-definition-property-add-dto.model';
 import { ResDefinitionPropertyUpdateDto } from 'src/app/services/admin/models/resource-mod/res-definition-property-update-dto.model';
-import { resourceIconName, resourceIconStyle } from 'src/app/modules/resource/shared/resource-appearance';
+import {
+  resourceIconName,
+  resourceIconStyle,
+} from 'src/app/modules/resource/shared/resource-appearance';
 import { sortResourceProperties } from 'src/app/modules/resource/shared/resource-property-order';
 
 @Component({
@@ -64,7 +72,11 @@ export class ResourceDefinitionIndexComponent {
 
   createDefinition(): void {
     this.dialog
-      .open(ResourceDefinitionDialogComponent, { width: '900px', maxWidth: '96vw', maxHeight: '96vh' })
+      .open(ResourceDefinitionDialogComponent, {
+        width: '900px',
+        maxWidth: '96vw',
+        maxHeight: '96vh',
+      })
       .afterClosed()
       .subscribe((value) => {
         if (!value) return;
@@ -86,10 +98,12 @@ export class ResourceDefinitionIndexComponent {
       .afterClosed()
       .subscribe((value) => {
         if (!value) return;
-        this.client.resourceConfiguration.updateDefinition(item.id, value).subscribe(() => {
-          this.showSuccess('resource.updateSuccess');
-          this.load();
-        });
+        this.client.resourceConfiguration
+          .updateDefinition(item.id, value)
+          .subscribe(() => {
+            this.showSuccess('resource.updateSuccess');
+            this.load();
+          });
       });
   }
 
@@ -158,13 +172,15 @@ export class ResourceDefinitionIndexComponent {
       .afterClosed()
       .subscribe((value: ResDefinitionPropertyUpdateDto | undefined) => {
         if (!value) return;
-        this.client.resourceConfiguration.updateProperty(item.id, value).subscribe({
-          next: () => {
-            this.showSuccess('resource.updateSuccess');
-            this.load();
-          },
-          error: () => this.showError('resource.propertySaveFailed'),
-        });
+        this.client.resourceConfiguration
+          .updateProperty(item.id, value)
+          .subscribe({
+            next: () => {
+              this.showSuccess('resource.updateSuccess');
+              this.load();
+            },
+            error: () => this.showError('resource.propertySaveFailed'),
+          });
       });
   }
 
@@ -188,7 +204,9 @@ export class ResourceDefinitionIndexComponent {
           },
           error: (error: HttpErrorResponse) => {
             this.showError(
-              error.status === 409 ? 'resource.propertyInUse' : 'resource.propertyDeleteFailed',
+              error.status === 409
+                ? 'resource.propertyInUse'
+                : 'resource.propertyDeleteFailed',
             );
           },
         });

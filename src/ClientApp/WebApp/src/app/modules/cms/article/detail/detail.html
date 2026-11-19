@@ -1,39 +1,26 @@
 <section class="page">
   <header>
     @if (article(); as item) {
-      <a mat-flat-button [routerLink]="['../../', item.id, 'edit']"
-      >
-      <mat-icon class="primary">edit</mat-icon>{{ i18nKeys.common.edit | translate }}
-      </a
-      >
+    <a mat-flat-button [routerLink]="['../../', item.id, 'edit']">
+      <mat-icon class="primary">edit</mat-icon>{{ i18nKeys.common.edit |
+      translate }}
+    </a>
     }
   </header>
   @if (article(); as item) {
-    <mat-card
-    >
-    <mat-card-header
-    >
-    <mat-card-title>{{ item.title }}
-    </mat-card-title
-    >
-    <mat-card-subtitle
-    >{{ item.authors }} · {{ item.createdTime | date:'medium'
-  }}
-</mat-card-subtitle
->
-</mat-card-header
->
-<mat-card-content
->
-<p>{{ item.description }}
-</p>
-<markdown class="content" [data]="item.content"></markdown>
-</mat-card-content
->
-</mat-card
->
-}
-@else {
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>{{ item.title }} </mat-card-title>
+      <mat-card-subtitle
+        >{{ item.authors }} · {{ item.createdTime | date:'medium' }}
+      </mat-card-subtitle>
+    </mat-card-header>
+    <mat-card-content>
+      <p>{{ item.description }}</p>
+      <markdown class="content" [data]="item.content"></markdown>
+    </mat-card-content>
+  </mat-card>
+  } @else {
   <mat-spinner diameter="36" />
-}
+  }
 </section>

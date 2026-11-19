@@ -1,0 +1,36 @@
+<div class="read-only-tab">
+  <div class="tab-toolbar">
+    <button mat-stroked-button (click)="recover()" [disabled]="recovering()">
+      <mat-icon>sync</mat-icon>{{ notificationKeys.recover | translate }}
+    </button>
+  </div>
+  <app-notification-list
+    [list]="list"
+    [label]="notificationKeys.deliveries | translate"
+  >
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>{{ notificationKeys.eventType | translate }}</th>
+            <th>{{ notificationKeys.receiver | translate }}</th>
+            <th>{{ notificationKeys.status | translate }}</th>
+            <th>{{ notificationKeys.error | translate }}</th>
+            <th>{{ notificationKeys.sentAt | translate }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (item of list.rows(); track item.id) {
+          <tr>
+            <td>{{ item.eventType }}</td>
+            <td>{{ item.receiverName }}</td>
+            <td>{{ item.status }}</td>
+            <td class="truncate">{{ item.error || '-' }}</td>
+            <td>{{ item.sentAt | date: 'yyyy-MM-dd HH:mm' }}</td>
+          </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </app-notification-list>
+</div>

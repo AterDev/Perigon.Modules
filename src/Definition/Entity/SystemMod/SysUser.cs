@@ -78,16 +78,8 @@ public class SysUser : EntityBase
     /// <summary>
     /// 性别
     /// </summary>
-    [NotMapped]
-    public Sex Sex
-    {
-        get => (Sex)SexValue;
-        set => SexValue = (int)value;
-    }
-
     [Column("Sex")]
-    [JsonIgnore]
-    public int SexValue { get; set; } = (int)Sex.Male;
+    public Sex Sex { get; set; } = Sex.Male;
 
     public string GetUniqueKey(string prefix, string client)
     {

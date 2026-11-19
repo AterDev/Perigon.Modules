@@ -2,7 +2,7 @@
 import { Injectable, Pipe, PipeTransform } from '@angular/core';
 
 @Pipe({
-  name: 'enumText'
+  name: 'enumText',
 })
 @Injectable({ providedIn: 'root' })
 export class EnumTextPipe implements PipeTransform {
@@ -11,102 +11,197 @@ export class EnumTextPipe implements PipeTransform {
     switch (type) {
       case 'ContentType':
         switch (value) {
-          case 0: result = 'News'; break;
-          case 1: result = 'ViewPoint'; break;
-          case 2: result = 'Knowledge'; break;
-          case 3: result = 'Documentary'; break;
-          case 4: result = 'Private'; break;
-          default: result = '默认'; break;
+          case 0:
+            result = 'News';
+            break;
+          case 1:
+            result = 'ViewPoint';
+            break;
+          case 2:
+            result = 'Knowledge';
+            break;
+          case 3:
+            result = 'Documentary';
+            break;
+          case 4:
+            result = 'Private';
+            break;
+          default:
+            result = '默认';
+            break;
         }
         break;
 
       case 'LanguageType':
         switch (value) {
-          case 0: result = 'zh-CN'; break;
-          case 1: result = 'en-US'; break;
-          default: result = '默认'; break;
+          case 0:
+            result = 'zh-CN';
+            break;
+          case 1:
+            result = 'en-US';
+            break;
+          default:
+            result = '默认';
+            break;
         }
         break;
 
       case 'ResValueType':
         switch (value) {
-          case 0: result = '字符串'; break;
-          case 1: result = '数字'; break;
-          case 2: result = '布尔值'; break;
-          case 3: result = '日期'; break;
-          case 4: result = 'URI'; break;
-          case 5: result = 'IP 地址'; break;
-          default: result = '默认'; break;
+          case 0:
+            result = '字符串';
+            break;
+          case 1:
+            result = '数字';
+            break;
+          case 2:
+            result = '布尔值';
+            break;
+          case 3:
+            result = '日期';
+            break;
+          case 4:
+            result = 'URI';
+            break;
+          case 5:
+            result = 'IP 地址';
+            break;
+          default:
+            result = '默认';
+            break;
         }
         break;
 
       case 'UserResourceAuditStatus':
         switch (value) {
-          case 0: result = 'NotRequired'; break;
-          case 1: result = 'Pending'; break;
-          case 2: result = 'Approved'; break;
-          case 3: result = 'Rejected'; break;
-          default: result = '默认'; break;
+          case 0:
+            result = 'NotRequired';
+            break;
+          case 1:
+            result = 'Pending';
+            break;
+          case 2:
+            result = 'Approved';
+            break;
+          case 3:
+            result = 'Rejected';
+            break;
+          default:
+            result = '默认';
+            break;
         }
         break;
 
       case 'UserResourceStatus':
         switch (value) {
-          case 0: result = 'Private'; break;
-          case 1: result = 'ApplyPublic'; break;
-          default: result = '默认'; break;
+          case 0:
+            result = 'Private';
+            break;
+          case 1:
+            result = 'ApplyPublic';
+            break;
+          default:
+            result = '默认';
+            break;
         }
         break;
 
       case 'DataScopeType':
         switch (value) {
-          case 0: result = 'None'; break;
-          case 1: result = 'All'; break;
-          case 2: result = 'Include'; break;
-          default: result = '默认'; break;
+          case 0:
+            result = 'None';
+            break;
+          case 1:
+            result = 'All';
+            break;
+          case 2:
+            result = 'Include';
+            break;
+          default:
+            result = '默认';
+            break;
         }
         break;
 
       case 'MenuType':
         switch (value) {
-          case 0: result = '页面'; break;
-          case 1: result = '按钮'; break;
-          default: result = '默认'; break;
+          case 0:
+            result = '页面';
+            break;
+          case 1:
+            result = '按钮';
+            break;
+          default:
+            result = '默认';
+            break;
         }
         break;
 
       case 'Sex':
         switch (value) {
-          case 0: result = '男性'; break;
-          case 1: result = '女性'; break;
-          case 2: result = '其他'; break;
-          default: result = '默认'; break;
+          case 0:
+            result = '男性';
+            break;
+          case 1:
+            result = '女性';
+            break;
+          case 2:
+            result = '其他';
+            break;
+          default:
+            result = '默认';
+            break;
         }
         break;
 
       case 'GenderType':
         switch (value) {
-          case 0: result = '男性'; break;
-          case 1: result = '女性'; break;
-          case 2: result = '其他'; break;
-          default: result = '默认'; break;
+          case 0:
+            result = '男性';
+            break;
+          case 1:
+            result = '女性';
+            break;
+          case 2:
+            result = '其他';
+            break;
+          default:
+            result = '默认';
+            break;
         }
         break;
 
       case 'UserActionType':
         switch (value) {
-          case 0: result = '其它'; break;
-          case 1: result = '登录'; break;
-          case 2: result = '添加'; break;
-          case 3: result = '更新'; break;
-          case 4: result = '删除'; break;
-          case 5: result = '审核'; break;
-          case 6: result = '导入'; break;
-          case 7: result = '导出'; break;
-          default: result = '默认'; break;
+          case 0:
+            result = '其它';
+            break;
+          case 1:
+            result = '登录';
+            break;
+          case 2:
+            result = '添加';
+            break;
+          case 3:
+            result = '更新';
+            break;
+          case 4:
+            result = '删除';
+            break;
+          case 5:
+            result = '审核';
+            break;
+          case 6:
+            result = '导入';
+            break;
+          case 7:
+            result = '导出';
+            break;
+          default:
+            result = '默认';
+            break;
         }
         break;
-
 
       default:
         break;

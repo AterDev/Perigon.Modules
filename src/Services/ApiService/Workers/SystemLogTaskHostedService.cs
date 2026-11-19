@@ -1,9 +1,11 @@
-using Perigon.AspNetCore.Attributes;
-using Microsoft.Extensions.Hosting;
+using Entity.SystemMod;
+using EntityFramework.AppDbContext;
+using Perigon.PostgreSQL;
+using SystemMod.Services;
 
-namespace SystemMod.Worker;
+namespace ApiService.Workers;
 
-public sealed class SystemLogTaskHostedService(
+internal sealed class SystemLogTaskHostedService(
     IServiceProvider serviceProvider,
     IEntityTaskQueue<SysLogs> queue,
     ILogger<SystemLogTaskHostedService> logger
@@ -52,38 +54,9 @@ public sealed class SystemLogTaskHostedService(
         using IServiceScope scope = _serviceProvider.CreateScope();
         DefaultDbContext context = scope.ServiceProvider.GetRequiredService<DefaultDbContext>();
 
-        foreach (SysLogs log in logs)
-        {
-            object? entity = log.Data;
-            if (entity is string targetName)
-            {
-                log.TargetName = targetName;
-            }
-            else if (entity is not null)
-            {
-                LogDescriptionAttribute? attribute = entity
-                    .GetType()
-                    .GetCustomAttributes(typeof(LogDescriptionAttribute), inherit: false)
-                    .OfType<LogDescriptionAttribute>()
-                    .FirstOrDefault();
-                if (attribute is not null)
-                {
-                    log.TargetName = attribute.Description;
-                    log.Description ??= log.ActionType + attribute.Description;
-                    if (entity is ILogDescriptionTarget target
-                        && !string.IsNullOrWhiteSpace(target.LogTargetName))
-                    {
-                        log.TargetName = target.LogTargetName;
-                    }
-                }
-            }
-        }
-
         try
         {
-            await context.SysLogs.BulkInsertAsync(
-                logs,
-                cancellationToken: cancellationToken);
+            await SystemLogBatchWriter.WriteAsync(context, logs, cancellationToken);
             foreach (SysLogs log in logs)
             {
                 _logger.LogInformation(
@@ -94,7 +67,7 @@ public sealed class SystemLogTaskHostedService(
                     log.TargetName);
             }
         }
-        catch (Exception ex)
+        catch (Exception ex) when (!cancellationToken.IsCancellationRequested)
         {
             _logger.LogError(
                 ex,

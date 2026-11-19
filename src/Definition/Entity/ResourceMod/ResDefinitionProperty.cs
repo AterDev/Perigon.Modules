@@ -6,17 +6,9 @@ public class ResDefinitionProperty : EntityBase
     /// <summary>属性名称。</summary>
     [StringLength(60)]
     public string Name { get; set; } = string.Empty;
-    /// <summary>属性值类型的整数存储值。</summary>
-    [JsonIgnore]
-    [Column("ValueType")]
-    public int ValueTypeValue { get; set; }
     /// <summary>属性值类型。</summary>
-    [NotMapped]
-    public ResValueType ValueType
-    {
-        get => (ResValueType)ValueTypeValue;
-        set => ValueTypeValue = (int)value;
-    }
+    [Column("ValueType")]
+    public ResValueType ValueType { get; set; }
     /// <summary>是否必填。</summary>
     public bool IsRequired { get; set; }
     /// <summary>属性值最大长度。</summary>

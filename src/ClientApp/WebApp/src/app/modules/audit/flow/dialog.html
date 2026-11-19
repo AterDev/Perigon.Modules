@@ -1,0 +1,90 @@
+<h2 mat-dialog-title>
+  {{ (editing ? i18nKeys.audit.editFlow : i18nKeys.audit.newFlow) | translate }}
+</h2>
+<mat-dialog-content>
+  @if (loading()) {
+  <mat-spinner diameter="32" />
+  } @else {
+  <form [formGroup]="form" class="form d-flex flex-column gap-2">
+    <div class="d-flex flex-column flex-md-row gap-2">
+      <mat-form-field appearance="outline" subscriptSizing="dynamic"
+        ><mat-label>{{ i18nKeys.audit.flowKey | translate }}</mat-label
+        ><input matInput formControlName="flowKey" /><mat-error
+          >{{ i18nKeys.audit.flowKey | translate }}</mat-error
+        ></mat-form-field
+      >
+      <mat-form-field appearance="outline" subscriptSizing="dynamic"
+        ><mat-label>{{ i18nKeys.audit.sceneCode | translate }}</mat-label
+        ><input matInput formControlName="sceneCode" /><mat-error
+          >{{ i18nKeys.audit.sceneCode | translate }}</mat-error
+        ></mat-form-field
+      >
+    </div>
+    <mat-form-field appearance="outline" subscriptSizing="dynamic"
+      ><mat-label>{{ i18nKeys.audit.name | translate }}</mat-label
+      ><input matInput formControlName="name" /><mat-error
+        >{{ i18nKeys.audit.name | translate }}</mat-error
+      ></mat-form-field
+    >
+    <mat-checkbox formControlName="isEnabled"
+      >{{ i18nKeys.audit.enableNow | translate }}</mat-checkbox
+    >
+    <div class="steps-header d-flex align-items-center justify-content-between">
+      <h3>{{ i18nKeys.audit.steps | translate }}</h3>
+      <button mat-stroked-button type="button" (click)="addStep()">
+        <mat-icon>add</mat-icon>{{ i18nKeys.common.add | translate }}
+      </button>
+    </div>
+    <p class="step-hint">{{ i18nKeys.audit.stepHint | translate }}</p>
+    @for (step of steps.controls; track step; let index = $index) {
+    <section class="step-card" [formGroup]="step">
+      <div
+        class="step-heading d-flex align-items-center justify-content-between"
+      >
+        <strong>{{ i18nKeys.audit.step | translate }} {{ index + 1 }}</strong
+        ><button
+          mat-icon-button
+          type="button"
+          (click)="removeStep(index)"
+          [disabled]="steps.length === 1"
+          [attr.aria-label]="i18nKeys.common.delete | translate"
+        >
+          <mat-icon class="error">delete</mat-icon>
+        </button>
+      </div>
+      <mat-form-field appearance="outline" subscriptSizing="dynamic"
+        ><mat-label>{{ i18nKeys.audit.stepName | translate }}</mat-label
+        ><input matInput formControlName="name" /><mat-error
+          >{{ i18nKeys.audit.stepName | translate }}</mat-error
+        ></mat-form-field
+      >
+      <mat-form-field appearance="outline" subscriptSizing="dynamic"
+        ><mat-label>{{ i18nKeys.audit.approvalMode | translate }}</mat-label
+        ><mat-select formControlName="auditMode">
+          @for (mode of modes; track mode.value) {
+          <mat-option [value]="mode.value">{{ mode.label }}</mat-option>
+          }
+        </mat-select></mat-form-field
+      >
+      <app-user-picker
+        [label]="i18nKeys.audit.reviewers | translate"
+        [userIds]="step.controls.auditorUserIds.value"
+        (userIdsChange)="step.controls.auditorUserIds.setValue($event)"
+      />
+    </section>
+    }
+  </form>
+  }
+</mat-dialog-content>
+<mat-dialog-actions align="end"
+  ><button mat-button mat-dialog-close [disabled]="saving">
+    {{ i18nKeys.common.cancel | translate }}</button
+  ><button
+    mat-flat-button
+    color="primary"
+    (click)="save()"
+    [disabled]="saving || loading()"
+  >
+    {{ i18nKeys.audit.saveFlow | translate }}
+  </button></mat-dialog-actions
+>

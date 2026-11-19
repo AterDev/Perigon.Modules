@@ -1,5 +1,11 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
-import { FormArray, FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
+import {
+  FormArray,
+  FormBuilder,
+  FormControl,
+  FormGroup,
+  Validators,
+} from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatDialog } from '@angular/material/dialog';
 import { CommonFormModules } from 'src/app/modules/share/shared-modules';
@@ -43,8 +49,12 @@ export class ResourceDefinitionDialogComponent {
   ];
   private readonly formBuilder = inject(FormBuilder);
   private readonly dialog = inject(MatDialog);
-  private readonly dialogRef = inject(MatDialogRef<ResourceDefinitionDialogComponent>);
-  readonly data = inject<ResourceDefinitionDialogData>(MAT_DIALOG_DATA, { optional: true });
+  private readonly dialogRef = inject(
+    MatDialogRef<ResourceDefinitionDialogComponent>,
+  );
+  readonly data = inject<ResourceDefinitionDialogData>(MAT_DIALOG_DATA, {
+    optional: true,
+  });
   readonly form = this.formBuilder.group({
     name: this.formBuilder.nonNullable.control('', Validators.required),
     icon: this.formBuilder.nonNullable.control('schema'),
@@ -63,8 +73,13 @@ export class ResourceDefinitionDialogComponent {
     return this.form.controls.properties;
   }
 
-  addProperty(property?: ResDefinition['properties'][number], shared = false): void {
-    this.properties.push(this.createPropertyForm(property, shared || !!property?.id));
+  addProperty(
+    property?: ResDefinition['properties'][number],
+    shared = false,
+  ): void {
+    this.properties.push(
+      this.createPropertyForm(property, shared || !!property?.id),
+    );
   }
 
   selectProperty(): void {
@@ -124,14 +139,20 @@ export class ResourceDefinitionDialogComponent {
   ): PropertyForm {
     const form = this.formBuilder.group({
       id: this.formBuilder.control<string | null>(property?.id ?? null),
-      name: this.formBuilder.nonNullable.control(property?.name ?? '', Validators.required),
-      valueType: this.formBuilder.nonNullable.control(property?.valueType ?? ResValueType.String),
-      isRequired: this.formBuilder.nonNullable.control(property?.isRequired ?? false),
-      maxLength: this.formBuilder.nonNullable.control(property?.maxLength ?? 200, [
+      name: this.formBuilder.nonNullable.control(
+        property?.name ?? '',
         Validators.required,
-        Validators.min(1),
-        Validators.max(1000),
-      ]),
+      ),
+      valueType: this.formBuilder.nonNullable.control(
+        property?.valueType ?? ResValueType.String,
+      ),
+      isRequired: this.formBuilder.nonNullable.control(
+        property?.isRequired ?? false,
+      ),
+      maxLength: this.formBuilder.nonNullable.control(
+        property?.maxLength ?? 200,
+        [Validators.required, Validators.min(1), Validators.max(1000)],
+      ),
       isShared: this.formBuilder.nonNullable.control(shared),
     });
     if (shared) {

@@ -1,6 +1,17 @@
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  inject,
+  signal,
+} from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { FormBuilder, FormControl, FormRecord, Validators } from '@angular/forms';
+import {
+  FormBuilder,
+  FormControl,
+  FormRecord,
+  Validators,
+} from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { forkJoin } from 'rxjs';
@@ -66,7 +77,9 @@ export class UserResourceAddComponent {
       ) ?? null,
   );
   readonly title = computed(() =>
-    this.id ? this.i18nKeys.resource.userEditTitle : this.i18nKeys.resource.userAddTitle,
+    this.id
+      ? this.i18nKeys.resource.userEditTitle
+      : this.i18nKeys.resource.userAddTitle,
   );
   readonly loading = signal(true);
   readonly loadError = signal(false);
@@ -87,7 +100,9 @@ export class UserResourceAddComponent {
           });
           this.definitionChanged();
           for (const value of result.detail.values) {
-            this.values.controls[value.definitionPropertyId]?.setValue(value.value);
+            this.values.controls[value.definitionPropertyId]?.setValue(
+              value.value,
+            );
           }
           this.loading.set(false);
         },
@@ -123,14 +138,18 @@ export class UserResourceAddComponent {
   }
 
   definitionChanged(): void {
-    Object.keys(this.values.controls).forEach((key) => this.values.removeControl(key));
+    Object.keys(this.values.controls).forEach((key) =>
+      this.values.removeControl(key),
+    );
     for (const property of this.definition()?.properties ?? []) {
       this.values.addControl(
         property.id,
         new FormControl('', {
           nonNullable: true,
           validators: [
-            property.isRequired ? Validators.required : Validators.nullValidator,
+            property.isRequired
+              ? Validators.required
+              : Validators.nullValidator,
             resourceValueValidator(property.valueType),
             Validators.maxLength(property.maxLength),
           ],
@@ -150,13 +169,18 @@ export class UserResourceAddComponent {
       ...this.form.getRawValue(),
       values: Object.entries(this.values.getRawValue())
         .filter(([, value]) => value.trim().length > 0)
-        .map(([definitionPropertyId, value]) => ({ definitionPropertyId, value })),
+        .map(([definitionPropertyId, value]) => ({
+          definitionPropertyId,
+          value,
+        })),
     };
     this.saving = true;
     const onSuccess = (id: string): void => {
       this.snackBar.open(
         this.translate.instant(
-          this.id ? this.i18nKeys.resource.userUpdateSuccess : this.i18nKeys.resource.userCreateSuccess,
+          this.id
+            ? this.i18nKeys.resource.userUpdateSuccess
+            : this.i18nKeys.resource.userCreateSuccess,
         ),
         this.translate.instant(this.i18nKeys.common.close),
         { duration: 2500 },
@@ -173,10 +197,12 @@ export class UserResourceAddComponent {
     };
 
     if (this.id) {
-      this.client.userResource.update(this.id, payload as UserResourceUpdateDto).subscribe({
-        next: () => onSuccess(this.id!),
-        error: onError,
-      });
+      this.client.userResource
+        .update(this.id, payload as UserResourceUpdateDto)
+        .subscribe({
+          next: () => onSuccess(this.id!),
+          error: onError,
+        });
     } else {
       this.client.userResource.add(payload as UserResourceAddDto).subscribe({
         next: (result) => onSuccess(result.id),

@@ -1,0 +1,148 @@
+<section>
+  <div class="tab-toolbar">
+    <button
+      mat-flat-button
+      color="primary"
+      type="button"
+      (click)="startAdd()"
+      [disabled]="saving()"
+    >
+      <mat-icon>add</mat-icon>
+      {{ notificationKeys.addNotification | translate }}
+    </button>
+  </div>
+
+  @if (editor()) {
+  <form class="editor" [formGroup]="form" (ngSubmit)="save()">
+    @if (detailLoading()) {
+    <mat-progress-spinner mode="indeterminate" diameter="24" />
+    }
+    <h3>
+      {{ (editingId() ? notificationKeys.editNotification :
+      notificationKeys.addNotification ) | translate }}
+    </h3>
+    <div class="form-row">
+      <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <mat-label>{{ notificationKeys.type | translate }}</mat-label>
+        <mat-select formControlName="type">
+          <mat-option value="message">
+            {{ notificationKeys.message | translate }}
+          </mat-option>
+          <mat-option value="announcement">
+            {{ notificationKeys.announcement | translate }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+      <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <mat-label>{{ notificationKeys.titleField | translate }}</mat-label>
+        <input matInput formControlName="title" />
+      </mat-form-field>
+    </div>
+    <mat-form-field appearance="outline" subscriptSizing="dynamic">
+      <mat-label>{{ notificationKeys.content | translate }}</mat-label>
+      <textarea matInput rows="4" formControlName="content"></textarea>
+    </mat-form-field>
+    <div class="form-row">
+      <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <mat-label>{{ notificationKeys.link | translate }}</mat-label>
+        <input matInput formControlName="link" />
+      </mat-form-field>
+      <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <mat-label>{{ notificationKeys.expiresTime | translate }}</mat-label>
+        <input matInput type="datetime-local" formControlName="expiresTime" />
+      </mat-form-field>
+    </div>
+    @if (!detailLoading()) {
+    <app-user-picker
+      [label]="notificationKeys.audience | translate"
+      [userIds]="form.controls.targetUserIds.value"
+      (userIdsChange)="form.controls.targetUserIds.setValue($event)"
+      [disabled]="saving()"
+    />
+    <small>{{ notificationKeys.audienceHint | translate }}</small>
+    }
+    <div class="editor-actions">
+      <button
+        mat-button
+        type="button"
+        (click)="cancelEdit()"
+        [disabled]="saving()"
+      >
+        {{ i18nKeys.common.cancel | translate }}
+      </button>
+      <button
+        mat-flat-button
+        color="primary"
+        type="submit"
+        [disabled]="saving() || detailLoading()"
+      >
+        {{ i18nKeys.common.save | translate }}
+      </button>
+    </div>
+  </form>
+  }
+
+  <app-notification-list
+    [list]="list"
+    [label]="notificationKeys.notifications | translate"
+  >
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>{{ notificationKeys.titleField | translate }}</th>
+            <th>{{ notificationKeys.type | translate }}</th>
+            <th>{{ notificationKeys.published | translate }}</th>
+            <th>{{ i18nKeys.common.createdTime | translate }}</th>
+            <th>{{ i18nKeys.common.actions | translate }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (item of list.rows(); track item.id) {
+          <tr>
+            <td>{{ item.title }}</td>
+            <td>
+              {{ (item.type === 'announcement' ? notificationKeys.announcement :
+              notificationKeys.message) | translate }}
+            </td>
+            <td>
+              {{ (item.isPublished ? notificationKeys.published :
+              notificationKeys.draft) | translate }}
+            </td>
+            <td>{{ item.createdTime | date: 'yyyy-MM-dd HH:mm' }}</td>
+            <td>
+              <button
+                mat-icon-button
+                type="button"
+                [attr.aria-label]="i18nKeys.common.edit | translate"
+                [disabled]="item.isPublished || saving()"
+                (click)="editNotification(item)"
+              >
+                <mat-icon>edit</mat-icon>
+              </button>
+              <button
+                mat-icon-button
+                type="button"
+                [attr.aria-label]="notificationKeys.publish | translate"
+                [disabled]="item.isPublished || saving()"
+                (click)="publish(item)"
+              >
+                <mat-icon>publish</mat-icon>
+              </button>
+              <button
+                mat-icon-button
+                type="button"
+                [attr.aria-label]="i18nKeys.common.delete | translate"
+                [disabled]="item.isPublished || saving()"
+                (click)="remove(item)"
+              >
+                <mat-icon class="error">delete</mat-icon>
+              </button>
+            </td>
+          </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </app-notification-list>
+</section>

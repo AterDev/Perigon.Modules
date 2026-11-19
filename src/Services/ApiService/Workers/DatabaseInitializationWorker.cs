@@ -1,18 +1,28 @@
 using EntityFramework.AppDbContext;
-using Perigon.PostgreSQL;
-using SystemMod;
 
 namespace ApiService.Workers;
 
-internal sealed class DatabaseInitializationWorker(IConfiguration configuration) : IHostedService
+internal sealed class DatabaseInitializationWorker(
+    IServiceScopeFactory scopeFactory,
+    ILogger<DatabaseInitializationWorker> logger) : IHostedService
 {
     public async Task StartAsync(CancellationToken cancellationToken)
     {
-        var connection = configuration.GetConnectionString(AppConst.Default)
-            ?? throw new InvalidOperationException("The default database connection is required for migrations.");
-        await using var context = new DefaultDbContext(connection);
-        await context.MigrateAsync(cancellationToken);
-        await InitModule.InitializeAdminAccountAsync(context, cancellationToken);
+        try
+        {
+            await using var scope = scopeFactory.CreateAsyncScope();
+            var context = scope.ServiceProvider.GetRequiredService<DefaultDbContext>();
+            await context.MigrateAsync(cancellationToken);
+            await SystemMod.InitModule.InitializeAsync(context, cancellationToken);
+            foreach (var initialize in scope.ServiceProvider.GetServices<Func<DefaultDbContext, CancellationToken, Task>>())
+            {
+                await initialize(context, cancellationToken);
+            }
+        }
+        catch (Exception exception) when (!cancellationToken.IsCancellationRequested)
+        {
+            logger.LogError(exception, "Database initialization failed. The application will continue startup.");
+        }
     }
 
     public Task StopAsync(CancellationToken cancellationToken)

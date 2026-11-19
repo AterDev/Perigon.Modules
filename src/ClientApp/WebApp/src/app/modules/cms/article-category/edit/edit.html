@@ -1,18 +1,14 @@
 <h2 mat-dialog-title>{{ i18nKeys.cms.category.editTitle | translate }}</h2>
 <mat-dialog-content>
   <form [formGroup]="form" (ngSubmit)="save()" class="dialog-form">
-    <mat-form-field appearance="outline"
-    >
-    <mat-label>{{ i18nKeys.cms.category.name | translate }}
-    </mat-label
-    >
-    <input matInput formControlName="name"
-    />
-    @if (form.controls.name.hasError('required')) {
+    <mat-form-field appearance="outline">
+      <mat-label>{{ i18nKeys.cms.category.name | translate }} </mat-label>
+      <input matInput formControlName="name" />
+      @if (form.controls.name.hasError('required')) {
       <mat-error>{{ i18nKeys.validation.required | translate }}</mat-error>
-    }
-  </mat-form-field>
-</form>
+      }
+    </mat-form-field>
+  </form>
 </mat-dialog-content>
 <mat-dialog-actions align="end">
   <button mat-button type="button" mat-dialog-close>

@@ -116,5 +116,76 @@
         "menuType": 0
       }
     ]
+  },
+  {
+    "name": "menu.audit",
+    "path": null,
+    "accessCode": "audit",
+    "icon": "fact_check",
+    "sort": 3,
+    "menuType": 0,
+    "children": [
+      {
+        "name": "menu.auditTasks",
+        "path": "/audit/tasks",
+        "accessCode": "audit-tasks",
+        "icon": "task_alt",
+        "sort": 0,
+        "menuType": 0
+      },
+      {
+        "name": "menu.auditMine",
+        "path": "/audit/mine",
+        "accessCode": "audit-mine",
+        "icon": "assignment_ind",
+        "sort": 1,
+        "menuType": 0
+      },
+      {
+        "name": "menu.auditFlows",
+        "path": "/audit/flows",
+        "accessCode": "audit-flows",
+        "icon": "account_tree",
+        "sort": 2,
+        "menuType": 0,
+        "adminOnly": true
+      },
+      {
+        "name": "menu.auditRecords",
+        "path": "/audit/records",
+        "accessCode": "audit-records",
+        "icon": "manage_search",
+        "sort": 3,
+        "menuType": 0,
+        "adminOnly": true
+      }
+    ]
+  },
+  {
+    "name": "menu.notification",
+    "path": null,
+    "accessCode": "notification",
+    "icon": "notifications",
+    "sort": 4,
+    "menuType": 0,
+    "children": [
+      {
+        "name": "menu.notificationInbox",
+        "path": "/notification/inbox",
+        "accessCode": "notification-inbox",
+        "icon": "inbox",
+        "sort": 0,
+        "menuType": 0
+      },
+      {
+        "name": "menu.notificationAdmin",
+        "path": "/notification/index",
+        "accessCode": "notification-admin",
+        "icon": "campaign",
+        "sort": 1,
+        "menuType": 0,
+        "adminOnly": true
+      }
+    ]
   }
 ]

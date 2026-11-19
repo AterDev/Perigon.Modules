@@ -12,8 +12,9 @@ import { SysRoleService } from './services/sys-role.service';
 import { SysUserService } from './services/sys-user.service';
 import { UserFavoriteResourceService } from './services/user-favorite-resource.service';
 import { UserResourceService } from './services/user-resource.service';
+import { NotificationService } from './services/notification.service';
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class AdminClient {
   /** 文章管理。 */
@@ -43,4 +44,6 @@ SystemMod.Managers.SysRoleManager */
   public userFavoriteResource = inject(UserFavoriteResourceService);
   /** 用户资源提交和公开申请审核。 */
   public userResource = inject(UserResourceService);
+  /** 站内消息、Webhook 来源、接收者、规则及投递记录管理。 */
+  public notification = inject(NotificationService);
 }

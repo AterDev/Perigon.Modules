@@ -1,0 +1,114 @@
+<section class="page">
+  <div
+    class="d-flex align-items-center justify-content-between gap-3 page-heading"
+  >
+    <h2>{{ notificationKeys.inbox | translate }}</h2>
+    <span class="unread-count"
+      >{{ notificationKeys.unread | translate }} {{ unreadCount() }}</span
+    >
+  </div>
+  <div
+    class="d-flex flex-column flex-md-row align-items-md-center gap-2 filter-bar"
+  >
+    <mat-form-field
+      appearance="outline"
+      subscriptSizing="dynamic"
+      class="search-field"
+    >
+      <mat-label>{{ i18nKeys.common.title | translate }}</mat-label>
+      <input matInput [(ngModel)]="searchTitle" (keyup.enter)="search()" />
+    </mat-form-field>
+    <button mat-stroked-button (click)="search()">
+      <mat-icon>search</mat-icon>{{ i18nKeys.common.search | translate }}
+    </button>
+    <button mat-stroked-button (click)="load()">
+      <mat-icon>refresh</mat-icon>{{ i18nKeys.common.retry | translate }}
+    </button>
+  </div>
+
+  @if (loading()) {
+  <mat-spinner diameter="32" />
+  } @else if (loadError()) {
+  <p>
+    {{ i18nKeys.common.loadFail | translate }}
+    <button mat-button (click)="load()">
+      {{ i18nKeys.common.retry | translate }}
+    </button>
+  </p>
+  } @else if (notifications().length === 0) {
+  <p>{{ i18nKeys.common.noData | translate }}</p>
+  } @else {
+  <div class="inbox-layout">
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>{{ i18nKeys.common.title | translate }}</th>
+            <th>{{ i18nKeys.common.createdTime | translate }}</th>
+            <th>{{ notificationKeys.allRead | translate }}</th>
+            <th>{{ i18nKeys.common.actions | translate }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (item of notifications(); track item.id) {
+          <tr [class.unread-row]="!item.isRead">
+            <td>
+              <button class="title-button" (click)="open(item)">
+                {{ item.title }}
+              </button>
+            </td>
+            <td>{{ item.createdTime | date: "yyyy-MM-dd HH:mm" }}</td>
+            <td>
+              {{ (item.isRead ? notificationKeys.allRead :
+              notificationKeys.unread ) | translate }}
+            </td>
+            <td>
+              @if (!item.isRead) {
+              <button mat-button (click)="markRead(item)">
+                {{ notificationKeys.markRead | translate }}
+              </button>
+              } @else { - }
+            </td>
+          </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+    @if (detailLoading()) {
+    <mat-spinner diameter="32" />
+    } @if (detailError()) {
+    <p role="alert">{{ i18nKeys.common.loadFail | translate }}</p>
+    } @if (selected(); as detail) {
+    <article class="detail-panel">
+      <div class="d-flex justify-content-between align-items-start gap-2">
+        <h3>{{ detail.title }}</h3>
+        <button
+          mat-icon-button
+          (click)="closeDetail()"
+          [attr.aria-label]="i18nKeys.common.close | translate"
+        >
+          <mat-icon>close</mat-icon>
+        </button>
+      </div>
+      <p class="detail-meta">
+        {{ detail.type }} · {{ detail.createdTime | date: "yyyy-MM-dd HH:mm" }}
+      </p>
+      <div class="detail-content">{{ detail.content }}</div>
+      @if (detail.link) {
+      <a [href]="detail.link" target="_blank" rel="noopener"
+        >{{ detail.link }}</a
+      >
+      }
+    </article>
+    }
+  </div>
+  <mat-paginator
+    [length]="total()"
+    [pageIndex]="pageIndex"
+    [pageSize]="pageSize"
+    [pageSizeOptions]="[10, 20, 50]"
+    (page)="onPage($event)"
+    [attr.aria-label]="notificationKeys.inbox | translate"
+  />
+  }
+</section>

@@ -1,11 +1,11 @@
 {
   "/api/": {
-    "target": "https://localhost:17001",
-      "changeOrigin": true,
-        "secure": false
+    "target": "https://localhost:17002",
+    "changeOrigin": true,
+    "secure": false
   },
   "/article/": {
-    "target": "https://localhost:17001",
+    "target": "https://localhost:17002",
     "changeOrigin": true,
     "secure": false
   },

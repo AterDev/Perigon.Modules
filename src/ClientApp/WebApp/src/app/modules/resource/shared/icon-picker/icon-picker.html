@@ -12,20 +12,21 @@
   </button>
 
   @if (value()) {
-    <span
-      class="resource-selected-icon"
-      [matTooltip]="iconName(value())"
-      [attr.aria-label]="i18nKeys.resource.currentIcon | translate"
+  <span
+    class="resource-selected-icon"
+    [matTooltip]="iconName(value())"
+    [attr.aria-label]="i18nKeys.resource.currentIcon | translate"
+  >
+    <mat-icon
+      [class.resource-icon-fill]="iconIsFill(value())"
+      [class.resource-icon-outline]="!iconIsFill(value())"
+      >{{ iconName(value()) }}</mat-icon
     >
-      <mat-icon
-        [class.resource-icon-fill]="iconIsFill(value())"
-        [class.resource-icon-outline]="!iconIsFill(value())"
-      >{{ iconName(value()) }}</mat-icon>
-      <code>{{ iconName(value()) }}</code>
-    </span>
+    <code>{{ iconName(value()) }}</code>
+  </span>
   } @else {
-    <span class="resource-selected-icon-empty text-body-secondary">
-      {{ i18nKeys.common.none | translate }}
-    </span>
+  <span class="resource-selected-icon-empty text-body-secondary">
+    {{ i18nKeys.common.none | translate }}
+  </span>
   }
 </div>

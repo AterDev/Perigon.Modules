@@ -1,0 +1,29 @@
+@let page = list();
+<div [attr.aria-busy]="page.loading()">
+  @if (page.loading()) {
+  <mat-spinner diameter="32" [attr.aria-label]="label()" />
+  } @else if (page.error()) {
+  <p role="alert">
+    {{ i18nKeys.common.loadFail | translate }}
+    <button mat-button (click)="page.load()">
+      {{ i18nKeys.common.retry | translate }}
+    </button>
+  </p>
+  } @else if (page.rows().length === 0) {
+  <p>{{ i18nKeys.common.noData | translate }}</p>
+  }
+  <div [hidden]="page.loading() || page.error() || page.rows().length === 0">
+    <ng-content />
+  </div>
+</div>
+@if (!page.error() && page.total() > 0) {
+<mat-paginator
+  [length]="page.total()"
+  [pageIndex]="page.pageIndex()"
+  [pageSize]="page.pageSize()"
+  [pageSizeOptions]="[10, 20, 50]"
+  [disabled]="page.loading()"
+  [attr.aria-label]="label()"
+  (page)="page.onPage($event)"
+/>
+}

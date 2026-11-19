@@ -1,0 +1,69 @@
+<h2 mat-dialog-title>{{ i18nKeys.audit.recordDetail | translate }}</h2>
+<mat-dialog-content>
+  @if (loading()) {
+  <mat-spinner diameter="32" />
+  } @else if (detail(); as item) {
+  <div class="summary">
+    <div>
+      <span>{{ i18nKeys.audit.process | translate }}</span
+      ><strong>{{ item.flowNameSnapshot }}</strong>
+    </div>
+    <div>
+      <span
+        >{{ i18nKeys.audit.sceneCode | translate }} / {{ i18nKeys.audit.bizId |
+        translate }}</span
+      ><strong>{{ item.sceneCode }} / {{ item.bizId }}</strong>
+    </div>
+    <div>
+      <span>{{ i18nKeys.audit.applicant | translate }}</span
+      ><strong>{{ item.applicantNameSnapshot }}</strong>
+    </div>
+    <div>
+      <span>{{ i18nKeys.audit.status | translate }}</span
+      ><strong>{{ statusLabel(item.status) }}</strong>
+    </div>
+  </div>
+  <section>
+    <h3>{{ i18nKeys.audit.applyReason | translate }}</h3>
+    <p class="reason">{{ item.applyReason }}</p>
+  </section>
+  <mat-accordion>
+    @for (step of item.steps; track step.id) {
+    <mat-expansion-panel [expanded]="step.status === stepStatus.Pending"
+      ><mat-expansion-panel-header
+        ><mat-panel-title
+          >第 {{ step.stepNoSnapshot }} 步 · {{ step.stepNameSnapshot
+          }}</mat-panel-title
+        ><mat-panel-description
+          >{{ step.auditModeSnapshot === mode.All ? "全部通过" : "任一通过" }} ·
+          {{ stepLabel(step.status) }}</mat-panel-description
+        ></mat-expansion-panel-header
+      >
+      <div class="tasks">
+        @for (task of step.tasks; track task.id) {
+        <div class="task">
+          <span>{{ task.assigneeNameSnapshot }}</span
+          ><span>{{ taskLabel(task.status) }}</span
+          ><span>{{ task.comment || "—" }}</span>
+        </div>
+        }
+      </div></mat-expansion-panel
+    >
+    }
+  </mat-accordion>
+  }</mat-dialog-content
+><mat-dialog-actions align="end">
+  @if (mine && detail()?.status === 0) {
+  <button
+    mat-stroked-button
+    color="warn"
+    (click)="withdraw()"
+    [disabled]="saving"
+  >
+    {{ i18nKeys.audit.withdraw | translate }}
+  </button>
+  }
+  <button mat-button mat-dialog-close [disabled]="saving">
+    {{ i18nKeys.audit.close | translate }}
+  </button></mat-dialog-actions
+>

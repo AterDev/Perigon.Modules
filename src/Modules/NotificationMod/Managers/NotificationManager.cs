@@ -131,17 +131,19 @@ public sealed class NotificationManager(
         string title = dto.Title?.Trim() ?? row.Title;
         string content = dto.Content ?? row.Content;
         string link = dto.Link?.Trim() ?? row.Link;
-        ValidateContent(type, title, content, link, dto.ExpiresTime ?? row.ExpiresTime);
-        row.Type = type;
-        row.Title = title;
-        row.Content = content;
-        row.Link = link;
-        row.ExpiresTime = dto.ExpiresTime ?? row.ExpiresTime;
-        row.UpdatedTime = DateTimeOffset.UtcNow;
-        return await _dbSet.Where(x => x.Id == id).ExecuteUpdateAsync(set => set
+        DateTimeOffset? expires = dto.ClearExpiresTime ? null : dto.ExpiresTime ?? row.ExpiresTime;
+        Guid[] targets = dto.TargetUserIds?.Distinct().ToArray() ?? row.TargetUserIds;
+        DateTimeOffset now = DateTimeOffset.UtcNow;
+        ValidateContent(type, title, content, link, expires);
+        int updated = await _dbSet.Where(x => x.Id == id && !x.IsPublished).ExecuteUpdateAsync(set => set
             .Set(x => x.Type, type).Set(x => x.Title, title).Set(x => x.Content, content)
-            .Set(x => x.Link, link).Set(x => x.ExpiresTime, dto.ExpiresTime ?? row.ExpiresTime)
-            .Set(x => x.UpdatedTime, DateTimeOffset.UtcNow)) > 0;
+            .Set(x => x.Link, link).Set(x => x.ExpiresTime, expires)
+            .Set(x => x.TargetUserIds, targets).Set(x => x.UpdatedTime, now));
+        if (updated == 0)
+        {
+            throw new BusinessException("通知已发布或已删除", StatusCodes.Status409Conflict);
+        }
+        return true;
     }
 
     public async Task PublishAsync(Guid id)
@@ -151,14 +153,6 @@ public sealed class NotificationManager(
         if (row.IsPublished)
         {
             return;
-        }
-
-        Guid[] requestedUsers = row.TargetUserIds.Distinct().ToArray();
-        List<SysUser> users = requestedUsers.Length == 0 ? []
-            : await Set<SysUser>().Where(x => requestedUsers.Contains(x.Id)).ToListAsync();
-        if (requestedUsers.Length > 0 && users.Count != requestedUsers.Length)
-        {
-            throw new BusinessException("指定的用户不存在", StatusCodes.Status400BadRequest);
         }
 
         await ExecuteInTransactionAsync(async () =>
@@ -173,9 +167,15 @@ public sealed class NotificationManager(
                 return;
             }
 
-            if (requestedUsers.Length == 0)
+            InAppNotification published = await _dbSet.Where(x => x.Id == id).FirstOrDefaultAsync()
+                ?? throw NotFound("通知");
+            Guid[] requestedUsers = published.TargetUserIds.Distinct().ToArray();
+            List<SysUser> users = requestedUsers.Length == 0
+                ? await Set<SysUser>().ToListAsync()
+                : await Set<SysUser>().Where(x => requestedUsers.Contains(x.Id)).ToListAsync();
+            if (requestedUsers.Length > 0 && users.Count != requestedUsers.Length)
             {
-                users = await Set<SysUser>().ToListAsync();
+                throw new BusinessException("指定的用户不存在", StatusCodes.Status400BadRequest);
             }
 
             List<InAppNotificationRecipient> existingRows = await Set<InAppNotificationRecipient>()
@@ -354,6 +354,35 @@ public sealed class NotificationManager(
         row.RateLimitPerMinute = dto.RateLimitPerMinute;
         row.SuccessField = dto.SuccessField.Trim();
         row.SuccessValue = dto.SuccessValue;
+
+        if (id is null)
+        {
+            await Set<NotificationReceiver>().InsertAsync(row);
+        }
+        else
+        {
+            int affected = await Set<NotificationReceiver>().Where(x => x.Id == row.Id)
+                .ExecuteUpdateAsync(set => set
+                    .Set(x => x.Name, row.Name)
+                    .Set(x => x.Type, row.Type)
+                    .Set(x => x.Enabled, row.Enabled)
+                    .Set(x => x.Endpoint, row.Endpoint)
+                    .Set(x => x.HttpMethod, row.HttpMethod)
+                    .Set(x => x.AuthType, row.AuthType)
+                    .Set(x => x.AuthName, row.AuthName)
+                    .Set(x => x.AuthScheme, row.AuthScheme)
+                    .Set(x => x.ProtectedSecret, row.ProtectedSecret)
+                    .Set(x => x.BodyTemplate, row.BodyTemplate)
+                    .Set(x => x.TimeoutSeconds, row.TimeoutSeconds)
+                    .Set(x => x.RateLimitPerMinute, row.RateLimitPerMinute)
+                    .Set(x => x.SuccessField, row.SuccessField)
+                    .Set(x => x.SuccessValue, row.SuccessValue));
+            if (affected == 0)
+            {
+                throw NotFound("接收者");
+            }
+        }
+
         return ToItem(row);
     }
     public async Task<bool> DeleteReceiverAsync(Guid id)

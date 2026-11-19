@@ -1,4 +1,10 @@
-import { ChangeDetectionStrategy, Component, computed, forwardRef, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  forwardRef,
+  signal,
+} from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -49,7 +55,11 @@ export class ResourceColorPickerComponent implements ControlValueAccessor {
   readonly value = signal('');
   readonly disabled = signal(false);
   readonly isCustomColor = computed(
-    () => !!this.value() && !this.colors.includes(this.value() as (typeof RESOURCE_COLOR_OPTIONS)[number]),
+    () =>
+      !!this.value() &&
+      !this.colors.includes(
+        this.value() as (typeof RESOURCE_COLOR_OPTIONS)[number],
+      ),
   );
   private onChange: (value: string) => void = () => undefined;
   private onTouched: () => void = () => undefined;

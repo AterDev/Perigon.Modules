@@ -24,7 +24,9 @@ export class ArticleCategoryAddComponent {
   readonly i18nKeys = I18N_KEYS;
   private readonly fb = inject(FormBuilder);
   private readonly client = inject(AdminClient);
-  private readonly dialogRef = inject(MatDialogRef<ArticleCategoryAddComponent>);
+  private readonly dialogRef = inject(
+    MatDialogRef<ArticleCategoryAddComponent>,
+  );
   private readonly snackBar = inject(MatSnackBar);
   private readonly translate = inject(TranslateService);
   readonly categories = signal<ArticleCategoryItemDto[]>([]);

@@ -27,13 +27,20 @@ export class ResourcePropertyDialogComponent {
     { label: 'IP address', value: ResValueType.IPAddress },
   ];
   private readonly formBuilder = inject(FormBuilder);
-  private readonly dialogRef = inject(MatDialogRef<ResourcePropertyDialogComponent>);
-  readonly data = inject<ResourcePropertyDialogData>(MAT_DIALOG_DATA, { optional: true });
+  private readonly dialogRef = inject(
+    MatDialogRef<ResourcePropertyDialogComponent>,
+  );
+  readonly data = inject<ResourcePropertyDialogData>(MAT_DIALOG_DATA, {
+    optional: true,
+  });
   readonly form = this.formBuilder.nonNullable.group({
     name: ['', Validators.required],
     valueType: [ResValueType.String],
     isRequired: [false],
-    maxLength: [200, [Validators.required, Validators.min(1), Validators.max(1000)]],
+    maxLength: [
+      200,
+      [Validators.required, Validators.min(1), Validators.max(1000)],
+    ],
   });
 
   constructor() {

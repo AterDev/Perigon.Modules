@@ -1,10 +1,6 @@
 namespace Entity.AuditMod;
 
 [Index(nameof(FlowKey), IsUnique = true)]
-[Index(
-    nameof(SceneCode),
-    IsUnique = true,
-    Filter = "\"is_enabled\" = true")]
 public sealed class AuditFlow : EntityBase
 {
     [StringLength(100), Required] public string FlowKey { get; set; } = string.Empty;

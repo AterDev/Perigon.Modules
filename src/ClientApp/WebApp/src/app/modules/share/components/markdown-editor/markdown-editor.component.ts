@@ -12,10 +12,7 @@ import {
   forwardRef,
   inject,
 } from '@angular/core';
-import {
-  ControlValueAccessor,
-  NG_VALUE_ACCESSOR,
-} from '@angular/forms';
+import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import Vditor from 'vditor';
 import { ArticleAssetUrlService } from '../../services/article-asset-url.service';
 import { environment } from 'src/environments/environment';
@@ -53,7 +50,14 @@ const EDITOR_TOOLBAR = [
   'edit-mode',
   {
     name: 'more',
-    toolbar: ['both', 'code-theme', 'content-theme', 'outline', 'preview', 'help'],
+    toolbar: [
+      'both',
+      'code-theme',
+      'content-theme',
+      'outline',
+      'preview',
+      'help',
+    ],
   },
 ];
 
@@ -102,7 +106,9 @@ export class MarkdownEditorComponent
     this.colorScheme = this.getColorScheme();
     this.colorScheme?.addEventListener('change', this.colorSchemeChange);
     if (typeof MutationObserver !== 'undefined') {
-      this.imageObserver = new MutationObserver(() => this.normalizeEditorImages());
+      this.imageObserver = new MutationObserver(() =>
+        this.normalizeEditorImages(),
+      );
       this.imageObserver.observe(this.editorHost.nativeElement, {
         childList: true,
         subtree: true,
@@ -229,7 +235,12 @@ export class MarkdownEditorComponent
     const theme = isDark ? 'dark' : 'classic';
     const contentTheme = isDark ? 'dark' : 'light';
     const codeTheme = isDark ? 'github-dark' : 'github';
-    this.editor?.setTheme(theme, contentTheme, codeTheme, VDITOR_CONTENT_THEME_PATH);
+    this.editor?.setTheme(
+      theme,
+      contentTheme,
+      codeTheme,
+      VDITOR_CONTENT_THEME_PATH,
+    );
   }
 
   private validateUpload(files: File[]): string | boolean {

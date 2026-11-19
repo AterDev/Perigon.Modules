@@ -1,4 +1,9 @@
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  inject,
+  signal,
+} from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatCheckboxChange } from '@angular/material/checkbox';
 import { AdminClient } from 'src/app/services/admin/admin-client';
@@ -31,17 +36,25 @@ export class ResourcePropertySelectDialogComponent {
     [ResValueType.Uri]: I18N_KEYS.resource.propertyTypes.uri,
     [ResValueType.IPAddress]: I18N_KEYS.resource.propertyTypes.ipAddress,
   };
-  readonly data = inject<ResourcePropertySelectDialogData>(MAT_DIALOG_DATA, { optional: true });
+  readonly data = inject<ResourcePropertySelectDialogData>(MAT_DIALOG_DATA, {
+    optional: true,
+  });
   private readonly client = inject(AdminClient);
-  private readonly dialogRef = inject(MatDialogRef<ResourcePropertySelectDialogComponent>);
+  private readonly dialogRef = inject(
+    MatDialogRef<ResourcePropertySelectDialogComponent>,
+  );
 
   constructor() {
     const excluded = new Set(this.data?.excludeIds ?? []);
-    this.client.resourceConfiguration.properties(null).subscribe((properties) => {
-      this.properties.set(sortResourceProperties(
-        properties.filter((property) => !excluded.has(property.id)),
-      ));
-    });
+    this.client.resourceConfiguration
+      .properties(null)
+      .subscribe((properties) => {
+        this.properties.set(
+          sortResourceProperties(
+            properties.filter((property) => !excluded.has(property.id)),
+          ),
+        );
+      });
   }
 
   toggle(propertyId: string, change: MatCheckboxChange): void {
@@ -53,6 +66,8 @@ export class ResourcePropertySelectDialogComponent {
   }
 
   save(): void {
-    this.dialogRef.close(this.properties().filter((property) => this.selectedIds.has(property.id)));
+    this.dialogRef.close(
+      this.properties().filter((property) => this.selectedIds.has(property.id)),
+    );
   }
 }

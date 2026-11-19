@@ -6,9 +6,12 @@
 - `EntityFramework.AppDbContext.DefaultDbContext` 接收 `Perigon.PostgreSQL.Options.DbContextOptions<DefaultDbContext>`，由 Perigon.PostgreSQL 的 `AddDbContextPool` 注册；连接字符串从 `builder.Configuration` 获取。池化实例的连接配置必须稳定，不可跨 scope 使用；增加请求或租户等可变状态时必须在每次租用后赋值并在 `OnPoolReturn` 中清除。不要使用 EF Core 的上下文 API，也不要虚构 ApiStandard 的多数据库 factory 或租户上下文。
 - 使用 Perigon.PostgreSQL 的注册选项 `EnableOpenTelemetry` 接入 Npgsql 追踪与指标，并按部署需要配置连接池及连接、命令超时；它不负责配置 OpenTelemetry 导出器。
 - 实体索引及其他可用映射优先使用 Perigon.PostgreSQL 特性；默认表名由约定生成，无需标记表名。仅在约定不满足需求时显式配置表名。
-- 不要在 `OnModelCreating` 重复配置实体特性或默认约定已经表达的表名、索引等内容；特殊映射才使用 Fluent 配置。
-- 新增实体后在相应 `DefaultDbContext` 添加显式 `DbSet<TEntity>`，保留 `DynamicallyAccessedMembers` 约束并执行 AOT publish 验证。
+- 枚举属性直接使用枚举类型，Perigon.PostgreSQL 0.3.6 起默认映射为 `smallint`。升级已有整数列时保留物理列名，检查原始值处于 `-32768` 至 `32767`，并审查迁移是否原地转换列类型。
+- 不要在 `OnModelCreating` 重复配置实体特性或默认约定已经表达的表名、索引等内容。额外的部分索引谓词使用 Fluent API 的 `HasFilter`，软删除谓词由库自动生成。
+- 新增实体后在 `DefaultDbContext` 添加公开、可写的 `DbSet<TEntity>` 自动属性，省略属性初始化器，由 Perigon.PostgreSQL 源生成器赋值。泛型访问直接用基类公开的 `Set<TEntity>()`。Modules 使用默认 PascalCase；索引 `Filter` 是 SQL，引用列时须使用最终物理列名并正确引用。
 - MiniApi 不内置 AppHost migration 资源。数据库 schema 的生成、部署顺序、失败恢复和回滚责任必须在计划与部署管线中明确。
+- Perigon.PostgreSQL 0.3.5 起，迁移 CLI 可用唯一的公开 options 构造函数离线加载模型。影响迁移结构的命名和模型约定应在上下文或程序集共享；运行时连接字符串来自宿主配置，CLI 执行数据库更新时显式传入连接字符串。
+- 模块不实现或注册宿主后台任务。模块通过普通方法提供可复用的任务逻辑；实际发布的宿主负责注册和调度。模块在根目录 `InitModule.cs` 的 `InitModule` 静态类中提供接收现有 DbContext 与 CancellationToken 的种子方法，由宿主在数据库就绪且迁移成功后调用。
 
 ## 请求/响应模型
 

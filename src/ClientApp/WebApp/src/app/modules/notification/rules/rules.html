@@ -1,0 +1,152 @@
+<div class="tab-toolbar d-flex justify-content-end gap-2">
+  <button
+    mat-flat-button
+    color="primary"
+    (click)="startAdd()"
+    [disabled]="saving()"
+  >
+    <mat-icon>add</mat-icon>{{ notificationKeys.addRule | translate }}
+  </button>
+</div>
+
+@if (editorOpen()) { @if (ruleOptionsLoading()) {
+<mat-spinner diameter="32" />
+} @else if (ruleOptionsError()) {
+<p role="alert">
+  {{ i18nKeys.common.loadFail | translate }}
+  <button mat-button (click)="loadRuleOptions()">
+    {{ i18nKeys.common.retry | translate }}
+  </button>
+  <button mat-button (click)="cancelEdit()">
+    {{ i18nKeys.common.cancel | translate }}
+  </button>
+</p>
+} @else {
+<form class="editor" [formGroup]="form" (ngSubmit)="save()">
+  <h3>
+    {{ (editingId() ? notificationKeys.editRule : notificationKeys.addRule) |
+    translate }}
+  </h3>
+  <div class="form-row">
+    <mat-form-field appearance="outline" subscriptSizing="dynamic">
+      <mat-label>{{ notificationKeys.ruleName | translate }}</mat-label>
+      <input matInput formControlName="ruleName" />
+      @if (form.controls.ruleName.hasError('required')) {
+      <mat-error>{{ i18nKeys.validation.required | translate }}</mat-error>
+      }
+    </mat-form-field>
+    <mat-form-field appearance="outline" subscriptSizing="dynamic">
+      <mat-label>{{ notificationKeys.source | translate }}</mat-label>
+      <mat-select
+        formControlName="sourceId"
+        (selectionChange)="sourceChanged()"
+      >
+        @for (item of sourceOptions(); track item.id) {
+        <mat-option [value]="item.id">{{ item.name }}</mat-option>
+        }
+      </mat-select>
+      @if (form.controls.sourceId.hasError('required')) {
+      <mat-error>{{ i18nKeys.validation.required | translate }}</mat-error>
+      }
+    </mat-form-field>
+  </div>
+  <mat-form-field appearance="outline" subscriptSizing="dynamic">
+    <mat-label>{{ notificationKeys.receiversField | translate }}</mat-label>
+    <mat-select formControlName="receiverIds" multiple>
+      @for (item of receiverOptions(); track item.id) {
+      <mat-option [value]="item.id">{{ item.name }}</mat-option>
+      }
+    </mat-select>
+    @if (form.controls.receiverIds.hasError('required')) {
+    <mat-error>{{ i18nKeys.validation.required | translate }}</mat-error>
+    }
+  </mat-form-field>
+  <div class="form-row">
+    <mat-form-field appearance="outline" subscriptSizing="dynamic">
+      <mat-label>{{ notificationKeys.eventTypes | translate }}</mat-label>
+      <mat-select formControlName="eventTypes" multiple>
+        @for (eventType of ruleEventTypes(); track eventType) {
+        <mat-option [value]="eventType">{{ eventType }}</mat-option>
+        }
+      </mat-select>
+      @if (form.controls.eventTypes.hasError('required')) {
+      <mat-error>{{ i18nKeys.validation.required | translate }}</mat-error>
+      }
+    </mat-form-field>
+    <mat-form-field appearance="outline" subscriptSizing="dynamic">
+      <mat-label>{{ notificationKeys.statuses | translate }}</mat-label>
+      <input matInput formControlName="statuses" />
+    </mat-form-field>
+  </div>
+  <mat-form-field appearance="outline" subscriptSizing="dynamic">
+    <mat-label>{{ notificationKeys.projectIds | translate }}</mat-label>
+    <input matInput formControlName="projectIds" />
+  </mat-form-field>
+  <mat-checkbox formControlName="enabled">
+    {{ notificationKeys.enabled | translate }}
+  </mat-checkbox>
+  <div class="editor-actions d-flex justify-content-end gap-2">
+    <button
+      mat-button
+      type="button"
+      (click)="cancelEdit()"
+      [disabled]="saving()"
+    >
+      {{ i18nKeys.common.cancel | translate }}
+    </button>
+    <button mat-flat-button color="primary" type="submit" [disabled]="saving()">
+      {{ i18nKeys.common.save | translate }}
+    </button>
+  </div>
+</form>
+} }
+
+<app-notification-list
+  [list]="list"
+  [label]="notificationKeys.rules | translate"
+>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>{{ notificationKeys.ruleName | translate }}</th>
+          <th>{{ notificationKeys.eventTypes | translate }}</th>
+          <th>{{ notificationKeys.statuses | translate }}</th>
+          <th>{{ notificationKeys.enabled | translate }}</th>
+          <th>{{ i18nKeys.common.actions | translate }}</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (item of list.rows(); track item.id) {
+        <tr>
+          <td>{{ item.name }}</td>
+          <td>{{ item.eventTypes.join(", ") }}</td>
+          <td>{{ item.statuses.join(", ") }}</td>
+          <td>
+            {{ (item.enabled ? i18nKeys.common.yes : i18nKeys.common.no) |
+            translate }}
+          </td>
+          <td>
+            <button
+              mat-icon-button
+              (click)="editRule(item)"
+              [disabled]="saving()"
+              [attr.aria-label]="i18nKeys.common.edit | translate"
+            >
+              <mat-icon>edit</mat-icon>
+            </button>
+            <button
+              mat-icon-button
+              (click)="remove(item)"
+              [disabled]="saving()"
+              [attr.aria-label]="i18nKeys.common.delete | translate"
+            >
+              <mat-icon class="error">delete</mat-icon>
+            </button>
+          </td>
+        </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</app-notification-list>

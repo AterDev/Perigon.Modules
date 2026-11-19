@@ -1,13 +1,14 @@
 # Test
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 20.0.0.
+This workspace uses [Angular 22](https://angular.dev/reference/versions) with TypeScript 6.0 and pnpm 10.33.2. Use Node.js 22.22.3+, 24.15.0+, or 26.x within the ranges in `package.json`.
 
 ## Development server
 
 To start a local development server, run:
 
 ```bash
-ng serve
+pnpm install --frozen-lockfile
+pnpm start
 ```
 
 Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
@@ -31,7 +32,7 @@ ng generate --help
 To build the project run:
 
 ```bash
-ng build
+pnpm build
 ```
 
 This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.

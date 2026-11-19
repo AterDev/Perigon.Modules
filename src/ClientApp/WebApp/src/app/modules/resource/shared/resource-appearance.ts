@@ -209,16 +209,24 @@ export const RESOURCE_ICON_OPTIONS = [
 
 export type ResourceIconStyle = 'outline' | 'fill';
 
-export function resourceIconName(value: string | null | undefined, fallback = ''): string {
+export function resourceIconName(
+  value: string | null | undefined,
+  fallback = '',
+): string {
   if (!value) return fallback;
   const separatorIndex = value.indexOf(':');
   return separatorIndex > 0 ? value.slice(separatorIndex + 1) : value;
 }
 
-export function resourceIconStyle(value: string | null | undefined): ResourceIconStyle {
+export function resourceIconStyle(
+  value: string | null | undefined,
+): ResourceIconStyle {
   return value?.startsWith('fill:') ? 'fill' : 'outline';
 }
 
-export function resourceIconValue(name: string, style: ResourceIconStyle): string {
+export function resourceIconValue(
+  name: string,
+  style: ResourceIconStyle,
+): string {
   return style === 'fill' ? `fill:${name}` : name;
 }

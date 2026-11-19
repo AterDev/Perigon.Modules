@@ -1,4 +1,9 @@
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  inject,
+  signal,
+} from '@angular/core';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { CommonListModules } from 'src/app/modules/share/shared-modules';
 import { I18N_KEYS } from 'src/app/modules/share/i18n-keys';
@@ -35,11 +40,13 @@ export class UserResourceDetailComponent {
   }
 
   auditLabel(status: UserResourceAuditStatus): string {
-    return [
-      this.i18nKeys.resource.auditNotRequired,
-      this.i18nKeys.resource.auditPending,
-      this.i18nKeys.resource.auditApproved,
-      this.i18nKeys.resource.auditRejected,
-    ][status] ?? this.i18nKeys.resource.auditPending;
+    return (
+      [
+        this.i18nKeys.resource.auditNotRequired,
+        this.i18nKeys.resource.auditPending,
+        this.i18nKeys.resource.auditApproved,
+        this.i18nKeys.resource.auditRejected,
+      ][status] ?? this.i18nKeys.resource.auditPending
+    );
   }
 }

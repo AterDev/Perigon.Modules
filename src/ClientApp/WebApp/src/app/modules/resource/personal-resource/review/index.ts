@@ -1,4 +1,9 @@
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  inject,
+  signal,
+} from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { CommonListModules } from 'src/app/modules/share/shared-modules';
 import { I18N_KEYS } from 'src/app/modules/share/i18n-keys';

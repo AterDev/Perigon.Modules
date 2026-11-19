@@ -3,7 +3,9 @@
     <mat-tab [label]="i18nKeys.resource.definitions | translate">
       <div class="d-flex align-items-center justify-content-between gap-2 py-2">
         <mat-form-field appearance="outline" subscriptSizing="dynamic">
-          <mat-label>{{ i18nKeys.resource.definitionSearch | translate }}</mat-label>
+          <mat-label
+            >{{ i18nKeys.resource.definitionSearch | translate }}</mat-label
+          >
           <input matInput [(ngModel)]="name" (keyup.enter)="load()" />
         </mat-form-field>
         <button mat-stroked-button (click)="load()">
@@ -17,34 +19,48 @@
 
       <div class="resource-compact-list">
         @for (item of definitions(); track item.id) {
-          <mat-card>
-            <mat-card-content class="d-flex align-items-center flex-wrap gap-2">
-              <mat-icon
-                [class.resource-icon-fill]="iconStyle(item.icon) === 'fill'"
-                [class.resource-icon-outline]="iconStyle(item.icon) === 'outline'">{{ iconName(item.icon, 'schema') }}</mat-icon>
-              <strong>{{ item.name }}</strong>
-              <span class="property-count">
-                {{ i18nKeys.resource.propertyCount | translate: { count: item.properties.length } }}
-              </span>
-              <span class="ms-auto d-flex align-items-center gap-2">
-                <button mat-stroked-button type="button" (click)="viewDefinitionProperties(item)">
-                  <mat-icon>list</mat-icon>
-                  {{ i18nKeys.resource.viewDefinitionProperties | translate }}
-                </button>
-                <button mat-icon-button type="button" (click)="editDefinition(item)"
-                  [attr.aria-label]="i18nKeys.common.edit | translate">
-                  <mat-icon class="primary">edit</mat-icon>
-                </button>
-                <button mat-icon-button type="button" (click)="deleteDefinition(item)"
-                  [attr.aria-label]="i18nKeys.common.delete | translate">
-                  <mat-icon class="error">delete</mat-icon>
-                </button>
-              </span>
-            </mat-card-content>
-          </mat-card>
-        }
-        @empty {
-          <p class="empty">{{ i18nKeys.common.noData | translate }}</p>
+        <mat-card>
+          <mat-card-content class="d-flex align-items-center flex-wrap gap-2">
+            <mat-icon
+              [class.resource-icon-fill]="iconStyle(item.icon) === 'fill'"
+              [class.resource-icon-outline]="iconStyle(item.icon) === 'outline'"
+              >{{ iconName(item.icon, 'schema') }}</mat-icon
+            >
+            <strong>{{ item.name }}</strong>
+            <span class="property-count">
+              {{ i18nKeys.resource.propertyCount | translate: { count:
+              item.properties.length } }}
+            </span>
+            <span class="ms-auto d-flex align-items-center gap-2">
+              <button
+                mat-stroked-button
+                type="button"
+                (click)="viewDefinitionProperties(item)"
+              >
+                <mat-icon>list</mat-icon>
+                {{ i18nKeys.resource.viewDefinitionProperties | translate }}
+              </button>
+              <button
+                mat-icon-button
+                type="button"
+                (click)="editDefinition(item)"
+                [attr.aria-label]="i18nKeys.common.edit | translate"
+              >
+                <mat-icon class="primary">edit</mat-icon>
+              </button>
+              <button
+                mat-icon-button
+                type="button"
+                (click)="deleteDefinition(item)"
+                [attr.aria-label]="i18nKeys.common.delete | translate"
+              >
+                <mat-icon class="error">delete</mat-icon>
+              </button>
+            </span>
+          </mat-card-content>
+        </mat-card>
+        } @empty {
+        <p class="empty">{{ i18nKeys.common.noData | translate }}</p>
         }
       </div>
     </mat-tab>
@@ -52,7 +68,9 @@
     <mat-tab [label]="i18nKeys.resource.propertyDefinitions | translate">
       <div class="d-flex align-items-center justify-content-between gap-2 py-2">
         <mat-form-field appearance="outline" subscriptSizing="dynamic">
-          <mat-label>{{ i18nKeys.resource.propertySearch | translate }}</mat-label>
+          <mat-label
+            >{{ i18nKeys.resource.propertySearch | translate }}</mat-label
+          >
           <input matInput [(ngModel)]="propertyName" (keyup.enter)="load()" />
         </mat-form-field>
         <button mat-stroked-button (click)="load()">
@@ -66,32 +84,44 @@
 
       <div class="resource-compact-list resource-property-grid">
         @for (property of properties(); track property.id) {
-          <mat-card>
-            <mat-card-content class="d-flex align-items-center flex-wrap gap-2">
-              <span class="resource-property-summary">
-                @if (property.isRequired) {
-                  <span class="resource-property-required"
-                    [attr.aria-label]="i18nKeys.resource.propertyRequired | translate">*</span>
-                }
-                <strong>{{ property.name }}</strong>
-                <span class="resource-property-type">[{{ valueTypeLabels[property.valueType] | translate }}]</span>
-                <span class="resource-property-max-length">({{ property.maxLength }})</span>
-              </span>
-              <span class="ms-auto d-flex gap-2">
-                <button mat-icon-button (click)="editProperty(property)"
-                  [attr.aria-label]="i18nKeys.common.edit | translate">
-                  <mat-icon class="primary">edit</mat-icon>
-                </button>
-                <button mat-icon-button (click)="deleteProperty(property)"
-                  [attr.aria-label]="i18nKeys.common.delete | translate">
-                  <mat-icon class="error">delete</mat-icon>
-                </button>
-              </span>
-            </mat-card-content>
-          </mat-card>
-        }
-        @empty {
-          <p class="empty">{{ i18nKeys.common.noData | translate }}</p>
+        <mat-card>
+          <mat-card-content class="d-flex align-items-center flex-wrap gap-2">
+            <span class="resource-property-summary">
+              @if (property.isRequired) {
+              <span
+                class="resource-property-required"
+                [attr.aria-label]="i18nKeys.resource.propertyRequired | translate"
+                >*</span
+              >
+              }
+              <strong>{{ property.name }}</strong>
+              <span class="resource-property-type"
+                >[{{ valueTypeLabels[property.valueType] | translate }}]</span
+              >
+              <span class="resource-property-max-length"
+                >({{ property.maxLength }})</span
+              >
+            </span>
+            <span class="ms-auto d-flex gap-2">
+              <button
+                mat-icon-button
+                (click)="editProperty(property)"
+                [attr.aria-label]="i18nKeys.common.edit | translate"
+              >
+                <mat-icon class="primary">edit</mat-icon>
+              </button>
+              <button
+                mat-icon-button
+                (click)="deleteProperty(property)"
+                [attr.aria-label]="i18nKeys.common.delete | translate"
+              >
+                <mat-icon class="error">delete</mat-icon>
+              </button>
+            </span>
+          </mat-card-content>
+        </mat-card>
+        } @empty {
+        <p class="empty">{{ i18nKeys.common.noData | translate }}</p>
         }
       </div>
     </mat-tab>

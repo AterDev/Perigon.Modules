@@ -24,7 +24,13 @@ export class UserResourceService extends BaseService {
    * @param pageSize number
    * @param orderBy Record<string, boolean>
    */
-  mine(status: UserResourceStatus | null, auditStatus: UserResourceAuditStatus | null, pageIndex: number | null, pageSize: number | null, orderBy: Record<string, boolean> | null): Observable<PageList<UserResourceItemDto>> {
+  mine(
+    status: UserResourceStatus | null,
+    auditStatus: UserResourceAuditStatus | null,
+    pageIndex: number | null,
+    pageSize: number | null,
+    orderBy: Record<string, boolean> | null,
+  ): Observable<PageList<UserResourceItemDto>> {
     const _url = `/api/UserResource/mine?status=${status ?? ''}&auditStatus=${auditStatus ?? ''}&pageIndex=${pageIndex ?? ''}&pageSize=${pageSize ?? ''}&orderBy=${orderBy ?? ''}`;
     return this.request<PageList<UserResourceItemDto>>('get', _url);
   }
@@ -36,7 +42,13 @@ export class UserResourceService extends BaseService {
    * @param pageSize number
    * @param orderBy Record<string, boolean>
    */
-  review(status: UserResourceStatus | null, auditStatus: UserResourceAuditStatus | null, pageIndex: number | null, pageSize: number | null, orderBy: Record<string, boolean> | null): Observable<PageList<UserResourceItemDto>> {
+  review(
+    status: UserResourceStatus | null,
+    auditStatus: UserResourceAuditStatus | null,
+    pageIndex: number | null,
+    pageSize: number | null,
+    orderBy: Record<string, boolean> | null,
+  ): Observable<PageList<UserResourceItemDto>> {
     const _url = `/api/UserResource/review?status=${status ?? ''}&auditStatus=${auditStatus ?? ''}&pageIndex=${pageIndex ?? ''}&pageSize=${pageSize ?? ''}&orderBy=${orderBy ?? ''}`;
     return this.request<PageList<UserResourceItemDto>>('get', _url);
   }

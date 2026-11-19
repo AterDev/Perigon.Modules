@@ -2,8 +2,14 @@ const fs = require('fs');
 const path = require('path');
 
 const sourceLang = 'zh-CN';
-const sourceFile = path.resolve(__dirname, `../src/assets/i18n/${sourceLang}.json`);
-const targetFile = path.resolve(__dirname, '../src/app/modules/share/i18n-keys.ts');
+const sourceFile = path.resolve(
+  __dirname,
+  `../src/assets/i18n/${sourceLang}.json`,
+);
+const targetFile = path.resolve(
+  __dirname,
+  '../src/app/modules/share/i18n-keys.ts',
+);
 
 console.log('Generating i18n keys...');
 
@@ -22,7 +28,6 @@ export const I18N_KEYS = ${JSON.stringify(result, null, 2)};
 
   fs.writeFileSync(targetFile, content);
   console.log(`Successfully generated i18n keys to ${targetFile}`);
-
 } catch (error) {
   console.error('Error generating i18n keys:', error);
   process.exit(1);

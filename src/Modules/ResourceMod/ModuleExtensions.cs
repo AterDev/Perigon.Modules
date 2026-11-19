@@ -1,3 +1,5 @@
+using EntityFramework.AppDbContext;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System.ComponentModel;
 namespace ResourceMod;
@@ -7,18 +9,11 @@ namespace ResourceMod;
 public static class ModuleExtensions
 {
     /// <summary>
-    /// module services or init task
+    /// Registers module services.
     /// </summary>
     public static IHostApplicationBuilder AddResourceMod(this IHostApplicationBuilder builder)
     {
-        builder.AddModServices();
-        return builder;
-    }
-
-    // The module services registration
-    private static IHostApplicationBuilder AddModServices(this IHostApplicationBuilder builder)
-    {
-        builder.Services.AddHostedService<Services.InitResourceModService>();
+        builder.Services.AddSingleton<Func<DefaultDbContext, CancellationToken, Task>>(InitModule.InitializeAsync);
         return builder;
     }
 }

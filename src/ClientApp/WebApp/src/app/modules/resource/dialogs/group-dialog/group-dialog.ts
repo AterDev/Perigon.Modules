@@ -1,6 +1,10 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
-import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
+import {
+  MAT_DIALOG_DATA,
+  MatDialogModule,
+  MatDialogRef,
+} from '@angular/material/dialog';
 import { CommonFormModules } from 'src/app/modules/share/shared-modules';
 import { I18N_KEYS } from 'src/app/modules/share/i18n-keys';
 import { ResCategory } from 'src/app/services/admin/models/entity/res-category.model';
@@ -9,7 +13,10 @@ import { ResGroupAddDto } from 'src/app/services/admin/models/resource-mod/res-g
 import { RESOURCE_DEFAULT_COLOR } from 'src/app/modules/resource/shared/resource-appearance';
 import { ResourceColorPickerComponent } from 'src/app/modules/resource/shared/color-picker/color-picker';
 import { ResourceIconPickerComponent } from 'src/app/modules/resource/shared/icon-picker/icon-picker';
-import { resourceIconName, resourceIconStyle } from 'src/app/modules/resource/shared/resource-appearance';
+import {
+  resourceIconName,
+  resourceIconStyle,
+} from 'src/app/modules/resource/shared/resource-appearance';
 
 export interface ResourceGroupDialogData {
   group?: ResGroup;
@@ -33,9 +40,13 @@ export class ResourceGroupDialogComponent {
   readonly i18nKeys = I18N_KEYS;
   readonly iconName = resourceIconName;
   readonly iconStyle = resourceIconStyle;
-  readonly data = inject<ResourceGroupDialogData>(MAT_DIALOG_DATA, { optional: true });
+  readonly data = inject<ResourceGroupDialogData>(MAT_DIALOG_DATA, {
+    optional: true,
+  });
   private readonly formBuilder = inject(FormBuilder);
-  private readonly dialogRef = inject(MatDialogRef<ResourceGroupDialogComponent>);
+  private readonly dialogRef = inject(
+    MatDialogRef<ResourceGroupDialogComponent>,
+  );
   readonly form = this.formBuilder.nonNullable.group({
     name: ['', Validators.required],
     description: [''],

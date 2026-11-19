@@ -1,0 +1,9 @@
+.form {
+  padding-top: 4px;
+}
+mat-form-field {
+  flex: 1;
+}
+mat-dialog-content {
+  min-width: min(620px, 80vw);
+}

@@ -13,7 +13,11 @@ const routes: Routes = [
   { path: 'config', component: ResourceConfigIndexComponent },
   { path: 'definition', component: ResourceDefinitionIndexComponent },
   { path: 'mine', component: UserResourceIndexComponent },
-  { path: 'review', component: UserResourceReviewComponent, canActivate: [AdminGuard] },
+  {
+    path: 'review',
+    component: UserResourceReviewComponent,
+    canActivate: [AdminGuard],
+  },
 ];
 
 @NgModule({
@@ -26,4 +30,4 @@ const routes: Routes = [
     UserResourceReviewComponent,
   ],
 })
-export class ResourceModule { }
+export class ResourceModule {}

@@ -228,7 +228,7 @@ public class ResourceManager(
                 DefinitionPropertyId = property.Id,
                 Value = input.Value,
                 PropertyNameSnapshot = property.Name,
-                ValueTypeSnapshotValue = property.ValueTypeValue
+                ValueTypeSnapshot = property.ValueType
             };
         }).ToList();
     }

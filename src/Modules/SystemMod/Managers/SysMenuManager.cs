@@ -43,7 +43,7 @@ public class SysMenuManager(
                     .Set(menu => menu.Icon, dto.Icon ?? current.Icon)
                     .Set(menu => menu.IsValid, dto.IsValid ?? current.IsValid)
                     .Set(menu => menu.AccessCode, dto.AccessCode ?? current.AccessCode)
-                    .Set(menu => menu.MenuTypeValue, (int)(dto.MenuType ?? current.MenuType))
+                    .Set(menu => menu.MenuType, dto.MenuType ?? current.MenuType)
                     .Set(menu => menu.Sort, dto.Sort ?? current.Sort)
                     .Set(menu => menu.Hidden, dto.Hidden ?? current.Hidden));
             return true;

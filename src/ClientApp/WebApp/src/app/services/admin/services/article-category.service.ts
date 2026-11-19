@@ -8,7 +8,7 @@ import { ArticleCategory } from '../models/entity/article-category.model';
 import { ArticleCategoryUpdateDto } from '../models/cmsmod/article-category-update-dto.model';
 import { ArticleCategoryDetailDto } from '../models/cmsmod/article-category-detail-dto.model';
 /**
- * 
+ *
  */
 @Injectable({ providedIn: 'root' })
 export class ArticleCategoryService extends BaseService {
@@ -19,7 +19,12 @@ export class ArticleCategoryService extends BaseService {
    * @param pageSize number
    * @param orderBy Record<string, boolean>
    */
-  list(name: string | null, pageIndex: number | null, pageSize: number | null, orderBy: Record<string, boolean> | null): Observable<PageList<ArticleCategoryItemDto>> {
+  list(
+    name: string | null,
+    pageIndex: number | null,
+    pageSize: number | null,
+    orderBy: Record<string, boolean> | null,
+  ): Observable<PageList<ArticleCategoryItemDto>> {
     const _url = `/api/ArticleCategory/list?name=${name ?? ''}&pageIndex=${pageIndex ?? ''}&pageSize=${pageSize ?? ''}&orderBy=${orderBy ?? ''}`;
     return this.request<PageList<ArticleCategoryItemDto>>('get', _url);
   }

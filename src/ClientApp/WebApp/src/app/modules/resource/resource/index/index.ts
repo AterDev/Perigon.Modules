@@ -21,7 +21,10 @@ import { ConfirmDialogComponent } from 'src/app/modules/share/components/confirm
 import { ResourceAddComponent } from 'src/app/modules/resource/resource/add/add';
 import { ResourceDetailComponent } from 'src/app/modules/resource/resource/detail/detail';
 import { ResourceEditComponent } from 'src/app/modules/resource/resource/edit/edit';
-import { resourceIconName, resourceIconStyle } from 'src/app/modules/resource/shared/resource-appearance';
+import {
+  resourceIconName,
+  resourceIconStyle,
+} from 'src/app/modules/resource/shared/resource-appearance';
 import { forkJoin } from 'rxjs';
 
 @Component({
@@ -95,14 +98,13 @@ export class ResourceIndexComponent {
     if (searchKey.length === 1) return;
 
     this.loading.set(true);
-    this.resourceList()
-      .subscribe({
-        next: (page) => {
-          this.resources.set(page.data);
-          this.loading.set(false);
-        },
-        error: () => this.loading.set(false),
-      });
+    this.resourceList().subscribe({
+      next: (page) => {
+        this.resources.set(page.data);
+        this.loading.set(false);
+      },
+      error: () => this.loading.set(false),
+    });
   }
 
   private resourceList() {
@@ -160,10 +162,9 @@ export class ResourceIndexComponent {
       .open(ConfirmDialogComponent, {
         data: {
           title: this.translate.instant('common.confirmDelete'),
-          content:
-        this.translate.instant('resource.deleteResourceConfirm', {
-          name: resource.definitionName,
-        }),
+          content: this.translate.instant('resource.deleteResourceConfirm', {
+            name: resource.definitionName,
+          }),
         },
       })
       .afterClosed()

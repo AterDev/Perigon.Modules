@@ -29,37 +29,13 @@ public class Article : EntityBase
     [Required, StringLength(200)]
     public string Authors { get; set; } = string.Empty;
 
-    /// <summary>
-    /// 语言类型的持久化值。保留旧数据库的 LanguageType 列名。
-    /// </summary>
-    [JsonIgnore, Column("LanguageType")]
-    public int LanguageTypeValue { get; set; } = (int)CMSMod.LanguageType.CN;
+    /// <summary>语言类型。</summary>
+    [Column("LanguageType")]
+    public LanguageType LanguageType { get; set; } = CMSMod.LanguageType.CN;
 
-    /// <summary>
-    /// 语言类型。
-    /// </summary>
-    [NotMapped]
-    public LanguageType LanguageType
-    {
-        get => (LanguageType)LanguageTypeValue;
-        set => LanguageTypeValue = (int)value;
-    }
-
-    /// <summary>
-    /// 全站类别的持久化值。保留旧数据库的 ContentType 列名。
-    /// </summary>
-    [JsonIgnore, Column("ContentType")]
-    public int ContentTypeValue { get; set; }
-
-    /// <summary>
-    /// 全站类别。
-    /// </summary>
-    [NotMapped]
-    public ContentType ContentType
-    {
-        get => (ContentType)ContentTypeValue;
-        set => ContentTypeValue = (int)value;
-    }
+    /// <summary>全站类别。</summary>
+    [Column("ContentType")]
+    public ContentType ContentType { get; set; }
 
     /// <summary>
     /// 是否审核

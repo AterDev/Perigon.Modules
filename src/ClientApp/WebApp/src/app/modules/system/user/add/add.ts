@@ -1,4 +1,9 @@
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  inject,
+  signal,
+} from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialogRef } from '@angular/material/dialog';
@@ -26,7 +31,10 @@ export class SysUserAddComponent {
   readonly roles = signal<SysRoleItemDto[]>([]);
   readonly genders = [
     { value: GenderType.Male, labelKey: I18N_KEYS.systemUser.genderTypes.male },
-    { value: GenderType.Female, labelKey: I18N_KEYS.systemUser.genderTypes.female },
+    {
+      value: GenderType.Female,
+      labelKey: I18N_KEYS.systemUser.genderTypes.female,
+    },
     { value: GenderType.Else, labelKey: I18N_KEYS.systemUser.genderTypes.else },
   ] as const;
   saving = false;

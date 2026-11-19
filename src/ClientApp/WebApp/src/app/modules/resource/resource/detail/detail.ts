@@ -24,7 +24,9 @@ export class ResourceDetailComponent {
   private readonly client = inject(AdminClient);
   private readonly route = inject(ActivatedRoute, { optional: true });
   private readonly dialog = inject(MatDialog);
-  private readonly data = inject<{ id: string }>(MAT_DIALOG_DATA, { optional: true });
+  private readonly data = inject<{ id: string }>(MAT_DIALOG_DATA, {
+    optional: true,
+  });
   readonly id = this.data?.id ?? this.route?.snapshot.paramMap.get('id') ?? '';
   readonly resource = signal<ResourceDetailDto | null>(null);
   constructor() {
@@ -32,7 +34,9 @@ export class ResourceDetailComponent {
   }
 
   load(): void {
-    this.client.resource.detail(this.id).subscribe((value) => this.resource.set(value));
+    this.client.resource
+      .detail(this.id)
+      .subscribe((value) => this.resource.set(value));
   }
 
   edit(): void {

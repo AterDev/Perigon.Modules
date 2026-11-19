@@ -1,8 +1,8 @@
-import { Directive, Input } from "@angular/core";
-import { MatCellDef, MatTable } from "@angular/material/table";
+import { Directive, Input } from '@angular/core';
+import { MatCellDef, MatTable } from '@angular/material/table';
 
 @Directive({
-  selector: "[matCellDef]",
+  selector: '[matCellDef]',
   providers: [{ provide: MatCellDef, useExisting: TypedCellDefDirective }],
 })
 export class TypedCellDefDirective<T> extends MatCellDef {

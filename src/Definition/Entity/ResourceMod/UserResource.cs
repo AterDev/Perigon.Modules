@@ -15,33 +15,13 @@ public class UserResource : EntityBase
     /// </summary>
     public Guid DefinitionId { get; set; }
 
-    /// <summary>
-    /// 资源可见性的整数存储值。
-    /// </summary>
-    [JsonIgnore]
-    [Column("Status")]
-    public int StatusValue { get; set; }
     /// <summary>资源可见性。私有资源仅所有者可见，公开申请由管理员审核后转换为常规资源。</summary>
-    [NotMapped]
-    public UserResourceStatus Status
-    {
-        get => (UserResourceStatus)StatusValue;
-        set => StatusValue = (int)value;
-    }
+    [Column("Status")]
+    public UserResourceStatus Status { get; set; }
 
-    /// <summary>
-    /// 公开申请审核状态的整数存储值。
-    /// </summary>
-    [JsonIgnore]
-    [Column("AuditStatus")]
-    public int AuditStatusValue { get; set; }
     /// <summary>公开申请审核状态。</summary>
-    [NotMapped]
-    public UserResourceAuditStatus AuditStatus
-    {
-        get => (UserResourceAuditStatus)AuditStatusValue;
-        set => AuditStatusValue = (int)value;
-    }
+    [Column("AuditStatus")]
+    public UserResourceAuditStatus AuditStatus { get; set; }
 
     /// <summary>
     /// 审核通过后创建的常规资源 ID。

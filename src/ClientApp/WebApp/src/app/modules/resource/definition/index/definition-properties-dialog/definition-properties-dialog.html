@@ -4,23 +4,33 @@
 <mat-dialog-content>
   <div class="resource-property-list" role="list">
     @for (property of properties; track property.id) {
-      <div class="resource-property-row" role="listitem">
-        <span class="resource-property-summary">
-          @if (property.isRequired) {
-            <span class="resource-property-required"
-              [attr.aria-label]="i18nKeys.resource.propertyRequired | translate">*</span>
-          }
-          <strong>{{ property.name }}</strong>
-          <span class="resource-property-type">[{{ valueTypeLabels[property.valueType] | translate }}]</span>
-          <span class="resource-property-max-length">({{ property.maxLength }})</span>
-        </span>
-      </div>
-    }
-    @empty {
-      <p class="text-body-secondary m-0">{{ i18nKeys.common.noData | translate }}</p>
+    <div class="resource-property-row" role="listitem">
+      <span class="resource-property-summary">
+        @if (property.isRequired) {
+        <span
+          class="resource-property-required"
+          [attr.aria-label]="i18nKeys.resource.propertyRequired | translate"
+          >*</span
+        >
+        }
+        <strong>{{ property.name }}</strong>
+        <span class="resource-property-type"
+          >[{{ valueTypeLabels[property.valueType] | translate }}]</span
+        >
+        <span class="resource-property-max-length"
+          >({{ property.maxLength }})</span
+        >
+      </span>
+    </div>
+    } @empty {
+    <p class="text-body-secondary m-0">
+      {{ i18nKeys.common.noData | translate }}
+    </p>
     }
   </div>
 </mat-dialog-content>
 <mat-dialog-actions align="end">
-  <button mat-button mat-dialog-close>{{ i18nKeys.common.close | translate }}</button>
+  <button mat-button mat-dialog-close>
+    {{ i18nKeys.common.close | translate }}
+  </button>
 </mat-dialog-actions>

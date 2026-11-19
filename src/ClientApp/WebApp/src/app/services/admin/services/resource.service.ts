@@ -24,7 +24,17 @@ export class ResourceService extends BaseService {
    * @param pageSize number
    * @param orderBy Record<string, boolean>
    */
-  list(environmentId: string | null, categoryId: string | null, groupId: string | null, definitionId: string | null, tagName: string | null, searchKey: string | null, pageIndex: number | null, pageSize: number | null, orderBy: Record<string, boolean> | null): Observable<PageList<ResourceItemDto>> {
+  list(
+    environmentId: string | null,
+    categoryId: string | null,
+    groupId: string | null,
+    definitionId: string | null,
+    tagName: string | null,
+    searchKey: string | null,
+    pageIndex: number | null,
+    pageSize: number | null,
+    orderBy: Record<string, boolean> | null,
+  ): Observable<PageList<ResourceItemDto>> {
     const _url = `/api/Resource/list?environmentId=${environmentId ?? ''}&categoryId=${categoryId ?? ''}&groupId=${groupId ?? ''}&definitionId=${definitionId ?? ''}&tagName=${tagName ?? ''}&searchKey=${searchKey ?? ''}&pageIndex=${pageIndex ?? ''}&pageSize=${pageSize ?? ''}&orderBy=${orderBy ?? ''}`;
     return this.request<PageList<ResourceItemDto>>('get', _url);
   }

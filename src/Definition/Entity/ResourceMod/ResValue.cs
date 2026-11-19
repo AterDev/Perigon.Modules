@@ -13,17 +13,9 @@ public class ResValue : EntityBase
     /// <summary>保存时的属性名称快照。</summary>
     [StringLength(60)]
     public string PropertyNameSnapshot { get; set; } = string.Empty;
-    /// <summary>保存时的属性值类型快照的整数存储值。</summary>
-    [JsonIgnore]
-    [Column("ValueTypeSnapshot")]
-    public int ValueTypeSnapshotValue { get; set; }
     /// <summary>保存时的属性值类型快照。</summary>
-    [NotMapped]
-    public ResValueType ValueTypeSnapshot
-    {
-        get => (ResValueType)ValueTypeSnapshotValue;
-        set => ValueTypeSnapshotValue = (int)value;
-    }
+    [Column("ValueTypeSnapshot")]
+    public ResValueType ValueTypeSnapshot { get; set; }
     /// <summary>所属资源。</summary>
     [ForeignKey(nameof(ResourceId))]
     [NotMapped]

@@ -1,0 +1,96 @@
+<section class="page">
+  <div
+    class="toolbar d-flex flex-column flex-md-row align-items-md-center gap-2"
+  >
+    <div class="filters d-flex flex-wrap align-items-center gap-2 flex-grow-1">
+      <mat-form-field appearance="outline" subscriptSizing="dynamic"
+        ><mat-label>{{ i18nKeys.audit.sceneCode | translate }}</mat-label
+        ><input matInput [(ngModel)]="sceneCode" (keyup.enter)="load()"
+      /></mat-form-field>
+      <mat-form-field appearance="outline" subscriptSizing="dynamic"
+        ><mat-label>{{ i18nKeys.audit.bizId | translate }}</mat-label
+        ><input matInput [(ngModel)]="bizId" (keyup.enter)="load()"
+      /></mat-form-field>
+      <mat-form-field appearance="outline" subscriptSizing="dynamic"
+        ><mat-label>{{ i18nKeys.audit.status | translate }}</mat-label
+        ><mat-select [(ngModel)]="status"
+          ><mat-option [value]="null"
+            >{{ i18nKeys.audit.allStatuses | translate }}</mat-option
+          >
+          @for (item of statuses; track item.value) {
+          <mat-option [value]="item.value">{{ item.label }}</mat-option>
+          }
+        </mat-select></mat-form-field
+      >
+      <button mat-stroked-button (click)="load()">
+        <mat-icon>search</mat-icon>{{ i18nKeys.audit.query | translate }}
+      </button>
+    </div>
+    <button mat-icon-button (click)="load()" aria-label="刷新">
+      <mat-icon>refresh</mat-icon>
+    </button>
+  </div>
+  <h2>
+    {{ (mine ? i18nKeys.audit.mineTitle : i18nKeys.audit.recordTitle) |
+    translate }}
+  </h2>
+  @if (loading()) {
+  <mat-spinner diameter="32" />
+  } @else if (loadError()) {
+  <p>
+    {{ i18nKeys.audit.loadFail | translate }}
+    <button mat-button (click)="load()">
+      {{ i18nKeys.audit.retry | translate }}
+    </button>
+  </p>
+  } @else if (records().length === 0) {
+  <p>
+    {{ (mine ? i18nKeys.audit.emptyMine : i18nKeys.audit.emptyRecords) |
+    translate }}
+  </p>
+  } @else {
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>{{ i18nKeys.audit.process | translate }}</th>
+          <th>{{ i18nKeys.audit.sceneCode | translate }}</th>
+          <th>{{ i18nKeys.audit.bizId | translate }}</th>
+          <th>{{ i18nKeys.audit.applicant | translate }}</th>
+          <th>{{ i18nKeys.audit.status | translate }}</th>
+          <th>{{ i18nKeys.common.createdTime | translate }}</th>
+          <th>{{ i18nKeys.audit.actions | translate }}</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (item of records(); track item.id) {
+        <tr>
+          <td>{{ item.flowNameSnapshot }}</td>
+          <td>{{ item.sceneCode }}</td>
+          <td>{{ item.bizId }}</td>
+          <td>{{ item.applicantNameSnapshot }}</td>
+          <td>
+            <span class="status">{{ statusLabel(item.status) }}</span>
+          </td>
+          <td>{{ item.submittedTime | date: "yyyy-MM-dd HH:mm" }}</td>
+          <td>
+            <button mat-button (click)="detail(item)">
+              <mat-icon>visibility</mat-icon>{{ i18nKeys.audit.detail |
+              translate }}
+            </button>
+          </td>
+        </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+  <mat-paginator
+    [length]="total()"
+    [pageIndex]="pageIndex"
+    [pageSize]="pageSize"
+    [pageSizeOptions]="[10, 20, 50]"
+    (page)="pageChanged($event)"
+    aria-label="分页"
+  ></mat-paginator>
+  }
+</section>

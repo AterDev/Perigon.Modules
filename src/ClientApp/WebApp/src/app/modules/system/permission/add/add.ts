@@ -1,4 +1,9 @@
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  inject,
+  signal,
+} from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { TranslateService } from '@ngx-translate/core';
@@ -22,7 +27,10 @@ export class SysDataScopeAddComponent {
   readonly typeOptions = [
     { value: DataScopeType.None, label: I18N_KEYS.sysDataScope.types.none },
     { value: DataScopeType.All, label: I18N_KEYS.sysDataScope.types.all },
-    { value: DataScopeType.Include, label: I18N_KEYS.sysDataScope.types.include },
+    {
+      value: DataScopeType.Include,
+      label: I18N_KEYS.sysDataScope.types.include,
+    },
   ];
   private readonly fb = inject(FormBuilder);
   private readonly client = inject(AdminClient);
@@ -66,7 +74,10 @@ export class SysDataScopeAddComponent {
         name: value.name.trim(),
         resourceCode: value.resourceCode.trim(),
         scopeType: value.scopeType,
-        targetIds: value.scopeType === DataScopeType.Include ? this.parseTargetIds() : [],
+        targetIds:
+          value.scopeType === DataScopeType.Include
+            ? this.parseTargetIds()
+            : [],
         groupId: value.groupId,
       })
       .subscribe({
@@ -83,8 +94,13 @@ export class SysDataScopeAddComponent {
   }
 
   private parseTargetIds(): string[] {
-    return [...new Set(this.form.controls.targetIdsText.value.split(/[\s,;]+/).filter(Boolean))];
+    return [
+      ...new Set(
+        this.form.controls.targetIdsText.value.split(/[\s,;]+/).filter(Boolean),
+      ),
+    ];
   }
 }
 
-const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+const UUID_PATTERN =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;

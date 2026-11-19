@@ -19,7 +19,8 @@ export interface ResourceDefinitionPropertiesDialogData {
 })
 export class ResourceDefinitionPropertiesDialogComponent {
   readonly i18nKeys = I18N_KEYS;
-  readonly data = inject<ResourceDefinitionPropertiesDialogData>(MAT_DIALOG_DATA);
+  readonly data =
+    inject<ResourceDefinitionPropertiesDialogData>(MAT_DIALOG_DATA);
   readonly properties = sortResourceProperties(this.data.definition.properties);
   readonly valueTypeLabels = {
     [ResValueType.String]: I18N_KEYS.resource.propertyTypes.string,

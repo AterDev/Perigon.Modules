@@ -1,13 +1,9 @@
-using Microsoft.Extensions.Hosting;
 using EntityFramework.AppDbContext;
 using Perigon.PostgreSQL;
 
-namespace ResourceMod.Services;
+namespace ResourceMod;
 
-public sealed class InitResourceModService(
-    IServiceProvider serviceProvider,
-    ILogger<InitResourceModService> logger
-) : BackgroundService
+public static class InitModule
 {
     private static readonly (string Name, string Color, string Icon)[] DefaultEnvironments =
     [
@@ -47,25 +43,15 @@ public sealed class InitResourceModService(
         ("数据库", "database", ["名称", "IP", "Url", "Port", "用户名", "密码"]),
     ];
 
-    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+    public static Task InitializeAsync(DefaultDbContext context, CancellationToken cancellationToken)
     {
-        try
+        return context.TransactionAsync(async token =>
         {
-            using IServiceScope scope = serviceProvider.CreateScope();
-            DefaultDbContext context = scope.ServiceProvider.GetRequiredService<DefaultDbContext>();
-            await context.TransactionAsync(async cancellationToken =>
-            {
-                await InitializeEnvironmentsAsync(context, cancellationToken);
-                await InitializeCategoryAsync(context, cancellationToken);
-                await InitializeTagsAsync(context, cancellationToken);
-                await InitializeDefinitionsAsync(context, cancellationToken);
-            }, stoppingToken);
-            logger.LogInformation("ResourceMod initialization completed.");
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex, "ResourceMod initialization failed");
-        }
+            await InitializeEnvironmentsAsync(context, token);
+            await InitializeCategoryAsync(context, token);
+            await InitializeTagsAsync(context, token);
+            await InitializeDefinitionsAsync(context, token);
+        }, cancellationToken);
     }
 
     private static async Task InitializeEnvironmentsAsync(
@@ -201,7 +187,7 @@ public sealed class InitResourceModService(
                 item => new ResDefinitionProperty
                 {
                     Name = item.Name,
-                    ValueTypeValue = (int)item.ValueType,
+                    ValueType = item.ValueType,
                     IsRequired = item.Name == "名称",
                     MaxLength = 200,
                 },

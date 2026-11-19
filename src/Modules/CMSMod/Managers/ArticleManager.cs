@@ -19,12 +19,10 @@ public class ArticleManager(
 {
     public async Task<PageList<ArticleItemDto>> ToPageAsync(ArticleFilterDto filter)
     {
-        int languageType = (int)filter.LanguageType.GetValueOrDefault();
-        int contentType = (int)filter.BlogType.GetValueOrDefault();
         Queryable = Queryable
             .WhereNotNull(filter.Title, q => q.Title == filter.Title)
-            .WhereNotNull(filter.LanguageType, q => q.LanguageTypeValue == languageType)
-            .WhereNotNull(filter.BlogType, q => q.ContentTypeValue == contentType)
+            .WhereNotNull(filter.LanguageType, q => q.LanguageType == filter.LanguageType)
+            .WhereNotNull(filter.BlogType, q => q.ContentType == filter.BlogType)
             .WhereNotNull(filter.IsAudit, q => q.IsAudit == filter.IsAudit)
             .WhereNotNull(filter.IsPublic, q => q.IsPublic == filter.IsPublic)
             .WhereNotNull(filter.IsOriginal, q => q.IsOriginal == filter.IsOriginal)
@@ -46,8 +44,8 @@ public class ArticleManager(
             Description = dto.Description,
             Content = dto.Content,
             Authors = GetCurrentAuthorName(),
-            LanguageTypeValue = (int)dto.LanguageType,
-            ContentTypeValue = (int)dto.BlogType,
+            LanguageType = dto.LanguageType,
+            ContentType = dto.BlogType,
             IsAudit = false,
             IsPublic = dto.IsPublic,
             IsOriginal = dto.IsOriginal,
@@ -106,12 +104,8 @@ public class ArticleManager(
         entity.Title = dto.Title;
         entity.Description = dto.Description;
         entity.Content = dto.Content;
-        entity.LanguageTypeValue = dto.LanguageType is { } languageType
-            ? (int)languageType
-            : entity.LanguageTypeValue;
-        entity.ContentTypeValue = dto.BlogType is { } contentType
-            ? (int)contentType
-            : entity.ContentTypeValue;
+        entity.LanguageType = dto.LanguageType ?? entity.LanguageType;
+        entity.ContentType = dto.BlogType ?? entity.ContentType;
         entity.IsPublic = dto.IsPublic ?? entity.IsPublic;
         entity.IsOriginal = dto.IsOriginal ?? entity.IsOriginal;
         entity.CatalogId = catalogId;
@@ -122,8 +116,8 @@ public class ArticleManager(
                 .Set(a => a.Title, entity.Title)
                 .Set(a => a.Description, entity.Description)
                 .Set(a => a.Content, entity.Content)
-                .Set(a => a.LanguageTypeValue, entity.LanguageTypeValue)
-                .Set(a => a.ContentTypeValue, entity.ContentTypeValue)
+                .Set(a => a.LanguageType, entity.LanguageType)
+                .Set(a => a.ContentType, entity.ContentType)
                 .Set(a => a.IsPublic, entity.IsPublic)
                 .Set(a => a.IsOriginal, entity.IsOriginal)
                 .Set(a => a.CatalogId, entity.CatalogId)

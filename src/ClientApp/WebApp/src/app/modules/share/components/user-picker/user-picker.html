@@ -1,0 +1,40 @@
+<div class="d-flex flex-column gap-2">
+  <mat-form-field appearance="outline" subscriptSizing="dynamic">
+    <mat-label>{{ label() }}</mat-label>
+    <input
+      matInput
+      [formControl]="search"
+      [readonly]="disabled()"
+      [matAutocomplete]="users"
+      maxlength="100"
+    />
+    <mat-hint>{{ i18nKeys.userPicker.hint | translate }}</mat-hint>
+    <mat-autocomplete #users (optionSelected)="add($event.option.value)">
+      @for (user of available(); track user.id) {
+      <mat-option [value]="user">{{ user.name }}</mat-option>
+      }
+    </mat-autocomplete>
+  </mat-form-field>
+  @if (failed()) {
+  <p role="alert">{{ i18nKeys.common.loadFail | translate }}</p>
+  } @if (userIds().length) {
+  <mat-chip-set [attr.aria-label]="label()">
+    @for (id of userIds(); track id) {
+    <mat-chip (removed)="remove(id)">
+      {{ names()[id] ?? id }}
+      <button
+        matChipRemove
+        type="button"
+        [disabled]="disabled()"
+        [attr.aria-label]="
+              i18nKeys.userPicker.remove
+                | translate: { user: names()[id] ?? id }
+            "
+      >
+        <mat-icon>cancel</mat-icon>
+      </button>
+    </mat-chip>
+    }
+  </mat-chip-set>
+  }
+</div>

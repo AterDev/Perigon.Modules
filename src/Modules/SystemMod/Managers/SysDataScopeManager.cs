@@ -17,7 +17,7 @@ public class SysDataScopeManager(
         Queryable = Queryable
             .WhereNotNull(filter.Name, scope => scope.Name.Contains(filter.Name!))
             .WhereNotNull(filter.ResourceCode, scope => scope.ResourceCode == filter.ResourceCode)
-            .WhereNotNull(filter.ScopeType, scope => scope.ScopeTypeValue == (int)filter.ScopeType!.Value)
+            .WhereNotNull(filter.ScopeType, scope => scope.ScopeType == filter.ScopeType!.Value)
             .WhereNotNull(filter.GroupId, scope => scope.GroupId == filter.GroupId);
 
         return await PageListAsync<SysDataScopeFilterDto, SysDataScopeItemDto>(filter, MapItem);
@@ -94,7 +94,7 @@ public class SysDataScopeManager(
                 .Set(scope => scope.GroupId, current.GroupId)
                 .Set(scope => scope.Name, current.Name)
                 .Set(scope => scope.ResourceCode, current.ResourceCode)
-                .Set(scope => scope.ScopeTypeValue, current.ScopeTypeValue)
+                .Set(scope => scope.ScopeType, current.ScopeType)
                 .Set(scope => scope.TargetIds, current.TargetIds));
         return current;
     }

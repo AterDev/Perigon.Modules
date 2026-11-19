@@ -46,7 +46,10 @@ export class ResourceConfigurationService extends BaseService {
    * @param id 资源环境唯一标识。
    * @param data ResEnvironmentUpdateDto
    */
-  updateEnvironment(id: string, data: ResEnvironmentUpdateDto): Observable<ResEnvironment> {
+  updateEnvironment(
+    id: string,
+    data: ResEnvironmentUpdateDto,
+  ): Observable<ResEnvironment> {
     const _url = `/api/ResourceConfiguration/environments/${id}`;
     return this.request<ResEnvironment>('put', _url, data);
   }
@@ -78,7 +81,10 @@ export class ResourceConfigurationService extends BaseService {
    * @param id 资源分类唯一标识。
    * @param data ResCategoryUpdateDto
    */
-  updateCategory(id: string, data: ResCategoryUpdateDto): Observable<ResCategory> {
+  updateCategory(
+    id: string,
+    data: ResCategoryUpdateDto,
+  ): Observable<ResCategory> {
     const _url = `/api/ResourceConfiguration/categories/${id}`;
     return this.request<ResCategory>('put', _url, data);
   }
@@ -167,7 +173,9 @@ export class ResourceConfigurationService extends BaseService {
    * 新增资源属性定义。
    * @param data ResDefinitionPropertyAddDto
    */
-  addProperty(data: ResDefinitionPropertyAddDto): Observable<ResDefinitionProperty> {
+  addProperty(
+    data: ResDefinitionPropertyAddDto,
+  ): Observable<ResDefinitionProperty> {
     const _url = `/api/ResourceConfiguration/properties`;
     return this.request<ResDefinitionProperty>('post', _url, data);
   }
@@ -176,7 +184,10 @@ export class ResourceConfigurationService extends BaseService {
    * @param id 资源属性定义唯一标识。
    * @param data ResDefinitionPropertyUpdateDto
    */
-  updateProperty(id: string, data: ResDefinitionPropertyUpdateDto): Observable<ResDefinitionProperty> {
+  updateProperty(
+    id: string,
+    data: ResDefinitionPropertyUpdateDto,
+  ): Observable<ResDefinitionProperty> {
     const _url = `/api/ResourceConfiguration/properties/${id}`;
     return this.request<ResDefinitionProperty>('put', _url, data);
   }
@@ -209,7 +220,10 @@ export class ResourceConfigurationService extends BaseService {
    * @param id 资源定义唯一标识。
    * @param data ResDefinitionUpdateDto
    */
-  updateDefinition(id: string, data: ResDefinitionUpdateDto): Observable<ResDefinition> {
+  updateDefinition(
+    id: string,
+    data: ResDefinitionUpdateDto,
+  ): Observable<ResDefinition> {
     const _url = `/api/ResourceConfiguration/definitions/${id}`;
     return this.request<ResDefinition>('put', _url, data);
   }
@@ -226,7 +240,10 @@ export class ResourceConfigurationService extends BaseService {
    * @param environmentId 资源环境唯一标识。
    * @param categoryId 资源分类唯一标识。
    */
-  permissions(environmentId: string | null, categoryId: string | null): Observable<ResPermission[]> {
+  permissions(
+    environmentId: string | null,
+    categoryId: string | null,
+  ): Observable<ResPermission[]> {
     const _url = `/api/ResourceConfiguration/permissions?environmentId=${environmentId ?? ''}&categoryId=${categoryId ?? ''}`;
     return this.request<ResPermission[]>('get', _url);
   }

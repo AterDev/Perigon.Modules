@@ -6,10 +6,10 @@ import { MatPaginatorIntl } from '@angular/material/paginator';
 export class CustomPaginatorIntl extends MatPaginatorIntl {
   constructor() {
     super();
-    this.itemsPerPageLabel = "每页";
-    this.nextPageLabel = "下一页";
-    this.previousPageLabel = "上一页";
-    this.firstPageLabel = "首页";
-    this.lastPageLabel = "尾页";
+    this.itemsPerPageLabel = '每页';
+    this.nextPageLabel = '下一页';
+    this.previousPageLabel = '上一页';
+    this.firstPageLabel = '首页';
+    this.lastPageLabel = '尾页';
   }
 }

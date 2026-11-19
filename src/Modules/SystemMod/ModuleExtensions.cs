@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Hosting;
 using System.ComponentModel;
-using SystemMod.Worker;
 
 namespace SystemMod;
 
@@ -27,7 +26,6 @@ public static class ModuleExtensions
     {
         builder.Services.AddSingleton<IEntityTaskQueue<SysLogs>, EntityTaskQueue<SysLogs>>();
         builder.Services.AddSingleton<SystemLogService>();
-        builder.Services.AddHostedService<SystemLogTaskHostedService>();
         return builder;
     }
 }

@@ -1,5 +1,11 @@
 import { Injectable } from '@angular/core';
-import { ActivatedRouteSnapshot, CanActivate, Router, RouterStateSnapshot, UrlTree } from '@angular/router';
+import {
+  ActivatedRouteSnapshot,
+  CanActivate,
+  Router,
+  RouterStateSnapshot,
+  UrlTree,
+} from '@angular/router';
 import { AuthService } from 'src/app/services/auth.service';
 
 /// <summary>限制管理员专用页面的前端导航入口；后端接口仍负责最终授权。</summary>

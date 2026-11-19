@@ -14,10 +14,13 @@
 
 @media (prefers-color-scheme: dark) {
   .primary {
-  background-color: color.adjust(vars.$dark-primary-color, $lightness: -5%);
+    background-color: color.adjust(vars.$dark-primary-color, $lightness: -5%);
 
     &:hover {
-      background-color: color.adjust(vars.$dark-primary-color, $lightness: -10%);
+      background-color: color.adjust(
+        vars.$dark-primary-color,
+        $lightness: -10%
+      );
     }
 
     &.active {
@@ -26,10 +29,13 @@
   }
 
   .accent {
-  background-color: color.adjust(theme.$dark-accent-color, $lightness: -5%);
+    background-color: color.adjust(theme.$dark-accent-color, $lightness: -5%);
 
     &:hover {
-      background-color: color.adjust(theme.$dark-accent-color, $lightness: -10%);
+      background-color: color.adjust(
+        theme.$dark-accent-color,
+        $lightness: -10%
+      );
     }
 
     &.active {
@@ -38,7 +44,7 @@
   }
 
   .warn {
-  background-color: color.adjust(theme.$dark-error-color, $lightness: -5%);
+    background-color: color.adjust(theme.$dark-error-color, $lightness: -5%);
 
     &:hover {
       background-color: color.adjust(theme.$dark-error-color, $lightness: -10%);
@@ -52,10 +58,13 @@
 
 @media (prefers-color-scheme: light) {
   .primary {
-  background-color: color.adjust(vars.$light-primary-color, $lightness: -5%);
+    background-color: color.adjust(vars.$light-primary-color, $lightness: -5%);
 
     &:hover {
-      background-color: color.adjust(vars.$light-primary-color, $lightness: -10%);
+      background-color: color.adjust(
+        vars.$light-primary-color,
+        $lightness: -10%
+      );
     }
 
     &.active {
@@ -64,10 +73,13 @@
   }
 
   .accent {
-  background-color: color.adjust(theme.$light-accent-color, $lightness: -5%);
+    background-color: color.adjust(theme.$light-accent-color, $lightness: -5%);
 
     &:hover {
-      background-color: color.adjust(theme.$light-accent-color, $lightness: -10%);
+      background-color: color.adjust(
+        theme.$light-accent-color,
+        $lightness: -10%
+      );
     }
 
     &.active {
@@ -76,10 +88,13 @@
   }
 
   .warn {
-  background-color: color.adjust(theme.$light-error-color, $lightness: -5%);
+    background-color: color.adjust(theme.$light-error-color, $lightness: -5%);
 
     &:hover {
-      background-color: color.adjust(theme.$light-error-color, $lightness: -10%);
+      background-color: color.adjust(
+        theme.$light-error-color,
+        $lightness: -10%
+      );
     }
 
     &.active {

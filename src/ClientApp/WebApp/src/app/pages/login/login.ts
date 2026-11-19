@@ -1,4 +1,10 @@
-import { AfterViewInit, Component, DestroyRef, inject } from '@angular/core';
+import {
+  AfterViewInit,
+  Component,
+  DestroyRef,
+  inject,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import {
   FormControl,
   FormGroup,
@@ -17,6 +23,7 @@ import { AdminClient } from 'src/app/services/admin/admin-client';
   selector: 'app-login',
   imports: [CommonFormModules, MatCardModule, ReactiveFormsModule],
   templateUrl: './login.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./login.scss'],
 })
 export class Login implements AfterViewInit {

@@ -15,7 +15,9 @@ export const routes: Routes = [
       {
         path: 'system',
         loadChildren: () =>
-          import('src/app/modules/system/system.module').then((m) => m.SystemModule),
+          import('src/app/modules/system/system.module').then(
+            (m) => m.SystemModule,
+          ),
       },
       {
         path: 'resource',
@@ -28,6 +30,20 @@ export const routes: Routes = [
         path: 'cms',
         loadChildren: () =>
           import('src/app/modules/cms/cms.module').then((m) => m.CmsModule),
+      },
+      {
+        path: 'audit',
+        loadChildren: () =>
+          import('src/app/modules/audit/audit.routes').then(
+            (m) => m.auditRoutes,
+          ),
+      },
+      {
+        path: 'notification',
+        loadChildren: () =>
+          import('src/app/modules/notification/notification.routes').then(
+            (m) => m.notificationRoutes,
+          ),
       },
       // {
       //   path: 'sys-config',

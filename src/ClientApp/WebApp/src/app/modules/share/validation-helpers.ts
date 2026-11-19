@@ -4,10 +4,12 @@ import {
   MinLengthValidationError,
   MaxLengthValidationError,
   MinValidationError,
-  MaxValidationError
+  MaxValidationError,
 } from '@angular/forms/signals';
 
-function mapValidationParams(error: ValidationError): Record<string, unknown> | undefined {
+function mapValidationParams(
+  error: ValidationError,
+): Record<string, unknown> | undefined {
   switch (error.kind) {
     case 'minLength':
       return { requiredLength: (error as MinLengthValidationError).minLength };
@@ -25,7 +27,7 @@ function mapValidationParams(error: ValidationError): Record<string, unknown> | 
 export function translateValidationError(
   translate: TranslateService,
   error: ValidationError,
-  namespace = 'validation'
+  namespace = 'validation',
 ): string {
   const key = `${namespace}.${error.kind.toLowerCase()}`;
   const params = mapValidationParams(error);

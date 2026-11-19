@@ -4,7 +4,7 @@ namespace SystemMod;
 
 public static class InitModule
 {
-    public static async Task InitializeAdminAccountAsync(
+    public static async Task InitializeAsync(
         DefaultDbContext context,
         CancellationToken cancellationToken = default)
     {

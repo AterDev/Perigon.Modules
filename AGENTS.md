@@ -30,7 +30,7 @@
 - DTO 的嵌套属性也必须引用符合上述规则的 DTO；不要通过 `Input` 或实体类型充当 DTO 的替代品。
 - 新增或修改模块时，必须同时检查目录、文件粒度、类型命名和所有引用；生成代码后也必须按此规则整理并完成构建验证。
 
-当前技术基线由仓库配置决定：.NET 11、Perigon.PostgreSQL 0.3.1、Aspire 13、Angular 21、TypeScript 5.9、TUnit 和 Microsoft.Testing.Platform。后端使用 MiniApi Minimal API、Native AOT 和单库，不支持多租户；DTO 使用显式映射。NuGet 版本集中维护在 `Directory.Packages.props`，测试运行器由 `global.json` 指定。
+当前技术基线由仓库配置决定：.NET 11、Perigon.PostgreSQL 0.3.1、Aspire 13、Angular 22、TypeScript 6.0、TUnit 和 Microsoft.Testing.Platform。后端使用 MiniApi Minimal API、Native AOT 和单库，不支持多租户；DTO 使用显式映射。NuGet 版本集中维护在 `Directory.Packages.props`，测试运行器由 `global.json` 指定。
 
 ## 工具优先级
 
@@ -44,7 +44,7 @@
 - `.agents/skills/perigon/SKILL.md`：Perigon 主入口。涉及脚手架、模块/服务生成、代码生成、OpenAPI 客户端、MCP、Studio，以及遵循 Perigon 约定的前后端开发时使用。
   - `references/module.md`：官方模块的创建、接线、元数据、兼容性与打包。
   - `references/backend.md`：实体、DbContext、DTO、Manager、Controller、迁移和后端服务模式。
-  - `references/angular.md`：Angular 页面、路由、生成客户端、菜单、国际化与主题。
+  - `references/angular.md`：Angular 升级、前端模块拆分、页面、路由、生成客户端、菜单、国际化与主题。
   - `references/perigon-cli.md`：Perigon CLI、MCP、Studio 和生成命令。
 - `.agents/skills/aspire/SKILL.md`：Aspire 分布式应用的启动、资源操作、AppHost 和运行时工作流；需要启动、停止、等待、重建或诊断资源时使用。
 - `.agents/skills/aspire-orchestration/SKILL.md`：Aspire 生命周期、资源级 rebuild/restart、锁文件和端口冲突处理。

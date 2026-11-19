@@ -1,6 +1,15 @@
-import { Component, Inject, OnInit } from '@angular/core';
+import {
+  Component,
+  Inject,
+  OnInit,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { MatButton } from '@angular/material/button';
-import { MatDialogRef, MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
+import {
+  MatDialogRef,
+  MAT_DIALOG_DATA,
+  MatDialogModule,
+} from '@angular/material/dialog';
 import { TranslateModule } from '@ngx-translate/core';
 import { I18N_KEYS } from 'src/app/modules/share/i18n-keys';
 
@@ -8,19 +17,17 @@ import { I18N_KEYS } from 'src/app/modules/share/i18n-keys';
   selector: 'admin-confirm-dialog',
   imports: [MatDialogModule, MatButton, TranslateModule],
   templateUrl: './confirm-dialog.component.html',
-  styleUrls: ['./confirm-dialog.component.css']
+  changeDetection: ChangeDetectionStrategy.Eager,
+  styleUrls: ['./confirm-dialog.component.css'],
 })
 export class ConfirmDialogComponent implements OnInit {
   readonly i18nKeys = I18N_KEYS;
   constructor(
     public dialogRef: MatDialogRef<ConfirmDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: { title: '', content: '' }
-  ) {
+    @Inject(MAT_DIALOG_DATA) public data: { title: ''; content: '' },
+  ) {}
 
-  }
-
-  ngOnInit() {
-  }
+  ngOnInit() {}
 
   confirm(): void {
     this.dialogRef.close(true);
@@ -28,5 +35,4 @@ export class ConfirmDialogComponent implements OnInit {
   onNoClick(): void {
     this.dialogRef.close();
   }
-
 }

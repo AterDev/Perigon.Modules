@@ -28,19 +28,27 @@
 
 ## 项目运行
 
-项目基于 `Aspire`，默认使用 PostgreSQL 资源。AppHost 会先通过独立 migration resource 执行 Perigon.PostgreSQL 迁移，再启动业务服务。
+项目基于 `Aspire`。AppHost 将外部 PostgreSQL 连接传给 ApiService，ApiService 负责应用 Perigon.PostgreSQL 迁移。目标库缺失时，迁移会在连接账号具有建库权限的情况下先创建空库。
 
-运行时依赖 Perigon.PostgreSQL 0.3.2-preview.2。资源搜索和用户收藏列表的可见性过滤、总数统计及 `Skip/Take` 分页均在 PostgreSQL 中执行；已有旧 EF 数据库必须先备份并核对表、列、索引和外键，再由运维人员显式 baseline，系统不会自动重建、删除或隐式接管已有数据库。
+运行时依赖 Perigon.PostgreSQL 0.3.5。资源搜索和用户收藏列表的可见性过滤、总数统计及 `Skip/Take` 分页均在 PostgreSQL 中执行；已有旧 EF 数据库必须先备份并核对表、列、索引和外键，再由运维人员显式 baseline，系统不会自动重建、删除或隐式接管已有数据库。
+
+默认上下文使用类库的 PascalCase 约定，当前初始迁移也按该约定生成。显式表名和列名优先。索引 `Filter` 中的 SQL 必须使用实际物理列名，并用双引号保留 PascalCase。
+
+`DefaultDbContext` 只有一个公开的 options 构造函数，宿主通过 `AddDbContextPool` 注册，并在启动的独立作用域内执行迁移和种子方法。`AppDbFactory` 仍为需要独立上下文生命周期的调用方创建非池化实例。
+
+`scripts/Migrations.ps1 Add <名称>` 比较当前模型与迁移快照，生成迁移源码和新快照，无需数据库连接。应用迁移时，`scripts/DatabaseUpdate.ps1` 接收实际连接字符串；ApiService 启动应用迁移时使用配置中的 `ConnectionStrings:Default`。
 
 本地预览包由同级 Perigon.PostgreSQL 仓库生成。在 Perigon.Modules 根目录执行以下命令可在新环境还原依赖。
 
 ```powershell
-../Perigon.PostgreSQL/scripts/pack.ps1 -Version 0.3.2-preview.2
+dotnet pack ../Perigon.PostgreSQL/src/Perigon.PostgreSQL/Perigon.PostgreSQL.csproj -c Release -p:PackageVersion=0.3.5 -o ../Perigon.PostgreSQL/artifacts/packages
+dotnet pack ../Perigon.PostgreSQL/src/Perigon.PostgreSQL.Tools/Perigon.PostgreSQL.Tools.csproj -c Release -o ../Perigon.PostgreSQL/artifacts/packages
 dotnet restore Perigon.Modules.slnx
 dotnet tool restore
+dotnet perigon --version
 ```
 
-Modules 使用单个 PostgreSQL 业务库，实体保留软删除过滤。ApiService 启动时应用迁移，并在首次启动初始化默认管理员。旧多租户库不能直接使用新的迁移基线；本地开发请使用新的空库，不要清理旧库来绕过迁移检查。
+Modules 使用单个 PostgreSQL 业务库，实体保留软删除过滤。ApiService 迁移成功后初始化默认管理员和 ResourceMod 种子数据。旧多租户库不能直接使用新的迁移基线；本地开发请使用新的空库，不要清理旧库来绕过迁移检查。
 
 ## 模块开发
 

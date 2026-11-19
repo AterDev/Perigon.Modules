@@ -3,6 +3,7 @@ using AuditMod.Models.AuditFlowDtos;
 using AuditMod.Models.AuditRecordDtos;
 using AuditMod.Models.AuditTaskDtos;
 using Entity.AuditMod;
+using Perigon.AspNetCore.Models;
 using System.Net;
 using System.Net.Http.Json;
 
@@ -47,6 +48,24 @@ public sealed class AuditModApiTests
             await Assert.That(record.Steps[0].Tasks.Count).IsEqualTo(2);
 
             Guid firstTask = record.Steps[0].Tasks.Single(task => task.AssigneeUserId == auditorA.UserId).Id;
+            var pendingTasks = await GetAsync<PageList<AuditTaskItemDto>>(
+                auditorA.Client,
+                "/api/audit-tasks/mine?status=1&recordStatus=0",
+                HttpStatusCode.OK);
+            await Assert.That(pendingTasks.Data.Select(task => task.Id)).IsEquivalentTo([firstTask]);
+
+            var allRecords = await GetAsync<PageList<AuditRecordItemDto>>(
+                data.HttpClient,
+                "/api/admin/audit-records",
+                HttpStatusCode.OK);
+            await Assert.That(allRecords.Data.Any(item => item.Id == record.Id)).IsTrue();
+
+            var selectedRecords = await GetAsync<PageList<AuditRecordItemDto>>(
+                data.HttpClient,
+                $"/api/admin/audit-records?sceneCode={scene}&status=0",
+                HttpStatusCode.OK);
+            await Assert.That(selectedRecords.Data.Select(item => item.Id)).IsEquivalentTo([record.Id]);
+
             using (HttpResponseMessage outsiderResponse = await outsider.Client.PostAsJsonAsync($"/api/audit-tasks/{firstTask}/approve", new AuditDecisionDto { Comment = "not assigned" }))
             {
                 await Assert.That(outsiderResponse.StatusCode).IsEqualTo(HttpStatusCode.Forbidden);
@@ -68,7 +87,10 @@ public sealed class AuditModApiTests
             }
             finally
             {
-                foreach (HttpResponseMessage response in decisions) response.Dispose();
+                foreach (HttpResponseMessage response in decisions)
+                {
+                    response.Dispose();
+                }
             }
 
             AuditRecordDetailDto completed = await GetAsync<AuditRecordDetailDto>(applicant.Client, $"/api/audit-records/{record.Id}", HttpStatusCode.OK);
@@ -97,7 +119,10 @@ public sealed class AuditModApiTests
         {
             AuditFlowDetailDto flow = await PostAsync<AuditFlowDetailDto>(data.HttpClient, "/api/admin/audit-flows", new AuditFlowAddDto
             {
-                FlowKey = $"audit-withdraw-{Guid.NewGuid():N}", SceneCode = scene, Name = "Withdraw flow", IsEnabled = true,
+                FlowKey = $"audit-withdraw-{Guid.NewGuid():N}",
+                SceneCode = scene,
+                Name = "Withdraw flow",
+                IsEnabled = true,
                 Steps = [new AuditFlowStepDto { StepNo = 1, Name = "Review", AuditMode = AuditMode.Any, AuditorUserIds = [auditor.UserId] }]
             }, HttpStatusCode.Created);
             flowId = flow.Id;

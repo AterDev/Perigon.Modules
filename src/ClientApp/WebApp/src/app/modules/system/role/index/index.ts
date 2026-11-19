@@ -1,4 +1,9 @@
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  inject,
+  signal,
+} from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { TranslateService } from '@ngx-translate/core';
@@ -75,9 +80,12 @@ export class SysRoleIndexComponent {
       .open(ConfirmDialogComponent, {
         data: {
           title: this.translate.instant(this.i18nKeys.common.confirmDelete),
-          content: this.translate.instant(this.i18nKeys.systemRole.deleteConfirm, {
-            name: role.name,
-          }),
+          content: this.translate.instant(
+            this.i18nKeys.systemRole.deleteConfirm,
+            {
+              name: role.name,
+            },
+          ),
         },
       })
       .afterClosed()

@@ -4,7 +4,7 @@ WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
 builder.AddServiceDefaults();
 builder.AddFrameworkServices();
-builder.AddMiniApiMiddlewareServices();
+builder.AddMiddlewareServices();
 builder.Services.AddValidation();
 builder.Services.ConfigureHttpJsonOptions(options =>
     options.SerializerOptions.TypeInfoResolverChain.Insert(0, ApiService.ApiJsonSerializerContext.Default));
@@ -14,10 +14,11 @@ builder.Services.AddAuthorizationBuilder()
     .AddPolicy(WebConst.SuperAdmin, policy => policy.RequireRole(WebConst.SuperAdmin));
 builder.Services.AddManagers();
 builder.Services.AddHostedService<DatabaseInitializationWorker>();
+builder.Services.AddHostedService<SystemLogTaskHostedService>();
 builder.AddModules();
 
 WebApplication app = builder.Build();
 app.MapDefaultEndpoints();
 app.MapEndpointGroups();
-app.UseMiniApiMiddlewareServices();
+app.UseMiddlewareServices();
 await app.RunAsync();

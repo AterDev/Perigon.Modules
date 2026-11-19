@@ -1,46 +1,45 @@
 <section class="page">
   <header>
     @if (user(); as item) {
-      <button
-        mat-flat-button
-        type="button"
-        (click)="edit()"
-        [attr.aria-label]="i18nKeys.common.edit | translate"
-      >
-        <mat-icon class="primary">edit</mat-icon>
-        {{ i18nKeys.common.edit | translate }}
-      </button>
+    <button
+      mat-flat-button
+      type="button"
+      (click)="edit()"
+      [attr.aria-label]="i18nKeys.common.edit | translate"
+    >
+      <mat-icon class="primary">edit</mat-icon>
+      {{ i18nKeys.common.edit | translate }}
+    </button>
     }
   </header>
 
   @if (user(); as item) {
-    <mat-card>
-      <mat-card-content>
-        <dl>
-          <dt>{{ i18nKeys.systemUser.userName | translate }}</dt>
-          <dd>{{ item.userName }}</dd>
-          <dt>{{ i18nKeys.systemUser.realName | translate }}</dt>
-          <dd>{{ item.realName || '-' }}</dd>
-          <dt>{{ i18nKeys.systemUser.email | translate }}</dt>
-          <dd>{{ item.email || '-' }}</dd>
-          <dt>{{ i18nKeys.systemUser.phoneNumber | translate }}</dt>
-          <dd>{{ item.phoneNumber || '-' }}</dd>
-          <dt>{{ i18nKeys.systemUser.lastLoginTime | translate }}</dt>
-          <dd>{{ item.lastLoginTime ? (item.lastLoginTime | date: 'medium') : '-' }}</dd>
-          <dt>{{ i18nKeys.systemUser.lockoutStatus | translate }}</dt>
-          <dd>
-            {{
-              item.lockoutEnabled
-                ? (i18nKeys.systemUser.locked | translate)
-                : (i18nKeys.systemUser.normal | translate)
-            }}
-          </dd>
-          <dt>{{ i18nKeys.common.createdTime | translate }}</dt>
-          <dd>{{ item.createdTime | date: 'medium' }}</dd>
-        </dl>
-      </mat-card-content>
-    </mat-card>
+  <mat-card>
+    <mat-card-content>
+      <dl>
+        <dt>{{ i18nKeys.systemUser.userName | translate }}</dt>
+        <dd>{{ item.userName }}</dd>
+        <dt>{{ i18nKeys.systemUser.realName | translate }}</dt>
+        <dd>{{ item.realName || '-' }}</dd>
+        <dt>{{ i18nKeys.systemUser.email | translate }}</dt>
+        <dd>{{ item.email || '-' }}</dd>
+        <dt>{{ i18nKeys.systemUser.phoneNumber | translate }}</dt>
+        <dd>{{ item.phoneNumber || '-' }}</dd>
+        <dt>{{ i18nKeys.systemUser.lastLoginTime | translate }}</dt>
+        <dd>
+          {{ item.lastLoginTime ? (item.lastLoginTime | date: 'medium') : '-' }}
+        </dd>
+        <dt>{{ i18nKeys.systemUser.lockoutStatus | translate }}</dt>
+        <dd>
+          {{ item.lockoutEnabled ? (i18nKeys.systemUser.locked | translate) :
+          (i18nKeys.systemUser.normal | translate) }}
+        </dd>
+        <dt>{{ i18nKeys.common.createdTime | translate }}</dt>
+        <dd>{{ item.createdTime | date: 'medium' }}</dd>
+      </dl>
+    </mat-card-content>
+  </mat-card>
   } @else {
-    <mat-spinner diameter="36" />
+  <mat-spinner diameter="36" />
   }
 </section>

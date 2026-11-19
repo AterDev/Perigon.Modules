@@ -40,19 +40,8 @@ public class SysLogs : EntityBase
     /// <summary>
     /// 操作类型
     /// </summary>
-    [NotMapped]
-    public UserActionType ActionType
-    {
-        get => (UserActionType)ActionTypeValue;
-        set => ActionTypeValue = (int)value;
-    }
-
     [Column("ActionType")]
-    [JsonIgnore]
-    public int ActionTypeValue
-    {
-        get; set;
-    }
+    public UserActionType ActionType { get; set; }
 
     /// <summary>
     /// 描述

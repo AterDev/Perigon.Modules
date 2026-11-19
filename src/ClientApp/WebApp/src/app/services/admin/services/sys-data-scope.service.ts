@@ -17,7 +17,9 @@ export class SysDataScopeService extends BaseService {
    * filter
    * @param data SysDataScopeFilterDto
    */
-  filter(data: SysDataScopeFilterDto): Observable<PageList<SysDataScopeItemDto>> {
+  filter(
+    data: SysDataScopeFilterDto,
+  ): Observable<PageList<SysDataScopeItemDto>> {
     const _url = `/api/SysDataScope/filter`;
     return this.request<PageList<SysDataScopeItemDto>>('post', _url, data);
   }

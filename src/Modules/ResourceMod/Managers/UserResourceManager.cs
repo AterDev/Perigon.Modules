@@ -22,13 +22,13 @@ public class UserResourceManager(
     public Task<PageList<UserResourceItemDto>> ReviewListAsync(UserResourceFilterDto filter)
     {
         EnsureAdmin();
-        return PageAsync(_dbSet.Where(resource => resource.StatusValue == (int)UserResourceStatus.ApplyPublic && resource.AuditStatusValue == (int)UserResourceAuditStatus.Pending), filter);
+        return PageAsync(_dbSet.Where(resource => resource.Status == UserResourceStatus.ApplyPublic && resource.AuditStatus == UserResourceAuditStatus.Pending), filter);
     }
 
     public async Task<UserResourceDetailDto?> GetAsync(Guid id)
     {
         UserResource? resource = await _dbSet.FirstOrDefaultAsync(item => item.Id == id &&
-            (item.UserId == _userContext.UserId || (_userContext.IsAdmin && item.StatusValue == (int)UserResourceStatus.ApplyPublic)));
+            (item.UserId == _userContext.UserId || (_userContext.IsAdmin && item.Status == UserResourceStatus.ApplyPublic)));
         if (resource == null)
         {
             throw new BusinessException("用户资源不存在或无权访问", StatusCodes.Status403Forbidden);
@@ -67,8 +67,8 @@ public class UserResourceManager(
         {
             UserId = _userContext.UserId,
             DefinitionId = input.DefinitionId,
-            StatusValue = (int)input.Status,
-            AuditStatusValue = (int)GetAuditStatus(input.Status)
+            Status = input.Status,
+            AuditStatus = GetAuditStatus(input.Status)
         };
         List<UserResValue> entities = await BuildValuesAsync(resource.Id, resource.DefinitionId, values);
         return await _dbContext.TransactionAsync(async _ =>
@@ -94,13 +94,13 @@ public class UserResourceManager(
 
         List<ResourceValueDto> values = await _resourceManager.ValidateAndNormalizeValuesAsync(_dbContext, input.DefinitionId, input.Values);
         List<UserResValue> entities = await BuildValuesAsync(id, input.DefinitionId, values);
-        int status = (int)input.Status;
-        int auditStatus = (int)GetAuditStatus(input.Status);
+        UserResourceStatus status = input.Status;
+        UserResourceAuditStatus auditStatus = GetAuditStatus(input.Status);
         DateTimeOffset now = DateTimeOffset.UtcNow;
         return await _dbContext.TransactionAsync(async _ =>
         {
             await _dbSet.Where(item => item.Id == id).ExecuteUpdateAsync(s => s.Set(item => item.DefinitionId, input.DefinitionId)
-                .Set(item => item.StatusValue, status).Set(item => item.AuditStatusValue, auditStatus)
+                .Set(item => item.Status, status).Set(item => item.AuditStatus, auditStatus)
                 .Set(item => item.ApprovedResourceId, (Guid?)null).Set(item => item.ReviewComment, (string?)null)
                 .Set(item => item.UpdatedTime, now));
             await _dbContext.UserResValues.Where(value => value.UserResourceId == id).ExecuteUpdateAsync(s => s.Set(value => value.IsDeleted, true));
@@ -137,9 +137,8 @@ public class UserResourceManager(
         return await _dbContext.TransactionAsync(async _ =>
         {
             DateTimeOffset now = DateTimeOffset.UtcNow;
-            int approvedStatus = (int)UserResourceAuditStatus.Approved;
-            int claimed = await _dbSet.Where(resource => resource.Id == id && resource.StatusValue == (int)UserResourceStatus.ApplyPublic && resource.AuditStatusValue == (int)UserResourceAuditStatus.Pending)
-                .ExecuteUpdateAsync(s => s.Set(resource => resource.AuditStatusValue, approvedStatus).Set(resource => resource.ReviewComment, comment).Set(resource => resource.UpdatedTime, now));
+            int claimed = await _dbSet.Where(resource => resource.Id == id && resource.Status == UserResourceStatus.ApplyPublic && resource.AuditStatus == UserResourceAuditStatus.Pending)
+                .ExecuteUpdateAsync(s => s.Set(resource => resource.AuditStatus, UserResourceAuditStatus.Approved).Set(resource => resource.ReviewComment, comment).Set(resource => resource.UpdatedTime, now));
             if (claimed == 0)
             {
                 UserResource? current = await _dbSet.FirstOrDefaultAsync(resource => resource.Id == id);
@@ -148,7 +147,7 @@ public class UserResourceManager(
                     throw new BusinessException("公开申请不存在", StatusCodes.Status404NotFound);
                 }
 
-                if (current.AuditStatusValue == (int)UserResourceAuditStatus.Approved && current.ApprovedResourceId.HasValue)
+                if (current.AuditStatus == UserResourceAuditStatus.Approved && current.ApprovedResourceId.HasValue)
                 {
                     return true;
                 }
@@ -177,18 +176,17 @@ public class UserResourceManager(
         EnsureAdmin();
         _ = await GetPendingAsync(id);
         string? comment = NormalizeComment(input.ReviewComment);
-        int rejectedStatus = (int)UserResourceAuditStatus.Rejected;
-        await _dbSet.Where(item => item.Id == id).ExecuteUpdateAsync(s => s.Set(item => item.AuditStatusValue, rejectedStatus)
+        await _dbSet.Where(item => item.Id == id).ExecuteUpdateAsync(s => s.Set(item => item.AuditStatus, UserResourceAuditStatus.Rejected)
             .Set(item => item.ReviewComment, comment).Set(item => item.UpdatedTime, DateTimeOffset.UtcNow));
         return true;
     }
 
     public override Task<bool> HasPermissionAsync(Guid id) => _dbSet.AnyAsync(resource => resource.Id == id &&
-        (resource.UserId == _userContext.UserId || (_userContext.IsAdmin && resource.StatusValue == (int)UserResourceStatus.ApplyPublic)));
+        (resource.UserId == _userContext.UserId || (_userContext.IsAdmin && resource.Status == UserResourceStatus.ApplyPublic)));
 
     private async Task<PageList<UserResourceItemDto>> PageAsync(IQueryable<UserResource> query, UserResourceFilterDto filter)
     {
-        query = query.WhereNotNull(filter.Status, resource => resource.StatusValue == (int?)filter.Status).WhereNotNull(filter.AuditStatus, resource => resource.AuditStatusValue == (int?)filter.AuditStatus);
+        query = query.WhereNotNull(filter.Status, resource => resource.Status == filter.Status).WhereNotNull(filter.AuditStatus, resource => resource.AuditStatus == filter.AuditStatus);
         int count = await query.CountAsync();
         List<UserResource> resources = await query.OrderByDescending(resource => resource.UpdatedTime).Skip((filter.PageIndex.GetValueOrDefault(1) - 1) * filter.PageSize.GetValueOrDefault(20)).Take(filter.PageSize.GetValueOrDefault(20)).ToListAsync();
         Guid[] definitionIds = resources.Select(item => item.DefinitionId).Distinct().ToArray();
@@ -220,7 +218,7 @@ public class UserResourceManager(
 
     private async Task<UserResource> GetPendingAsync(Guid id)
     {
-        return await _dbSet.FirstOrDefaultAsync(resource => resource.Id == id && resource.StatusValue == (int)UserResourceStatus.ApplyPublic && resource.AuditStatusValue == (int)UserResourceAuditStatus.Pending)
+        return await _dbSet.FirstOrDefaultAsync(resource => resource.Id == id && resource.Status == UserResourceStatus.ApplyPublic && resource.AuditStatus == UserResourceAuditStatus.Pending)
             ?? throw new BusinessException("公开申请不存在或已审核", StatusCodes.Status409Conflict);
     }
 
@@ -238,7 +236,7 @@ public class UserResourceManager(
                 DefinitionPropertyId = property.Id,
                 Value = value.Value,
                 PropertyNameSnapshot = property.Name,
-                ValueTypeSnapshotValue = property.ValueTypeValue
+                ValueTypeSnapshot = property.ValueType
             };
         }).ToList();
     }

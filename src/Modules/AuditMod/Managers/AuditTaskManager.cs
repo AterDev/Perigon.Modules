@@ -8,16 +8,15 @@ public sealed class AuditTaskManager(AppDbFactory dbContextFactory, IUserContext
         var query = _dbContext.AuditTasks.Where(task => task.AssigneeUserId == userId);
         if (filter.Status is { } status)
         {
-            query = query.Where(x => x.StatusValue == (int)status);
+            query = query.Where(x => x.Status == status);
         }
 
-        var recordStatus = filter.RecordStatus;
-        if (recordStatus.HasValue)
+        if (filter.RecordStatus is { } recordStatus)
         {
             query = query.Where(task => _dbContext.AuditRecordDetails.Any(detail =>
                 detail.Id == task.AuditRecordDetailId &&
                 _dbContext.AuditRecords.Any(record =>
-                    record.Id == detail.AuditRecordId && record.StatusValue == (int)recordStatus.Value)));
+                    record.Id == detail.AuditRecordId && record.Status == recordStatus)));
         }
         else
         {
@@ -47,7 +46,7 @@ public sealed class AuditTaskManager(AppDbFactory dbContextFactory, IUserContext
                     AuditRecordDetailId = detail.Id,
                     AssigneeUserId = task.AssigneeUserId,
                     AssigneeNameSnapshot = task.AssigneeNameSnapshot,
-                    Status = (AuditTaskStatus)task.StatusValue,
+                    Status = task.Status,
                     StepNo = detail.StepNoSnapshot,
                     StepName = detail.StepNameSnapshot,
                     BizId = record.BizId,
@@ -107,7 +106,7 @@ public sealed class AuditTaskManager(AppDbFactory dbContextFactory, IUserContext
             throw new BusinessException("无权限。", StatusCodes.Status403Forbidden);
         }
 
-        if (task.StatusValue != (int)AuditTaskStatus.Pending)
+        if (task.Status != AuditTaskStatus.Pending)
         {
             throw new BusinessException("审核任务已处理。", StatusCodes.Status409Conflict);
         }
@@ -122,7 +121,7 @@ public sealed class AuditTaskManager(AppDbFactory dbContextFactory, IUserContext
         AuditRecord? result = null;
         await ExecuteInTransactionAsync(async () =>
         {
-            var locked = await _dbContext.AuditRecords.Where(x => x.Id == recordId && x.StatusValue == (int)AuditRecordStatus.InProgress).ExecuteUpdateAsync(s => s.Set(x => x.UpdatedTime, DateTimeOffset.UtcNow), cancellationToken: ct);
+            var locked = await _dbContext.AuditRecords.Where(x => x.Id == recordId && x.Status == AuditRecordStatus.InProgress).ExecuteUpdateAsync(s => s.Set(x => x.UpdatedTime, DateTimeOffset.UtcNow), cancellationToken: ct);
             if (locked == 0)
             {
                 if (!await _dbContext.AuditRecords.Where(x => x.Id == recordId).AnyAsync(ct))
@@ -134,41 +133,41 @@ public sealed class AuditTaskManager(AppDbFactory dbContextFactory, IUserContext
             }
             var record = await _dbContext.AuditRecords.Where(x => x.Id == recordId).FirstOrDefaultAsync(ct) ?? throw new BusinessException("未找到审核记录。", StatusCodes.Status404NotFound);
             var detail = await _dbContext.AuditRecordDetails.FirstOrDefaultAsync(x => x.Id == task.AuditRecordDetailId, ct) ?? throw new BusinessException("未找到审核步骤。", StatusCodes.Status404NotFound);
-            int decisionStatus = decision == AuditDecision.Approve ? (int)AuditTaskStatus.Approved : (int)AuditTaskStatus.Rejected;
-            var affected = await _dbContext.AuditTasks.Where(x => x.Id == taskId && x.AssigneeUserId == _userContext.UserId && x.StatusValue == (int)AuditTaskStatus.Pending).ExecuteUpdateAsync(s => s.Set(x => x.StatusValue, decisionStatus).Set(x => x.Comment, comment).Set(x => x.ActedTime, DateTimeOffset.UtcNow), cancellationToken: ct);
+            var decisionStatus = decision == AuditDecision.Approve ? AuditTaskStatus.Approved : AuditTaskStatus.Rejected;
+            var affected = await _dbContext.AuditTasks.Where(x => x.Id == taskId && x.AssigneeUserId == _userContext.UserId && x.Status == AuditTaskStatus.Pending).ExecuteUpdateAsync(s => s.Set(x => x.Status, decisionStatus).Set(x => x.Comment, comment).Set(x => x.ActedTime, DateTimeOffset.UtcNow), cancellationToken: ct);
             if (affected == 0)
             {
                 throw new BusinessException("审核任务已处理。", StatusCodes.Status409Conflict);
             }
 
-            if (record.StatusValue != (int)AuditRecordStatus.InProgress || detail.StatusValue != (int)AuditStepStatus.Pending)
+            if (record.Status != AuditRecordStatus.InProgress || detail.Status != AuditStepStatus.Pending)
             {
                 throw new BusinessException("审核记录已结束。", StatusCodes.Status409Conflict);
             }
 
             var siblings = await _dbContext.AuditTasks.Where(x => x.AuditRecordDetailId == detail.Id).ToListAsync(ct);
-            var approved = detail.AuditModeSnapshotValue == (int)AuditMode.Any ? siblings.Any(x => x.StatusValue == (int)AuditTaskStatus.Approved) : siblings.All(x => x.StatusValue == (int)AuditTaskStatus.Approved);
-            var rejected = detail.AuditModeSnapshotValue == (int)AuditMode.All ? siblings.Any(x => x.StatusValue == (int)AuditTaskStatus.Rejected) : siblings.All(x => x.StatusValue == (int)AuditTaskStatus.Rejected);
+            var approved = detail.AuditModeSnapshot == AuditMode.Any ? siblings.Any(x => x.Status == AuditTaskStatus.Approved) : siblings.All(x => x.Status == AuditTaskStatus.Approved);
+            var rejected = detail.AuditModeSnapshot == AuditMode.All ? siblings.Any(x => x.Status == AuditTaskStatus.Rejected) : siblings.All(x => x.Status == AuditTaskStatus.Rejected);
             if (!approved && !rejected)
             {
                 result = record;
                 return;
             }
             var completed = DateTimeOffset.UtcNow;
-            var detailStatus = approved ? (int)AuditStepStatus.Approved : (int)AuditStepStatus.Rejected;
-            var detailClaimed = await _dbContext.AuditRecordDetails.Where(x => x.Id == detail.Id && x.StatusValue == (int)AuditStepStatus.Pending).ExecuteUpdateAsync(s => s.Set(x => x.StatusValue, detailStatus).Set(x => x.CompletedTime, completed), cancellationToken: ct);
+            var detailStatus = approved ? AuditStepStatus.Approved : AuditStepStatus.Rejected;
+            var detailClaimed = await _dbContext.AuditRecordDetails.Where(x => x.Id == detail.Id && x.Status == AuditStepStatus.Pending).ExecuteUpdateAsync(s => s.Set(x => x.Status, detailStatus).Set(x => x.CompletedTime, completed), cancellationToken: ct);
             if (detailClaimed == 0)
             {
                 result = record;
                 return;
             }
-            await _dbContext.AuditTasks.Where(x => x.AuditRecordDetailId == detail.Id && (x.StatusValue == (int)AuditTaskStatus.Pending || x.StatusValue == (int)AuditTaskStatus.Waiting)).ExecuteUpdateAsync(s => s.Set(x => x.StatusValue, (int)AuditTaskStatus.Cancelled), cancellationToken: ct);
-            detail.StatusValue = detailStatus;
+            await _dbContext.AuditTasks.Where(x => x.AuditRecordDetailId == detail.Id && (x.Status == AuditTaskStatus.Pending || x.Status == AuditTaskStatus.Waiting)).ExecuteUpdateAsync(s => s.Set(x => x.Status, AuditTaskStatus.Cancelled), cancellationToken: ct);
+            detail.Status = detailStatus;
             if (rejected)
             {
-                record.StatusValue = (int)AuditRecordStatus.Rejected;
+                record.Status = AuditRecordStatus.Rejected;
                 record.CompletedTime = completed;
-                await _dbContext.AuditRecords.Where(x => x.Id == record.Id).ExecuteUpdateAsync(s => s.Set(x => x.StatusValue, (int)AuditRecordStatus.Rejected).Set(x => x.CompletedTime, completed), cancellationToken: ct);
+                await _dbContext.AuditRecords.Where(x => x.Id == record.Id).ExecuteUpdateAsync(s => s.Set(x => x.Status, AuditRecordStatus.Rejected).Set(x => x.CompletedTime, completed), cancellationToken: ct);
                 await CancelRemainingAsync(record.Id, ct);
             }
             if (rejected)
@@ -177,23 +176,23 @@ public sealed class AuditTaskManager(AppDbFactory dbContextFactory, IUserContext
             }
             else
             {
-                var next = await _dbContext.AuditRecordDetails.Where(x => x.AuditRecordId == record.Id && x.StatusValue == (int)AuditStepStatus.Waiting).OrderBy(x => x.StepNoSnapshot).FirstOrDefaultAsync(ct);
+                var next = await _dbContext.AuditRecordDetails.Where(x => x.AuditRecordId == record.Id && x.Status == AuditStepStatus.Waiting).OrderBy(x => x.StepNoSnapshot).FirstOrDefaultAsync(ct);
                 if (next is null)
                 {
-                    record.StatusValue = (int)AuditRecordStatus.Approved;
+                    record.Status = AuditRecordStatus.Approved;
                     record.CompletedTime = completed;
-                    await _dbContext.AuditRecords.Where(x => x.Id == record.Id).ExecuteUpdateAsync(s => s.Set(x => x.StatusValue, (int)AuditRecordStatus.Approved).Set(x => x.CompletedTime, completed), cancellationToken: ct);
+                    await _dbContext.AuditRecords.Where(x => x.Id == record.Id).ExecuteUpdateAsync(s => s.Set(x => x.Status, AuditRecordStatus.Approved).Set(x => x.CompletedTime, completed), cancellationToken: ct);
                     await AddResultNotificationAsync(record, true, ct);
                 }
                 else
                 {
-                    next.StatusValue = (int)AuditStepStatus.Pending;
+                    next.Status = AuditStepStatus.Pending;
                     next.StartedTime = completed;
                     record.CurrentStepNo = next.StepNoSnapshot;
-                    await _dbContext.AuditRecordDetails.Where(x => x.Id == next.Id).ExecuteUpdateAsync(s => s.Set(x => x.StatusValue, (int)AuditStepStatus.Pending).Set(x => x.StartedTime, completed), cancellationToken: ct);
+                    await _dbContext.AuditRecordDetails.Where(x => x.Id == next.Id).ExecuteUpdateAsync(s => s.Set(x => x.Status, AuditStepStatus.Pending).Set(x => x.StartedTime, completed), cancellationToken: ct);
                     await _dbContext.AuditRecords.Where(x => x.Id == record.Id).ExecuteUpdateAsync(s => s.Set(x => x.CurrentStepNo, next.StepNoSnapshot), cancellationToken: ct);
-                    var nextTasks = await _dbContext.AuditTasks.Where(x => x.AuditRecordDetailId == next.Id && x.StatusValue == (int)AuditTaskStatus.Waiting).ToListAsync(ct);
-                    await _dbContext.AuditTasks.Where(x => x.AuditRecordDetailId == next.Id && x.StatusValue == (int)AuditTaskStatus.Waiting).ExecuteUpdateAsync(s => s.Set(x => x.StatusValue, (int)AuditTaskStatus.Pending), cancellationToken: ct);
+                    var nextTasks = await _dbContext.AuditTasks.Where(x => x.AuditRecordDetailId == next.Id && x.Status == AuditTaskStatus.Waiting).ToListAsync(ct);
+                    await _dbContext.AuditTasks.Where(x => x.AuditRecordDetailId == next.Id && x.Status == AuditTaskStatus.Waiting).ExecuteUpdateAsync(s => s.Set(x => x.Status, AuditTaskStatus.Pending), cancellationToken: ct);
                     await AddTaskNotificationAsync(record, nextTasks.Select(x => x.AssigneeUserId), ct);
                 }
             }
@@ -203,12 +202,12 @@ public sealed class AuditTaskManager(AppDbFactory dbContextFactory, IUserContext
     }
     private async Task CancelRemainingAsync(Guid id, CancellationToken ct)
     {
-        var details = await _dbContext.AuditRecordDetails.Where(x => x.AuditRecordId == id && (x.StatusValue == (int)AuditStepStatus.Waiting || x.StatusValue == (int)AuditStepStatus.Pending)).ToListAsync(ct);
+        var details = await _dbContext.AuditRecordDetails.Where(x => x.AuditRecordId == id && (x.Status == AuditStepStatus.Waiting || x.Status == AuditStepStatus.Pending)).ToListAsync(ct);
         foreach (var d in details)
         {
             var now = DateTimeOffset.UtcNow;
-            await _dbContext.AuditRecordDetails.Where(x => x.Id == d.Id).ExecuteUpdateAsync(s => s.Set(x => x.StatusValue, (int)AuditStepStatus.Cancelled).Set(x => x.CompletedTime, now), cancellationToken: ct);
-            await _dbContext.AuditTasks.Where(x => x.AuditRecordDetailId == d.Id && (x.StatusValue == (int)AuditTaskStatus.Waiting || x.StatusValue == (int)AuditTaskStatus.Pending)).ExecuteUpdateAsync(s => s.Set(x => x.StatusValue, (int)AuditTaskStatus.Cancelled), cancellationToken: ct);
+            await _dbContext.AuditRecordDetails.Where(x => x.Id == d.Id).ExecuteUpdateAsync(s => s.Set(x => x.Status, AuditStepStatus.Cancelled).Set(x => x.CompletedTime, now), cancellationToken: ct);
+            await _dbContext.AuditTasks.Where(x => x.AuditRecordDetailId == d.Id && (x.Status == AuditTaskStatus.Waiting || x.Status == AuditTaskStatus.Pending)).ExecuteUpdateAsync(s => s.Set(x => x.Status, AuditTaskStatus.Cancelled), cancellationToken: ct);
         }
     }
     public override Task<bool> HasPermissionAsync(Guid id) => _dbSet.AnyAsync(x => x.Id == id && x.AssigneeUserId == _userContext.UserId);

@@ -6,6 +6,7 @@
 - Plan Task: `PT0002-NotificationAudit`
 - Source PD: [PD0002-NotificationAudit](../../UserStory/Iter2-NotificationAudit/PD0002-NotificationAudit.md)
 - Status: `in-progress`
+- Progress: `7/18`。历史后端事项继续按各任务的验收边界跟踪。
 
 ## 任务
 
@@ -14,13 +15,13 @@
 - [ ] TASK-002 [REQ-002] 实现 `NotificationMod` 模块项目、实体、Manager、DTO、控制器和服务注册；代码已实现并构建通过，但接口鉴权、租户和出站安全尚未完成验证。
 - [ ] TASK-003 [REQ-003] 实现站内消息及用户消息状态模型，覆盖消息/公告类型、列表、详情、未读统计和标记已读接口；代码和测试用例已形成，真实接口测试尚未执行。
 - [ ] TASK-004 [REQ-004] 分析 `WorkflowMod` 审核实现并实现 `AuditMod` 的实体、业务服务、DTO、控制器和状态流转校验；代码已实现并构建通过，但状态流转和通知联动尚未完成真实数据库验证。
-- [ ] TASK-005 [REQ-005] 将两个模块接入 AdminService、解决方案和模块元数据，不新增前端代码；接线已完成，但本地数据库迁移和接口行为运行时证据仍不足。
+- [ ] TASK-005 [REQ-005] 将两个模块接入 ApiService、解决方案和模块元数据；具体前端任务见 TASK-013 与 TASK-014。
 - [ ] TASK-006 [REQ-006] 补充后端验证，覆盖租户隔离、用户已读状态隔离、消息类型和审核状态转换。
 - [ ] TASK-007 [REQ-006] 依据最终模型生成或更新 PostgreSQL 迁移，并完成构建、测试和接口发现验证。
 
 ## 实现边界
 
-- 本计划不包含 Angular 页面、菜单、国际化或前端 API 客户端。
+- Angular 接入范围见 TASK-013 至 TASK-015。历史实现记录中的 AdminService 对应现有 ApiService，开发后台使用 ApiService 的 HTTPS 端口 17002。
 - 站内消息用于系统业务通知和公告，不实现用户间私信、会话或社交关系。
 - 审核模块以来源 `WorkflowMod` 的业务语义为参考，最终实体边界和命名以当前仓库约定及可验证接口为准。
 
@@ -114,3 +115,80 @@
 - [x] TASK-012 [ARCH-001, REQ-006] 在 Perigon.PostgreSQL 中一次启用基类软删除，由最终映射模型为唯一索引追加未删除行条件。Modules 使用本地 0.3.2-preview.2 运行时与迁移工具，普通唯一索引只声明列和 IsUnique。审核流已启用、记录待审批仍使用各自的额外条件。索引名使用默认规则，实体自动属性使用单行。
 - 迁移：当前工作树的迁移目录从空基线生成 Init 和快照。迁移 CLI 复算差异为空。Windows x64 原生 ApiService 在空白 PostgreSQL 18 隔离库创建 10 个默认命名的部分唯一索引，/alive 和 /health 均返回 200。
 - 验证：dotnet build Perigon.Modules.slnx、定向 dotnet format whitespace 和 IDE0011 检查通过。类库单元测试 343 项、隔离 PostgreSQL 集成测试 103 项通过。类库 NativeAOT Smoke 真实验证派生实体过滤、具名绕过、额外索引条件及非唯一索引。ApiService 使用 dotnet publish src/Services/ApiService/ApiService.csproj -c Release -r win-x64 --self-contained true -p:PublishAot=true -p:PublishTrimmed=true 发布通过，仍有 HybridCache 既有裁剪警告。完整 Modules ApiTest 和 Linux x64 未运行。
+
+- 数据库初始化失败时记录异常并继续启动。迁移失败时跳过默认管理员初始化。隔离 PostgreSQL 复现旧迁移历史，确认保留错误日志且 /alive 返回 200。ApiService Release 构建通过，未改变 EF 模型或 AOT 配置。
+
+### 宿主负责数据库初始化与后台任务
+
+- ResourceMod 将种子数据写入移到接收现有 DefaultDbContext 的静态方法。ApiService 迁移成功后调用，种子写入保留单事务。连接指向外部数据库时需要预先创建数据库。
+- 隔离 PostgreSQL 空库首次启动和再次启动均通过，环境、标签和资源定义各为 3 条，重复启动未增加记录。
+- SystemMod 的日志批量写入由模块普通方法提供，ApiService 注册并调度日志后台任务。Modules 源码中无模块自己定义或注册的宿主后台服务。
+- Windows x64 Native AOT 发布通过，保留 HybridCache 既有裁剪警告。原生产物连接隔离空库，首次和重复启动种子计数均为 3/3/3。另以普通 Release 产物连接不存在的数据库，确认宿主记录 3D000，/alive 返回 200。
+- ResourceMod 与 MiniApi CommonMod 的种子方法统一放在模块根目录 InitModule.cs，由各自宿主调用。
+- Perigon.PostgreSQL 0.3.3 在迁移连接收到 3D000 时先创建空库，再执行迁移。Modules 和本机迁移工具升级至本地 0.3.3；真实 PostgreSQL 迁移集成测试 5 项通过，ApiService Release 在目标库缺失时启动并写入种子，重复启动无重复记录。
+
+### Perigon.PostgreSQL 0.3.4 适配
+
+- 运行时与仓库迁移工具升级至本地 0.3.4。DefaultDbContext 使用源生成器初始化 DbSet 自动属性，移除 Set 包装。显式选用 snake_case，并通过 Table 固定四个受复数规则影响的历史表名。
+- 迁移探测未发现表、列、索引变化。新版模型识别出 31 个现有快照未记录的外键，需另行审查存量数据与约束后纳入迁移；本次保持迁移文件和快照。
+- EntityFramework 构建、ApiService Release 构建通过。UnitTest 使用隔离构建目录运行，24 项通过、2 项 Redis 测试跳过。隔离 PostgreSQL 首次和再次启动通过，种子数据未重复。
+- Windows x64 Native AOT 发布与原生产物在隔离 PostgreSQL 上首次和重复启动通过，保留 HybridCache 既有裁剪警告。
+
+### 池化 DbContext 与离线迁移命令
+
+- DefaultDbContext 只提供公开的 DbContextOptions 构造函数。AddDbContextPool 注册主上下文，启动迁移任务借用独立 DI scope，AppDbFactory 保留调用方自管生命周期的非池化创建方式。snake_case 由 EntityFramework 程序集声明，运行时与 CLI 共用。
+- 本地 Perigon.PostgreSQL 0.3.5 支持 options 构造函数。迁移 List、Add、Script 均在无连接字符串时执行成功；database update 使用显式连接创建隔离 PostgreSQL 数据库并写入初始迁移历史。迁移探测仍只有此前记录的 31 个外键差异。
+- ApiService Release 与 Windows x64 Native AOT 发布通过，保留既有 HybridCache 裁剪警告。隔离 PostgreSQL 验证首次和重复启动，种子数据无重复。类库迁移生成定向测试 12 项通过。
+- ApiTest 项目在隔离输出目录编译通过。
+
+### MiniApi WebExtensions 对齐
+
+- 将 Modules 的中间件注册和管线入口集中到 WebExtensions，ApiService 使用模板的 AddMiddlewareServices 与 UseMiddlewareServices。现有注册内容与管线顺序保留。
+- ApiService Release 构建及定向 whitespace 检查通过，隔离 PostgreSQL 首次和重复启动的 /alive、/openapi/v1.json 均返回 200。仅移动与改名，未改变依赖、映射或 AOT 约束，本次未重新发布原生产物。
+- PostgreSQL 迁移工具本地与全局安装 0.3.6，验证 --version、-v 和 List。运行时包继续使用 0.3.5。
+- 审核部分唯一索引的额外 SQL 谓词使用 PascalCase 物理列名 IsEnabled 和 StatusValue。同步未应用的初始迁移及快照。ApiService Release 构建及隔离 PostgreSQL 首次和重复启动通过，并确认迁移探测差异为空。
+- 移除 AuditFlow 的启用场景部分唯一索引，保留 FlowKey 的软删除唯一性。AuditRecord 的额外状态谓词移到 Fluent API。按要求重建本地 perigon_modules 及初始迁移，Aspire ApiService Healthy，迁移历史、索引和资源种子已在 PostgreSQL 核实。本次未重发 Native AOT。
+
+### Perigon.CLI AOT 模块打包验证
+
+- 使用本机 Perigon.CLI 10.2.2 和 isAOT=true，在临时副本以 1.2.3 打包。CMSMod 包含 2 个 Endpoint，ResourceMod 包含 4 个 Endpoint 与 40 个 TypeScript 文件。两包元数据均为 1.2.3。
+- AuditMod、NotificationMod、SystemMod 因跨模块依赖被 CLI 拒绝。CLI 模块打包和解包定向测试 11 项通过。
+- CMSMod 安装到临时 MiniApi 模板时命令返回成功，但解决方案接线警告 Share.csproj 重复，构建因 NotMapped、Column 特性冲突和 JsonIgnore 缺失而失败，未能发布模板安装产物。
+- 修正模板兼容性及 CLI 接线后，在新建的临时 MiniApi 安装 CMSMod 和 ResourceMod，Debug 和 Windows x64 Native AOT 发布产物均正常启动。隔离 PostgreSQL 验证种子数据、鉴权列表、OpenAPI multipart 文档，以及枚举存储列和非映射属性。
+- PostgreSQL 库移除 IndexAttribute.Filter，显式谓词使用 Fluent HasFilter；生成器与反向脚手架同步。定向单测 31 项与真实 PostgreSQL 元数据测试 2 项通过。现有本地包版本尚未替换。
+
+### 2026-11-19 审核与通知管理后台
+
+- [x] TASK-013 [REQ-007, SC-007] 按角色接入审核侧栏、流程配置、记录和个人申请、待办处理。Angular 构建和浏览器审批流程通过。
+- [x] TASK-014 [REQ-008, SC-008] 接入通知草稿、定向发布、收件箱、来源、接收器、规则、事件和投递记录。Angular 构建和浏览器发布、收件、接收器保存流程通过。
+- [x] TASK-015 [REQ-007, REQ-008] 适配后台接口。提供管理员用户选择投影，修复角色查询、审核筛选及接收器持久化，补齐站内通知草稿修改契约。PostgreSQL API 测试、OpenAPI 与 Windows x64 Native AOT 验证通过。
+
+- 实现位置为 `src/ClientApp/WebApp/src/app/modules/audit`、`src/ClientApp/WebApp/src/app/modules/notification` 与 `src/Services/ApiService/Endpoints/SystemMod/SysUserEndpoints.cs`。两个模块共享用户选择器及客户端基础服务。
+- 草稿的收件人和过期时间可修改。发布在事务中锁定并读取当前草稿，按发布时的受众生成收件记录。当前 API 的状态码和兼容性保持原有契约，新增可选更新字段。
+- Angular 生产构建通过，执行 `pnpm build --output-path <临时目录>`。Edge Playwright 使用原生 ApiService 和隔离 PostgreSQL，验证管理员和普通用户导航、审核人搜索、流程创建和审批、通知草稿定向发布、收件阅读，以及接收器新增和编辑。
+- 浏览器另验证创建 Webhook 来源、展示接入路径、关联接收器创建规则、查看事件与投递列表，以及无外发的超时清理。
+- 分别执行 `dotnet test -c AdminVerification --project test/ApiTest/ApiTest.csproj -- --treenode-filter "/*/*/<测试类>/*"`。AuditModApiTests 两项、NotificationModApiTests 五项通过。测试覆盖带状态及场景筛选、任务授权、申请撤回、修改草稿收件人与过期时间、已读隔离和接收器持久化。
+- 执行 `dotnet publish src/Services/ApiService/ApiService.csproj -c Release -r win-x64 --self-contained true -o <临时目录>`。产物在隔离 PostgreSQL 启动，健康、OpenAPI 与业务 HTTP 验证通过。使用 Perigon 从该 OpenAPI 生成并核对 TypeScript 契约。变更文件 whitespace 与 IDE0011 检查通过。
+- 保留 HybridCache 的既有 AOT/Trim 警告。当前验证覆盖 Windows x64。本次未向外部接收器发送 Webhook，也未执行 Linux x64 原生运行验证。
+- 独立运行 ResourceModApiTests，13 项中 7 项通过。失败集中在资源定义删除的外键约束、资源错误响应格式及收藏清理，留在资源模块验证范围跟踪。
+
+### 2026-11-19 Angular 22 与前端模块规范
+
+- [x] TASK-016 [ARCH-002] 升级 Modules 和 MiniApi 的 Angular 前端，同步模块拆分规范。依赖锁定、生产构建与后台烟测通过。
+- 结构检查覆盖顶层路由、模块目录和组件职责。审核模块按流程、记录、待办拆分。通知管理首页当时将多个用例集中在同一组件和表单，拆分见 TASK-017。规范写入 Perigon 的 Angular reference。
+- Modules 和 MiniApi 的 Angular Framework、CLI、Build、CDK 和 Material 对齐至 22.3.0，TypeScript 对齐至 6.0.3。Modules 从锁定的 21.2.x 运行 Core、CLI、CDK 和 Material 迁移，保留原有组件变更检测和 XHR 行为，使用显式 `src/*` 路径映射。MiniApi 原来已在 22.x。
+- 两处均通过 `pnpm exec ng version`、`pnpm build` 和冻结锁文件安装。Modules 执行 `pnpm install --frozen-lockfile --prefer-offline`，MiniApi 另加 `--ignore-scripts`。Modules 的 `pnpm exec tsc -p tsconfig.app.json --noEmit` 通过，Edge 在隔离 ApiService 上复测登录、菜单、审核、站内通知、接收器、规则、超时清理、资源懒加载与 CMS Markdown 渲染。
+- Angular Build 的可选 WASM 解析器仍报告 emnapi 传递依赖的 peer 版本告警。Windows 原生构建通过。本次变更位于客户端和项目技能，ApiService 的 Native AOT 发布闭包不受影响。
+
+### 2026-11-19 通知管理页按用例拆分
+
+- [x] TASK-017 [REQ-008, SC-008] 保留通知管理菜单与标签页入口，分别组织站内通知、来源、接收器、规则、事件和投递记录。各用例管理查询、分页与相关表单状态。
+- `src/ClientApp/WebApp/src/app/modules/notification/index` 负责标签页和页头刷新。六个独立组件按首次进入加载，分别持有表单、分页及请求状态。共享列表处理加载、空态、错误和翻页，操作复用现有确认弹窗和提示。
+- `pnpm build --output-path <临时目录>` 通过。Edge Playwright 使用隔离 PostgreSQL 和已有 Native AOT ApiService，验证草稿编辑及收件人保留、定向发布、收件阅读、Webhook 来源创建、接收器新增与编辑、规则新增与编辑、取消及确认删除、事件和投递查询、超时清理。
+- 浏览器验证从来源面板切至接收器再返回时保留未保存输入，来源每页条数及页码独立保留，页头刷新命中当前面板。外部 Webhook 发送未纳入本次浏览器测试。客户端拆分不影响 ApiService 的 Native AOT 发布闭包。
+
+### 2026-11-19 枚举直接映射
+
+- 本地安装 Perigon.PostgreSQL 0.3.6 与迁移工具 0.3.7。Modules 直接使用枚举属性，保留原有数据库列名和 API 枚举数值。
+- 迁移 20261119083747390_StoreEnumsAsSmallint 原地转换 16 列。隔离 PostgreSQL 以旧迁移建库，验证 19 条样本记录的旧枚举值在升级、回滚和再次升级后均保留。越界值触发整条迁移回滚。
+- Windows x64 Native AOT 发布后，从旧 schema 启动并自动迁移。健康检查、OpenAPI、CMS 和 Audit 的枚举筛选、Resource 和 System 的枚举读取、Resource 枚举新增和更新均通过。保留 HybridCache 剪裁警告。Modules 单元测试通过 24 项，Redis 测试按配置跳过 2 项。

@@ -2,29 +2,24 @@
 <mat-dialog-content>
   <form [formGroup]="form" (ngSubmit)="save()" class="dialog-form">
     <mat-form-field appearance="outline">
-      <mat-label>{{ i18nKeys.cms.category.name | translate }}
-      </mat-label>
-      <input
-      matInput formControlName="name" />
+      <mat-label>{{ i18nKeys.cms.category.name | translate }} </mat-label>
+      <input matInput formControlName="name" />
       @if (form.controls.name.hasError('required')) {
-        <mat-error>{{ i18nKeys.validation.required | translate }}</mat-error>
+      <mat-error>{{ i18nKeys.validation.required | translate }}</mat-error>
       }
     </mat-form-field>
     <mat-form-field appearance="outline">
-      <mat-label>{{
-        i18nKeys.cms.category.parent | translate }}
-      </mat-label>
+      <mat-label>{{ i18nKeys.cms.category.parent | translate }} </mat-label>
       <mat-select formControlName="parentId">
-        <mat-option
-        value="">{{ i18nKeys.cms.category.root | translate }}
-      </mat-option>
-      @for (item of categories(); track item.id) {
-        <mat-option [value]="item.id">{{ item.name }}
+        <mat-option value=""
+          >{{ i18nKeys.cms.category.root | translate }}
         </mat-option>
-      }
-    </mat-select>
-  </mat-form-field>
-</form>
+        @for (item of categories(); track item.id) {
+        <mat-option [value]="item.id">{{ item.name }} </mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+  </form>
 </mat-dialog-content>
 <mat-dialog-actions align="end">
   <button mat-button type="button" mat-dialog-close>

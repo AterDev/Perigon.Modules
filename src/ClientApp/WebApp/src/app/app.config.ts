@@ -1,7 +1,16 @@
-import { ApplicationConfig, provideBrowserGlobalErrorListeners, provideZonelessChangeDetection } from '@angular/core';
+import {
+  ApplicationConfig,
+  provideBrowserGlobalErrorListeners,
+  provideZonelessChangeDetection,
+} from '@angular/core';
 import { provideRouter } from '@angular/router';
 import { routes } from 'src/app/app.routes';
-import { HTTP_INTERCEPTORS, provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
+import {
+  HTTP_INTERCEPTORS,
+  provideHttpClient,
+  withInterceptorsFromDi,
+  withXhr,
+} from '@angular/common/http';
 import { CustomerHttpInterceptor } from 'src/app/customer-http.interceptor';
 import { provideTranslateService } from '@ngx-translate/core';
 import { provideTranslateHttpLoader } from '@ngx-translate/http-loader';
@@ -21,7 +30,7 @@ export const appConfig: ApplicationConfig = {
     provideBrowserGlobalErrorListeners(),
     provideZonelessChangeDetection(),
     provideRouter(routes),
-    provideHttpClient(withInterceptorsFromDi()),
+    provideHttpClient(withXhr(), withInterceptorsFromDi()),
     provideMarkdown({
       markedOptions: {
         provide: MARKED_OPTIONS,
@@ -40,12 +49,12 @@ export const appConfig: ApplicationConfig = {
       prefix: './assets/i18n/',
       suffix: '.json',
     }),
-    { provide: HTTP_INTERCEPTORS, useClass: CustomerHttpInterceptor, multi: true },
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: CustomerHttpInterceptor,
+      multi: true,
+    },
     { provide: 'BASE_URL', useFactory: getBaseUrl, deps: [] },
     { provide: 'ADMIN_BASE_URL', useValue: environment.admin_daemon, deps: [] },
   ],
 };
-
-
-
-

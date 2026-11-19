@@ -1,6 +1,10 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
-import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
+import {
+  MAT_DIALOG_DATA,
+  MatDialogModule,
+  MatDialogRef,
+} from '@angular/material/dialog';
 import { CommonFormModules } from 'src/app/modules/share/shared-modules';
 import { I18N_KEYS } from 'src/app/modules/share/i18n-keys';
 import { ResTag } from 'src/app/services/admin/models/entity/res-tag.model';
@@ -26,7 +30,9 @@ export interface ResourceTagDialogData {
 })
 export class ResourceTagDialogComponent {
   readonly i18nKeys = I18N_KEYS;
-  readonly data = inject<ResourceTagDialogData>(MAT_DIALOG_DATA, { optional: true });
+  readonly data = inject<ResourceTagDialogData>(MAT_DIALOG_DATA, {
+    optional: true,
+  });
   private readonly formBuilder = inject(FormBuilder);
   private readonly dialogRef = inject(MatDialogRef<ResourceTagDialogComponent>);
   readonly form = this.formBuilder.nonNullable.group({

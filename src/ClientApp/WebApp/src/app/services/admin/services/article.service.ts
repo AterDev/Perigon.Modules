@@ -33,7 +33,23 @@ export class ArticleService extends BaseService {
    * @param pageSize number
    * @param orderBy Record<string, boolean>
    */
-  list(title: string | null, description: string | null, authors: string | null, translateTitle: string | null, languageType: LanguageType | null, blogType: ContentType | null, isAudit: boolean | null, isPublic: boolean | null, isOriginal: boolean | null, userId: string | null, catalogId: string | null, viewCount: number | null, pageIndex: number | null, pageSize: number | null, orderBy: Record<string, boolean> | null): Observable<PageList<ArticleItemDto>> {
+  list(
+    title: string | null,
+    description: string | null,
+    authors: string | null,
+    translateTitle: string | null,
+    languageType: LanguageType | null,
+    blogType: ContentType | null,
+    isAudit: boolean | null,
+    isPublic: boolean | null,
+    isOriginal: boolean | null,
+    userId: string | null,
+    catalogId: string | null,
+    viewCount: number | null,
+    pageIndex: number | null,
+    pageSize: number | null,
+    orderBy: Record<string, boolean> | null,
+  ): Observable<PageList<ArticleItemDto>> {
     const _url = `/api/Article/list?title=${title ?? ''}&description=${description ?? ''}&authors=${authors ?? ''}&translateTitle=${translateTitle ?? ''}&languageType=${languageType ?? ''}&blogType=${blogType ?? ''}&isAudit=${isAudit ?? ''}&isPublic=${isPublic ?? ''}&isOriginal=${isOriginal ?? ''}&userId=${userId ?? ''}&catalogId=${catalogId ?? ''}&viewCount=${viewCount ?? ''}&pageIndex=${pageIndex ?? ''}&pageSize=${pageSize ?? ''}&orderBy=${orderBy ?? ''}`;
     return this.request<PageList<ArticleItemDto>>('get', _url);
   }
@@ -51,7 +67,8 @@ export class ArticleService extends BaseService {
    */
   uploadImage(file: File | null): Observable<ArticleImageUploadDto> {
     const formData = new FormData();
-    if (file !== null && file !== undefined) formData.append('file', file, file.name);
+    if (file !== null && file !== undefined)
+      formData.append('file', file, file.name);
     const _url = `/api/Article/images`;
     return this.request<ArticleImageUploadDto>('post', _url, formData);
   }

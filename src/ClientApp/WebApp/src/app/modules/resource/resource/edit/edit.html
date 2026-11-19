@@ -6,23 +6,32 @@
         <mat-label>{{ i18nKeys.resource.environment | translate }}</mat-label>
         <mat-select formControlName="environmentId">
           @for (item of environments(); track item.id) {
-            <mat-option [value]="item.id">
-              <mat-icon [style.color]="item.color"
-                [class.resource-icon-fill]="iconStyle(item.icon) === 'fill'"
-                [class.resource-icon-outline]="iconStyle(item.icon) === 'outline'">{{ iconName(item.icon, 'cloud') }}</mat-icon>{{ item.name }}
-            </mat-option>
+          <mat-option [value]="item.id">
+            <mat-icon
+              [style.color]="item.color"
+              [class.resource-icon-fill]="iconStyle(item.icon) === 'fill'"
+              [class.resource-icon-outline]="iconStyle(item.icon) === 'outline'"
+              >{{ iconName(item.icon, 'cloud') }}</mat-icon
+            >{{ item.name }}
+          </mat-option>
           }
         </mat-select>
       </mat-form-field>
       <mat-form-field appearance="outline" subscriptSizing="dynamic">
         <mat-label>{{ i18nKeys.resource.category | translate }}</mat-label>
-        <mat-select formControlName="categoryId" (selectionChange)="categoryChanged()">
+        <mat-select
+          formControlName="categoryId"
+          (selectionChange)="categoryChanged()"
+        >
           @for (item of categories(); track item.id) {
-            <mat-option [value]="item.id">
-              <mat-icon [style.color]="item.color"
-                [class.resource-icon-fill]="iconStyle(item.icon) === 'fill'"
-                [class.resource-icon-outline]="iconStyle(item.icon) === 'outline'">{{ iconName(item.icon, 'category') }}</mat-icon>{{ item.name }}
-            </mat-option>
+          <mat-option [value]="item.id">
+            <mat-icon
+              [style.color]="item.color"
+              [class.resource-icon-fill]="iconStyle(item.icon) === 'fill'"
+              [class.resource-icon-outline]="iconStyle(item.icon) === 'outline'"
+              >{{ iconName(item.icon, 'category') }}</mat-icon
+            >{{ item.name }}
+          </mat-option>
           }
         </mat-select>
       </mat-form-field>
@@ -30,14 +39,21 @@
 
     <div class="form-row">
       <mat-form-field appearance="outline" subscriptSizing="dynamic">
-        <mat-label>{{ i18nKeys.resource.resourceDefinition | translate }}</mat-label>
-        <mat-select formControlName="definitionId" (selectionChange)="definitionChanged()">
+        <mat-label
+          >{{ i18nKeys.resource.resourceDefinition | translate }}</mat-label
+        >
+        <mat-select
+          formControlName="definitionId"
+          (selectionChange)="definitionChanged()"
+        >
           @for (item of definitions(); track item.id) {
-            <mat-option [value]="item.id">
-              <mat-icon
-                [class.resource-icon-fill]="iconStyle(item.icon) === 'fill'"
-                [class.resource-icon-outline]="iconStyle(item.icon) === 'outline'">{{ iconName(item.icon, 'schema') }}</mat-icon>{{ item.name }}
-            </mat-option>
+          <mat-option [value]="item.id">
+            <mat-icon
+              [class.resource-icon-fill]="iconStyle(item.icon) === 'fill'"
+              [class.resource-icon-outline]="iconStyle(item.icon) === 'outline'"
+              >{{ iconName(item.icon, 'schema') }}</mat-icon
+            >{{ item.name }}
+          </mat-option>
           }
         </mat-select>
       </mat-form-field>
@@ -47,86 +63,119 @@
       <mat-form-field appearance="outline" subscriptSizing="dynamic">
         <mat-label>{{ i18nKeys.resource.group | translate }}</mat-label>
         <mat-select formControlName="groupId">
-          <mat-option value="">{{ i18nKeys.resource.ungrouped | translate }}</mat-option>
+          <mat-option value=""
+            >{{ i18nKeys.resource.ungrouped | translate }}</mat-option
+          >
           @for (item of groups(); track item.id) {
-            <mat-option [value]="item.id">
-              <mat-icon [style.color]="item.color"
-                [class.resource-icon-fill]="iconStyle(item.icon) === 'fill'"
-                [class.resource-icon-outline]="iconStyle(item.icon) === 'outline'">{{ iconName(item.icon, 'folder') }}</mat-icon>{{ item.name }}
-            </mat-option>
+          <mat-option [value]="item.id">
+            <mat-icon
+              [style.color]="item.color"
+              [class.resource-icon-fill]="iconStyle(item.icon) === 'fill'"
+              [class.resource-icon-outline]="iconStyle(item.icon) === 'outline'"
+              >{{ iconName(item.icon, 'folder') }}</mat-icon
+            >{{ item.name }}
+          </mat-option>
           }
         </mat-select>
       </mat-form-field>
       <button mat-stroked-button type="button" (click)="createGroup()">
-        <mat-icon>create_new_folder</mat-icon>{{ i18nKeys.resource.createGroup | translate }}
+        <mat-icon>create_new_folder</mat-icon>{{ i18nKeys.resource.createGroup |
+        translate }}
       </button>
       <mat-form-field appearance="outline" subscriptSizing="dynamic">
         <mat-label>{{ i18nKeys.resource.tag | translate }}</mat-label>
         <mat-select formControlName="tagNames" multiple>
           @for (item of tags(); track item.id) {
-            <mat-option [value]="item.name">
-              <mat-icon [style.color]="item.color"
-                [class.resource-icon-fill]="iconStyle(item.icon) === 'fill'"
-                [class.resource-icon-outline]="iconStyle(item.icon) === 'outline'">{{ iconName(item.icon, 'label') }}</mat-icon>{{ item.name }}
-            </mat-option>
+          <mat-option [value]="item.name">
+            <mat-icon
+              [style.color]="item.color"
+              [class.resource-icon-fill]="iconStyle(item.icon) === 'fill'"
+              [class.resource-icon-outline]="iconStyle(item.icon) === 'outline'"
+              >{{ iconName(item.icon, 'label') }}</mat-icon
+            >{{ item.name }}
+          </mat-option>
           }
         </mat-select>
       </mat-form-field>
       <button mat-stroked-button type="button" (click)="createTag()">
-        <mat-icon>new_label</mat-icon>{{ i18nKeys.resource.createTag | translate }}
+        <mat-icon>new_label</mat-icon>{{ i18nKeys.resource.createTag | translate
+        }}
       </button>
     </div>
 
     @if (definition(); as selected) {
-      <section class="properties-section">
-        <h3>{{ i18nKeys.resource.properties | translate: { name: selected.name } }}</h3>
-        <div class="property-grid">
-          @for (property of selected.properties; track property.id) {
-            @let control = values.controls[property.id];
-            <mat-form-field appearance="outline" subscriptSizing="dynamic">
-              <mat-label>
-                @if (property.isRequired) {
-                  <span class="resource-property-required"
-                    [attr.aria-label]="i18nKeys.resource.propertyRequired | translate">*</span>
-                }
-                {{ property.name }}
-              </mat-label>
-              @if (property.valueType === valueTypes.Boolean) {
-                <mat-select [formControl]="values.controls[property.id]">
-                  <mat-option value="true">{{ i18nKeys.resource.yes | translate }}</mat-option>
-                  <mat-option value="false">{{ i18nKeys.resource.no | translate }}</mat-option>
-                </mat-select>
-              } @else {
-                <input matInput
-                  [type]="property.valueType === valueTypes.Number ? 'number' : property.valueType === valueTypes.Date ? 'date' : 'text'"
-                  [formControl]="values.controls[property.id]" />
-              }
-              <mat-hint>
-                <span class="resource-property-type">[{{ valueTypeLabels[property.valueType] | translate }}]</span><span class="resource-property-max-length">({{ property.maxLength }})</span>
-              </mat-hint>
-              @if (control.touched || control.dirty) {
-                @if (control.hasError('required')) {
-                  <mat-error>{{ i18nKeys.validation.required | translate }}</mat-error>
-                } @else if (control.hasError('maxlength')) {
-                  <mat-error>
-                    {{ i18nKeys.validation.maxlength | translate: { requiredLength: property.maxLength } }}
-                  </mat-error>
-                } @else if (control.hasError('resourceValueFormat')) {
-                  <mat-error>
-                    {{ i18nKeys.resource.propertyValueFormatInvalid | translate: { name: property.name } }}
-                  </mat-error>
-                }
-              }
-            </mat-form-field>
+    <section class="properties-section">
+      <h3>
+        {{ i18nKeys.resource.properties | translate: { name: selected.name } }}
+      </h3>
+      <div class="property-grid">
+        @for (property of selected.properties; track property.id) { @let control
+        = values.controls[property.id];
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+          <mat-label>
+            @if (property.isRequired) {
+            <span
+              class="resource-property-required"
+              [attr.aria-label]="i18nKeys.resource.propertyRequired | translate"
+              >*</span
+            >
+            } {{ property.name }}
+          </mat-label>
+          @if (property.valueType === valueTypes.Boolean) {
+          <mat-select [formControl]="values.controls[property.id]">
+            <mat-option value="true"
+              >{{ i18nKeys.resource.yes | translate }}</mat-option
+            >
+            <mat-option value="false"
+              >{{ i18nKeys.resource.no | translate }}</mat-option
+            >
+          </mat-select>
+          } @else {
+          <input
+            matInput
+            [type]="property.valueType === valueTypes.Number ? 'number' : property.valueType === valueTypes.Date ? 'date' : 'text'"
+            [formControl]="values.controls[property.id]"
+          />
           }
-        </div>
-      </section>
+          <mat-hint>
+            <span class="resource-property-type"
+              >[{{ valueTypeLabels[property.valueType] | translate }}]</span
+            ><span class="resource-property-max-length"
+              >({{ property.maxLength }})</span
+            >
+          </mat-hint>
+          @if (control.touched || control.dirty) { @if
+          (control.hasError('required')) {
+          <mat-error>{{ i18nKeys.validation.required | translate }}</mat-error>
+          } @else if (control.hasError('maxlength')) {
+          <mat-error>
+            {{ i18nKeys.validation.maxlength | translate: { requiredLength:
+            property.maxLength } }}
+          </mat-error>
+          } @else if (control.hasError('resourceValueFormat')) {
+          <mat-error>
+            {{ i18nKeys.resource.propertyValueFormatInvalid | translate: { name:
+            property.name } }}
+          </mat-error>
+          } }
+        </mat-form-field>
+        }
+      </div>
+    </section>
     }
   </form>
 </mat-dialog-content>
 <mat-dialog-actions align="end">
-  <button mat-button mat-dialog-close>{{ i18nKeys.common.cancel | translate }}</button>
-  <button mat-flat-button color="primary" type="button" [disabled]="saving" (click)="save()">
+  <button mat-button mat-dialog-close>
+    {{ i18nKeys.common.cancel | translate }}
+  </button>
+  <button
+    mat-flat-button
+    color="primary"
+    type="button"
+    [disabled]="saving"
+    (click)="save()"
+  >
     {{ i18nKeys.common.save | translate }}
   </button>
 </mat-dialog-actions>

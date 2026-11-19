@@ -20,7 +20,10 @@ export class ArticleAssetUrlService {
     try {
       const url = new URL(path, this.adminOrigin);
       const adminUrl = new URL(this.adminOrigin);
-      if (url.origin === adminUrl.origin && url.pathname.startsWith('/article/')) {
+      if (
+        url.origin === adminUrl.origin &&
+        url.pathname.startsWith('/article/')
+      ) {
         return `${url.pathname}${url.search}${url.hash}`;
       }
     } catch {
@@ -31,7 +34,10 @@ export class ArticleAssetUrlService {
   }
 
   normalizeMarkdown(markdown: string): string {
-    const escapedOrigin = this.adminOrigin.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const escapedOrigin = this.adminOrigin.replace(
+      /[.*+?^${}()|[\]\\]/g,
+      '\\$&',
+    );
     const imagePattern = new RegExp(
       `(\\!\\[[^\\]]*\\]\\()${escapedOrigin}(\\/article\\/[^)\\s]+)`,
       'g',
@@ -42,12 +48,14 @@ export class ArticleAssetUrlService {
   transformHtml(html: string): string {
     const container = document.createElement('div');
     container.innerHTML = html;
-    container.querySelectorAll<HTMLImageElement>('img[src]').forEach((image) => {
-      const source = image.getAttribute('src');
-      if (source) {
-        image.setAttribute('src', this.resolve(source));
-      }
-    });
+    container
+      .querySelectorAll<HTMLImageElement>('img[src]')
+      .forEach((image) => {
+        const source = image.getAttribute('src');
+        if (source) {
+          image.setAttribute('src', this.resolve(source));
+        }
+      });
     return container.innerHTML;
   }
 }

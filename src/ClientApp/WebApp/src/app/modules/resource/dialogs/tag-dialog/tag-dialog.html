@@ -1,5 +1,6 @@
 <h2 mat-dialog-title>
-  {{ (data?.tag ? i18nKeys.resource.editTag : i18nKeys.resource.addTag) | translate }}
+  {{ (data?.tag ? i18nKeys.resource.editTag : i18nKeys.resource.addTag) |
+  translate }}
 </h2>
 <mat-dialog-content>
   <form [formGroup]="form" (ngSubmit)="save()" class="resource-tag-form">
@@ -20,8 +21,16 @@
   </form>
 </mat-dialog-content>
 <mat-dialog-actions align="end">
-  <button mat-button mat-dialog-close>{{ i18nKeys.common.cancel | translate }}</button>
-  <button mat-flat-button color="primary" type="button" [disabled]="form.invalid" (click)="save()">
+  <button mat-button mat-dialog-close>
+    {{ i18nKeys.common.cancel | translate }}
+  </button>
+  <button
+    mat-flat-button
+    color="primary"
+    type="button"
+    [disabled]="form.invalid"
+    (click)="save()"
+  >
     {{ i18nKeys.common.save | translate }}
   </button>
 </mat-dialog-actions>

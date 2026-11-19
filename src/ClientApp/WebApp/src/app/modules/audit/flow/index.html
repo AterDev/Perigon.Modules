@@ -1,0 +1,102 @@
+<section class="page">
+  <div
+    class="toolbar d-flex flex-column flex-md-row align-items-md-center gap-2"
+  >
+    <div class="filters d-flex flex-wrap align-items-center gap-2 flex-grow-1">
+      <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <mat-label>{{ i18nKeys.audit.sceneCode | translate }}</mat-label
+        ><input matInput [(ngModel)]="sceneCode" (keyup.enter)="load()" />
+      </mat-form-field>
+      <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <mat-label>{{ i18nKeys.audit.keyword | translate }}</mat-label
+        ><input matInput [(ngModel)]="keyword" (keyup.enter)="load()" />
+      </mat-form-field>
+      <button mat-stroked-button (click)="load()">
+        <mat-icon>search</mat-icon>{{ i18nKeys.audit.query | translate }}
+      </button>
+    </div>
+    <button mat-flat-button color="primary" (click)="edit()">
+      <mat-icon>add</mat-icon>{{ i18nKeys.audit.addFlow | translate }}
+    </button>
+  </div>
+  @if (loading()) {
+  <mat-spinner diameter="32" />
+  } @else if (loadError()) {
+  <p>
+    {{ i18nKeys.audit.loadFail | translate }}
+    <button mat-button (click)="load()">
+      {{ i18nKeys.audit.retry | translate }}
+    </button>
+  </p>
+  } @else if (flows().length === 0) {
+  <p>{{ i18nKeys.audit.emptyFlows | translate }}</p>
+  } @else {
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>{{ i18nKeys.audit.name | translate }}</th>
+          <th>{{ i18nKeys.audit.sceneCode | translate }}</th>
+          <th>{{ i18nKeys.audit.flowKey | translate }}</th>
+          <th>{{ i18nKeys.audit.status | translate }}</th>
+          <th>{{ i18nKeys.audit.updatedTime | translate }}</th>
+          <th>{{ i18nKeys.audit.actions | translate }}</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (flow of flows(); track flow.id) {
+        <tr>
+          <td>{{ flow.name }}</td>
+          <td>{{ flow.sceneCode }}</td>
+          <td>{{ flow.flowKey }}</td>
+          <td>
+            <span [class.enabled]="flow.isEnabled"
+              >{{ statusLabel(flow.isEnabled) }}</span
+            >
+          </td>
+          <td>{{ flow.updatedTime | date: "yyyy-MM-dd HH:mm" }}</td>
+          <td class="actions">
+            <button
+              mat-icon-button
+              (click)="edit(flow)"
+              [attr.aria-label]="i18nKeys.audit.edit | translate"
+            >
+              <mat-icon>edit</mat-icon>
+            </button>
+            <button
+              mat-icon-button
+              (click)="toggle(flow)"
+              [attr.aria-label]="
+                    (flow.isEnabled
+                      ? i18nKeys.audit.disable
+                      : i18nKeys.audit.enable
+                    ) | translate
+                  "
+            >
+              <mat-icon
+                >{{ flow.isEnabled ? "pause_circle" : "play_circle" }}</mat-icon
+              >
+            </button>
+            <button
+              mat-icon-button
+              (click)="remove(flow)"
+              [attr.aria-label]="i18nKeys.audit.delete | translate"
+            >
+              <mat-icon class="error">delete</mat-icon>
+            </button>
+          </td>
+        </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+  <mat-paginator
+    [length]="total()"
+    [pageIndex]="pageIndex"
+    [pageSize]="pageSize"
+    [pageSizeOptions]="[10, 20, 50]"
+    (page)="pageChanged($event)"
+    aria-label="分页"
+  ></mat-paginator>
+  }
+</section>

@@ -61,16 +61,8 @@ public class SysMenu : EntityBase, ITreeNode<SysMenu>
     /// <summary>
     /// 菜单类型
     /// </summary>
-    [NotMapped]
-    public MenuType MenuType
-    {
-        get => (MenuType)MenuTypeValue;
-        set => MenuTypeValue = (int)value;
-    }
-
     [Column("MenuType")]
-    [JsonIgnore]
-    public int MenuTypeValue { get; set; } = (int)MenuType.Page;
+    public MenuType MenuType { get; set; } = MenuType.Page;
 
     /// <summary>
     /// 排序

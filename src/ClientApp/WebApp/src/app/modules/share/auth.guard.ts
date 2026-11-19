@@ -1,19 +1,25 @@
 import { Injectable } from '@angular/core';
-import { ActivatedRouteSnapshot, CanActivate, Router, RouterStateSnapshot, UrlTree } from '@angular/router';
+import {
+  ActivatedRouteSnapshot,
+  CanActivate,
+  Router,
+  RouterStateSnapshot,
+  UrlTree,
+} from '@angular/router';
 import { AuthService } from 'src/app/services/auth.service';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class AuthGuard implements CanActivate {
   constructor(
     private router: Router,
     private auth: AuthService,
-  ) {
-  }
+  ) {}
   canActivate(
     route: ActivatedRouteSnapshot,
-    state: RouterStateSnapshot): boolean | UrlTree {
+    state: RouterStateSnapshot,
+  ): boolean | UrlTree {
     const url = state.url;
 
     if (url.startsWith('/index')) {
@@ -23,11 +29,11 @@ export class AuthGuard implements CanActivate {
       return true;
     }
     return this.router.parseUrl('/login');
-
   }
   canActivateChild(
     next: ActivatedRouteSnapshot,
-    state: RouterStateSnapshot): boolean | UrlTree {
+    state: RouterStateSnapshot,
+  ): boolean | UrlTree {
     return this.canActivate(next, state);
   }
 }

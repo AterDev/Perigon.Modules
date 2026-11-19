@@ -1,4 +1,10 @@
-import { ChangeDetectionStrategy, Component, forwardRef, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  forwardRef,
+  inject,
+  signal,
+} from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
@@ -56,15 +62,16 @@ export class ResourceIconPickerComponent implements ControlValueAccessor {
   open(): void {
     if (this.disabled()) return;
     this.dialog
-      .open<ResourceIconPickerDialogComponent, ResourceIconPickerDialogData, string>(
+      .open<
         ResourceIconPickerDialogComponent,
-        {
-          width: '760px',
-          maxWidth: '96vw',
-          maxHeight: '96vh',
-          data: { value: this.value() },
-        },
-      )
+        ResourceIconPickerDialogData,
+        string
+      >(ResourceIconPickerDialogComponent, {
+        width: '760px',
+        maxWidth: '96vw',
+        maxHeight: '96vh',
+        data: { value: this.value() },
+      })
       .afterClosed()
       .subscribe((value) => {
         if (value === undefined) return;

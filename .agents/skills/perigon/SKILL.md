@@ -18,6 +18,7 @@ description: MiniApi 项目开发入口。用于 Perigon CLI/MCP、Minimal API E
 ## 模板边界
 
 - 业务逻辑和 DTO 位于 `src/Modules/<Module>`；ApiService 的 `Endpoints` 负责 HTTP 接口。模板使用 PostgreSQL，且不含内置 EF migration 资源。
+- 模块只提供可调用的执行方法。实际发布的宿主定义并注册 `IHostedService`、`BackgroundService`，负责调度、日志、取消和依赖作用域。数据库种子数据统一在模块根目录 `InitModule.cs` 的 `InitModule` 静态类中定义，提供接收现有 DbContext 与 CancellationToken 的静态方法，宿主在数据库创建及迁移成功后调用。
 - Endpoint group 继承 `RestEndpointBase` 并声明静态 `MapEndpoints`；Manager 和 Endpoint 注册由源码生成器完成。
 - 不要假设存在 `AdminService`、Controller、Standard 生成器或多数据库切换。
 - 新增能力必须检查 Request Delegate Generator、AOT、Trim、反射、依赖和序列化兼容性。
@@ -30,7 +31,7 @@ description: MiniApi 项目开发入口。用于 Perigon CLI/MCP、Minimal API E
 | 选择模板、理解目录、服务注入、配置与 AppHost 边界 | [references/architecture.md](references/architecture.md) |
 | 实体、DbContext、模型、Manager、Endpoint、缓存/日志/鉴权 | [references/backend.md](references/backend.md) |
 | 安装外部业务模块（确认其支持 MiniApi/AOT 时） | [references/module.md](references/module.md) |
-| Angular 页面、菜单、i18n 与生成客户端 | [references/angular.md](references/angular.md) |
+| Angular 升级、前端模块拆分、页面、菜单、i18n 与生成客户端 | [references/angular.md](references/angular.md) |
 | 清理、迁移、OpenAPI、菜单和镜像脚本 | [references/scripts.md](references/scripts.md) |
 | 单元/集成测试、验证矩阵、发布与生产检查 | [references/testing-operations.md](references/testing-operations.md) |
 

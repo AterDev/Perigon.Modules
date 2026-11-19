@@ -1,6 +1,7 @@
 using Entity.AuditMod;
 using Entity.NotificationMod;
 using EntityFramework.AppDbContext;
+using EntityFramework.AppDbFactory;
 using Perigon.AspNetCore.Constants;
 using Perigon.PostgreSQL;
 
@@ -34,7 +35,7 @@ public sealed class NotificationAuditDatabaseTests
 
         try
         {
-            await using (var context = new DefaultDbContext(ConnectionString))
+            await using (var context = AppDbFactory.CreateDbContext(ConnectionString))
             {
                 await context.InAppNotifications.InsertAsync(new InAppNotification
                 {
@@ -52,7 +53,7 @@ public sealed class NotificationAuditDatabaseTests
                 ]);
             }
 
-            await using (var context = new DefaultDbContext(ConnectionString))
+            await using (var context = AppDbFactory.CreateDbContext(ConnectionString))
             {
                 List<InAppNotificationRecipient> rows = await context.InAppNotificationRecipients
                     .Where(item => item.NotificationId == notificationId)
@@ -95,7 +96,7 @@ public sealed class NotificationAuditDatabaseTests
 
         try
         {
-            await using var context = new DefaultDbContext(ConnectionString);
+            await using var context = AppDbFactory.CreateDbContext(ConnectionString);
             await context.AuditFlows.InsertAsync(new AuditFlow
             {
                 Id = flowId,
@@ -145,20 +146,20 @@ public sealed class NotificationAuditDatabaseTests
             ]);
 
             int changed = await context.AuditTasks
-                .Where(item => item.Id == taskA && item.StatusValue == (int)AuditTaskStatus.Pending)
+                .Where(item => item.Id == taskA && item.Status == AuditTaskStatus.Pending)
                 .ExecuteUpdateAsync(update => update
-                    .Set(item => item.StatusValue, (int)AuditTaskStatus.Approved)
+                    .Set(item => item.Status, AuditTaskStatus.Approved)
                     .Set(item => item.Comment, "approved")
                     .Set(item => item.ActedTime, DateTimeOffset.UtcNow));
             await Assert.That(changed).IsEqualTo(1);
 
             await context.AuditTasks.Where(item => item.Id == taskB).ExecuteUpdateAsync(update => update
-                .Set(item => item.StatusValue, (int)AuditTaskStatus.Approved));
+                .Set(item => item.Status, AuditTaskStatus.Approved));
             await context.AuditRecordDetails.Where(item => item.Id == detailId).ExecuteUpdateAsync(update => update
-                .Set(item => item.StatusValue, (int)AuditStepStatus.Approved)
+                .Set(item => item.Status, AuditStepStatus.Approved)
                 .Set(item => item.CompletedTime, DateTimeOffset.UtcNow));
             await context.AuditRecords.Where(item => item.Id == recordId).ExecuteUpdateAsync(update => update
-                .Set(item => item.StatusValue, (int)AuditRecordStatus.Approved)
+                .Set(item => item.Status, AuditRecordStatus.Approved)
                 .Set(item => item.CurrentStepNo, null)
                 .Set(item => item.CompletedTime, DateTimeOffset.UtcNow));
 
@@ -177,7 +178,7 @@ public sealed class NotificationAuditDatabaseTests
 
     private static async Task SoftDeleteNotificationRowsAsync(Guid notificationId)
     {
-        await using var context = new DefaultDbContext(ConnectionString);
+        await using var context = AppDbFactory.CreateDbContext(ConnectionString);
         await context.InAppNotificationRecipients.Where(item => item.NotificationId == notificationId)
             .ExecuteUpdateAsync(update => update.Set(item => item.IsDeleted, true));
         await context.InAppNotifications.Where(item => item.Id == notificationId)
@@ -191,7 +192,7 @@ public sealed class NotificationAuditDatabaseTests
         Guid taskA,
         Guid taskB)
     {
-        await using var context = new DefaultDbContext(ConnectionString);
+        await using var context = AppDbFactory.CreateDbContext(ConnectionString);
         Guid[] taskIds = [taskA, taskB];
         await context.AuditTasks.Where(item => taskIds.Contains(item.Id))
             .ExecuteUpdateAsync(update => update.Set(item => item.IsDeleted, true));

@@ -1,0 +1,31 @@
+<div class="read-only-tab">
+  <app-notification-list
+    [list]="list"
+    [label]="notificationKeys.events | translate"
+  >
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>{{ notificationKeys.eventType | translate }}</th>
+            <th>{{ notificationKeys.titleField | translate }}</th>
+            <th>{{ notificationKeys.status | translate }}</th>
+            <th>{{ notificationKeys.processingStatus | translate }}</th>
+            <th>{{ notificationKeys.occurredAt | translate }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (item of list.rows(); track item.id) {
+          <tr>
+            <td>{{ item.eventType }}</td>
+            <td>{{ item.title }}</td>
+            <td>{{ item.status }}</td>
+            <td>{{ item.processingStatus }}</td>
+            <td>{{ item.occurredAt | date: 'yyyy-MM-dd HH:mm' }}</td>
+          </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </app-notification-list>
+</div>

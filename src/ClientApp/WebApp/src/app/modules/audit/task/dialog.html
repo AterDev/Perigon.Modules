@@ -1,0 +1,62 @@
+<h2 mat-dialog-title>{{ i18nKeys.audit.taskTitle | translate }}</h2>
+<mat-dialog-content>
+  @if (loading()) {
+  <mat-spinner diameter="32" />
+  } @else if (detail(); as task) {
+  <section class="summary">
+    <div>
+      <span>{{ i18nKeys.audit.bizId | translate }}</span
+      ><strong>{{ task.bizId }}</strong>
+    </div>
+    <div>
+      <span>{{ i18nKeys.audit.step | translate }}</span
+      ><strong>{{ task.stepNo }} · {{ task.stepName }}</strong>
+    </div>
+    <div>
+      <span>{{ i18nKeys.audit.applicant | translate }}</span
+      ><strong>{{ task.record.applicantNameSnapshot }}</strong>
+    </div>
+  </section>
+  <section>
+    <h3>{{ i18nKeys.audit.applyReason | translate }}</h3>
+    <p class="reason">{{ task.record.applyReason }}</p>
+  </section>
+  <mat-form-field appearance="outline" class="comment"
+    ><mat-label>{{ i18nKeys.audit.comment | translate }}</mat-label
+    ><textarea
+      matInput
+      [formControl]="form.controls.comment"
+      rows="4"
+      maxlength="2000"
+    ></textarea
+    ><mat-hint align="end"
+      >{{ form.controls.comment.value.length }}/2000</mat-hint
+    ></mat-form-field
+  >
+  }</mat-dialog-content
+><mat-dialog-actions align="end"
+  ><button mat-button mat-dialog-close [disabled]="saving">
+    {{ i18nKeys.common.cancel | translate }}
+  </button>
+  @if (detail()?.status === status.Pending) {
+  <button
+    mat-stroked-button
+    color="warn"
+    [disabled]="saving || loading()"
+    (click)="decide(false)"
+  >
+    {{ i18nKeys.audit.reject | translate }}</button
+  ><button
+    mat-flat-button
+    color="primary"
+    [disabled]="saving || loading()"
+    (click)="decide(true)"
+  >
+    {{ i18nKeys.audit.approve | translate }}
+  </button>
+  } @else {
+  <button mat-button mat-dialog-close>
+    {{ i18nKeys.audit.close | translate }}
+  </button>
+  }
+</mat-dialog-actions>

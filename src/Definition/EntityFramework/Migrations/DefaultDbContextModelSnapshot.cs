@@ -9,684 +9,714 @@ public sealed class DefaultDbContextModelSnapshot : MigrationModelSnapshot
 {
     public override MigrationModel Model => new(new MigrationTable[]
     {
-        new MigrationTable(null, "article_categorys", null, new MigrationColumn[]
+        new MigrationTable(null, "ArticleCategories", null, new MigrationColumn[]
         {
-            new MigrationColumn("created_time", "timestamp with time zone", false, false, false, null, null, null),
-            new MigrationColumn("id", "uuid", false, false, false, null, null, null),
-            new MigrationColumn("is_deleted", "boolean", false, false, false, null, null, null),
-            new MigrationColumn("level", "smallint", false, false, false, null, null, null),
-            new MigrationColumn("name", "character varying(50)", false, false, false, null, null, null),
-            new MigrationColumn("parent_id", "uuid", true, false, false, null, null, null),
-            new MigrationColumn("updated_time", "timestamp with time zone", false, false, false, null, null, null),
-            new MigrationColumn("user_id", "uuid", false, false, false, null, null, null),
-        }, new MigrationPrimaryKey("pk_article_categorys", new string[] { "id" }), new MigrationForeignKey[]
+            new MigrationColumn("CreatedTime", "timestamp with time zone", false, false, false, null, null, null),
+            new MigrationColumn("Id", "uuid", false, false, false, null, null, null),
+            new MigrationColumn("IsDeleted", "boolean", false, false, false, null, null, null),
+            new MigrationColumn("Level", "smallint", false, false, false, null, null, null),
+            new MigrationColumn("Name", "character varying(50)", false, false, false, null, null, null),
+            new MigrationColumn("ParentId", "uuid", true, false, false, null, null, null),
+            new MigrationColumn("UpdatedTime", "timestamp with time zone", false, false, false, null, null, null),
+            new MigrationColumn("UserId", "uuid", false, false, false, null, null, null),
+        }, new MigrationPrimaryKey("pk_ArticleCategories", new string[] { "Id" }), new MigrationForeignKey[]
+        {
+            new MigrationForeignKey("fk_article_categories_parent_id", new string[] { "ParentId" }, null, "ArticleCategories", new string[] { "Id" }, ReferentialAction.NoAction),
+        }, new MigrationIndex[]
+        {
+        }),
+        new MigrationTable(null, "Articles", null, new MigrationColumn[]
+        {
+            new MigrationColumn("Authors", "character varying(200)", false, false, false, null, null, null),
+            new MigrationColumn("CatalogId", "uuid", false, false, false, null, null, null),
+            new MigrationColumn("Content", "character varying(200000)", false, false, false, null, null, null),
+            new MigrationColumn("ContentType", "smallint", false, false, false, null, null, null),
+            new MigrationColumn("CreatedTime", "timestamp with time zone", false, false, false, null, null, null),
+            new MigrationColumn("Description", "character varying(300)", true, false, false, null, null, null),
+            new MigrationColumn("Id", "uuid", false, false, false, null, null, null),
+            new MigrationColumn("IsAudit", "boolean", false, false, false, null, null, null),
+            new MigrationColumn("IsDeleted", "boolean", false, false, false, null, null, null),
+            new MigrationColumn("IsOriginal", "boolean", false, false, false, null, null, null),
+            new MigrationColumn("IsPublic", "boolean", false, false, false, null, null, null),
+            new MigrationColumn("LanguageType", "smallint", false, false, false, null, null, null),
+            new MigrationColumn("Title", "character varying(100)", false, false, false, null, null, null),
+            new MigrationColumn("UpdatedTime", "timestamp with time zone", false, false, false, null, null, null),
+            new MigrationColumn("UserId", "uuid", false, false, false, null, null, null),
+            new MigrationColumn("ViewCount", "integer", false, false, false, null, null, null),
+        }, new MigrationPrimaryKey("pk_Articles", new string[] { "Id" }), new MigrationForeignKey[]
+        {
+            new MigrationForeignKey("fk_articles_catalog_id", new string[] { "CatalogId" }, null, "ArticleCategories", new string[] { "Id" }, ReferentialAction.NoAction),
+        }, new MigrationIndex[]
+        {
+        }),
+        new MigrationTable(null, "AuditFlows", null, new MigrationColumn[]
+        {
+            new MigrationColumn("CreatedTime", "timestamp with time zone", false, false, false, null, null, null),
+            new MigrationColumn("FlowKey", "character varying(100)", false, false, false, null, null, null),
+            new MigrationColumn("Id", "uuid", false, false, false, null, null, null),
+            new MigrationColumn("IsDeleted", "boolean", false, false, false, null, null, null),
+            new MigrationColumn("IsEnabled", "boolean", false, false, false, null, null, null),
+            new MigrationColumn("Name", "character varying(200)", false, false, false, null, null, null),
+            new MigrationColumn("SceneCode", "character varying(100)", false, false, false, null, null, null),
+            new MigrationColumn("UpdatedTime", "timestamp with time zone", false, false, false, null, null, null),
+        }, new MigrationPrimaryKey("pk_AuditFlows", new string[] { "Id" }), new MigrationForeignKey[]
+        {
+        }, new MigrationIndex[]
+        {
+            new MigrationIndex("uq_AuditFlows_FlowKey", new string[] { "FlowKey" }, true, global::System.Array.Empty<string>(), "\u0022IsDeleted\u0022 = false", null),
+        }),
+        new MigrationTable(null, "AuditRecordDetails", null, new MigrationColumn[]
+        {
+            new MigrationColumn("AuditModeSnapshotValue", "smallint", false, false, false, null, null, null),
+            new MigrationColumn("AuditRecordId", "uuid", false, false, false, null, null, null),
+            new MigrationColumn("CompletedTime", "timestamp with time zone", true, false, false, null, null, null),
+            new MigrationColumn("CreatedTime", "timestamp with time zone", false, false, false, null, null, null),
+            new MigrationColumn("Id", "uuid", false, false, false, null, null, null),
+            new MigrationColumn("IsDeleted", "boolean", false, false, false, null, null, null),
+            new MigrationColumn("StartedTime", "timestamp with time zone", true, false, false, null, null, null),
+            new MigrationColumn("StatusValue", "smallint", false, false, false, null, null, null),
+            new MigrationColumn("StepDefinitionId", "uuid", false, false, false, null, null, null),
+            new MigrationColumn("StepNameSnapshot", "character varying(200)", false, false, false, null, null, null),
+            new MigrationColumn("StepNoSnapshot", "integer", false, false, false, null, null, null),
+            new MigrationColumn("UpdatedTime", "timestamp with time zone", false, false, false, null, null, null),
+        }, new MigrationPrimaryKey("pk_AuditRecordDetails", new string[] { "Id" }), new MigrationForeignKey[]
+        {
+            new MigrationForeignKey("fk_audit_record_details_audit_record_id", new string[] { "AuditRecordId" }, null, "AuditRecords", new string[] { "Id" }, ReferentialAction.NoAction),
+        }, new MigrationIndex[]
+        {
+            new MigrationIndex("uq_AuditRecordDetails_AuditRecordId_StepNoSnapshot", new string[] { "AuditRecordId", "StepNoSnapshot" }, true, global::System.Array.Empty<string>(), "\u0022IsDeleted\u0022 = false", null),
+        }),
+        new MigrationTable(null, "AuditRecords", null, new MigrationColumn[]
+        {
+            new MigrationColumn("ApplicantNameSnapshot", "character varying(100)", false, false, false, null, null, null),
+            new MigrationColumn("ApplicantUserId", "uuid", false, false, false, null, null, null),
+            new MigrationColumn("ApplyReason", "character varying(2000)", false, false, false, null, null, null),
+            new MigrationColumn("BizId", "character varying(200)", false, false, false, null, null, null),
+            new MigrationColumn("CompletedTime", "timestamp with time zone", true, false, false, null, null, null),
+            new MigrationColumn("CreatedTime", "timestamp with time zone", false, false, false, null, null, null),
+            new MigrationColumn("CurrentStepNo", "integer", true, false, false, null, null, null),
+            new MigrationColumn("FlowId", "uuid", false, false, false, null, null, null),
+            new MigrationColumn("FlowNameSnapshot", "character varying(200)", false, false, false, null, null, null),
+            new MigrationColumn("FormSnapshotJson", "text", true, false, false, null, null, null),
+            new MigrationColumn("Id", "uuid", false, false, false, null, null, null),
+            new MigrationColumn("IsDeleted", "boolean", false, false, false, null, null, null),
+            new MigrationColumn("SceneCode", "character varying(100)", false, false, false, null, null, null),
+            new MigrationColumn("StatusValue", "smallint", false, false, false, null, null, null),
+            new MigrationColumn("SubmittedTime", "timestamp with time zone", false, false, false, null, null, null),
+            new MigrationColumn("UpdatedTime", "timestamp with time zone", false, false, false, null, null, null),
+            new MigrationColumn("WithdrawReason", "character varying(2000)", true, false, false, null, null, null),
+            new MigrationColumn("WithdrawnTime", "timestamp with time zone", true, false, false, null, null, null),
+        }, new MigrationPrimaryKey("pk_AuditRecords", new string[] { "Id" }), new MigrationForeignKey[]
+        {
+        }, new MigrationIndex[]
+        {
+            new MigrationIndex("uq_AuditRecords_ApplicantUserId_SceneCode_BizId", new string[] { "ApplicantUserId", "SceneCode", "BizId" }, true, global::System.Array.Empty<string>(), "\u0022IsDeleted\u0022 = false AND (\u0022StatusValue\u0022 = 0)", null),
+        }),
+        new MigrationTable(null, "AuditStepDefinitions", null, new MigrationColumn[]
+        {
+            new MigrationColumn("AuditModeValue", "smallint", false, false, false, null, null, null),
+            new MigrationColumn("AuditorUserIds", "uuid[]", false, false, false, null, null, null),
+            new MigrationColumn("CreatedTime", "timestamp with time zone", false, false, false, null, null, null),
+            new MigrationColumn("FlowId", "uuid", false, false, false, null, null, null),
+            new MigrationColumn("Id", "uuid", false, false, false, null, null, null),
+            new MigrationColumn("IsDeleted", "boolean", false, false, false, null, null, null),
+            new MigrationColumn("Name", "character varying(200)", false, false, false, null, null, null),
+            new MigrationColumn("StepNo", "integer", false, false, false, null, null, null),
+            new MigrationColumn("UpdatedTime", "timestamp with time zone", false, false, false, null, null, null),
+        }, new MigrationPrimaryKey("pk_AuditStepDefinitions", new string[] { "Id" }), new MigrationForeignKey[]
+        {
+        }, new MigrationIndex[]
+        {
+            new MigrationIndex("uq_AuditStepDefinitions_FlowId_StepNo", new string[] { "FlowId", "StepNo" }, true, global::System.Array.Empty<string>(), "\u0022IsDeleted\u0022 = false", null),
+        }),
+        new MigrationTable(null, "AuditTasks", null, new MigrationColumn[]
+        {
+            new MigrationColumn("ActedTime", "timestamp with time zone", true, false, false, null, null, null),
+            new MigrationColumn("AssigneeNameSnapshot", "character varying(100)", false, false, false, null, null, null),
+            new MigrationColumn("AssigneeUserId", "uuid", false, false, false, null, null, null),
+            new MigrationColumn("AuditRecordDetailId", "uuid", false, false, false, null, null, null),
+            new MigrationColumn("Comment", "character varying(2000)", true, false, false, null, null, null),
+            new MigrationColumn("CreatedTime", "timestamp with time zone", false, false, false, null, null, null),
+            new MigrationColumn("Id", "uuid", false, false, false, null, null, null),
+            new MigrationColumn("IsDeleted", "boolean", false, false, false, null, null, null),
+            new MigrationColumn("StatusValue", "smallint", false, false, false, null, null, null),
+            new MigrationColumn("UpdatedTime", "timestamp with time zone", false, false, false, null, null, null),
+        }, new MigrationPrimaryKey("pk_AuditTasks", new string[] { "Id" }), new MigrationForeignKey[]
+        {
+            new MigrationForeignKey("fk_audit_tasks_audit_record_detail_id", new string[] { "AuditRecordDetailId" }, null, "AuditRecordDetails", new string[] { "Id" }, ReferentialAction.NoAction),
+        }, new MigrationIndex[]
+        {
+            new MigrationIndex("uq_AuditTasks_AuditRecordDetailId_AssigneeUserId", new string[] { "AuditRecordDetailId", "AssigneeUserId" }, true, global::System.Array.Empty<string>(), "\u0022IsDeleted\u0022 = false", null),
+        }),
+        new MigrationTable(null, "InAppNotificationRecipients", null, new MigrationColumn[]
+        {
+            new MigrationColumn("CreatedTime", "timestamp with time zone", false, false, false, null, null, null),
+            new MigrationColumn("Id", "uuid", false, false, false, null, null, null),
+            new MigrationColumn("IsDeleted", "boolean", false, false, false, null, null, null),
+            new MigrationColumn("IsRead", "boolean", false, false, false, null, null, null),
+            new MigrationColumn("NotificationId", "uuid", false, false, false, null, null, null),
+            new MigrationColumn("ReadTime", "timestamp with time zone", true, false, false, null, null, null),
+            new MigrationColumn("UpdatedTime", "timestamp with time zone", false, false, false, null, null, null),
+            new MigrationColumn("UserId", "uuid", false, false, false, null, null, null),
+        }, new MigrationPrimaryKey("pk_InAppNotificationRecipients", new string[] { "Id" }), new MigrationForeignKey[]
+        {
+        }, new MigrationIndex[]
+        {
+            new MigrationIndex("ix_InAppNotificationRecipients_UserId_IsRead_CreatedTime", new string[] { "UserId", "IsRead", "CreatedTime" }, false, global::System.Array.Empty<string>(), null, null),
+            new MigrationIndex("uq_InAppNotificationRecipients_NotificationId_UserId", new string[] { "NotificationId", "UserId" }, true, global::System.Array.Empty<string>(), "\u0022IsDeleted\u0022 = false", null),
+        }),
+        new MigrationTable(null, "InAppNotifications", null, new MigrationColumn[]
+        {
+            new MigrationColumn("Content", "character varying(20000)", false, false, false, null, null, null),
+            new MigrationColumn("CreatedBy", "uuid", true, false, false, null, null, null),
+            new MigrationColumn("CreatedTime", "timestamp with time zone", false, false, false, null, null, null),
+            new MigrationColumn("ExpiresTime", "timestamp with time zone", true, false, false, null, null, null),
+            new MigrationColumn("Id", "uuid", false, false, false, null, null, null),
+            new MigrationColumn("IsDeleted", "boolean", false, false, false, null, null, null),
+            new MigrationColumn("IsPublished", "boolean", false, false, false, null, null, null),
+            new MigrationColumn("Link", "character varying(1200)", false, false, false, null, null, null),
+            new MigrationColumn("PublishedTime", "timestamp with time zone", true, false, false, null, null, null),
+            new MigrationColumn("TargetUserIds", "uuid[]", false, false, false, null, null, null),
+            new MigrationColumn("Title", "character varying(200)", false, false, false, null, null, null),
+            new MigrationColumn("Type", "character varying(40)", false, false, false, null, null, null),
+            new MigrationColumn("UpdatedTime", "timestamp with time zone", false, false, false, null, null, null),
+        }, new MigrationPrimaryKey("pk_InAppNotifications", new string[] { "Id" }), new MigrationForeignKey[]
         {
         }, new MigrationIndex[]
         {
         }),
-        new MigrationTable(null, "articles", null, new MigrationColumn[]
+        new MigrationTable(null, "NotificationDeliveries", null, new MigrationColumn[]
         {
-            new MigrationColumn("ContentType", "integer", false, false, false, null, null, null),
-            new MigrationColumn("LanguageType", "integer", false, false, false, null, null, null),
-            new MigrationColumn("authors", "character varying(200)", false, false, false, null, null, null),
-            new MigrationColumn("catalog_id", "uuid", false, false, false, null, null, null),
-            new MigrationColumn("content", "character varying(200000)", false, false, false, null, null, null),
-            new MigrationColumn("created_time", "timestamp with time zone", false, false, false, null, null, null),
-            new MigrationColumn("description", "character varying(300)", true, false, false, null, null, null),
-            new MigrationColumn("id", "uuid", false, false, false, null, null, null),
-            new MigrationColumn("is_audit", "boolean", false, false, false, null, null, null),
-            new MigrationColumn("is_deleted", "boolean", false, false, false, null, null, null),
-            new MigrationColumn("is_original", "boolean", false, false, false, null, null, null),
-            new MigrationColumn("is_public", "boolean", false, false, false, null, null, null),
-            new MigrationColumn("title", "character varying(100)", false, false, false, null, null, null),
-            new MigrationColumn("updated_time", "timestamp with time zone", false, false, false, null, null, null),
-            new MigrationColumn("user_id", "uuid", false, false, false, null, null, null),
-            new MigrationColumn("view_count", "integer", false, false, false, null, null, null),
-        }, new MigrationPrimaryKey("pk_articles", new string[] { "id" }), new MigrationForeignKey[]
+            new MigrationColumn("CreatedTime", "timestamp with time zone", false, false, false, null, null, null),
+            new MigrationColumn("Error", "character varying(2000)", true, false, false, null, null, null),
+            new MigrationColumn("EventId", "uuid", false, false, false, null, null, null),
+            new MigrationColumn("Id", "uuid", false, false, false, null, null, null),
+            new MigrationColumn("IsDeleted", "boolean", false, false, false, null, null, null),
+            new MigrationColumn("ReceiverId", "uuid", false, false, false, null, null, null),
+            new MigrationColumn("ReceiverName", "character varying(100)", false, false, false, null, null, null),
+            new MigrationColumn("SentAt", "timestamp with time zone", true, false, false, null, null, null),
+            new MigrationColumn("Status", "character varying(20)", false, false, false, null, null, null),
+            new MigrationColumn("UpdatedTime", "timestamp with time zone", false, false, false, null, null, null),
+        }, new MigrationPrimaryKey("pk_NotificationDeliveries", new string[] { "Id" }), new MigrationForeignKey[]
+        {
+        }, new MigrationIndex[]
+        {
+            new MigrationIndex("uq_NotificationDeliveries_EventId_ReceiverId", new string[] { "EventId", "ReceiverId" }, true, global::System.Array.Empty<string>(), "\u0022IsDeleted\u0022 = false", null),
+        }),
+        new MigrationTable(null, "NotificationEvents", null, new MigrationColumn[]
+        {
+            new MigrationColumn("Action", "character varying(50)", false, false, false, null, null, null),
+            new MigrationColumn("ActorName", "character varying(300)", false, false, false, null, null, null),
+            new MigrationColumn("Content", "character varying(8000)", false, false, false, null, null, null),
+            new MigrationColumn("CreatedTime", "timestamp with time zone", false, false, false, null, null, null),
+            new MigrationColumn("Duration", "double precision", true, false, false, null, null, null),
+            new MigrationColumn("EventKey", "character varying(128)", false, false, false, null, null, null),
+            new MigrationColumn("EventType", "character varying(50)", false, false, false, null, null, null),
+            new MigrationColumn("FinishedAt", "timestamp with time zone", true, false, false, null, null, null),
+            new MigrationColumn("Id", "uuid", false, false, false, null, null, null),
+            new MigrationColumn("IsDeleted", "boolean", false, false, false, null, null, null),
+            new MigrationColumn("Namespace", "character varying(500)", false, false, false, null, null, null),
+            new MigrationColumn("ObjectId", "character varying(100)", false, false, false, null, null, null),
+            new MigrationColumn("OccurredAt", "timestamp with time zone", true, false, false, null, null, null),
+            new MigrationColumn("ProcessingStatus", "character varying(20)", false, false, false, null, null, null),
+            new MigrationColumn("ProjectId", "bigint", false, false, false, null, null, null),
+            new MigrationColumn("ProjectName", "character varying(300)", false, false, false, null, null, null),
+            new MigrationColumn("Ref", "character varying(300)", false, false, false, null, null, null),
+            new MigrationColumn("Sha", "character varying(64)", false, false, false, null, null, null),
+            new MigrationColumn("SourceId", "uuid", false, false, false, null, null, null),
+            new MigrationColumn("Status", "character varying(40)", false, false, false, null, null, null),
+            new MigrationColumn("Tag", "boolean", false, false, false, null, null, null),
+            new MigrationColumn("Title", "character varying(500)", false, false, false, null, null, null),
+            new MigrationColumn("UpdatedTime", "timestamp with time zone", false, false, false, null, null, null),
+            new MigrationColumn("Url", "character varying(1200)", false, false, false, null, null, null),
+        }, new MigrationPrimaryKey("pk_NotificationEvents", new string[] { "Id" }), new MigrationForeignKey[]
+        {
+        }, new MigrationIndex[]
+        {
+            new MigrationIndex("uq_NotificationEvents_SourceId_EventKey", new string[] { "SourceId", "EventKey" }, true, global::System.Array.Empty<string>(), "\u0022IsDeleted\u0022 = false", null),
+        }),
+        new MigrationTable(null, "NotificationReceivers", null, new MigrationColumn[]
+        {
+            new MigrationColumn("AuthName", "character varying(100)", false, false, false, null, null, null),
+            new MigrationColumn("AuthScheme", "character varying(40)", false, false, false, null, null, null),
+            new MigrationColumn("AuthType", "character varying(20)", false, false, false, null, null, null),
+            new MigrationColumn("BodyTemplate", "character varying(8000)", false, false, false, null, null, null),
+            new MigrationColumn("CreatedTime", "timestamp with time zone", false, false, false, null, null, null),
+            new MigrationColumn("Enabled", "boolean", false, false, false, null, null, null),
+            new MigrationColumn("Endpoint", "character varying(2000)", false, false, false, null, null, null),
+            new MigrationColumn("HttpMethod", "character varying(10)", false, false, false, null, null, null),
+            new MigrationColumn("Id", "uuid", false, false, false, null, null, null),
+            new MigrationColumn("IsDeleted", "boolean", false, false, false, null, null, null),
+            new MigrationColumn("Name", "character varying(100)", false, false, false, null, null, null),
+            new MigrationColumn("ProtectedSecret", "character varying(2048)", false, false, false, null, null, null),
+            new MigrationColumn("RateLimitPerMinute", "integer", false, false, false, null, null, null),
+            new MigrationColumn("SuccessField", "character varying(100)", false, false, false, null, null, null),
+            new MigrationColumn("SuccessValue", "character varying(200)", false, false, false, null, null, null),
+            new MigrationColumn("TimeoutSeconds", "integer", false, false, false, null, null, null),
+            new MigrationColumn("Type", "character varying(40)", false, false, false, null, null, null),
+            new MigrationColumn("UpdatedTime", "timestamp with time zone", false, false, false, null, null, null),
+        }, new MigrationPrimaryKey("pk_NotificationReceivers", new string[] { "Id" }), new MigrationForeignKey[]
         {
         }, new MigrationIndex[]
         {
         }),
-        new MigrationTable(null, "audit_flows", null, new MigrationColumn[]
+        new MigrationTable(null, "NotificationRuleReceivers", null, new MigrationColumn[]
         {
-            new MigrationColumn("created_time", "timestamp with time zone", false, false, false, null, null, null),
-            new MigrationColumn("flow_key", "character varying(100)", false, false, false, null, null, null),
-            new MigrationColumn("id", "uuid", false, false, false, null, null, null),
-            new MigrationColumn("is_deleted", "boolean", false, false, false, null, null, null),
-            new MigrationColumn("is_enabled", "boolean", false, false, false, null, null, null),
-            new MigrationColumn("name", "character varying(200)", false, false, false, null, null, null),
-            new MigrationColumn("scene_code", "character varying(100)", false, false, false, null, null, null),
-            new MigrationColumn("updated_time", "timestamp with time zone", false, false, false, null, null, null),
-        }, new MigrationPrimaryKey("pk_audit_flows", new string[] { "id" }), new MigrationForeignKey[]
+            new MigrationColumn("CreatedTime", "timestamp with time zone", false, false, false, null, null, null),
+            new MigrationColumn("Id", "uuid", false, false, false, null, null, null),
+            new MigrationColumn("IsDeleted", "boolean", false, false, false, null, null, null),
+            new MigrationColumn("ReceiverId", "uuid", false, false, false, null, null, null),
+            new MigrationColumn("RuleId", "uuid", false, false, false, null, null, null),
+            new MigrationColumn("UpdatedTime", "timestamp with time zone", false, false, false, null, null, null),
+        }, new MigrationPrimaryKey("pk_NotificationRuleReceivers", new string[] { "Id" }), new MigrationForeignKey[]
         {
         }, new MigrationIndex[]
         {
-            new MigrationIndex("uq_audit_flows_flow_key", new string[] { "flow_key" }, true, global::System.Array.Empty<string>(), "\u0022is_deleted\u0022 = false", null),
-            new MigrationIndex("uq_audit_flows_scene_code", new string[] { "scene_code" }, true, global::System.Array.Empty<string>(), "\u0022is_deleted\u0022 = false AND (\u0022is_enabled\u0022 = true)", null),
+            new MigrationIndex("uq_NotificationRuleReceivers_RuleId_ReceiverId", new string[] { "RuleId", "ReceiverId" }, true, global::System.Array.Empty<string>(), "\u0022IsDeleted\u0022 = false", null),
         }),
-        new MigrationTable(null, "audit_record_details", null, new MigrationColumn[]
+        new MigrationTable(null, "NotificationRules", null, new MigrationColumn[]
         {
-            new MigrationColumn("audit_mode_snapshot_value", "integer", false, false, false, null, null, null),
-            new MigrationColumn("audit_record_id", "uuid", false, false, false, null, null, null),
-            new MigrationColumn("completed_time", "timestamp with time zone", true, false, false, null, null, null),
-            new MigrationColumn("created_time", "timestamp with time zone", false, false, false, null, null, null),
-            new MigrationColumn("id", "uuid", false, false, false, null, null, null),
-            new MigrationColumn("is_deleted", "boolean", false, false, false, null, null, null),
-            new MigrationColumn("started_time", "timestamp with time zone", true, false, false, null, null, null),
-            new MigrationColumn("status_value", "integer", false, false, false, null, null, null),
-            new MigrationColumn("step_definition_id", "uuid", false, false, false, null, null, null),
-            new MigrationColumn("step_name_snapshot", "character varying(200)", false, false, false, null, null, null),
-            new MigrationColumn("step_no_snapshot", "integer", false, false, false, null, null, null),
-            new MigrationColumn("updated_time", "timestamp with time zone", false, false, false, null, null, null),
-        }, new MigrationPrimaryKey("pk_audit_record_details", new string[] { "id" }), new MigrationForeignKey[]
-        {
-        }, new MigrationIndex[]
-        {
-            new MigrationIndex("uq_audit_record_details_audit_record_id_step_no_snapshot", new string[] { "audit_record_id", "step_no_snapshot" }, true, global::System.Array.Empty<string>(), "\u0022is_deleted\u0022 = false", null),
-        }),
-        new MigrationTable(null, "audit_records", null, new MigrationColumn[]
-        {
-            new MigrationColumn("applicant_name_snapshot", "character varying(100)", false, false, false, null, null, null),
-            new MigrationColumn("applicant_user_id", "uuid", false, false, false, null, null, null),
-            new MigrationColumn("apply_reason", "character varying(2000)", false, false, false, null, null, null),
-            new MigrationColumn("biz_id", "character varying(200)", false, false, false, null, null, null),
-            new MigrationColumn("completed_time", "timestamp with time zone", true, false, false, null, null, null),
-            new MigrationColumn("created_time", "timestamp with time zone", false, false, false, null, null, null),
-            new MigrationColumn("current_step_no", "integer", true, false, false, null, null, null),
-            new MigrationColumn("flow_id", "uuid", false, false, false, null, null, null),
-            new MigrationColumn("flow_name_snapshot", "character varying(200)", false, false, false, null, null, null),
-            new MigrationColumn("form_snapshot_json", "text", true, false, false, null, null, null),
-            new MigrationColumn("id", "uuid", false, false, false, null, null, null),
-            new MigrationColumn("is_deleted", "boolean", false, false, false, null, null, null),
-            new MigrationColumn("scene_code", "character varying(100)", false, false, false, null, null, null),
-            new MigrationColumn("status_value", "integer", false, false, false, null, null, null),
-            new MigrationColumn("submitted_time", "timestamp with time zone", false, false, false, null, null, null),
-            new MigrationColumn("updated_time", "timestamp with time zone", false, false, false, null, null, null),
-            new MigrationColumn("withdraw_reason", "character varying(2000)", true, false, false, null, null, null),
-            new MigrationColumn("withdrawn_time", "timestamp with time zone", true, false, false, null, null, null),
-        }, new MigrationPrimaryKey("pk_audit_records", new string[] { "id" }), new MigrationForeignKey[]
-        {
-        }, new MigrationIndex[]
-        {
-            new MigrationIndex("uq_audit_records_applicant_user_id_scene_code_biz_id", new string[] { "applicant_user_id", "scene_code", "biz_id" }, true, global::System.Array.Empty<string>(), "\u0022is_deleted\u0022 = false AND (\u0022status_value\u0022 = 0)", null),
-        }),
-        new MigrationTable(null, "audit_step_definitions", null, new MigrationColumn[]
-        {
-            new MigrationColumn("audit_mode_value", "integer", false, false, false, null, null, null),
-            new MigrationColumn("auditor_user_ids", "uuid[]", false, false, false, null, null, null),
-            new MigrationColumn("created_time", "timestamp with time zone", false, false, false, null, null, null),
-            new MigrationColumn("flow_id", "uuid", false, false, false, null, null, null),
-            new MigrationColumn("id", "uuid", false, false, false, null, null, null),
-            new MigrationColumn("is_deleted", "boolean", false, false, false, null, null, null),
-            new MigrationColumn("name", "character varying(200)", false, false, false, null, null, null),
-            new MigrationColumn("step_no", "integer", false, false, false, null, null, null),
-            new MigrationColumn("updated_time", "timestamp with time zone", false, false, false, null, null, null),
-        }, new MigrationPrimaryKey("pk_audit_step_definitions", new string[] { "id" }), new MigrationForeignKey[]
-        {
-        }, new MigrationIndex[]
-        {
-            new MigrationIndex("uq_audit_step_definitions_flow_id_step_no", new string[] { "flow_id", "step_no" }, true, global::System.Array.Empty<string>(), "\u0022is_deleted\u0022 = false", null),
-        }),
-        new MigrationTable(null, "audit_tasks", null, new MigrationColumn[]
-        {
-            new MigrationColumn("acted_time", "timestamp with time zone", true, false, false, null, null, null),
-            new MigrationColumn("assignee_name_snapshot", "character varying(100)", false, false, false, null, null, null),
-            new MigrationColumn("assignee_user_id", "uuid", false, false, false, null, null, null),
-            new MigrationColumn("audit_record_detail_id", "uuid", false, false, false, null, null, null),
-            new MigrationColumn("comment", "character varying(2000)", true, false, false, null, null, null),
-            new MigrationColumn("created_time", "timestamp with time zone", false, false, false, null, null, null),
-            new MigrationColumn("id", "uuid", false, false, false, null, null, null),
-            new MigrationColumn("is_deleted", "boolean", false, false, false, null, null, null),
-            new MigrationColumn("status_value", "integer", false, false, false, null, null, null),
-            new MigrationColumn("updated_time", "timestamp with time zone", false, false, false, null, null, null),
-        }, new MigrationPrimaryKey("pk_audit_tasks", new string[] { "id" }), new MigrationForeignKey[]
-        {
-        }, new MigrationIndex[]
-        {
-            new MigrationIndex("uq_audit_tasks_audit_record_detail_id_assignee_user_id", new string[] { "audit_record_detail_id", "assignee_user_id" }, true, global::System.Array.Empty<string>(), "\u0022is_deleted\u0022 = false", null),
-        }),
-        new MigrationTable(null, "in_app_notification_recipients", null, new MigrationColumn[]
-        {
-            new MigrationColumn("created_time", "timestamp with time zone", false, false, false, null, null, null),
-            new MigrationColumn("id", "uuid", false, false, false, null, null, null),
-            new MigrationColumn("is_deleted", "boolean", false, false, false, null, null, null),
-            new MigrationColumn("is_read", "boolean", false, false, false, null, null, null),
-            new MigrationColumn("notification_id", "uuid", false, false, false, null, null, null),
-            new MigrationColumn("read_time", "timestamp with time zone", true, false, false, null, null, null),
-            new MigrationColumn("updated_time", "timestamp with time zone", false, false, false, null, null, null),
-            new MigrationColumn("user_id", "uuid", false, false, false, null, null, null),
-        }, new MigrationPrimaryKey("pk_in_app_notification_recipients", new string[] { "id" }), new MigrationForeignKey[]
-        {
-        }, new MigrationIndex[]
-        {
-            new MigrationIndex("ix_in_app_notification_recipients_user_id_is_read_created_time", new string[] { "user_id", "is_read", "created_time" }, false, global::System.Array.Empty<string>(), null, null),
-            new MigrationIndex("uq_in_app_notification_recipients_notification_id_user_id", new string[] { "notification_id", "user_id" }, true, global::System.Array.Empty<string>(), "\u0022is_deleted\u0022 = false", null),
-        }),
-        new MigrationTable(null, "in_app_notifications", null, new MigrationColumn[]
-        {
-            new MigrationColumn("content", "character varying(20000)", false, false, false, null, null, null),
-            new MigrationColumn("created_by", "uuid", true, false, false, null, null, null),
-            new MigrationColumn("created_time", "timestamp with time zone", false, false, false, null, null, null),
-            new MigrationColumn("expires_time", "timestamp with time zone", true, false, false, null, null, null),
-            new MigrationColumn("id", "uuid", false, false, false, null, null, null),
-            new MigrationColumn("is_deleted", "boolean", false, false, false, null, null, null),
-            new MigrationColumn("is_published", "boolean", false, false, false, null, null, null),
-            new MigrationColumn("link", "character varying(1200)", false, false, false, null, null, null),
-            new MigrationColumn("published_time", "timestamp with time zone", true, false, false, null, null, null),
-            new MigrationColumn("target_user_ids", "uuid[]", false, false, false, null, null, null),
-            new MigrationColumn("title", "character varying(200)", false, false, false, null, null, null),
-            new MigrationColumn("type", "character varying(40)", false, false, false, null, null, null),
-            new MigrationColumn("updated_time", "timestamp with time zone", false, false, false, null, null, null),
-        }, new MigrationPrimaryKey("pk_in_app_notifications", new string[] { "id" }), new MigrationForeignKey[]
+            new MigrationColumn("CreatedTime", "timestamp with time zone", false, false, false, null, null, null),
+            new MigrationColumn("Enabled", "boolean", false, false, false, null, null, null),
+            new MigrationColumn("EventTypes", "text[]", false, false, false, null, null, null),
+            new MigrationColumn("Id", "uuid", false, false, false, null, null, null),
+            new MigrationColumn("IsDeleted", "boolean", false, false, false, null, null, null),
+            new MigrationColumn("Name", "character varying(100)", false, false, false, null, null, null),
+            new MigrationColumn("ProjectIds", "bigint[]", false, false, false, null, null, null),
+            new MigrationColumn("SourceId", "uuid", false, false, false, null, null, null),
+            new MigrationColumn("Statuses", "text[]", false, false, false, null, null, null),
+            new MigrationColumn("UpdatedTime", "timestamp with time zone", false, false, false, null, null, null),
+        }, new MigrationPrimaryKey("pk_NotificationRules", new string[] { "Id" }), new MigrationForeignKey[]
         {
         }, new MigrationIndex[]
         {
         }),
-        new MigrationTable(null, "notification_deliverys", null, new MigrationColumn[]
+        new MigrationTable(null, "NotificationSources", null, new MigrationColumn[]
         {
-            new MigrationColumn("created_time", "timestamp with time zone", false, false, false, null, null, null),
-            new MigrationColumn("error", "character varying(2000)", true, false, false, null, null, null),
-            new MigrationColumn("event_id", "uuid", false, false, false, null, null, null),
-            new MigrationColumn("id", "uuid", false, false, false, null, null, null),
-            new MigrationColumn("is_deleted", "boolean", false, false, false, null, null, null),
-            new MigrationColumn("receiver_id", "uuid", false, false, false, null, null, null),
-            new MigrationColumn("receiver_name", "character varying(100)", false, false, false, null, null, null),
-            new MigrationColumn("sent_at", "timestamp with time zone", true, false, false, null, null, null),
-            new MigrationColumn("status", "character varying(20)", false, false, false, null, null, null),
-            new MigrationColumn("updated_time", "timestamp with time zone", false, false, false, null, null, null),
-        }, new MigrationPrimaryKey("pk_notification_deliverys", new string[] { "id" }), new MigrationForeignKey[]
-        {
-        }, new MigrationIndex[]
-        {
-            new MigrationIndex("uq_notification_deliverys_event_id_receiver_id", new string[] { "event_id", "receiver_id" }, true, global::System.Array.Empty<string>(), "\u0022is_deleted\u0022 = false", null),
-        }),
-        new MigrationTable(null, "notification_events", null, new MigrationColumn[]
-        {
-            new MigrationColumn("action", "character varying(50)", false, false, false, null, null, null),
-            new MigrationColumn("actor_name", "character varying(300)", false, false, false, null, null, null),
-            new MigrationColumn("content", "character varying(8000)", false, false, false, null, null, null),
-            new MigrationColumn("created_time", "timestamp with time zone", false, false, false, null, null, null),
-            new MigrationColumn("duration", "double precision", true, false, false, null, null, null),
-            new MigrationColumn("event_key", "character varying(128)", false, false, false, null, null, null),
-            new MigrationColumn("event_type", "character varying(50)", false, false, false, null, null, null),
-            new MigrationColumn("finished_at", "timestamp with time zone", true, false, false, null, null, null),
-            new MigrationColumn("id", "uuid", false, false, false, null, null, null),
-            new MigrationColumn("is_deleted", "boolean", false, false, false, null, null, null),
-            new MigrationColumn("namespace", "character varying(500)", false, false, false, null, null, null),
-            new MigrationColumn("object_id", "character varying(100)", false, false, false, null, null, null),
-            new MigrationColumn("occurred_at", "timestamp with time zone", true, false, false, null, null, null),
-            new MigrationColumn("processing_status", "character varying(20)", false, false, false, null, null, null),
-            new MigrationColumn("project_id", "bigint", false, false, false, null, null, null),
-            new MigrationColumn("project_name", "character varying(300)", false, false, false, null, null, null),
-            new MigrationColumn("ref", "character varying(300)", false, false, false, null, null, null),
-            new MigrationColumn("sha", "character varying(64)", false, false, false, null, null, null),
-            new MigrationColumn("source_id", "uuid", false, false, false, null, null, null),
-            new MigrationColumn("status", "character varying(40)", false, false, false, null, null, null),
-            new MigrationColumn("tag", "boolean", false, false, false, null, null, null),
-            new MigrationColumn("title", "character varying(500)", false, false, false, null, null, null),
-            new MigrationColumn("updated_time", "timestamp with time zone", false, false, false, null, null, null),
-            new MigrationColumn("url", "character varying(1200)", false, false, false, null, null, null),
-        }, new MigrationPrimaryKey("pk_notification_events", new string[] { "id" }), new MigrationForeignKey[]
-        {
-        }, new MigrationIndex[]
-        {
-            new MigrationIndex("uq_notification_events_source_id_event_key", new string[] { "source_id", "event_key" }, true, global::System.Array.Empty<string>(), "\u0022is_deleted\u0022 = false", null),
-        }),
-        new MigrationTable(null, "notification_receivers", null, new MigrationColumn[]
-        {
-            new MigrationColumn("auth_name", "character varying(100)", false, false, false, null, null, null),
-            new MigrationColumn("auth_scheme", "character varying(40)", false, false, false, null, null, null),
-            new MigrationColumn("auth_type", "character varying(20)", false, false, false, null, null, null),
-            new MigrationColumn("body_template", "character varying(8000)", false, false, false, null, null, null),
-            new MigrationColumn("created_time", "timestamp with time zone", false, false, false, null, null, null),
-            new MigrationColumn("enabled", "boolean", false, false, false, null, null, null),
-            new MigrationColumn("endpoint", "character varying(2000)", false, false, false, null, null, null),
-            new MigrationColumn("http_method", "character varying(10)", false, false, false, null, null, null),
-            new MigrationColumn("id", "uuid", false, false, false, null, null, null),
-            new MigrationColumn("is_deleted", "boolean", false, false, false, null, null, null),
-            new MigrationColumn("name", "character varying(100)", false, false, false, null, null, null),
-            new MigrationColumn("protected_secret", "character varying(2048)", false, false, false, null, null, null),
-            new MigrationColumn("rate_limit_per_minute", "integer", false, false, false, null, null, null),
-            new MigrationColumn("success_field", "character varying(100)", false, false, false, null, null, null),
-            new MigrationColumn("success_value", "character varying(200)", false, false, false, null, null, null),
-            new MigrationColumn("timeout_seconds", "integer", false, false, false, null, null, null),
-            new MigrationColumn("type", "character varying(40)", false, false, false, null, null, null),
-            new MigrationColumn("updated_time", "timestamp with time zone", false, false, false, null, null, null),
-        }, new MigrationPrimaryKey("pk_notification_receivers", new string[] { "id" }), new MigrationForeignKey[]
+            new MigrationColumn("AuthType", "character varying(20)", false, false, false, null, null, null),
+            new MigrationColumn("CreatedTime", "timestamp with time zone", false, false, false, null, null, null),
+            new MigrationColumn("Enabled", "boolean", false, false, false, null, null, null),
+            new MigrationColumn("HeaderKey", "character varying(100)", false, false, false, null, null, null),
+            new MigrationColumn("Id", "uuid", false, false, false, null, null, null),
+            new MigrationColumn("IsDeleted", "boolean", false, false, false, null, null, null),
+            new MigrationColumn("Name", "character varying(100)", false, false, false, null, null, null),
+            new MigrationColumn("ProtectedSecret", "character varying(2048)", false, false, false, null, null, null),
+            new MigrationColumn("Type", "character varying(40)", false, false, false, null, null, null),
+            new MigrationColumn("UpdatedTime", "timestamp with time zone", false, false, false, null, null, null),
+        }, new MigrationPrimaryKey("pk_NotificationSources", new string[] { "Id" }), new MigrationForeignKey[]
         {
         }, new MigrationIndex[]
         {
         }),
-        new MigrationTable(null, "notification_rule_receivers", null, new MigrationColumn[]
+        new MigrationTable(null, "ResCategories", null, new MigrationColumn[]
         {
-            new MigrationColumn("created_time", "timestamp with time zone", false, false, false, null, null, null),
-            new MigrationColumn("id", "uuid", false, false, false, null, null, null),
-            new MigrationColumn("is_deleted", "boolean", false, false, false, null, null, null),
-            new MigrationColumn("receiver_id", "uuid", false, false, false, null, null, null),
-            new MigrationColumn("rule_id", "uuid", false, false, false, null, null, null),
-            new MigrationColumn("updated_time", "timestamp with time zone", false, false, false, null, null, null),
-        }, new MigrationPrimaryKey("pk_notification_rule_receivers", new string[] { "id" }), new MigrationForeignKey[]
-        {
-        }, new MigrationIndex[]
-        {
-            new MigrationIndex("uq_notification_rule_receivers_rule_id_receiver_id", new string[] { "rule_id", "receiver_id" }, true, global::System.Array.Empty<string>(), "\u0022is_deleted\u0022 = false", null),
-        }),
-        new MigrationTable(null, "notification_rules", null, new MigrationColumn[]
-        {
-            new MigrationColumn("created_time", "timestamp with time zone", false, false, false, null, null, null),
-            new MigrationColumn("enabled", "boolean", false, false, false, null, null, null),
-            new MigrationColumn("event_types", "text[]", false, false, false, null, null, null),
-            new MigrationColumn("id", "uuid", false, false, false, null, null, null),
-            new MigrationColumn("is_deleted", "boolean", false, false, false, null, null, null),
-            new MigrationColumn("name", "character varying(100)", false, false, false, null, null, null),
-            new MigrationColumn("project_ids", "bigint[]", false, false, false, null, null, null),
-            new MigrationColumn("source_id", "uuid", false, false, false, null, null, null),
-            new MigrationColumn("statuses", "text[]", false, false, false, null, null, null),
-            new MigrationColumn("updated_time", "timestamp with time zone", false, false, false, null, null, null),
-        }, new MigrationPrimaryKey("pk_notification_rules", new string[] { "id" }), new MigrationForeignKey[]
+            new MigrationColumn("CatalogCode", "character varying(60)", false, false, false, null, null, null),
+            new MigrationColumn("Color", "character varying(20)", false, false, false, null, null, null),
+            new MigrationColumn("CreatedTime", "timestamp with time zone", false, false, false, null, null, null),
+            new MigrationColumn("Icon", "character varying(60)", true, false, false, null, null, null),
+            new MigrationColumn("Id", "uuid", false, false, false, null, null, null),
+            new MigrationColumn("IsDeleted", "boolean", false, false, false, null, null, null),
+            new MigrationColumn("Name", "character varying(60)", false, false, false, null, null, null),
+            new MigrationColumn("UpdatedTime", "timestamp with time zone", false, false, false, null, null, null),
+        }, new MigrationPrimaryKey("pk_ResCategories", new string[] { "Id" }), new MigrationForeignKey[]
         {
         }, new MigrationIndex[]
         {
         }),
-        new MigrationTable(null, "notification_sources", null, new MigrationColumn[]
+        new MigrationTable(null, "ResDefinitionProperties", null, new MigrationColumn[]
         {
-            new MigrationColumn("auth_type", "character varying(20)", false, false, false, null, null, null),
-            new MigrationColumn("created_time", "timestamp with time zone", false, false, false, null, null, null),
-            new MigrationColumn("enabled", "boolean", false, false, false, null, null, null),
-            new MigrationColumn("header_key", "character varying(100)", false, false, false, null, null, null),
-            new MigrationColumn("id", "uuid", false, false, false, null, null, null),
-            new MigrationColumn("is_deleted", "boolean", false, false, false, null, null, null),
-            new MigrationColumn("name", "character varying(100)", false, false, false, null, null, null),
-            new MigrationColumn("protected_secret", "character varying(2048)", false, false, false, null, null, null),
-            new MigrationColumn("type", "character varying(40)", false, false, false, null, null, null),
-            new MigrationColumn("updated_time", "timestamp with time zone", false, false, false, null, null, null),
-        }, new MigrationPrimaryKey("pk_notification_sources", new string[] { "id" }), new MigrationForeignKey[]
+            new MigrationColumn("CreatedTime", "timestamp with time zone", false, false, false, null, null, null),
+            new MigrationColumn("Id", "uuid", false, false, false, null, null, null),
+            new MigrationColumn("IsDeleted", "boolean", false, false, false, null, null, null),
+            new MigrationColumn("IsRequired", "boolean", false, false, false, null, null, null),
+            new MigrationColumn("MaxLength", "integer", false, false, false, null, null, null),
+            new MigrationColumn("Name", "character varying(60)", false, false, false, null, null, null),
+            new MigrationColumn("UpdatedTime", "timestamp with time zone", false, false, false, null, null, null),
+            new MigrationColumn("ValueType", "smallint", false, false, false, null, null, null),
+        }, new MigrationPrimaryKey("pk_ResDefinitionProperties", new string[] { "Id" }), new MigrationForeignKey[]
         {
         }, new MigrationIndex[]
         {
         }),
-        new MigrationTable(null, "res_categorys", null, new MigrationColumn[]
+        new MigrationTable(null, "ResDefinitionPropertyMaps", null, new MigrationColumn[]
         {
-            new MigrationColumn("catalog_code", "character varying(60)", false, false, false, null, null, null),
-            new MigrationColumn("color", "character varying(20)", false, false, false, null, null, null),
-            new MigrationColumn("created_time", "timestamp with time zone", false, false, false, null, null, null),
-            new MigrationColumn("icon", "character varying(60)", true, false, false, null, null, null),
-            new MigrationColumn("id", "uuid", false, false, false, null, null, null),
-            new MigrationColumn("is_deleted", "boolean", false, false, false, null, null, null),
-            new MigrationColumn("name", "character varying(60)", false, false, false, null, null, null),
-            new MigrationColumn("updated_time", "timestamp with time zone", false, false, false, null, null, null),
-        }, new MigrationPrimaryKey("pk_res_categorys", new string[] { "id" }), new MigrationForeignKey[]
+            new MigrationColumn("CreatedTime", "timestamp with time zone", false, false, false, null, null, null),
+            new MigrationColumn("DefinitionId", "uuid", false, false, false, null, null, null),
+            new MigrationColumn("Id", "uuid", false, false, false, null, null, null),
+            new MigrationColumn("IsDeleted", "boolean", false, false, false, null, null, null),
+            new MigrationColumn("PropertyId", "uuid", false, false, false, null, null, null),
+            new MigrationColumn("Sort", "integer", false, false, false, null, null, null),
+            new MigrationColumn("UpdatedTime", "timestamp with time zone", false, false, false, null, null, null),
+        }, new MigrationPrimaryKey("pk_ResDefinitionPropertyMaps", new string[] { "Id" }), new MigrationForeignKey[]
+        {
+            new MigrationForeignKey("fk_res_definition_property_maps_definition_id", new string[] { "DefinitionId" }, null, "ResDefinitions", new string[] { "Id" }, ReferentialAction.NoAction),
+            new MigrationForeignKey("fk_res_definition_property_maps_property_id", new string[] { "PropertyId" }, null, "ResDefinitionProperties", new string[] { "Id" }, ReferentialAction.NoAction),
+        }, new MigrationIndex[]
+        {
+        }),
+        new MigrationTable(null, "ResDefinitions", null, new MigrationColumn[]
+        {
+            new MigrationColumn("CreatedTime", "timestamp with time zone", false, false, false, null, null, null),
+            new MigrationColumn("Icon", "character varying(60)", true, false, false, null, null, null),
+            new MigrationColumn("Id", "uuid", false, false, false, null, null, null),
+            new MigrationColumn("IsDeleted", "boolean", false, false, false, null, null, null),
+            new MigrationColumn("Name", "character varying(60)", false, false, false, null, null, null),
+            new MigrationColumn("UpdatedTime", "timestamp with time zone", false, false, false, null, null, null),
+        }, new MigrationPrimaryKey("pk_ResDefinitions", new string[] { "Id" }), new MigrationForeignKey[]
         {
         }, new MigrationIndex[]
         {
         }),
-        new MigrationTable(null, "res_definition_property_maps", null, new MigrationColumn[]
+        new MigrationTable(null, "ResEnvironments", null, new MigrationColumn[]
         {
-            new MigrationColumn("created_time", "timestamp with time zone", false, false, false, null, null, null),
-            new MigrationColumn("definition_id", "uuid", false, false, false, null, null, null),
-            new MigrationColumn("id", "uuid", false, false, false, null, null, null),
-            new MigrationColumn("is_deleted", "boolean", false, false, false, null, null, null),
-            new MigrationColumn("property_id", "uuid", false, false, false, null, null, null),
-            new MigrationColumn("sort", "integer", false, false, false, null, null, null),
-            new MigrationColumn("updated_time", "timestamp with time zone", false, false, false, null, null, null),
-        }, new MigrationPrimaryKey("pk_res_definition_property_maps", new string[] { "id" }), new MigrationForeignKey[]
-        {
-        }, new MigrationIndex[]
-        {
-        }),
-        new MigrationTable(null, "res_definition_propertys", null, new MigrationColumn[]
-        {
-            new MigrationColumn("ValueType", "integer", false, false, false, null, null, null),
-            new MigrationColumn("created_time", "timestamp with time zone", false, false, false, null, null, null),
-            new MigrationColumn("id", "uuid", false, false, false, null, null, null),
-            new MigrationColumn("is_deleted", "boolean", false, false, false, null, null, null),
-            new MigrationColumn("is_required", "boolean", false, false, false, null, null, null),
-            new MigrationColumn("max_length", "integer", false, false, false, null, null, null),
-            new MigrationColumn("name", "character varying(60)", false, false, false, null, null, null),
-            new MigrationColumn("updated_time", "timestamp with time zone", false, false, false, null, null, null),
-        }, new MigrationPrimaryKey("pk_res_definition_propertys", new string[] { "id" }), new MigrationForeignKey[]
+            new MigrationColumn("Color", "character varying(20)", false, false, false, null, null, null),
+            new MigrationColumn("CreatedTime", "timestamp with time zone", false, false, false, null, null, null),
+            new MigrationColumn("Icon", "character varying(60)", true, false, false, null, null, null),
+            new MigrationColumn("Id", "uuid", false, false, false, null, null, null),
+            new MigrationColumn("IsDeleted", "boolean", false, false, false, null, null, null),
+            new MigrationColumn("Name", "character varying(60)", false, false, false, null, null, null),
+            new MigrationColumn("UpdatedTime", "timestamp with time zone", false, false, false, null, null, null),
+        }, new MigrationPrimaryKey("pk_ResEnvironments", new string[] { "Id" }), new MigrationForeignKey[]
         {
         }, new MigrationIndex[]
         {
         }),
-        new MigrationTable(null, "res_definitions", null, new MigrationColumn[]
+        new MigrationTable(null, "ResGroups", null, new MigrationColumn[]
         {
-            new MigrationColumn("created_time", "timestamp with time zone", false, false, false, null, null, null),
-            new MigrationColumn("icon", "character varying(60)", true, false, false, null, null, null),
-            new MigrationColumn("id", "uuid", false, false, false, null, null, null),
-            new MigrationColumn("is_deleted", "boolean", false, false, false, null, null, null),
-            new MigrationColumn("name", "character varying(60)", false, false, false, null, null, null),
-            new MigrationColumn("updated_time", "timestamp with time zone", false, false, false, null, null, null),
-        }, new MigrationPrimaryKey("pk_res_definitions", new string[] { "id" }), new MigrationForeignKey[]
+            new MigrationColumn("CategoryId", "uuid", false, false, false, null, null, null),
+            new MigrationColumn("Color", "character varying(20)", false, false, false, null, null, null),
+            new MigrationColumn("CreatedTime", "timestamp with time zone", false, false, false, null, null, null),
+            new MigrationColumn("Description", "character varying(500)", true, false, false, null, null, null),
+            new MigrationColumn("Icon", "character varying(60)", true, false, false, null, null, null),
+            new MigrationColumn("Id", "uuid", false, false, false, null, null, null),
+            new MigrationColumn("IsDeleted", "boolean", false, false, false, null, null, null),
+            new MigrationColumn("Name", "character varying(60)", false, false, false, null, null, null),
+            new MigrationColumn("UpdatedTime", "timestamp with time zone", false, false, false, null, null, null),
+        }, new MigrationPrimaryKey("pk_ResGroups", new string[] { "Id" }), new MigrationForeignKey[]
+        {
+            new MigrationForeignKey("fk_res_groups_category_id", new string[] { "CategoryId" }, null, "ResCategories", new string[] { "Id" }, ReferentialAction.NoAction),
+        }, new MigrationIndex[]
+        {
+        }),
+        new MigrationTable(null, "ResPermissions", null, new MigrationColumn[]
+        {
+            new MigrationColumn("CategoryId", "uuid", false, false, false, null, null, null),
+            new MigrationColumn("CreatedTime", "timestamp with time zone", false, false, false, null, null, null),
+            new MigrationColumn("EnvironmentId", "uuid", false, false, false, null, null, null),
+            new MigrationColumn("Id", "uuid", false, false, false, null, null, null),
+            new MigrationColumn("IsDeleted", "boolean", false, false, false, null, null, null),
+            new MigrationColumn("RoleId", "uuid", false, false, false, null, null, null),
+            new MigrationColumn("UpdatedTime", "timestamp with time zone", false, false, false, null, null, null),
+        }, new MigrationPrimaryKey("pk_ResPermissions", new string[] { "Id" }), new MigrationForeignKey[]
+        {
+            new MigrationForeignKey("fk_res_permissions_category_id", new string[] { "CategoryId" }, null, "ResCategories", new string[] { "Id" }, ReferentialAction.NoAction),
+            new MigrationForeignKey("fk_res_permissions_environment_id", new string[] { "EnvironmentId" }, null, "ResEnvironments", new string[] { "Id" }, ReferentialAction.NoAction),
+        }, new MigrationIndex[]
+        {
+        }),
+        new MigrationTable(null, "ResTags", null, new MigrationColumn[]
+        {
+            new MigrationColumn("Color", "character varying(20)", false, false, false, null, null, null),
+            new MigrationColumn("CreatedTime", "timestamp with time zone", false, false, false, null, null, null),
+            new MigrationColumn("Icon", "character varying(60)", true, false, false, null, null, null),
+            new MigrationColumn("Id", "uuid", false, false, false, null, null, null),
+            new MigrationColumn("IsDeleted", "boolean", false, false, false, null, null, null),
+            new MigrationColumn("Name", "character varying(60)", false, false, false, null, null, null),
+            new MigrationColumn("UpdatedTime", "timestamp with time zone", false, false, false, null, null, null),
+        }, new MigrationPrimaryKey("pk_ResTags", new string[] { "Id" }), new MigrationForeignKey[]
         {
         }, new MigrationIndex[]
         {
         }),
-        new MigrationTable(null, "res_environments", null, new MigrationColumn[]
+        new MigrationTable(null, "ResValues", null, new MigrationColumn[]
         {
-            new MigrationColumn("color", "character varying(20)", false, false, false, null, null, null),
-            new MigrationColumn("created_time", "timestamp with time zone", false, false, false, null, null, null),
-            new MigrationColumn("icon", "character varying(60)", true, false, false, null, null, null),
-            new MigrationColumn("id", "uuid", false, false, false, null, null, null),
-            new MigrationColumn("is_deleted", "boolean", false, false, false, null, null, null),
-            new MigrationColumn("name", "character varying(60)", false, false, false, null, null, null),
-            new MigrationColumn("updated_time", "timestamp with time zone", false, false, false, null, null, null),
-        }, new MigrationPrimaryKey("pk_res_environments", new string[] { "id" }), new MigrationForeignKey[]
+            new MigrationColumn("CreatedTime", "timestamp with time zone", false, false, false, null, null, null),
+            new MigrationColumn("DefinitionPropertyId", "uuid", false, false, false, null, null, null),
+            new MigrationColumn("Id", "uuid", false, false, false, null, null, null),
+            new MigrationColumn("IsDeleted", "boolean", false, false, false, null, null, null),
+            new MigrationColumn("PropertyNameSnapshot", "character varying(60)", false, false, false, null, null, null),
+            new MigrationColumn("ResourceId", "uuid", false, false, false, null, null, null),
+            new MigrationColumn("UpdatedTime", "timestamp with time zone", false, false, false, null, null, null),
+            new MigrationColumn("Value", "character varying(1000)", false, false, false, null, null, null),
+            new MigrationColumn("ValueTypeSnapshot", "smallint", false, false, false, null, null, null),
+        }, new MigrationPrimaryKey("pk_ResValues", new string[] { "Id" }), new MigrationForeignKey[]
+        {
+            new MigrationForeignKey("fk_res_values_definition_property_id", new string[] { "DefinitionPropertyId" }, null, "ResDefinitionProperties", new string[] { "Id" }, ReferentialAction.NoAction),
+            new MigrationForeignKey("fk_res_values_resource_id", new string[] { "ResourceId" }, null, "Resources", new string[] { "Id" }, ReferentialAction.NoAction),
+        }, new MigrationIndex[]
+        {
+        }),
+        new MigrationTable(null, "Resources", null, new MigrationColumn[]
+        {
+            new MigrationColumn("CategoryId", "uuid", false, false, false, null, null, null),
+            new MigrationColumn("CreatedTime", "timestamp with time zone", false, false, false, null, null, null),
+            new MigrationColumn("DefinitionId", "uuid", false, false, false, null, null, null),
+            new MigrationColumn("EnvironmentId", "uuid", false, false, false, null, null, null),
+            new MigrationColumn("GroupId", "uuid", true, false, false, null, null, null),
+            new MigrationColumn("Id", "uuid", false, false, false, null, null, null),
+            new MigrationColumn("IsDeleted", "boolean", false, false, false, null, null, null),
+            new MigrationColumn("TagNames", "text[]", false, false, false, null, null, null),
+            new MigrationColumn("UpdatedTime", "timestamp with time zone", false, false, false, null, null, null),
+        }, new MigrationPrimaryKey("pk_Resources", new string[] { "Id" }), new MigrationForeignKey[]
+        {
+            new MigrationForeignKey("fk_resources_category_id", new string[] { "CategoryId" }, null, "ResCategories", new string[] { "Id" }, ReferentialAction.NoAction),
+            new MigrationForeignKey("fk_resources_definition_id", new string[] { "DefinitionId" }, null, "ResDefinitions", new string[] { "Id" }, ReferentialAction.NoAction),
+            new MigrationForeignKey("fk_resources_environment_id", new string[] { "EnvironmentId" }, null, "ResEnvironments", new string[] { "Id" }, ReferentialAction.NoAction),
+            new MigrationForeignKey("fk_resources_group_id", new string[] { "GroupId" }, null, "ResGroups", new string[] { "Id" }, ReferentialAction.NoAction),
+        }, new MigrationIndex[]
+        {
+        }),
+        new MigrationTable(null, "SysConfigs", null, new MigrationColumn[]
+        {
+            new MigrationColumn("CreatedTime", "timestamp with time zone", false, false, false, null, null, null),
+            new MigrationColumn("Description", "character varying(500)", true, false, false, null, null, null),
+            new MigrationColumn("GroupName", "character varying(60)", false, false, false, null, null, null),
+            new MigrationColumn("Id", "uuid", false, false, false, null, null, null),
+            new MigrationColumn("IsDeleted", "boolean", false, false, false, null, null, null),
+            new MigrationColumn("IsSystem", "boolean", false, false, false, null, null, null),
+            new MigrationColumn("Key", "character varying(100)", false, false, false, null, null, null),
+            new MigrationColumn("UpdatedTime", "timestamp with time zone", false, false, false, null, null, null),
+            new MigrationColumn("Valid", "boolean", false, false, false, null, null, null),
+            new MigrationColumn("Value", "character varying(2000)", false, false, false, null, null, null),
+        }, new MigrationPrimaryKey("pk_SysConfigs", new string[] { "Id" }), new MigrationForeignKey[]
         {
         }, new MigrationIndex[]
         {
         }),
-        new MigrationTable(null, "res_groups", null, new MigrationColumn[]
+        new MigrationTable(null, "SysDataScopeGroups", null, new MigrationColumn[]
         {
-            new MigrationColumn("category_id", "uuid", false, false, false, null, null, null),
-            new MigrationColumn("color", "character varying(20)", false, false, false, null, null, null),
-            new MigrationColumn("created_time", "timestamp with time zone", false, false, false, null, null, null),
-            new MigrationColumn("description", "character varying(500)", true, false, false, null, null, null),
-            new MigrationColumn("icon", "character varying(60)", true, false, false, null, null, null),
-            new MigrationColumn("id", "uuid", false, false, false, null, null, null),
-            new MigrationColumn("is_deleted", "boolean", false, false, false, null, null, null),
-            new MigrationColumn("name", "character varying(60)", false, false, false, null, null, null),
-            new MigrationColumn("updated_time", "timestamp with time zone", false, false, false, null, null, null),
-        }, new MigrationPrimaryKey("pk_res_groups", new string[] { "id" }), new MigrationForeignKey[]
+            new MigrationColumn("CreatedTime", "timestamp with time zone", false, false, false, null, null, null),
+            new MigrationColumn("Description", "character varying(1000)", true, false, false, null, null, null),
+            new MigrationColumn("Id", "uuid", false, false, false, null, null, null),
+            new MigrationColumn("IsDeleted", "boolean", false, false, false, null, null, null),
+            new MigrationColumn("IsEnabled", "boolean", false, false, false, null, null, null),
+            new MigrationColumn("Name", "character varying(30)", false, false, false, null, null, null),
+            new MigrationColumn("UpdatedTime", "timestamp with time zone", false, false, false, null, null, null),
+        }, new MigrationPrimaryKey("pk_SysDataScopeGroups", new string[] { "Id" }), new MigrationForeignKey[]
         {
         }, new MigrationIndex[]
         {
         }),
-        new MigrationTable(null, "res_permissions", null, new MigrationColumn[]
+        new MigrationTable(null, "SysDataScopes", null, new MigrationColumn[]
         {
-            new MigrationColumn("category_id", "uuid", false, false, false, null, null, null),
-            new MigrationColumn("created_time", "timestamp with time zone", false, false, false, null, null, null),
-            new MigrationColumn("environment_id", "uuid", false, false, false, null, null, null),
-            new MigrationColumn("id", "uuid", false, false, false, null, null, null),
-            new MigrationColumn("is_deleted", "boolean", false, false, false, null, null, null),
-            new MigrationColumn("role_id", "uuid", false, false, false, null, null, null),
-            new MigrationColumn("updated_time", "timestamp with time zone", false, false, false, null, null, null),
-        }, new MigrationPrimaryKey("pk_res_permissions", new string[] { "id" }), new MigrationForeignKey[]
+            new MigrationColumn("CreatedTime", "timestamp with time zone", false, false, false, null, null, null),
+            new MigrationColumn("GroupId", "uuid", false, false, false, null, null, null),
+            new MigrationColumn("Id", "uuid", false, false, false, null, null, null),
+            new MigrationColumn("IsDeleted", "boolean", false, false, false, null, null, null),
+            new MigrationColumn("Name", "character varying(60)", false, false, false, null, null, null),
+            new MigrationColumn("ResourceCode", "character varying(30)", false, false, false, null, null, null),
+            new MigrationColumn("ScopeType", "smallint", false, false, false, null, null, null),
+            new MigrationColumn("TargetIds", "uuid[]", false, false, false, null, null, null),
+            new MigrationColumn("UpdatedTime", "timestamp with time zone", false, false, false, null, null, null),
+        }, new MigrationPrimaryKey("pk_SysDataScopes", new string[] { "Id" }), new MigrationForeignKey[]
+        {
+            new MigrationForeignKey("fk_sys_data_scopes_group_id", new string[] { "GroupId" }, null, "SysDataScopeGroups", new string[] { "Id" }, ReferentialAction.NoAction),
+        }, new MigrationIndex[]
+        {
+        }),
+        new MigrationTable(null, "SysLogs", null, new MigrationColumn[]
+        {
+            new MigrationColumn("ActionType", "smallint", false, false, false, null, null, null),
+            new MigrationColumn("ActionUserName", "character varying(100)", false, false, false, null, null, null),
+            new MigrationColumn("CreatedTime", "timestamp with time zone", false, false, false, null, null, null),
+            new MigrationColumn("Description", "character varying(500)", true, false, false, null, null, null),
+            new MigrationColumn("Id", "uuid", false, false, false, null, null, null),
+            new MigrationColumn("IsDeleted", "boolean", false, false, false, null, null, null),
+            new MigrationColumn("Route", "character varying(200)", false, false, false, null, null, null),
+            new MigrationColumn("SysUserId", "uuid", false, false, false, null, null, null),
+            new MigrationColumn("TargetName", "character varying(100)", true, false, false, null, null, null),
+            new MigrationColumn("UpdatedTime", "timestamp with time zone", false, false, false, null, null, null),
+        }, new MigrationPrimaryKey("pk_SysLogs", new string[] { "Id" }), new MigrationForeignKey[]
+        {
+            new MigrationForeignKey("fk_sys_logs_sys_user_id", new string[] { "SysUserId" }, null, "SysUsers", new string[] { "Id" }, ReferentialAction.NoAction),
+        }, new MigrationIndex[]
+        {
+        }),
+        new MigrationTable(null, "SysMenuRoles", null, new MigrationColumn[]
+        {
+            new MigrationColumn("CreatedTime", "timestamp with time zone", false, false, false, null, null, null),
+            new MigrationColumn("Id", "uuid", false, false, false, null, null, null),
+            new MigrationColumn("IsDeleted", "boolean", false, false, false, null, null, null),
+            new MigrationColumn("MenuId", "uuid", false, false, false, null, null, null),
+            new MigrationColumn("RoleId", "uuid", false, false, false, null, null, null),
+            new MigrationColumn("UpdatedTime", "timestamp with time zone", false, false, false, null, null, null),
+        }, new MigrationPrimaryKey("pk_SysMenuRoles", new string[] { "Id" }), new MigrationForeignKey[]
+        {
+            new MigrationForeignKey("fk_sys_menu_roles_menu_id", new string[] { "MenuId" }, null, "SysMenus", new string[] { "Id" }, ReferentialAction.NoAction),
+            new MigrationForeignKey("fk_sys_menu_roles_role_id", new string[] { "RoleId" }, null, "SysRoles", new string[] { "Id" }, ReferentialAction.NoAction),
+        }, new MigrationIndex[]
+        {
+        }),
+        new MigrationTable(null, "SysMenus", null, new MigrationColumn[]
+        {
+            new MigrationColumn("AccessCode", "character varying(50)", false, false, false, null, null, null),
+            new MigrationColumn("CreatedTime", "timestamp with time zone", false, false, false, null, null, null),
+            new MigrationColumn("Hidden", "boolean", false, false, false, null, null, null),
+            new MigrationColumn("Icon", "character varying(30)", true, false, false, null, null, null),
+            new MigrationColumn("Id", "uuid", false, false, false, null, null, null),
+            new MigrationColumn("IsDeleted", "boolean", false, false, false, null, null, null),
+            new MigrationColumn("IsValid", "boolean", false, false, false, null, null, null),
+            new MigrationColumn("MenuType", "smallint", false, false, false, null, null, null),
+            new MigrationColumn("Name", "character varying(60)", false, false, false, null, null, null),
+            new MigrationColumn("ParentId", "uuid", true, false, false, null, null, null),
+            new MigrationColumn("Path", "character varying(100)", true, false, false, null, null, null),
+            new MigrationColumn("Sort", "integer", false, false, false, null, null, null),
+            new MigrationColumn("UpdatedTime", "timestamp with time zone", false, false, false, null, null, null),
+        }, new MigrationPrimaryKey("pk_SysMenus", new string[] { "Id" }), new MigrationForeignKey[]
+        {
+            new MigrationForeignKey("fk_sys_menus_parent_id", new string[] { "ParentId" }, null, "SysMenus", new string[] { "Id" }, ReferentialAction.NoAction),
+        }, new MigrationIndex[]
+        {
+        }),
+        new MigrationTable(null, "SysOrganizations", null, new MigrationColumn[]
+        {
+            new MigrationColumn("CreatedTime", "timestamp with time zone", false, false, false, null, null, null),
+            new MigrationColumn("Id", "uuid", false, false, false, null, null, null),
+            new MigrationColumn("IsDeleted", "boolean", false, false, false, null, null, null),
+            new MigrationColumn("Name", "character varying(100)", false, false, false, null, null, null),
+            new MigrationColumn("ParentId", "uuid", true, false, false, null, null, null),
+            new MigrationColumn("UpdatedTime", "timestamp with time zone", false, false, false, null, null, null),
+        }, new MigrationPrimaryKey("pk_SysOrganizations", new string[] { "Id" }), new MigrationForeignKey[]
+        {
+            new MigrationForeignKey("fk_sys_organizations_parent_id", new string[] { "ParentId" }, null, "SysOrganizations", new string[] { "Id" }, ReferentialAction.NoAction),
+        }, new MigrationIndex[]
+        {
+        }),
+        new MigrationTable(null, "SysRoles", null, new MigrationColumn[]
+        {
+            new MigrationColumn("CreatedTime", "timestamp with time zone", false, false, false, null, null, null),
+            new MigrationColumn("Icon", "character varying(30)", true, false, false, null, null, null),
+            new MigrationColumn("Id", "uuid", false, false, false, null, null, null),
+            new MigrationColumn("IsDeleted", "boolean", false, false, false, null, null, null),
+            new MigrationColumn("IsSystem", "boolean", false, false, false, null, null, null),
+            new MigrationColumn("Name", "character varying(30)", false, false, false, null, null, null),
+            new MigrationColumn("NameValue", "character varying(60)", false, false, false, null, null, null),
+            new MigrationColumn("UpdatedTime", "timestamp with time zone", false, false, false, null, null, null),
+        }, new MigrationPrimaryKey("pk_SysRoles", new string[] { "Id" }), new MigrationForeignKey[]
         {
         }, new MigrationIndex[]
         {
         }),
-        new MigrationTable(null, "res_tags", null, new MigrationColumn[]
+        new MigrationTable(null, "SysUserDataScopeGroups", null, new MigrationColumn[]
         {
-            new MigrationColumn("color", "character varying(20)", false, false, false, null, null, null),
-            new MigrationColumn("created_time", "timestamp with time zone", false, false, false, null, null, null),
-            new MigrationColumn("icon", "character varying(60)", true, false, false, null, null, null),
-            new MigrationColumn("id", "uuid", false, false, false, null, null, null),
-            new MigrationColumn("is_deleted", "boolean", false, false, false, null, null, null),
-            new MigrationColumn("name", "character varying(60)", false, false, false, null, null, null),
-            new MigrationColumn("updated_time", "timestamp with time zone", false, false, false, null, null, null),
-        }, new MigrationPrimaryKey("pk_res_tags", new string[] { "id" }), new MigrationForeignKey[]
+            new MigrationColumn("CreatedTime", "timestamp with time zone", false, false, false, null, null, null),
+            new MigrationColumn("DataScopeGroupId", "uuid", false, false, false, null, null, null),
+            new MigrationColumn("Id", "uuid", false, false, false, null, null, null),
+            new MigrationColumn("IsDeleted", "boolean", false, false, false, null, null, null),
+            new MigrationColumn("UpdatedTime", "timestamp with time zone", false, false, false, null, null, null),
+            new MigrationColumn("UserId", "uuid", false, false, false, null, null, null),
+        }, new MigrationPrimaryKey("pk_SysUserDataScopeGroups", new string[] { "Id" }), new MigrationForeignKey[]
+        {
+            new MigrationForeignKey("fk_sys_user_data_scope_groups_data_scope_group_id", new string[] { "DataScopeGroupId" }, null, "SysDataScopeGroups", new string[] { "Id" }, ReferentialAction.NoAction),
+            new MigrationForeignKey("fk_sys_user_data_scope_groups_user_id", new string[] { "UserId" }, null, "SysUsers", new string[] { "Id" }, ReferentialAction.NoAction),
+        }, new MigrationIndex[]
+        {
+        }),
+        new MigrationTable(null, "SysUserOrganizations", null, new MigrationColumn[]
+        {
+            new MigrationColumn("CreatedTime", "timestamp with time zone", false, false, false, null, null, null),
+            new MigrationColumn("Id", "uuid", false, false, false, null, null, null),
+            new MigrationColumn("IsDeleted", "boolean", false, false, false, null, null, null),
+            new MigrationColumn("OrganizationId", "uuid", false, false, false, null, null, null),
+            new MigrationColumn("UpdatedTime", "timestamp with time zone", false, false, false, null, null, null),
+            new MigrationColumn("UserId", "uuid", false, false, false, null, null, null),
+        }, new MigrationPrimaryKey("pk_SysUserOrganizations", new string[] { "Id" }), new MigrationForeignKey[]
+        {
+            new MigrationForeignKey("fk_sys_user_organizations_organization_id", new string[] { "OrganizationId" }, null, "SysOrganizations", new string[] { "Id" }, ReferentialAction.NoAction),
+            new MigrationForeignKey("fk_sys_user_organizations_user_id", new string[] { "UserId" }, null, "SysUsers", new string[] { "Id" }, ReferentialAction.NoAction),
+        }, new MigrationIndex[]
+        {
+        }),
+        new MigrationTable(null, "SysUserRoles", null, new MigrationColumn[]
+        {
+            new MigrationColumn("CreatedTime", "timestamp with time zone", false, false, false, null, null, null),
+            new MigrationColumn("Id", "uuid", false, false, false, null, null, null),
+            new MigrationColumn("IsDeleted", "boolean", false, false, false, null, null, null),
+            new MigrationColumn("RoleId", "uuid", false, false, false, null, null, null),
+            new MigrationColumn("UpdatedTime", "timestamp with time zone", false, false, false, null, null, null),
+            new MigrationColumn("UserId", "uuid", false, false, false, null, null, null),
+        }, new MigrationPrimaryKey("pk_SysUserRoles", new string[] { "Id" }), new MigrationForeignKey[]
+        {
+            new MigrationForeignKey("fk_sys_user_roles_role_id", new string[] { "RoleId" }, null, "SysRoles", new string[] { "Id" }, ReferentialAction.NoAction),
+            new MigrationForeignKey("fk_sys_user_roles_user_id", new string[] { "UserId" }, null, "SysUsers", new string[] { "Id" }, ReferentialAction.NoAction),
+        }, new MigrationIndex[]
+        {
+        }),
+        new MigrationTable(null, "SysUsers", null, new MigrationColumn[]
+        {
+            new MigrationColumn("AccessFailedCount", "integer", false, false, false, null, null, null),
+            new MigrationColumn("Avatar", "character varying(200)", true, false, false, null, null, null),
+            new MigrationColumn("CreatedTime", "timestamp with time zone", false, false, false, null, null, null),
+            new MigrationColumn("Email", "character varying(100)", false, false, false, null, null, null),
+            new MigrationColumn("EmailConfirmed", "boolean", false, false, false, null, null, null),
+            new MigrationColumn("Id", "uuid", false, false, false, null, null, null),
+            new MigrationColumn("IsDeleted", "boolean", false, false, false, null, null, null),
+            new MigrationColumn("LastLoginTime", "timestamp with time zone", true, false, false, null, null, null),
+            new MigrationColumn("LastPwdEditTime", "timestamp with time zone", false, false, false, null, null, null),
+            new MigrationColumn("LockoutEnabled", "boolean", false, false, false, null, null, null),
+            new MigrationColumn("LockoutEnd", "timestamp with time zone", true, false, false, null, null, null),
+            new MigrationColumn("PasswordHash", "character varying(100)", false, false, false, null, null, null),
+            new MigrationColumn("PasswordSalt", "character varying(100)", false, false, false, null, null, null),
+            new MigrationColumn("PhoneNumber", "character varying(20)", true, false, false, null, null, null),
+            new MigrationColumn("PhoneNumberConfirmed", "boolean", false, false, false, null, null, null),
+            new MigrationColumn("RealName", "character varying(30)", true, false, false, null, null, null),
+            new MigrationColumn("RetryCount", "integer", false, false, false, null, null, null),
+            new MigrationColumn("Sex", "smallint", false, false, false, null, null, null),
+            new MigrationColumn("TwoFactorEnabled", "boolean", false, false, false, null, null, null),
+            new MigrationColumn("UpdatedTime", "timestamp with time zone", false, false, false, null, null, null),
+            new MigrationColumn("UserName", "character varying(30)", true, false, false, null, null, null),
+        }, new MigrationPrimaryKey("pk_SysUsers", new string[] { "Id" }), new MigrationForeignKey[]
         {
         }, new MigrationIndex[]
         {
         }),
-        new MigrationTable(null, "res_values", null, new MigrationColumn[]
+        new MigrationTable(null, "UserFavoriteResources", null, new MigrationColumn[]
         {
-            new MigrationColumn("ValueTypeSnapshot", "integer", false, false, false, null, null, null),
-            new MigrationColumn("created_time", "timestamp with time zone", false, false, false, null, null, null),
-            new MigrationColumn("definition_property_id", "uuid", false, false, false, null, null, null),
-            new MigrationColumn("id", "uuid", false, false, false, null, null, null),
-            new MigrationColumn("is_deleted", "boolean", false, false, false, null, null, null),
-            new MigrationColumn("property_name_snapshot", "character varying(60)", false, false, false, null, null, null),
-            new MigrationColumn("resource_id", "uuid", false, false, false, null, null, null),
-            new MigrationColumn("updated_time", "timestamp with time zone", false, false, false, null, null, null),
-            new MigrationColumn("value", "character varying(1000)", false, false, false, null, null, null),
-        }, new MigrationPrimaryKey("pk_res_values", new string[] { "id" }), new MigrationForeignKey[]
+            new MigrationColumn("CreatedTime", "timestamp with time zone", false, false, false, null, null, null),
+            new MigrationColumn("Id", "uuid", false, false, false, null, null, null),
+            new MigrationColumn("IsDeleted", "boolean", false, false, false, null, null, null),
+            new MigrationColumn("ResourceId", "uuid", false, false, false, null, null, null),
+            new MigrationColumn("UpdatedTime", "timestamp with time zone", false, false, false, null, null, null),
+            new MigrationColumn("UserId", "uuid", false, false, false, null, null, null),
+        }, new MigrationPrimaryKey("pk_UserFavoriteResources", new string[] { "Id" }), new MigrationForeignKey[]
         {
+            new MigrationForeignKey("fk_user_favorite_resources_resource_id", new string[] { "ResourceId" }, null, "Resources", new string[] { "Id" }, ReferentialAction.NoAction),
         }, new MigrationIndex[]
         {
         }),
-        new MigrationTable(null, "resources", null, new MigrationColumn[]
+        new MigrationTable(null, "UserResValues", null, new MigrationColumn[]
         {
-            new MigrationColumn("category_id", "uuid", false, false, false, null, null, null),
-            new MigrationColumn("created_time", "timestamp with time zone", false, false, false, null, null, null),
-            new MigrationColumn("definition_id", "uuid", false, false, false, null, null, null),
-            new MigrationColumn("environment_id", "uuid", false, false, false, null, null, null),
-            new MigrationColumn("group_id", "uuid", true, false, false, null, null, null),
-            new MigrationColumn("id", "uuid", false, false, false, null, null, null),
-            new MigrationColumn("is_deleted", "boolean", false, false, false, null, null, null),
-            new MigrationColumn("tag_names", "text[]", false, false, false, null, null, null),
-            new MigrationColumn("updated_time", "timestamp with time zone", false, false, false, null, null, null),
-        }, new MigrationPrimaryKey("pk_resources", new string[] { "id" }), new MigrationForeignKey[]
+            new MigrationColumn("CreatedTime", "timestamp with time zone", false, false, false, null, null, null),
+            new MigrationColumn("DefinitionPropertyId", "uuid", false, false, false, null, null, null),
+            new MigrationColumn("Id", "uuid", false, false, false, null, null, null),
+            new MigrationColumn("IsDeleted", "boolean", false, false, false, null, null, null),
+            new MigrationColumn("PropertyNameSnapshot", "character varying(60)", false, false, false, null, null, null),
+            new MigrationColumn("UpdatedTime", "timestamp with time zone", false, false, false, null, null, null),
+            new MigrationColumn("UserResourceId", "uuid", false, false, false, null, null, null),
+            new MigrationColumn("Value", "character varying(1000)", false, false, false, null, null, null),
+            new MigrationColumn("ValueTypeSnapshot", "smallint", false, false, false, null, null, null),
+        }, new MigrationPrimaryKey("pk_UserResValues", new string[] { "Id" }), new MigrationForeignKey[]
         {
+            new MigrationForeignKey("fk_user_res_values_definition_property_id", new string[] { "DefinitionPropertyId" }, null, "ResDefinitionProperties", new string[] { "Id" }, ReferentialAction.NoAction),
+            new MigrationForeignKey("fk_user_res_values_user_resource_id", new string[] { "UserResourceId" }, null, "UserResources", new string[] { "Id" }, ReferentialAction.NoAction),
         }, new MigrationIndex[]
         {
         }),
-        new MigrationTable(null, "sys_configs", null, new MigrationColumn[]
+        new MigrationTable(null, "UserResources", null, new MigrationColumn[]
         {
-            new MigrationColumn("created_time", "timestamp with time zone", false, false, false, null, null, null),
-            new MigrationColumn("description", "character varying(500)", true, false, false, null, null, null),
-            new MigrationColumn("group_name", "character varying(60)", false, false, false, null, null, null),
-            new MigrationColumn("id", "uuid", false, false, false, null, null, null),
-            new MigrationColumn("is_deleted", "boolean", false, false, false, null, null, null),
-            new MigrationColumn("is_system", "boolean", false, false, false, null, null, null),
-            new MigrationColumn("key", "character varying(100)", false, false, false, null, null, null),
-            new MigrationColumn("updated_time", "timestamp with time zone", false, false, false, null, null, null),
-            new MigrationColumn("valid", "boolean", false, false, false, null, null, null),
-            new MigrationColumn("value", "character varying(2000)", false, false, false, null, null, null),
-        }, new MigrationPrimaryKey("pk_sys_configs", new string[] { "id" }), new MigrationForeignKey[]
+            new MigrationColumn("ApprovedResourceId", "uuid", true, false, false, null, null, null),
+            new MigrationColumn("AuditStatus", "smallint", false, false, false, null, null, null),
+            new MigrationColumn("CreatedTime", "timestamp with time zone", false, false, false, null, null, null),
+            new MigrationColumn("DefinitionId", "uuid", false, false, false, null, null, null),
+            new MigrationColumn("Id", "uuid", false, false, false, null, null, null),
+            new MigrationColumn("IsDeleted", "boolean", false, false, false, null, null, null),
+            new MigrationColumn("ReviewComment", "character varying(500)", true, false, false, null, null, null),
+            new MigrationColumn("Status", "smallint", false, false, false, null, null, null),
+            new MigrationColumn("UpdatedTime", "timestamp with time zone", false, false, false, null, null, null),
+            new MigrationColumn("UserId", "uuid", false, false, false, null, null, null),
+        }, new MigrationPrimaryKey("pk_UserResources", new string[] { "Id" }), new MigrationForeignKey[]
         {
-        }, new MigrationIndex[]
-        {
-        }),
-        new MigrationTable(null, "sys_data_scope_groups", null, new MigrationColumn[]
-        {
-            new MigrationColumn("created_time", "timestamp with time zone", false, false, false, null, null, null),
-            new MigrationColumn("description", "character varying(1000)", true, false, false, null, null, null),
-            new MigrationColumn("id", "uuid", false, false, false, null, null, null),
-            new MigrationColumn("is_deleted", "boolean", false, false, false, null, null, null),
-            new MigrationColumn("is_enabled", "boolean", false, false, false, null, null, null),
-            new MigrationColumn("name", "character varying(30)", false, false, false, null, null, null),
-            new MigrationColumn("updated_time", "timestamp with time zone", false, false, false, null, null, null),
-        }, new MigrationPrimaryKey("pk_sys_data_scope_groups", new string[] { "id" }), new MigrationForeignKey[]
-        {
-        }, new MigrationIndex[]
-        {
-        }),
-        new MigrationTable(null, "sys_data_scopes", null, new MigrationColumn[]
-        {
-            new MigrationColumn("ScopeType", "integer", false, false, false, null, null, null),
-            new MigrationColumn("created_time", "timestamp with time zone", false, false, false, null, null, null),
-            new MigrationColumn("group_id", "uuid", false, false, false, null, null, null),
-            new MigrationColumn("id", "uuid", false, false, false, null, null, null),
-            new MigrationColumn("is_deleted", "boolean", false, false, false, null, null, null),
-            new MigrationColumn("name", "character varying(60)", false, false, false, null, null, null),
-            new MigrationColumn("resource_code", "character varying(30)", false, false, false, null, null, null),
-            new MigrationColumn("target_ids", "uuid[]", false, false, false, null, null, null),
-            new MigrationColumn("updated_time", "timestamp with time zone", false, false, false, null, null, null),
-        }, new MigrationPrimaryKey("pk_sys_data_scopes", new string[] { "id" }), new MigrationForeignKey[]
-        {
-        }, new MigrationIndex[]
-        {
-        }),
-        new MigrationTable(null, "sys_logs", null, new MigrationColumn[]
-        {
-            new MigrationColumn("ActionType", "integer", false, false, false, null, null, null),
-            new MigrationColumn("action_user_name", "character varying(100)", false, false, false, null, null, null),
-            new MigrationColumn("created_time", "timestamp with time zone", false, false, false, null, null, null),
-            new MigrationColumn("description", "character varying(500)", true, false, false, null, null, null),
-            new MigrationColumn("id", "uuid", false, false, false, null, null, null),
-            new MigrationColumn("is_deleted", "boolean", false, false, false, null, null, null),
-            new MigrationColumn("route", "character varying(200)", false, false, false, null, null, null),
-            new MigrationColumn("sys_user_id", "uuid", false, false, false, null, null, null),
-            new MigrationColumn("target_name", "character varying(100)", true, false, false, null, null, null),
-            new MigrationColumn("updated_time", "timestamp with time zone", false, false, false, null, null, null),
-        }, new MigrationPrimaryKey("pk_sys_logs", new string[] { "id" }), new MigrationForeignKey[]
-        {
-        }, new MigrationIndex[]
-        {
-        }),
-        new MigrationTable(null, "sys_menu_roles", null, new MigrationColumn[]
-        {
-            new MigrationColumn("created_time", "timestamp with time zone", false, false, false, null, null, null),
-            new MigrationColumn("id", "uuid", false, false, false, null, null, null),
-            new MigrationColumn("is_deleted", "boolean", false, false, false, null, null, null),
-            new MigrationColumn("menu_id", "uuid", false, false, false, null, null, null),
-            new MigrationColumn("role_id", "uuid", false, false, false, null, null, null),
-            new MigrationColumn("updated_time", "timestamp with time zone", false, false, false, null, null, null),
-        }, new MigrationPrimaryKey("pk_sys_menu_roles", new string[] { "id" }), new MigrationForeignKey[]
-        {
-        }, new MigrationIndex[]
-        {
-        }),
-        new MigrationTable(null, "sys_menus", null, new MigrationColumn[]
-        {
-            new MigrationColumn("MenuType", "integer", false, false, false, null, null, null),
-            new MigrationColumn("access_code", "character varying(50)", false, false, false, null, null, null),
-            new MigrationColumn("created_time", "timestamp with time zone", false, false, false, null, null, null),
-            new MigrationColumn("hidden", "boolean", false, false, false, null, null, null),
-            new MigrationColumn("icon", "character varying(30)", true, false, false, null, null, null),
-            new MigrationColumn("id", "uuid", false, false, false, null, null, null),
-            new MigrationColumn("is_deleted", "boolean", false, false, false, null, null, null),
-            new MigrationColumn("is_valid", "boolean", false, false, false, null, null, null),
-            new MigrationColumn("name", "character varying(60)", false, false, false, null, null, null),
-            new MigrationColumn("parent_id", "uuid", true, false, false, null, null, null),
-            new MigrationColumn("path", "character varying(100)", true, false, false, null, null, null),
-            new MigrationColumn("sort", "integer", false, false, false, null, null, null),
-            new MigrationColumn("updated_time", "timestamp with time zone", false, false, false, null, null, null),
-        }, new MigrationPrimaryKey("pk_sys_menus", new string[] { "id" }), new MigrationForeignKey[]
-        {
-        }, new MigrationIndex[]
-        {
-        }),
-        new MigrationTable(null, "sys_organizations", null, new MigrationColumn[]
-        {
-            new MigrationColumn("created_time", "timestamp with time zone", false, false, false, null, null, null),
-            new MigrationColumn("id", "uuid", false, false, false, null, null, null),
-            new MigrationColumn("is_deleted", "boolean", false, false, false, null, null, null),
-            new MigrationColumn("name", "character varying(100)", false, false, false, null, null, null),
-            new MigrationColumn("parent_id", "uuid", true, false, false, null, null, null),
-            new MigrationColumn("updated_time", "timestamp with time zone", false, false, false, null, null, null),
-        }, new MigrationPrimaryKey("pk_sys_organizations", new string[] { "id" }), new MigrationForeignKey[]
-        {
-        }, new MigrationIndex[]
-        {
-        }),
-        new MigrationTable(null, "sys_roles", null, new MigrationColumn[]
-        {
-            new MigrationColumn("created_time", "timestamp with time zone", false, false, false, null, null, null),
-            new MigrationColumn("icon", "character varying(30)", true, false, false, null, null, null),
-            new MigrationColumn("id", "uuid", false, false, false, null, null, null),
-            new MigrationColumn("is_deleted", "boolean", false, false, false, null, null, null),
-            new MigrationColumn("is_system", "boolean", false, false, false, null, null, null),
-            new MigrationColumn("name", "character varying(30)", false, false, false, null, null, null),
-            new MigrationColumn("name_value", "character varying(60)", false, false, false, null, null, null),
-            new MigrationColumn("updated_time", "timestamp with time zone", false, false, false, null, null, null),
-        }, new MigrationPrimaryKey("pk_sys_roles", new string[] { "id" }), new MigrationForeignKey[]
-        {
-        }, new MigrationIndex[]
-        {
-        }),
-        new MigrationTable(null, "sys_user_data_scope_groups", null, new MigrationColumn[]
-        {
-            new MigrationColumn("created_time", "timestamp with time zone", false, false, false, null, null, null),
-            new MigrationColumn("data_scope_group_id", "uuid", false, false, false, null, null, null),
-            new MigrationColumn("id", "uuid", false, false, false, null, null, null),
-            new MigrationColumn("is_deleted", "boolean", false, false, false, null, null, null),
-            new MigrationColumn("updated_time", "timestamp with time zone", false, false, false, null, null, null),
-            new MigrationColumn("user_id", "uuid", false, false, false, null, null, null),
-        }, new MigrationPrimaryKey("pk_sys_user_data_scope_groups", new string[] { "id" }), new MigrationForeignKey[]
-        {
-        }, new MigrationIndex[]
-        {
-        }),
-        new MigrationTable(null, "sys_user_organizations", null, new MigrationColumn[]
-        {
-            new MigrationColumn("created_time", "timestamp with time zone", false, false, false, null, null, null),
-            new MigrationColumn("id", "uuid", false, false, false, null, null, null),
-            new MigrationColumn("is_deleted", "boolean", false, false, false, null, null, null),
-            new MigrationColumn("organization_id", "uuid", false, false, false, null, null, null),
-            new MigrationColumn("updated_time", "timestamp with time zone", false, false, false, null, null, null),
-            new MigrationColumn("user_id", "uuid", false, false, false, null, null, null),
-        }, new MigrationPrimaryKey("pk_sys_user_organizations", new string[] { "id" }), new MigrationForeignKey[]
-        {
-        }, new MigrationIndex[]
-        {
-        }),
-        new MigrationTable(null, "sys_user_roles", null, new MigrationColumn[]
-        {
-            new MigrationColumn("created_time", "timestamp with time zone", false, false, false, null, null, null),
-            new MigrationColumn("id", "uuid", false, false, false, null, null, null),
-            new MigrationColumn("is_deleted", "boolean", false, false, false, null, null, null),
-            new MigrationColumn("role_id", "uuid", false, false, false, null, null, null),
-            new MigrationColumn("updated_time", "timestamp with time zone", false, false, false, null, null, null),
-            new MigrationColumn("user_id", "uuid", false, false, false, null, null, null),
-        }, new MigrationPrimaryKey("pk_sys_user_roles", new string[] { "id" }), new MigrationForeignKey[]
-        {
-        }, new MigrationIndex[]
-        {
-        }),
-        new MigrationTable(null, "sys_users", null, new MigrationColumn[]
-        {
-            new MigrationColumn("Sex", "integer", false, false, false, null, null, null),
-            new MigrationColumn("access_failed_count", "integer", false, false, false, null, null, null),
-            new MigrationColumn("avatar", "character varying(200)", true, false, false, null, null, null),
-            new MigrationColumn("created_time", "timestamp with time zone", false, false, false, null, null, null),
-            new MigrationColumn("email", "character varying(100)", false, false, false, null, null, null),
-            new MigrationColumn("email_confirmed", "boolean", false, false, false, null, null, null),
-            new MigrationColumn("id", "uuid", false, false, false, null, null, null),
-            new MigrationColumn("is_deleted", "boolean", false, false, false, null, null, null),
-            new MigrationColumn("last_login_time", "timestamp with time zone", true, false, false, null, null, null),
-            new MigrationColumn("last_pwd_edit_time", "timestamp with time zone", false, false, false, null, null, null),
-            new MigrationColumn("lockout_enabled", "boolean", false, false, false, null, null, null),
-            new MigrationColumn("lockout_end", "timestamp with time zone", true, false, false, null, null, null),
-            new MigrationColumn("password_hash", "character varying(100)", false, false, false, null, null, null),
-            new MigrationColumn("password_salt", "character varying(100)", false, false, false, null, null, null),
-            new MigrationColumn("phone_number", "character varying(20)", true, false, false, null, null, null),
-            new MigrationColumn("phone_number_confirmed", "boolean", false, false, false, null, null, null),
-            new MigrationColumn("real_name", "character varying(30)", true, false, false, null, null, null),
-            new MigrationColumn("retry_count", "integer", false, false, false, null, null, null),
-            new MigrationColumn("two_factor_enabled", "boolean", false, false, false, null, null, null),
-            new MigrationColumn("updated_time", "timestamp with time zone", false, false, false, null, null, null),
-            new MigrationColumn("user_name", "character varying(30)", true, false, false, null, null, null),
-        }, new MigrationPrimaryKey("pk_sys_users", new string[] { "id" }), new MigrationForeignKey[]
-        {
-        }, new MigrationIndex[]
-        {
-        }),
-        new MigrationTable(null, "user_favorite_resources", null, new MigrationColumn[]
-        {
-            new MigrationColumn("created_time", "timestamp with time zone", false, false, false, null, null, null),
-            new MigrationColumn("id", "uuid", false, false, false, null, null, null),
-            new MigrationColumn("is_deleted", "boolean", false, false, false, null, null, null),
-            new MigrationColumn("resource_id", "uuid", false, false, false, null, null, null),
-            new MigrationColumn("updated_time", "timestamp with time zone", false, false, false, null, null, null),
-            new MigrationColumn("user_id", "uuid", false, false, false, null, null, null),
-        }, new MigrationPrimaryKey("pk_user_favorite_resources", new string[] { "id" }), new MigrationForeignKey[]
-        {
-        }, new MigrationIndex[]
-        {
-        }),
-        new MigrationTable(null, "user_res_values", null, new MigrationColumn[]
-        {
-            new MigrationColumn("ValueTypeSnapshot", "integer", false, false, false, null, null, null),
-            new MigrationColumn("created_time", "timestamp with time zone", false, false, false, null, null, null),
-            new MigrationColumn("definition_property_id", "uuid", false, false, false, null, null, null),
-            new MigrationColumn("id", "uuid", false, false, false, null, null, null),
-            new MigrationColumn("is_deleted", "boolean", false, false, false, null, null, null),
-            new MigrationColumn("property_name_snapshot", "character varying(60)", false, false, false, null, null, null),
-            new MigrationColumn("updated_time", "timestamp with time zone", false, false, false, null, null, null),
-            new MigrationColumn("user_resource_id", "uuid", false, false, false, null, null, null),
-            new MigrationColumn("value", "character varying(1000)", false, false, false, null, null, null),
-        }, new MigrationPrimaryKey("pk_user_res_values", new string[] { "id" }), new MigrationForeignKey[]
-        {
-        }, new MigrationIndex[]
-        {
-        }),
-        new MigrationTable(null, "user_resources", null, new MigrationColumn[]
-        {
-            new MigrationColumn("AuditStatus", "integer", false, false, false, null, null, null),
-            new MigrationColumn("Status", "integer", false, false, false, null, null, null),
-            new MigrationColumn("approved_resource_id", "uuid", true, false, false, null, null, null),
-            new MigrationColumn("created_time", "timestamp with time zone", false, false, false, null, null, null),
-            new MigrationColumn("definition_id", "uuid", false, false, false, null, null, null),
-            new MigrationColumn("id", "uuid", false, false, false, null, null, null),
-            new MigrationColumn("is_deleted", "boolean", false, false, false, null, null, null),
-            new MigrationColumn("review_comment", "character varying(500)", true, false, false, null, null, null),
-            new MigrationColumn("updated_time", "timestamp with time zone", false, false, false, null, null, null),
-            new MigrationColumn("user_id", "uuid", false, false, false, null, null, null),
-        }, new MigrationPrimaryKey("pk_user_resources", new string[] { "id" }), new MigrationForeignKey[]
-        {
+            new MigrationForeignKey("fk_user_resources_definition_id", new string[] { "DefinitionId" }, null, "ResDefinitions", new string[] { "Id" }, ReferentialAction.NoAction),
         }, new MigrationIndex[]
         {
         }),

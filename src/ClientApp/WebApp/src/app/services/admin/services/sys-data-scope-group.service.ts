@@ -18,7 +18,9 @@ export class SysDataScopeGroupService extends BaseService {
    * filter
    * @param data SysDataScopeGroupFilterDto
    */
-  filter(data: SysDataScopeGroupFilterDto): Observable<PageList<SysDataScopeGroupItemDto>> {
+  filter(
+    data: SysDataScopeGroupFilterDto,
+  ): Observable<PageList<SysDataScopeGroupItemDto>> {
     const _url = `/api/SysDataScopeGroup/filter`;
     return this.request<PageList<SysDataScopeGroupItemDto>>('post', _url, data);
   }
@@ -35,7 +37,10 @@ export class SysDataScopeGroupService extends BaseService {
    * @param id string
    * @param data SysDataScopeGroupUpdateDto
    */
-  update(id: string, data: SysDataScopeGroupUpdateDto): Observable<SysDataScopeGroup> {
+  update(
+    id: string,
+    data: SysDataScopeGroupUpdateDto,
+  ): Observable<SysDataScopeGroup> {
     const _url = `/api/SysDataScopeGroup/${id}`;
     return this.request<SysDataScopeGroup>('patch', _url, data);
   }
@@ -68,7 +73,10 @@ export class SysDataScopeGroupService extends BaseService {
    * @param id string
    * @param data SysUserDataScopeGroupSetUsersDto
    */
-  setUsers(id: string, data: SysUserDataScopeGroupSetUsersDto): Observable<void> {
+  setUsers(
+    id: string,
+    data: SysUserDataScopeGroupSetUsersDto,
+  ): Observable<void> {
     const _url = `/api/SysDataScopeGroup/${id}/users`;
     return this.request<void>('put', _url, data);
   }

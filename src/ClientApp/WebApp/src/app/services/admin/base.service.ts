@@ -1,15 +1,15 @@
 import { Inject, Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpResponse } from '@angular/common/http';
-import { from, map, Observable, switchMap } from 'rxjs';
+import { from, map, Observable, of, switchMap } from 'rxjs';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class BaseService {
   protected baseUrl: string | null;
   constructor(
     protected http: HttpClient,
-    @Inject('ADMIN_BASE_URL') baseUrl: string
+    @Inject('ADMIN_BASE_URL') baseUrl: string,
   ) {
     if (baseUrl.endsWith('/')) {
       this.baseUrl = baseUrl.slice(0, -1);
@@ -18,35 +18,49 @@ export class BaseService {
     }
   }
 
-  protected request<T = any>(method: string, path: string, body?: any): Observable<T> {
+  protected request<T = any>(
+    method: string,
+    path: string,
+    body?: any,
+  ): Observable<T> {
     const url = this.baseUrl + path;
-    return this.http.request(method, url, {
-      headers: this.getHeaders(),
-      body,
-      responseType: 'blob',
-      observe: 'response'
-    }).pipe(
-      switchMap((resp: HttpResponse<Blob>) => {
-        const contentType = (resp.headers.get('Content-Type') || '').toLowerCase();
-        const disposition = resp.headers.get('Content-Disposition') || '';
-        const blob = resp.body as Blob;
-
-        const isAttachment = /attachment/i.test(disposition);
-        const isBinaryType = this.isBinaryContentType(contentType);
-        const treatAsFile = isAttachment || isBinaryType;
-
-        if (treatAsFile) {
-          return from(Promise.resolve(blob as unknown as T));
-        }
-        return from(blob.text()).pipe(
-          map(text => this.parseAuto<T>(text, contentType))
-        );
+    return this.http
+      .request(method, url, {
+        headers: this.getHeaders(),
+        body,
+        responseType: 'blob',
+        observe: 'response',
       })
-    );
+      .pipe(
+        switchMap((resp: HttpResponse<Blob>) => {
+          const contentType = (
+            resp.headers.get('Content-Type') || ''
+          ).toLowerCase();
+          const disposition = resp.headers.get('Content-Disposition') || '';
+          const blob = resp.body;
+          if (!blob) {
+            return of(undefined as T);
+          }
+
+          const isAttachment = /attachment/i.test(disposition);
+          const isBinaryType = this.isBinaryContentType(contentType);
+          const treatAsFile = isAttachment || isBinaryType;
+
+          if (treatAsFile) {
+            return from(Promise.resolve(blob as unknown as T));
+          }
+          return from(blob.text()).pipe(
+            map((text) => this.parseAuto<T>(text, contentType)),
+          );
+        }),
+      );
   }
 
   private parseAuto<T>(text: string, contentType: string): T {
-    if (contentType.includes('application/json') || contentType.includes('text/json')) {
+    if (
+      contentType.includes('application/json') ||
+      contentType.includes('text/json')
+    ) {
       return JSON.parse(text) as T;
     }
     return text as unknown as T;
@@ -78,7 +92,7 @@ export class BaseService {
 
   protected getHeaders(): HttpHeaders {
     const headers = new HttpHeaders({
-      Accept: 'application/json, text/plain, */*'
+      Accept: 'application/json, text/plain, */*',
     });
     const accessToken = localStorage.getItem('accessToken');
 
@@ -88,7 +102,11 @@ export class BaseService {
   }
   public isMobile(): boolean {
     const ua = navigator.userAgent;
-    if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|Mobile|mobile|CriOS/i.test(ua)) {
+    if (
+      /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|Mobile|mobile|CriOS/i.test(
+        ua,
+      )
+    ) {
       return true;
     }
     return false;

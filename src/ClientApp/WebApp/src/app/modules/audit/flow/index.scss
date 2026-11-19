@@ -1,0 +1,36 @@
+:host {
+  display: block;
+}
+.page {
+  padding: 24px;
+}
+.toolbar {
+  margin-bottom: 1rem;
+}
+mat-form-field {
+  min-width: 180px;
+}
+.table-wrap {
+  overflow-x: auto;
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+th,
+td {
+  padding: 10px 8px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+  white-space: nowrap;
+}
+.actions {
+  white-space: nowrap;
+}
+.enabled {
+  color: var(--mat-sys-primary);
+  font-weight: 600;
+}
+.error {
+  color: var(--mat-sys-error);
+}

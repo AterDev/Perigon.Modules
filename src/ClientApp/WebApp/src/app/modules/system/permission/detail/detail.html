@@ -1,46 +1,45 @@
 <section class="page">
   <header>
     @if (dataScope(); as item) {
-      <button
-        mat-flat-button
-        type="button"
-        (click)="edit()"
-        [attr.aria-label]="i18nKeys.common.edit | translate"
-      >
-        <mat-icon class="primary">edit</mat-icon>
-        {{ i18nKeys.common.edit | translate }}
-      </button>
+    <button
+      mat-flat-button
+      type="button"
+      (click)="edit()"
+      [attr.aria-label]="i18nKeys.common.edit | translate"
+    >
+      <mat-icon class="primary">edit</mat-icon>
+      {{ i18nKeys.common.edit | translate }}
+    </button>
     }
   </header>
 
   @if (dataScope(); as item) {
-    <mat-card>
-      <mat-card-content>
-        <dl>
-          <dt>{{ i18nKeys.sysDataScope.name | translate }}</dt>
-          <dd><code>{{ item.name }}</code></dd>
-          <dt>{{ i18nKeys.sysDataScope.resourceCode | translate }}</dt>
-          <dd><code>{{ item.resourceCode }}</code></dd>
-          <dt>{{ i18nKeys.sysDataScope.scopeType | translate }}</dt>
-          <dd>{{ scopeTypeKey(item.scopeType) | translate }}</dd>
-          <dt>{{ i18nKeys.sysDataScope.group | translate }}</dt>
-          <dd>{{ groupName() || item.groupId }}</dd>
-          <dt>{{ i18nKeys.sysDataScope.targetIds | translate }}</dt>
-          <dd>
-            @if (item.targetIds.length === 0) {
-              {{ i18nKeys.common.none | translate }}
-            } @else {
-              <ul>
-                @for (targetId of item.targetIds; track targetId) {
-                  <li><code>{{ targetId }}</code></li>
-                }
-              </ul>
+  <mat-card>
+    <mat-card-content>
+      <dl>
+        <dt>{{ i18nKeys.sysDataScope.name | translate }}</dt>
+        <dd><code>{{ item.name }}</code></dd>
+        <dt>{{ i18nKeys.sysDataScope.resourceCode | translate }}</dt>
+        <dd><code>{{ item.resourceCode }}</code></dd>
+        <dt>{{ i18nKeys.sysDataScope.scopeType | translate }}</dt>
+        <dd>{{ scopeTypeKey(item.scopeType) | translate }}</dd>
+        <dt>{{ i18nKeys.sysDataScope.group | translate }}</dt>
+        <dd>{{ groupName() || item.groupId }}</dd>
+        <dt>{{ i18nKeys.sysDataScope.targetIds | translate }}</dt>
+        <dd>
+          @if (item.targetIds.length === 0) { {{ i18nKeys.common.none |
+          translate }} } @else {
+          <ul>
+            @for (targetId of item.targetIds; track targetId) {
+            <li><code>{{ targetId }}</code></li>
             }
-          </dd>
-        </dl>
-      </mat-card-content>
-    </mat-card>
+          </ul>
+          }
+        </dd>
+      </dl>
+    </mat-card-content>
+  </mat-card>
   } @else {
-    <mat-spinner diameter="36" />
+  <mat-spinner diameter="36" />
   }
 </section>

@@ -1,22 +1,26 @@
-<div class="resource-color-picker" role="group" [attr.aria-label]="i18nKeys.common.color | translate">
+<div
+  class="resource-color-picker"
+  role="group"
+  [attr.aria-label]="i18nKeys.common.color | translate"
+>
   <div class="resource-color-options">
     @for (color of colors; track color) {
-      <button
-        mat-icon-button
-        type="button"
-        class="resource-color-option"
-        [class.selected]="value() === color"
-        [style.background-color]="color"
-        [attr.aria-label]="color"
-        [attr.aria-pressed]="value() === color"
-        [disabled]="disabled()"
-        [matTooltip]="color"
-        (click)="select(color)"
-      >
-        @if (value() === color) {
-          <mat-icon>check</mat-icon>
-        }
-      </button>
+    <button
+      mat-icon-button
+      type="button"
+      class="resource-color-option"
+      [class.selected]="value() === color"
+      [style.background-color]="color"
+      [attr.aria-label]="color"
+      [attr.aria-pressed]="value() === color"
+      [disabled]="disabled()"
+      [matTooltip]="color"
+      (click)="select(color)"
+    >
+      @if (value() === color) {
+      <mat-icon>check</mat-icon>
+      }
+    </button>
     }
   </div>
 
@@ -43,7 +47,7 @@
       (click)="customColorInput.click()"
     >
       @if (isCustomColor()) {
-        <mat-icon>check</mat-icon>
+      <mat-icon>check</mat-icon>
       }
     </button>
     <input

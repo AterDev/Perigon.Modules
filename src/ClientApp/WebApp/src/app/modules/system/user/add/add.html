@@ -5,7 +5,7 @@
       <mat-label>{{ i18nKeys.systemUser.userName | translate }}</mat-label>
       <input matInput formControlName="userName" />
       @if (form.controls.userName.hasError('required')) {
-        <mat-error>{{ i18nKeys.validation.required | translate }}</mat-error>
+      <mat-error>{{ i18nKeys.validation.required | translate }}</mat-error>
       }
     </mat-form-field>
 
@@ -13,7 +13,7 @@
       <mat-label>{{ i18nKeys.systemUser.password | translate }}</mat-label>
       <input matInput type="password" formControlName="password" />
       @if (form.controls.password.hasError('required')) {
-        <mat-error>{{ i18nKeys.validation.required | translate }}</mat-error>
+      <mat-error>{{ i18nKeys.validation.required | translate }}</mat-error>
       }
     </mat-form-field>
 
@@ -26,7 +26,7 @@
       <mat-label>{{ i18nKeys.systemUser.email | translate }}</mat-label>
       <input matInput type="email" formControlName="email" />
       @if (form.controls.email.hasError('email')) {
-        <mat-error>{{ i18nKeys.validation.email | translate }}</mat-error>
+      <mat-error>{{ i18nKeys.validation.email | translate }}</mat-error>
       }
     </mat-form-field>
 
@@ -39,9 +39,9 @@
       <mat-label>{{ i18nKeys.systemUser.gender | translate }}</mat-label>
       <mat-select formControlName="sex">
         @for (gender of genders; track gender.value) {
-          <mat-option [value]="gender.value">
-            {{ gender.labelKey | translate }}
-          </mat-option>
+        <mat-option [value]="gender.value">
+          {{ gender.labelKey | translate }}
+        </mat-option>
         }
       </mat-select>
     </mat-form-field>
@@ -50,7 +50,7 @@
       <mat-label>{{ i18nKeys.systemUser.role | translate }}</mat-label>
       <mat-select formControlName="roleIds" multiple>
         @for (role of roles(); track role.id) {
-          <mat-option [value]="role.id">{{ role.name }}</mat-option>
+        <mat-option [value]="role.id">{{ role.name }}</mat-option>
         }
       </mat-select>
     </mat-form-field>
@@ -59,7 +59,6 @@
       <mat-label>{{ i18nKeys.systemUser.avatarUrl | translate }}</mat-label>
       <input matInput formControlName="avatar" />
     </mat-form-field>
-
   </form>
 </mat-dialog-content>
 <mat-dialog-actions align="end">

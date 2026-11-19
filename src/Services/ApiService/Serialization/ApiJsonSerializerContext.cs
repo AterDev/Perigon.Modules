@@ -209,6 +209,7 @@ namespace ApiService;
 [JsonSerializable(typeof(SysUserAddDto))]
 [JsonSerializable(typeof(SysUserDetailDto))]
 [JsonSerializable(typeof(SysUserItemDto))]
+[JsonSerializable(typeof(SysUserOptionDto[]))]
 [JsonSerializable(typeof(SysUserUpdateDto))]
 [JsonSerializable(typeof(UserInfoDto))]
 [JsonSerializable(typeof(int))]

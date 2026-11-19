@@ -1,12 +1,15 @@
 using ApiTest.Data;
 using Entity.NotificationMod;
 using EntityFramework.AppDbContext;
+using EntityFramework.AppDbFactory;
 using NotificationMod.Models.InAppNotificationDtos;
+using NotificationMod.Models.NotificationReceiverDtos;
 using Perigon.AspNetCore.Constants;
 using Perigon.AspNetCore.Models;
 using Perigon.PostgreSQL;
 using System.Net;
 using System.Net.Http.Json;
+using SystemMod.Models.SysUserDtos;
 
 namespace ApiTest;
 
@@ -20,6 +23,71 @@ public sealed class NotificationModApiTests
     private static string ConnectionString =>
         GlobalHooks.App?.GetConnectionStringAsync(AppConst.Default).GetAwaiter().GetResult()
         ?? throw new InvalidOperationException("The AppHost PostgreSQL connection is unavailable.");
+
+    [ClassDataSource<TestHttpClientData>(Shared = SharedType.None)]
+    [Test]
+    public async Task SaveReceiver_ShouldPersistNewAndEditedConfiguration(TestHttpClientData data)
+    {
+        HttpClient admin = data.HttpClient;
+        NotificationReceiverItemDto created = await PostAsync<NotificationReceiverItemDto>(
+            admin,
+            "/api/Notification/receivers",
+            new NotificationReceiverAddDto
+            {
+                Name = $"api-receiver-{Guid.CreateVersion7():N}",
+                Endpoint = "https://example.com/notifications",
+                Secret = Guid.NewGuid().ToString("N")
+            },
+            HttpStatusCode.OK);
+
+        try
+        {
+            await Assert.That(created.Id).IsNotEqualTo(Guid.Empty);
+            NotificationReceiverItemDto saved = await ReloadAsync();
+            await Assert.That(saved.Endpoint).IsEqualTo(created.Endpoint);
+            await Assert.That(saved.HasSecret).IsTrue();
+
+            using HttpResponseMessage updated = await admin.PatchAsJsonAsync(
+                $"/api/Notification/receivers/{created.Id}",
+                new NotificationReceiverUpdateDto
+                {
+                    Name = created.Name,
+                    Endpoint = "https://example.com/updated",
+                    HttpMethod = "PUT",
+                    Enabled = false,
+                    TimeoutSeconds = 12
+                });
+            await Assert.That(updated.StatusCode).IsEqualTo(HttpStatusCode.OK);
+
+            saved = await ReloadAsync();
+            await Assert.That(saved.Endpoint).IsEqualTo("https://example.com/updated");
+            await Assert.That(saved.HttpMethod).IsEqualTo("PUT");
+            await Assert.That(saved.Enabled).IsFalse();
+            await Assert.That(saved.TimeoutSeconds).IsEqualTo(12);
+            await Assert.That(saved.HasSecret).IsTrue();
+        }
+        finally
+        {
+            if (created.Id != Guid.Empty)
+            {
+                using HttpResponseMessage deleted = await admin.DeleteAsync($"/api/Notification/receivers/{created.Id}");
+            }
+        }
+
+        async Task<NotificationReceiverItemDto> ReloadAsync()
+        {
+            var page = await PostAsync<PageList<NotificationReceiverItemDto>>(
+                admin,
+                "/api/Notification/receivers/filter",
+                new
+                {
+                    pageIndex = 1,
+                    pageSize = 100
+                },
+                HttpStatusCode.OK);
+            return page.Data.Single(item => item.Id == created.Id);
+        }
+    }
 
     [ClassDataSource<TestHttpClientData>(Shared = SharedType.None)]
     [Test]
@@ -77,10 +145,28 @@ public sealed class NotificationModApiTests
                 Type = "message",
                 Title = targetedTitle,
                 Content = "targeted-content",
-                TargetUserIds = [userAId],
-                Publish = true
+                ExpiresTime = DateTimeOffset.UtcNow.AddHours(1),
+                TargetUserIds = [userBId]
             });
             notificationIds.Add(targeted.Id);
+            using (HttpResponseMessage edit = await admin.PatchAsJsonAsync(
+                $"/api/Notification/{targeted.Id}",
+                new InAppNotificationUpdateDto
+                {
+                    TargetUserIds = [userAId],
+                    ClearExpiresTime = true
+                }))
+            {
+                await Assert.That(edit.StatusCode).IsEqualTo(HttpStatusCode.OK);
+            }
+
+            InAppNotificationDetailDto updated = await GetAsync<InAppNotificationDetailDto>(
+                admin,
+                $"/api/Notification/{targeted.Id}",
+                HttpStatusCode.OK);
+            await Assert.That(updated.ExpiresTime).IsNull();
+            await Assert.That(updated.TargetUserIds).IsEquivalentTo([userAId]);
+            await ExpectStatusAsync(admin, $"/api/Notification/{targeted.Id}/publish", HttpMethod.Post, HttpStatusCode.NoContent);
 
             PageList<InAppNotificationItemDto> targetedA = await MineAsync(userA, targetedTitle);
             PageList<InAppNotificationItemDto> targetedB = await MineAsync(userB, targetedTitle);
@@ -131,7 +217,7 @@ public sealed class NotificationModApiTests
             PageList<InAppNotificationItemDto> existingRows = await MineAsync(existingUser, title);
             await Assert.That(existingRows.Count).IsEqualTo(1);
 
-            await using (DefaultDbContext context = new(ConnectionString))
+            await using (DefaultDbContext context = AppDbFactory.CreateDbContext(ConnectionString))
             {
                 List<InAppNotificationRecipient> recipients = await context.InAppNotificationRecipients
                     .Where(item => item.NotificationId == notificationId)
@@ -187,10 +273,11 @@ public sealed class NotificationModApiTests
             });
             notificationIds.Add(expired.Id);
 
-            await using (DefaultDbContext context = new(ConnectionString))
+            await using (DefaultDbContext context = AppDbFactory.CreateDbContext(ConnectionString))
             {
+                DateTimeOffset expiredAt = DateTimeOffset.UtcNow.AddMinutes(-1);
                 await context.InAppNotifications.Where(item => item.Id == expired.Id)
-                    .ExecuteUpdateAsync(update => update.Set(item => item.ExpiresTime, DateTimeOffset.UtcNow.AddMinutes(-1)));
+                    .ExecuteUpdateAsync(update => update.Set(item => item.ExpiresTime, expiredAt));
             }
 
             PageList<InAppNotificationItemDto> expiredRows = await MineAsync(user, expiredTitle);
@@ -208,7 +295,12 @@ public sealed class NotificationModApiTests
     [Test]
     public async Task OrdinaryUser_ShouldNotManageNotifications(TestHttpClientData data)
     {
-        (HttpClient user, _) = await data.CreateSysUserClientAsync();
+        (HttpClient user, Guid userId) = await data.CreateSysUserClientAsync();
+
+        string userOptionsUrl = $"/api/SysUser/options?search={userId}";
+        await ExpectStatusAsync(user, userOptionsUrl, HttpMethod.Get, HttpStatusCode.Forbidden);
+        SysUserOptionDto[] userOptions = await GetAsync<SysUserOptionDto[]>(data.HttpClient, userOptionsUrl, HttpStatusCode.OK);
+        await Assert.That(userOptions.Select(option => option.Id)).IsEquivalentTo([userId]);
 
         using (HttpResponseMessage add = await user.PostAsJsonAsync(
             "/api/Notification",
@@ -271,7 +363,7 @@ public sealed class NotificationModApiTests
             return;
         }
 
-        await using DefaultDbContext context = new(ConnectionString);
+        await using DefaultDbContext context = AppDbFactory.CreateDbContext(ConnectionString);
         await context.InAppNotificationRecipients.Where(item => actualIds.Contains(item.NotificationId))
             .ExecuteUpdateAsync(update => update.Set(item => item.IsDeleted, true));
         await context.InAppNotifications.Where(item => actualIds.Contains(item.Id))

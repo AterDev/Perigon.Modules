@@ -1,4 +1,9 @@
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  inject,
+  signal,
+} from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { I18N_KEYS } from 'src/app/modules/share/i18n-keys';
 import { CommonListModules } from 'src/app/modules/share/shared-modules';
@@ -31,9 +36,11 @@ export class SysDataScopeDetailComponent {
   load(): void {
     this.client.sysDataScope.getDetail(this.id).subscribe((value) => {
       this.dataScope.set(value);
-      this.client.sysDataScopeGroup.getDetail(value.groupId).subscribe((group) => {
-        this.groupName.set(group.name);
-      });
+      this.client.sysDataScopeGroup
+        .getDetail(value.groupId)
+        .subscribe((group) => {
+          this.groupName.set(group.name);
+        });
     });
   }
 

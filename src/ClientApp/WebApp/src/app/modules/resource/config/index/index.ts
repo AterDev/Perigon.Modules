@@ -1,5 +1,10 @@
 import { I18N_KEYS } from 'src/app/modules/share/i18n-keys';
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  inject,
+  signal,
+} from '@angular/core';
 import { CommonListModules } from 'src/app/modules/share/shared-modules';
 import { AdminClient } from 'src/app/services/admin/admin-client';
 import { ResEnvironment } from 'src/app/services/admin/models/entity/res-environment.model';
@@ -9,9 +14,15 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { TranslateService } from '@ngx-translate/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ConfirmDialogComponent } from 'src/app/modules/share/components/confirm-dialog/confirm-dialog.component';
-import { ResourceInputDialogComponent, ResourceInputDialogData } from 'src/app/modules/resource/dialogs/input-dialog/input-dialog';
+import {
+  ResourceInputDialogComponent,
+  ResourceInputDialogData,
+} from 'src/app/modules/resource/dialogs/input-dialog/input-dialog';
 import { SysRoleItemDto } from 'src/app/services/admin/models/system-mod/sys-role-item-dto.model';
-import { resourceIconName, resourceIconStyle } from 'src/app/modules/resource/shared/resource-appearance';
+import {
+  resourceIconName,
+  resourceIconStyle,
+} from 'src/app/modules/resource/shared/resource-appearance';
 import { forkJoin } from 'rxjs';
 
 @Component({
@@ -55,9 +66,24 @@ export class ResourceConfigIndexComponent {
       {
         title: this.translate.instant('resource.environmentNamePrompt'),
         fields: [
-          { key: 'name', label: this.translate.instant('resource.environment'), required: true },
-          { key: 'color', label: this.translate.instant('common.color'), type: 'color', value: '#3f51b5', required: true },
-          { key: 'icon', label: this.translate.instant('common.icon'), type: 'icon', value: 'cloud' },
+          {
+            key: 'name',
+            label: this.translate.instant('resource.environment'),
+            required: true,
+          },
+          {
+            key: 'color',
+            label: this.translate.instant('common.color'),
+            type: 'color',
+            value: '#3f51b5',
+            required: true,
+          },
+          {
+            key: 'icon',
+            label: this.translate.instant('common.icon'),
+            type: 'icon',
+            value: 'cloud',
+          },
         ],
       },
       ({ name, color, icon }) =>
@@ -71,9 +97,25 @@ export class ResourceConfigIndexComponent {
       {
         title: this.translate.instant('resource.environmentNamePrompt'),
         fields: [
-          { key: 'name', label: this.translate.instant('resource.environment'), value: item.name, required: true },
-          { key: 'color', label: this.translate.instant('common.color'), type: 'color', value: item.color, required: true },
-          { key: 'icon', label: this.translate.instant('common.icon'), type: 'icon', value: item.icon ?? '' },
+          {
+            key: 'name',
+            label: this.translate.instant('resource.environment'),
+            value: item.name,
+            required: true,
+          },
+          {
+            key: 'color',
+            label: this.translate.instant('common.color'),
+            type: 'color',
+            value: item.color,
+            required: true,
+          },
+          {
+            key: 'icon',
+            label: this.translate.instant('common.icon'),
+            type: 'icon',
+            value: item.icon ?? '',
+          },
         ],
       },
       ({ name, color, icon }) =>
@@ -98,10 +140,29 @@ export class ResourceConfigIndexComponent {
       {
         title: this.translate.instant('resource.addCategory'),
         fields: [
-          { key: 'name', label: this.translate.instant('resource.category'), required: true },
-          { key: 'catalogCode', label: this.translate.instant('resource.categoryCodePrompt'), required: true },
-          { key: 'color', label: this.translate.instant('common.color'), type: 'color', value: '#009688', required: true },
-          { key: 'icon', label: this.translate.instant('common.icon'), type: 'icon', value: 'category' },
+          {
+            key: 'name',
+            label: this.translate.instant('resource.category'),
+            required: true,
+          },
+          {
+            key: 'catalogCode',
+            label: this.translate.instant('resource.categoryCodePrompt'),
+            required: true,
+          },
+          {
+            key: 'color',
+            label: this.translate.instant('common.color'),
+            type: 'color',
+            value: '#009688',
+            required: true,
+          },
+          {
+            key: 'icon',
+            label: this.translate.instant('common.icon'),
+            type: 'icon',
+            value: 'category',
+          },
         ],
       },
       ({ name, catalogCode, color, icon }) =>
@@ -115,15 +176,41 @@ export class ResourceConfigIndexComponent {
       {
         title: this.translate.instant('resource.categoryNamePrompt'),
         fields: [
-          { key: 'name', label: this.translate.instant('resource.category'), value: item.name, required: true },
-          { key: 'catalogCode', label: this.translate.instant('resource.categoryCodePrompt'), value: item.catalogCode, required: true },
-          { key: 'color', label: this.translate.instant('common.color'), type: 'color', value: item.color, required: true },
-          { key: 'icon', label: this.translate.instant('common.icon'), type: 'icon', value: item.icon ?? '' },
+          {
+            key: 'name',
+            label: this.translate.instant('resource.category'),
+            value: item.name,
+            required: true,
+          },
+          {
+            key: 'catalogCode',
+            label: this.translate.instant('resource.categoryCodePrompt'),
+            value: item.catalogCode,
+            required: true,
+          },
+          {
+            key: 'color',
+            label: this.translate.instant('common.color'),
+            type: 'color',
+            value: item.color,
+            required: true,
+          },
+          {
+            key: 'icon',
+            label: this.translate.instant('common.icon'),
+            type: 'icon',
+            value: item.icon ?? '',
+          },
         ],
       },
       ({ name, catalogCode, color, icon }) =>
         this.client.resourceConfiguration
-          .updateCategory(item.id, { name, catalogCode, icon: icon || null, color })
+          .updateCategory(item.id, {
+            name,
+            catalogCode,
+            icon: icon || null,
+            color,
+          })
           .subscribe(() => this.load()),
     );
   }

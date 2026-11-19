@@ -69,7 +69,13 @@ export class SysUserService extends BaseService {
    * @param pageSize number
    * @param orderBy Record<string, boolean>
    */
-  filter(userName: string | null, roleId: string | null, pageIndex: number | null, pageSize: number | null, orderBy: Record<string, boolean> | null): Observable<PageList<SysUserItemDto>> {
+  filter(
+    userName: string | null,
+    roleId: string | null,
+    pageIndex: number | null,
+    pageSize: number | null,
+    orderBy: Record<string, boolean> | null,
+  ): Observable<PageList<SysUserItemDto>> {
     const _url = `/api/SysUser?userName=${userName ?? ''}&roleId=${roleId ?? ''}&pageIndex=${pageIndex ?? ''}&pageSize=${pageSize ?? ''}&orderBy=${orderBy ?? ''}`;
     return this.request<PageList<SysUserItemDto>>('get', _url);
   }
@@ -111,7 +117,10 @@ export class SysUserService extends BaseService {
    * @param password string
    * @param newPassword string
    */
-  changePassword(password: string | null, newPassword: string | null): Observable<boolean> {
+  changePassword(
+    password: string | null,
+    newPassword: string | null,
+  ): Observable<boolean> {
     const _url = `/api/SysUser/changePassword?password=${password ?? ''}&newPassword=${newPassword ?? ''}`;
     return this.request<boolean>('patch', _url);
   }

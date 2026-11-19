@@ -70,9 +70,12 @@ export class ArticleCategoryIndexComponent {
       .open(ConfirmDialogComponent, {
         data: {
           title: this.translate.instant(this.i18nKeys.common.confirmDelete),
-          content: this.translate.instant(this.i18nKeys.cms.category.deleteConfirm, {
-            name: item.name,
-          }),
+          content: this.translate.instant(
+            this.i18nKeys.cms.category.deleteConfirm,
+            {
+              name: item.name,
+            },
+          ),
         },
       })
       .afterClosed()

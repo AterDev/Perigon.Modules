@@ -1,8 +1,4 @@
-import {
-  AbstractControl,
-  ValidationErrors,
-  ValidatorFn,
-} from '@angular/forms';
+import { AbstractControl, ValidationErrors, ValidatorFn } from '@angular/forms';
 import { ResValueType } from 'src/app/services/admin/models/entity/res-value-type.model';
 
 const resourceValueFormatError = 'resourceValueFormat';
@@ -49,9 +45,11 @@ function isValidDate(value: string): boolean {
   const month = Number(match[2]);
   const day = Number(match[3]);
   const date = new Date(Date.UTC(year, month - 1, day));
-  return date.getUTCFullYear() === year
-    && date.getUTCMonth() === month - 1
-    && date.getUTCDate() === day;
+  return (
+    date.getUTCFullYear() === year &&
+    date.getUTCMonth() === month - 1 &&
+    date.getUTCDate() === day
+  );
 }
 
 function isAbsoluteUri(value: string): boolean {
@@ -81,9 +79,7 @@ function isIpv6Address(value: string): boolean {
   const rightUnits = sections.length === 2 ? countIpv6Units(sections[1]) : 0;
   if (leftUnits === null || rightUnits === null) return false;
 
-  return sections.length === 2
-    ? leftUnits + rightUnits < 8
-    : leftUnits === 8;
+  return sections.length === 2 ? leftUnits + rightUnits < 8 : leftUnits === 8;
 }
 
 function countIpv6Units(value: string): number | null {

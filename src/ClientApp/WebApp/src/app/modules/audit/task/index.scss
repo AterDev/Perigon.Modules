@@ -1,0 +1,26 @@
+:host {
+  display: block;
+}
+.page {
+  padding: 24px;
+}
+h2 {
+  margin: 0 0 1rem;
+}
+.toolbar {
+  margin-bottom: 1rem;
+}
+.table-wrap {
+  overflow-x: auto;
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+th,
+td {
+  padding: 10px 8px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+  white-space: nowrap;
+}

@@ -198,6 +198,30 @@ public class SysUserManager(
                 .Set(item => item.LastPwdEditTime, user.LastPwdEditTime)) > 0;
     }
 
+    public async Task<SysUserOptionDto[]> SearchOptionsAsync(string? search, CancellationToken cancellationToken)
+    {
+        search = search?.Trim();
+        if (search is not { Length: >= 2 and <= 100 })
+        {
+            return [];
+        }
+
+        bool isId = Guid.TryParse(search, out Guid id);
+        IQueryable<SysUser> query = isId
+            ? _dbSet.Where(user => user.Id == id)
+            : _dbSet.Where(user =>
+                (user.UserName != null && user.UserName.Contains(search))
+                || (user.RealName != null && user.RealName.Contains(search))
+                || user.Email.Contains(search));
+        var users = await query.OrderBy(user => user.UserName).ThenBy(user => user.Id)
+            .Take(20).ToListAsync(cancellationToken);
+        return users.Select(user => new SysUserOptionDto(
+            user.Id,
+            string.IsNullOrWhiteSpace(user.RealName)
+                ? user.UserName ?? user.Id.ToString()
+                : $"{user.RealName} ({user.UserName})")).ToArray();
+    }
+
     public async Task<PageList<SysUserItemDto>> ToPageAsync(SysUserFilterDto filter)
     {
         Queryable = Queryable.WhereNotNull(
@@ -440,7 +464,7 @@ public class SysUserManager(
                         .Set(u => u.Email, current.Email)
                         .Set(u => u.PhoneNumber, current.PhoneNumber)
                         .Set(u => u.Avatar, current.Avatar)
-                        .Set(u => u.SexValue, current.SexValue));
+                        .Set(u => u.Sex, current.Sex));
             }
 
             // 如需修改密码，单独更新密码相关字段

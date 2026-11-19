@@ -17,7 +17,11 @@ export class UserFavoriteResourceService extends BaseService {
    * @param pageSize number
    * @param orderBy Record<string, boolean>
    */
-  mine(pageIndex: number | null, pageSize: number | null, orderBy: Record<string, boolean> | null): Observable<PageList<UserFavoriteResourceItemDto>> {
+  mine(
+    pageIndex: number | null,
+    pageSize: number | null,
+    orderBy: Record<string, boolean> | null,
+  ): Observable<PageList<UserFavoriteResourceItemDto>> {
     const _url = `/api/UserFavoriteResource/mine?pageIndex=${pageIndex ?? ''}&pageSize=${pageSize ?? ''}&orderBy=${orderBy ?? ''}`;
     return this.request<PageList<UserFavoriteResourceItemDto>>('get', _url);
   }
@@ -41,7 +45,9 @@ export class UserFavoriteResourceService extends BaseService {
    * 收藏一个当前用户可见的常规资源。
    * @param data UserFavoriteResourceAddDto
    */
-  add(data: UserFavoriteResourceAddDto): Observable<UserFavoriteResourceCreatedDto> {
+  add(
+    data: UserFavoriteResourceAddDto,
+  ): Observable<UserFavoriteResourceCreatedDto> {
     const _url = `/api/UserFavoriteResource`;
     return this.request<UserFavoriteResourceCreatedDto>('post', _url, data);
   }

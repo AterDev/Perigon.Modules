@@ -1,6 +1,15 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
-import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
+import {
+  FormControl,
+  FormGroup,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
+import {
+  MAT_DIALOG_DATA,
+  MatDialogModule,
+  MatDialogRef,
+} from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -11,7 +20,8 @@ import { I18N_KEYS } from 'src/app/modules/share/i18n-keys';
 import { ResourceColorPickerComponent } from 'src/app/modules/resource/shared/color-picker/color-picker';
 import { ResourceIconPickerComponent } from 'src/app/modules/resource/shared/icon-picker/icon-picker';
 
-export type ResourceInputDialogFieldType = 'text' | 'textarea' | 'color' | 'icon' | 'select';
+export type ResourceInputDialogFieldType =
+  'text' | 'textarea' | 'color' | 'icon' | 'select';
 
 export interface ResourceInputDialogOption {
   value: string;
@@ -54,7 +64,9 @@ export interface ResourceInputDialogData {
 export class ResourceInputDialogComponent {
   readonly i18nKeys = I18N_KEYS;
   readonly data = inject<ResourceInputDialogData>(MAT_DIALOG_DATA);
-  private readonly dialogRef = inject(MatDialogRef<ResourceInputDialogComponent>);
+  private readonly dialogRef = inject(
+    MatDialogRef<ResourceInputDialogComponent>,
+  );
   readonly form = new FormGroup<Record<string, FormControl<string>>>({});
 
   constructor() {

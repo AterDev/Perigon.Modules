@@ -1,0 +1,160 @@
+<div class="tab-toolbar">
+  <button
+    mat-flat-button
+    color="primary"
+    type="button"
+    (click)="startAdd()"
+    [disabled]="saving()"
+  >
+    <mat-icon>add</mat-icon>{{ notificationKeys.addReceiver | translate }}
+  </button>
+</div>
+
+@if (editor()) {
+<form class="editor" [formGroup]="form" (ngSubmit)="save()">
+  <h3>
+    {{ (editingId() ? notificationKeys.editReceiver :
+    notificationKeys.addReceiver) | translate }}
+  </h3>
+  <div class="form-row">
+    <mat-form-field appearance="outline" subscriptSizing="dynamic">
+      <mat-label>{{ notificationKeys.receiverName | translate }}</mat-label>
+      <input matInput formControlName="receiverName" />
+    </mat-form-field>
+    <mat-form-field appearance="outline" subscriptSizing="dynamic">
+      <mat-label>{{ notificationKeys.httpMethod | translate }}</mat-label>
+      <mat-select formControlName="httpMethod">
+        <mat-option value="POST">POST</mat-option>
+        <mat-option value="PUT">PUT</mat-option>
+      </mat-select>
+    </mat-form-field>
+  </div>
+  <mat-form-field appearance="outline" subscriptSizing="dynamic">
+    <mat-label>{{ notificationKeys.endpoint | translate }}</mat-label>
+    <input matInput formControlName="endpoint" />
+  </mat-form-field>
+  <div class="form-row">
+    <mat-form-field appearance="outline" subscriptSizing="dynamic">
+      <mat-label>{{ notificationKeys.authType | translate }}</mat-label>
+      <mat-select formControlName="authType">
+        <mat-option value="none"
+          >{{ notificationKeys.authNone | translate }}</mat-option
+        >
+        <mat-option value="query"
+          >{{ notificationKeys.authQuery | translate }}</mat-option
+        >
+        <mat-option value="header"
+          >{{ notificationKeys.authHeader | translate }}</mat-option
+        >
+      </mat-select>
+    </mat-form-field>
+    <mat-form-field appearance="outline" subscriptSizing="dynamic">
+      <mat-label>{{ notificationKeys.authName | translate }}</mat-label>
+      <input matInput formControlName="authName" />
+    </mat-form-field>
+    <mat-form-field appearance="outline" subscriptSizing="dynamic">
+      <mat-label>{{ notificationKeys.authScheme | translate }}</mat-label>
+      <input matInput formControlName="authScheme" />
+    </mat-form-field>
+  </div>
+  <mat-form-field appearance="outline" subscriptSizing="dynamic">
+    <mat-label>{{ notificationKeys.bodyTemplate | translate }}</mat-label>
+    <textarea matInput rows="4" formControlName="bodyTemplate"></textarea>
+  </mat-form-field>
+  <div class="form-row">
+    <mat-form-field appearance="outline" subscriptSizing="dynamic">
+      <mat-label>{{ notificationKeys.timeout | translate }}</mat-label>
+      <input matInput type="number" formControlName="timeoutSeconds" />
+    </mat-form-field>
+    <mat-form-field appearance="outline" subscriptSizing="dynamic">
+      <mat-label>{{ notificationKeys.rateLimit | translate }}</mat-label>
+      <input matInput type="number" formControlName="rateLimitPerMinute" />
+    </mat-form-field>
+  </div>
+  <div class="form-row">
+    <mat-form-field appearance="outline" subscriptSizing="dynamic">
+      <mat-label>{{ notificationKeys.successField | translate }}</mat-label>
+      <input matInput formControlName="successField" />
+    </mat-form-field>
+    <mat-form-field appearance="outline" subscriptSizing="dynamic">
+      <mat-label>{{ notificationKeys.successValue | translate }}</mat-label>
+      <input matInput formControlName="successValue" />
+    </mat-form-field>
+  </div>
+  <mat-form-field appearance="outline" subscriptSizing="dynamic">
+    <mat-label>{{ notificationKeys.secret | translate }}</mat-label>
+    <input
+      matInput
+      type="password"
+      autocomplete="new-password"
+      formControlName="secret"
+    />
+    @if (hasSavedSecret()) {
+    <mat-hint>{{ notificationKeys.secretHint | translate }}</mat-hint>
+    }
+  </mat-form-field>
+  <mat-checkbox formControlName="enabled">
+    {{ notificationKeys.enabled | translate }}
+  </mat-checkbox>
+  <div class="editor-actions">
+    <button
+      mat-button
+      type="button"
+      (click)="cancelEdit()"
+      [disabled]="saving()"
+    >
+      {{ i18nKeys.common.cancel | translate }}
+    </button>
+    <button mat-flat-button color="primary" type="submit" [disabled]="saving()">
+      {{ i18nKeys.common.save | translate }}
+    </button>
+  </div>
+</form>
+}
+
+<app-notification-list
+  [list]="list"
+  [label]="notificationKeys.receivers | translate"
+>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>{{ notificationKeys.receiverName | translate }}</th>
+          <th>{{ notificationKeys.endpoint | translate }}</th>
+          <th>{{ notificationKeys.httpMethod | translate }}</th>
+          <th>{{ i18nKeys.common.actions | translate }}</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (item of list.rows(); track item.id) {
+        <tr>
+          <td>{{ item.name }}</td>
+          <td class="truncate">{{ item.endpoint }}</td>
+          <td>{{ item.httpMethod }}</td>
+          <td>
+            <button
+              mat-icon-button
+              type="button"
+              (click)="editReceiver(item)"
+              [disabled]="saving()"
+              [attr.aria-label]="i18nKeys.common.edit | translate"
+            >
+              <mat-icon>edit</mat-icon>
+            </button>
+            <button
+              mat-icon-button
+              type="button"
+              (click)="remove(item)"
+              [disabled]="saving()"
+              [attr.aria-label]="i18nKeys.common.delete | translate"
+            >
+              <mat-icon class="error">delete</mat-icon>
+            </button>
+          </td>
+        </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</app-notification-list>

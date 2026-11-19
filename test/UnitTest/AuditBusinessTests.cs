@@ -10,14 +10,24 @@ public sealed class AuditBusinessTests
     [Test]
     public async Task AuditEntities_ShouldRoundTripWorkflowStatusThroughPersistenceValues()
     {
-        AuditRecord record = new() { Status = AuditRecordStatus.InProgress };
-        AuditRecordDetail detail = new() { AuditModeSnapshot = AuditMode.All, Status = AuditStepStatus.Pending };
-        AuditTask task = new() { Status = AuditTaskStatus.Approved };
+        AuditRecord record = new()
+        {
+            Status = AuditRecordStatus.InProgress
+        };
+        AuditRecordDetail detail = new()
+        {
+            AuditModeSnapshot = AuditMode.All,
+            Status = AuditStepStatus.Pending
+        };
+        AuditTask task = new()
+        {
+            Status = AuditTaskStatus.Approved
+        };
 
-        await Assert.That(record.StatusValue).IsEqualTo((int)AuditRecordStatus.InProgress);
-        await Assert.That(detail.AuditModeSnapshotValue).IsEqualTo((int)AuditMode.All);
-        await Assert.That(detail.StatusValue).IsEqualTo((int)AuditStepStatus.Pending);
-        await Assert.That(task.StatusValue).IsEqualTo((int)AuditTaskStatus.Approved);
+        await Assert.That(record.Status).IsEqualTo(AuditRecordStatus.InProgress);
+        await Assert.That(detail.AuditModeSnapshot).IsEqualTo(AuditMode.All);
+        await Assert.That(detail.Status).IsEqualTo(AuditStepStatus.Pending);
+        await Assert.That(task.Status).IsEqualTo(AuditTaskStatus.Approved);
 
         record.Status = AuditRecordStatus.Approved;
         detail.Status = AuditStepStatus.Approved;

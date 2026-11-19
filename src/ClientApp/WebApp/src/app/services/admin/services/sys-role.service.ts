@@ -22,7 +22,13 @@ export class SysRoleService extends BaseService {
    * @param pageSize number
    * @param orderBy Record<string, boolean>
    */
-  list(name: string | null, nameValue: string | null, pageIndex: number | null, pageSize: number | null, orderBy: Record<string, boolean> | null): Observable<PageList<SysRoleItemDto>> {
+  list(
+    name: string | null,
+    nameValue: string | null,
+    pageIndex: number | null,
+    pageSize: number | null,
+    orderBy: Record<string, boolean> | null,
+  ): Observable<PageList<SysRoleItemDto>> {
     const _url = `/api/SysRole?name=${name ?? ''}&nameValue=${nameValue ?? ''}&pageIndex=${pageIndex ?? ''}&pageSize=${pageSize ?? ''}&orderBy=${orderBy ?? ''}`;
     return this.request<PageList<SysRoleItemDto>>('get', _url);
   }

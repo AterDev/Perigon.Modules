@@ -105,7 +105,7 @@ public class ResourceConfigurationManager(
         ResDefinitionProperty entity = new()
         {
             Name = name,
-            ValueTypeValue = (int)input.ValueType,
+            ValueType = input.ValueType,
             IsRequired = input.IsRequired,
             MaxLength = input.MaxLength,
         };
@@ -126,10 +126,10 @@ public class ResourceConfigurationManager(
             id,
             "资源属性不存在");
         string name = input.Name.Trim();
-        int valueType = (int)input.ValueType;
+        ResValueType valueType = input.ValueType;
         await EnsurePropertyNameAvailableAsync(name, id);
         await _dbContext.ResDefinitionProperties.Where(item => item.Id == id).ExecuteUpdateAsync(s => s
-            .Set(item => item.Name, name).Set(item => item.ValueTypeValue, valueType)
+            .Set(item => item.Name, name).Set(item => item.ValueType, valueType)
             .Set(item => item.IsRequired, input.IsRequired).Set(item => item.MaxLength, input.MaxLength));
         entity.Name = name;
         entity.ValueType = input.ValueType;
@@ -581,7 +581,7 @@ public class ResourceConfigurationManager(
                     property.MaxLength = input.MaxLength;
                     await _dbContext.ResDefinitionProperties.Where(item => item.Id == property.Id)
                         .ExecuteUpdateAsync(s => s.Set(item => item.Name, property.Name)
-                    .Set(item => item.ValueTypeValue, property.ValueTypeValue)
+            .Set(item => item.ValueType, property.ValueType)
                             .Set(item => item.IsRequired, property.IsRequired)
                             .Set(item => item.MaxLength, property.MaxLength));
                 }
@@ -602,7 +602,7 @@ public class ResourceConfigurationManager(
                 property = new ResDefinitionProperty
                 {
                     Name = input.Name.Trim(),
-                    ValueTypeValue = (int)input.ValueType,
+                    ValueType = input.ValueType,
                     IsRequired = input.IsRequired,
                     MaxLength = input.MaxLength,
                 };
@@ -627,9 +627,9 @@ public class ResourceConfigurationManager(
     private async Task EnsurePropertyNameAvailableAsync(string name, Guid? exceptId)
     {
         string normalizedName = NormalizeName(name);
-        bool exists = exceptId.HasValue
+        bool exists = exceptId is Guid excludedId
             ? await _dbContext.ResDefinitionProperties.AnyAsync(property =>
-                property.Id != exceptId.Value && property.Name == normalizedName)
+                property.Id != excludedId && property.Name == normalizedName)
             : await _dbContext.ResDefinitionProperties.AnyAsync(property =>
                 property.Name == normalizedName);
         if (exists)

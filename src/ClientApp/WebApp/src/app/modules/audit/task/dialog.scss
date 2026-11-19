@@ -1,0 +1,25 @@
+.summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  margin-bottom: 16px;
+}
+.summary div {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.summary span {
+  color: var(--mat-sys-outline);
+  font-size: 0.85rem;
+}
+.reason {
+  white-space: pre-wrap;
+}
+.comment {
+  width: 100%;
+  margin-top: 12px;
+}
+mat-dialog-content {
+  min-width: min(720px, 80vw);
+}

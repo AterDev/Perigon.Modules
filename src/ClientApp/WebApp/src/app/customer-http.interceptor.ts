@@ -1,5 +1,12 @@
 import { Injectable } from '@angular/core';
-import { HttpRequest, HttpHandler, HttpEvent, HttpInterceptor, HttpErrorResponse, HttpResponse } from '@angular/common/http';
+import {
+  HttpRequest,
+  HttpHandler,
+  HttpEvent,
+  HttpInterceptor,
+  HttpErrorResponse,
+  HttpResponse,
+} from '@angular/common/http';
 
 import { catchError } from 'rxjs/operators';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -12,17 +19,17 @@ export class CustomerHttpInterceptor implements HttpInterceptor {
   constructor(
     private snb: MatSnackBar,
     private router: Router,
-    private auth: AuthService
-  ) {
-
-  }
-  intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
-    return next.handle(request)
-      .pipe(
-        catchError((error: HttpErrorResponse) => {
-          return this.handleError(error);
-        })
-      );
+    private auth: AuthService,
+  ) {}
+  intercept(
+    request: HttpRequest<any>,
+    next: HttpHandler,
+  ): Observable<HttpEvent<any>> {
+    return next.handle(request).pipe(
+      catchError((error: HttpErrorResponse) => {
+        return this.handleError(error);
+      }),
+    );
   }
   handleError(error: HttpErrorResponse) {
     if (error.error instanceof Blob) {
@@ -38,10 +45,10 @@ export class CustomerHttpInterceptor implements HttpInterceptor {
             error: errorBody,
             headers: error.headers,
             status: error.status,
-            url: error.url || undefined
+            url: error.url || undefined,
           });
           return this.showError(newError);
-        })
+        }),
       );
     }
     return this.showError(error);
@@ -68,7 +75,6 @@ export class CustomerHttpInterceptor implements HttpInterceptor {
         errors.detail = error.error.detail;
         break;
       default:
-
         if (!error.error) {
           if (error.message) {
             errors.detail = error.message;

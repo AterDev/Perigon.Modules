@@ -4,11 +4,23 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-family: "Segoe UI", "Roboto", "Arial", sans-serif;
+  font-family: 'Segoe UI', 'Roboto', 'Arial', sans-serif;
   background:
-    radial-gradient(ellipse at 50% 115%, rgba(24, 93, 150, 0.22), transparent 48%),
-    radial-gradient(ellipse at 80% 5%, rgba(37, 83, 135, 0.16), transparent 38%),
-    radial-gradient(ellipse at 15% 80%, rgba(29, 53, 93, 0.18), transparent 42%),
+    radial-gradient(
+      ellipse at 50% 115%,
+      rgba(24, 93, 150, 0.22),
+      transparent 48%
+    ),
+    radial-gradient(
+      ellipse at 80% 5%,
+      rgba(37, 83, 135, 0.16),
+      transparent 38%
+    ),
+    radial-gradient(
+      ellipse at 15% 80%,
+      rgba(29, 53, 93, 0.18),
+      transparent 42%
+    ),
     linear-gradient(160deg, #020409 0%, #070b12 48%, #010205 100%);
   position: relative;
   overflow: hidden;
@@ -26,7 +38,7 @@
 /* Deep-space atmosphere: low-contrast nebula and sparse fixed stars. */
 .login-container::before,
 .login-container::after {
-  content: "";
+  content: '';
   position: absolute;
   inset: 0;
   pointer-events: none;
@@ -34,9 +46,22 @@
 
 .login-container::before {
   background:
-    radial-gradient(ellipse at 40% 52%, rgba(89, 164, 226, 0.11), transparent 28%),
-    radial-gradient(ellipse at 67% 49%, rgba(56, 111, 180, 0.08), transparent 36%),
-    linear-gradient(112deg, transparent 34%, rgba(115, 192, 255, 0.055) 49%, transparent 64%);
+    radial-gradient(
+      ellipse at 40% 52%,
+      rgba(89, 164, 226, 0.11),
+      transparent 28%
+    ),
+    radial-gradient(
+      ellipse at 67% 49%,
+      rgba(56, 111, 180, 0.08),
+      transparent 36%
+    ),
+    linear-gradient(
+      112deg,
+      transparent 34%,
+      rgba(115, 192, 255, 0.055) 49%,
+      transparent 64%
+    );
   opacity: 0.9;
   z-index: 0;
   transform: translateZ(0);
@@ -64,8 +89,12 @@
 }
 
 @keyframes nebulaDrift {
-  from { transform: scale(1) translate3d(-1%, 0, 0); }
-  to { transform: scale(1.08) translate3d(1%, -1%, 0); }
+  from {
+    transform: scale(1) translate3d(-1%, 0, 0);
+  }
+  to {
+    transform: scale(1.08) translate3d(1%, -1%, 0);
+  }
 }
 
 @keyframes starTwinkle {

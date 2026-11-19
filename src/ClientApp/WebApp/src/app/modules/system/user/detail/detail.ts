@@ -1,4 +1,9 @@
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  inject,
+  signal,
+} from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { I18N_KEYS } from 'src/app/modules/share/i18n-keys';
 import { CommonListModules } from 'src/app/modules/share/shared-modules';
@@ -27,7 +32,9 @@ export class SysUserDetailComponent {
   }
 
   load(): void {
-    this.client.sysUser.getDetail(this.id).subscribe((value) => this.user.set(value));
+    this.client.sysUser
+      .getDetail(this.id)
+      .subscribe((value) => this.user.set(value));
   }
 
   edit(): void {

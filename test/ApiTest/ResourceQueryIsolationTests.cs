@@ -1,5 +1,6 @@
 using Entity.ResourceMod;
 using EntityFramework.AppDbContext;
+using EntityFramework.AppDbFactory;
 using Perigon.AspNetCore.Constants;
 using Perigon.PostgreSQL;
 using ResourceEntity = Entity.ResourceMod.Resource;
@@ -22,7 +23,7 @@ public sealed class ResourceQueryIsolationTests
         Guid environmentId = Guid.CreateVersion7();
         Guid categoryId = Guid.CreateVersion7();
 
-        await using (var context = new DefaultDbContext(ConnectionString))
+        await using (var context = AppDbFactory.CreateDbContext(ConnectionString))
         {
             await context.ResEnvironments.InsertAsync(new ResEnvironment
             {
@@ -58,7 +59,7 @@ public sealed class ResourceQueryIsolationTests
 
         try
         {
-            await using var context = new DefaultDbContext(ConnectionString);
+            await using var context = AppDbFactory.CreateDbContext(ConnectionString);
             IQueryable<ResourceEntity> search = context.Resources.Where(resource =>
                 context.ResDefinitions.Any(definition =>
                     definition.Id == resource.DefinitionId && definition.Name.Contains(marker))
@@ -82,7 +83,7 @@ public sealed class ResourceQueryIsolationTests
         }
         finally
         {
-            await using var cleanup = new DefaultDbContext(ConnectionString);
+            await using var cleanup = AppDbFactory.CreateDbContext(ConnectionString);
             await cleanup.UserFavoriteResources.Where(favorite => resourceIds.Contains(favorite.ResourceId)).ExecuteDeleteAsync();
             await cleanup.Resources.Where(resource => resourceIds.Contains(resource.Id)).ExecuteDeleteAsync();
             await cleanup.ResDefinitions.Where(definition => definition.Id == definitionId).ExecuteDeleteAsync();

@@ -29,16 +29,8 @@ public class SysDataScope : EntityBase
     /// <summary>
     /// 权限类型
     /// </summary>
-    [NotMapped]
-    public DataScopeType ScopeType
-    {
-        get => (DataScopeType)ScopeTypeValue;
-        set => ScopeTypeValue = (int)value;
-    }
-
     [Column("ScopeType")]
-    [JsonIgnore]
-    public int ScopeTypeValue { get; set; }
+    public DataScopeType ScopeType { get; set; }
 
     /// <summary>
     /// 权限组

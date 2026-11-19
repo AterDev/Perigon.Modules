@@ -18,7 +18,9 @@ export class ArticleCategoryEditComponent {
   readonly i18nKeys = I18N_KEYS;
   private readonly fb = inject(FormBuilder);
   private readonly client = inject(AdminClient);
-  private readonly dialogRef = inject(MatDialogRef<ArticleCategoryEditComponent>);
+  private readonly dialogRef = inject(
+    MatDialogRef<ArticleCategoryEditComponent>,
+  );
   private readonly data = inject<{ id: string }>(MAT_DIALOG_DATA);
   private readonly snackBar = inject(MatSnackBar);
   private readonly translate = inject(TranslateService);

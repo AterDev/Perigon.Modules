@@ -1,21 +1,31 @@
 @use 'sass:map';
 @use '@angular/material' as mat;
 
+$dark-theme: mat.define-theme(
+  (
+    color: (
+      theme-type: dark,
+      primary: mat.$violet-palette,
+      tertiary: mat.$orange-palette,
+    ),
+    typography: (
+      use-system-variables: false,
+    ),
+  )
+);
 
-
-$dark-theme: mat.define-theme((color: (theme-type: dark,
-        primary: mat.$violet-palette,
-        tertiary: mat.$orange-palette,
-      ),
-      typography: (use-system-variables: false),
-    ));
-
-$light-theme: mat.define-theme((color: (theme-type: light,
-        primary: mat.$violet-palette,
-        tertiary: mat.$orange-palette,
-      ),
-      typography: (use-system-variables: false),
-    ));
+$light-theme: mat.define-theme(
+  (
+    color: (
+      theme-type: light,
+      primary: mat.$violet-palette,
+      tertiary: mat.$orange-palette,
+    ),
+    typography: (
+      use-system-variables: false,
+    ),
+  )
+);
 
 $dark-primary-color: mat.get-theme-color($dark-theme, primary, 60);
 $light-primary-color: mat.get-theme-color($light-theme, primary, 40);
@@ -45,40 +55,64 @@ $light-color: #f5f5f5;
 $dark-color: #212121;
 
 :root .primary {
-  @include mat.icon-overrides((color: $dark-primary-color,
-    ));
+  @include mat.icon-overrides(
+    (
+      color: $dark-primary-color,
+    )
+  );
 
   @media (prefers-color-scheme: light) {
-    @include mat.icon-overrides((color: $light-primary-color,
-      ));
+    @include mat.icon-overrides(
+      (
+        color: $light-primary-color,
+      )
+    );
   }
 }
 
 :root .accent {
-  @include mat.icon-overrides((color: $dark-accent-color,
-    ));
+  @include mat.icon-overrides(
+    (
+      color: $dark-accent-color,
+    )
+  );
 
   @media (prefers-color-scheme: light) {
-    @include mat.icon-overrides((color: $light-accent-color,
-      ));
+    @include mat.icon-overrides(
+      (
+        color: $light-accent-color,
+      )
+    );
   }
 }
 
 :root .error {
-  @include mat.icon-overrides((color: $dark-error-color,
-    ));
+  @include mat.icon-overrides(
+    (
+      color: $dark-error-color,
+    )
+  );
 
   @media (prefers-color-scheme: light) {
-    @include mat.icon-overrides((color: $light-error-color,
-      ));
+    @include mat.icon-overrides(
+      (
+        color: $light-error-color,
+      )
+    );
   }
 }
 :root .secondary {
-  @include mat.icon-overrides((color: $dark-secondary-color,
-    ));
+  @include mat.icon-overrides(
+    (
+      color: $dark-secondary-color,
+    )
+  );
 
   @media (prefers-color-scheme: light) {
-    @include mat.icon-overrides((color: $light-secondary-color,
-      ));
+    @include mat.icon-overrides(
+      (
+        color: $light-secondary-color,
+      )
+    );
   }
 }

@@ -31,7 +31,10 @@ import { ResourceGroupDialogComponent } from 'src/app/modules/resource/dialogs/g
 import { ResourceTagDialogComponent } from 'src/app/modules/resource/dialogs/tag-dialog/tag-dialog';
 import { ResGroupAddDto } from 'src/app/services/admin/models/resource-mod/res-group-add-dto.model';
 import { ResTagAddDto } from 'src/app/services/admin/models/resource-mod/res-tag-add-dto.model';
-import { resourceIconName, resourceIconStyle } from 'src/app/modules/resource/shared/resource-appearance';
+import {
+  resourceIconName,
+  resourceIconStyle,
+} from 'src/app/modules/resource/shared/resource-appearance';
 import { resourceValueValidator } from 'src/app/modules/resource/shared/resource-value-validation';
 
 @Component({
@@ -52,8 +55,12 @@ export class ResourceEditComponent {
   private readonly snackBar = inject(MatSnackBar);
   private readonly translate = inject(TranslateService);
   private readonly dialog = inject(MatDialog);
-  private readonly dialogRef = inject(MatDialogRef<ResourceEditComponent>, { optional: true });
-  private readonly data = inject<{ id: string }>(MAT_DIALOG_DATA, { optional: true });
+  private readonly dialogRef = inject(MatDialogRef<ResourceEditComponent>, {
+    optional: true,
+  });
+  private readonly data = inject<{ id: string }>(MAT_DIALOG_DATA, {
+    optional: true,
+  });
   readonly id = this.data?.id ?? this.route?.snapshot.paramMap.get('id') ?? '';
   readonly environments = signal<ResEnvironment[]>([]);
   readonly categories = signal<ResCategory[]>([]);
@@ -151,15 +158,13 @@ export class ResourceEditComponent {
       .afterClosed()
       .subscribe((value: ResTagAddDto | undefined) => {
         if (!value) return;
-        this.client.resourceConfiguration
-          .addTag(value)
-          .subscribe((tag) => {
-            this.tags.update((items) => [...items, tag]);
-            this.form.controls.tagNames.setValue([
-              ...this.form.controls.tagNames.value,
-              tag.name,
-            ]);
-          });
+        this.client.resourceConfiguration.addTag(value).subscribe((tag) => {
+          this.tags.update((items) => [...items, tag]);
+          this.form.controls.tagNames.setValue([
+            ...this.form.controls.tagNames.value,
+            tag.name,
+          ]);
+        });
       });
   }
   createGroup(): void {
@@ -174,12 +179,10 @@ export class ResourceEditComponent {
       .afterClosed()
       .subscribe((value: ResGroupAddDto | undefined) => {
         if (!value) return;
-        this.client.resourceConfiguration
-          .addGroup(value)
-          .subscribe((group) => {
-            this.groups.update((items) => [...items, group]);
-            this.form.controls.groupId.setValue(group.id);
-          });
+        this.client.resourceConfiguration.addGroup(value).subscribe((group) => {
+          this.groups.update((items) => [...items, group]);
+          this.form.controls.groupId.setValue(group.id);
+        });
       });
   }
   save(): void {
@@ -196,7 +199,10 @@ export class ResourceEditComponent {
         groupId: base.groupId || null,
         values: Object.entries(this.values.getRawValue())
           .filter(([, value]) => value.length > 0)
-          .map(([definitionPropertyId, value]) => ({ definitionPropertyId, value })),
+          .map(([definitionPropertyId, value]) => ({
+            definitionPropertyId,
+            value,
+          })),
       })
       .subscribe({
         next: () => {
