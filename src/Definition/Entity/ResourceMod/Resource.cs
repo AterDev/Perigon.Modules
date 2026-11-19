@@ -17,21 +17,16 @@ public class Resource : EntityBase
     public string[] TagNames { get; set; } = [];
     /// <summary>资源所属环境。</summary>
     [ForeignKey(nameof(EnvironmentId))]
-    [NotMapped]
     public ResEnvironment Environment { get; set; } = null!;
     /// <summary>资源所属分类。</summary>
     [ForeignKey(nameof(CategoryId))]
-    [NotMapped]
     public ResCategory Category { get; set; } = null!;
     /// <summary>资源所属分组。</summary>
     [ForeignKey(nameof(GroupId))]
-    [NotMapped]
     public ResGroup? Group { get; set; }
     /// <summary>资源使用的定义。</summary>
     [ForeignKey(nameof(DefinitionId))]
-    [NotMapped]
     public ResDefinition Definition { get; set; } = null!;
     /// <summary>资源属性值。</summary>
-    [NotMapped]
     public ICollection<ResValue> Values { get; set; } = [];
 }

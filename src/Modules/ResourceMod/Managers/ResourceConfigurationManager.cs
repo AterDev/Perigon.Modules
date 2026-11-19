@@ -52,7 +52,7 @@ public class ResourceConfigurationManager(
             .ToListAsync();
     }
 
-    public async Task<List<ResDefinition>> DefinitionsAsync(string? name = null)
+    public async Task<List<ResDefinitionItemDto>> DefinitionsAsync(string? name = null)
     {
         IQueryable<ResDefinition> query = _dbContext.ResDefinitions;
         if (!string.IsNullOrWhiteSpace(name))
@@ -76,13 +76,12 @@ public class ResourceConfigurationManager(
                     map.Property = property;
                 }
             }
-            PopulateProperties(definition);
         }
 
-        return definitions;
+        return definitions.Select(ToDefinitionItemDto).ToList();
     }
 
-    public async Task<List<ResDefinitionProperty>> PropertiesAsync(string? name = null)
+    public async Task<List<ResDefinitionPropertyItemDto>> PropertiesAsync(string? name = null)
     {
         IQueryable<ResDefinitionProperty> query = _dbContext.ResDefinitionProperties
             .OrderBy(p => p.Name);
@@ -92,10 +91,11 @@ public class ResourceConfigurationManager(
             query = query.Where(p => p.Name.Contains(searchName));
         }
 
-        return await query.ToListAsync();
+        List<ResDefinitionProperty> properties = await query.ToListAsync();
+        return properties.Select(property => ResDefinitionPropertyItemDto.FromEntity(property)).ToList();
     }
 
-    public async Task<ResDefinitionProperty> AddPropertyAsync(ResDefinitionPropertyAddDto input)
+    public async Task<ResDefinitionPropertyItemDto> AddPropertyAsync(ResDefinitionPropertyAddDto input)
     {
         EnsureAdmin();
         ValidateProperty(input.Name, input.MaxLength);
@@ -111,10 +111,10 @@ public class ResourceConfigurationManager(
         };
 
         await _dbContext.ResDefinitionProperties.InsertAsync(entity);
-        return entity;
+        return ResDefinitionPropertyItemDto.FromEntity(entity);
     }
 
-    public async Task<ResDefinitionProperty> UpdatePropertyAsync(
+    public async Task<ResDefinitionPropertyItemDto> UpdatePropertyAsync(
         Guid id,
         ResDefinitionPropertyUpdateDto input)
     {
@@ -135,7 +135,7 @@ public class ResourceConfigurationManager(
         entity.ValueType = input.ValueType;
         entity.IsRequired = input.IsRequired;
         entity.MaxLength = input.MaxLength;
-        return entity;
+        return ResDefinitionPropertyItemDto.FromEntity(entity);
     }
 
     public async Task DeletePropertyAsync(Guid id)
@@ -365,10 +365,10 @@ public class ResourceConfigurationManager(
         await _dbContext.ResTags.Where(item => item.Id == id).ExecuteDeleteAsync();
     }
 
-    public Task<ResDefinition> AddDefinitionAsync(ResDefinitionAddDto input)
+    public Task<ResDefinitionItemDto> AddDefinitionAsync(ResDefinitionAddDto input)
         => _dbContext.TransactionAsync(_ => AddDefinitionCoreAsync(input));
 
-    private async Task<ResDefinition> AddDefinitionCoreAsync(ResDefinitionAddDto input)
+    private async Task<ResDefinitionItemDto> AddDefinitionCoreAsync(ResDefinitionAddDto input)
     {
         EnsureAdmin();
         ValidateResourceName(input.Name);
@@ -397,13 +397,13 @@ public class ResourceConfigurationManager(
             await _dbContext.ResDefinitionPropertyMaps.BulkInsertAsync(entity.PropertyMaps);
         }
 
-        return await GetDefinitionAsync(entity.Id);
+        return ToDefinitionItemDto(await GetDefinitionAsync(entity.Id));
     }
 
-    public Task<ResDefinition> UpdateDefinitionAsync(Guid id, ResDefinitionUpdateDto input)
+    public Task<ResDefinitionItemDto> UpdateDefinitionAsync(Guid id, ResDefinitionUpdateDto input)
         => _dbContext.TransactionAsync(_ => UpdateDefinitionCoreAsync(id, input));
 
-    private async Task<ResDefinition> UpdateDefinitionCoreAsync(Guid id, ResDefinitionUpdateDto input)
+    private async Task<ResDefinitionItemDto> UpdateDefinitionCoreAsync(Guid id, ResDefinitionUpdateDto input)
     {
         EnsureAdmin();
         ValidateResourceName(input.Name);
@@ -472,7 +472,7 @@ public class ResourceConfigurationManager(
         await _dbContext.ResDefinitions.Where(item => item.Id == id).ExecuteUpdateAsync(s => s
             .Set(item => item.Name, name).Set(item => item.Icon, input.Icon));
 
-        return await GetDefinitionAsync(entity.Id);
+        return ToDefinitionItemDto(await GetDefinitionAsync(entity.Id));
     }
 
     public async Task DeleteDefinitionAsync(Guid id)
@@ -509,7 +509,6 @@ public class ResourceConfigurationManager(
                 map.Property = property;
             }
         }
-        PopulateProperties(entity);
         return entity;
     }
 
@@ -638,16 +637,14 @@ public class ResourceConfigurationManager(
         }
     }
 
-    private static void PopulateProperties(ResDefinition definition)
+    private static ResDefinitionItemDto ToDefinitionItemDto(ResDefinition definition)
     {
-        definition.Properties = definition.PropertyMaps
+        List<ResDefinitionPropertyItemDto> properties = definition.PropertyMaps
             .OrderBy(map => map.Sort)
-            .Select(map =>
-            {
-                map.Property.Sort = map.Sort;
-                return map.Property;
-            })
+            .Where(map => map.Property is not null)
+            .Select(map => ResDefinitionPropertyItemDto.FromEntity(map.Property, map.Sort))
             .ToList();
+        return ResDefinitionItemDto.FromEntity(definition, properties);
     }
 
     private static bool HasPropertyChanges(ResDefinitionProperty property, ResDefinitionPropertyDto input)

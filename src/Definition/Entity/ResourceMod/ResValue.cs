@@ -14,14 +14,11 @@ public class ResValue : EntityBase
     [StringLength(60)]
     public string PropertyNameSnapshot { get; set; } = string.Empty;
     /// <summary>保存时的属性值类型快照。</summary>
-    [Column("ValueTypeSnapshot")]
     public ResValueType ValueTypeSnapshot { get; set; }
     /// <summary>所属资源。</summary>
     [ForeignKey(nameof(ResourceId))]
-    [NotMapped]
     public Resource Resource { get; set; } = null!;
     /// <summary>所属资源定义属性。</summary>
     [ForeignKey(nameof(DefinitionPropertyId))]
-    [NotMapped]
     public ResDefinitionProperty DefinitionProperty { get; set; } = null!;
 }

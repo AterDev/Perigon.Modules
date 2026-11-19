@@ -19,6 +19,5 @@ public class UserFavoriteResource : EntityBase
     /// 被收藏资源及其属性值。
     /// </summary>
     [ForeignKey(nameof(ResourceId))]
-    [NotMapped]
     public Resource Resource { get; set; } = null!;
 }

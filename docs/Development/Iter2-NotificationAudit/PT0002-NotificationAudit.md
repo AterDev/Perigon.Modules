@@ -192,3 +192,8 @@
 - 本地安装 Perigon.PostgreSQL 0.3.6 与迁移工具 0.3.7。Modules 直接使用枚举属性，保留原有数据库列名和 API 枚举数值。
 - 迁移 20261119083747390_StoreEnumsAsSmallint 原地转换 16 列。隔离 PostgreSQL 以旧迁移建库，验证 19 条样本记录的旧枚举值在升级、回滚和再次升级后均保留。越界值触发整条迁移回滚。
 - Windows x64 Native AOT 发布后，从旧 schema 启动并自动迁移。健康检查、OpenAPI、CMS 和 Audit 的枚举筛选、Resource 和 System 的枚举读取、Resource 枚举新增和更新均通过。保留 HybridCache 剪裁警告。Modules 单元测试通过 24 项，Redis 测试按配置跳过 2 项。
+
+### 2026-11-19 ResourceMod 导航与属性排序
+
+- Perigon.PostgreSQL 0.3.7 识别引用和集合导航。ResourceMod 清理导航上的 NotMapped 和重复列名声明，保持列、索引和外键。离线模型快照相同。
+- 资源属性的 Sort 由 ResDefinitionPropertyMap 投影至响应 DTO。Windows x64 Native AOT 实库验证三个资源定义的 17 个属性排序值、JSON 和 OpenAPI，ApiTest 项目构建通过。

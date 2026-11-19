@@ -63,7 +63,7 @@ public class ResourceModApiTests
         await Assert.That(categories.Single(item => item.CatalogCode == "Default").Icon)
             .IsEqualTo("category");
 
-        List<ResDefinitionProperty> properties = await GetAsync<List<ResDefinitionProperty>>(
+        List<ResDefinitionPropertyItemDto> properties = await GetAsync<List<ResDefinitionPropertyItemDto>>(
             client,
             "/api/ResourceConfiguration/properties",
             HttpStatusCode.OK);
@@ -85,12 +85,12 @@ public class ResourceModApiTests
         };
         foreach ((string name, ResValueType valueType) in expectedProperties)
         {
-            ResDefinitionProperty property = properties.Single(item => item.Name == name);
+            ResDefinitionPropertyItemDto property = properties.Single(item => item.Name == name);
             await Assert.That(property.ValueType).IsEqualTo(valueType);
             await Assert.That(property.IsRequired).IsEqualTo(name == "名称");
         }
 
-        List<ResDefinition> definitions = await GetAsync<List<ResDefinition>>(
+        List<ResDefinitionItemDto> definitions = await GetAsync<List<ResDefinitionItemDto>>(
             client,
             "/api/ResourceConfiguration/definitions",
             HttpStatusCode.OK);
@@ -101,7 +101,7 @@ public class ResourceModApiTests
             ("数据库", "database", new[] { "名称", "IP", "Url", "Port", "用户名", "密码" })
         })
         {
-            ResDefinition definition = definitions.Single(item => item.Name == name);
+            ResDefinitionItemDto definition = definitions.Single(item => item.Name == name);
             await Assert.That(definition.Icon).IsEqualTo(icon);
             await Assert.That(definition.Properties.OrderBy(item => item.Sort).Select(item => item.Name))
                 .IsEquivalentTo(propertyNames);
@@ -114,7 +114,7 @@ public class ResourceModApiTests
     {
         HttpClient client = data.HttpClient;
         string suffix = Guid.NewGuid().ToString("N");
-        ResDefinitionProperty property = await PostAsync<ResDefinitionProperty>(
+        ResDefinitionPropertyItemDto property = await PostAsync<ResDefinitionPropertyItemDto>(
             client,
             "/api/ResourceConfiguration/properties",
             new ResDefinitionPropertyAddDto
@@ -125,7 +125,7 @@ public class ResourceModApiTests
             },
             HttpStatusCode.OK);
 
-        ResDefinition first = await PostAsync<ResDefinition>(
+        ResDefinitionItemDto first = await PostAsync<ResDefinitionItemDto>(
             client,
             "/api/ResourceConfiguration/definitions",
             new ResDefinitionAddDto
@@ -145,7 +145,7 @@ public class ResourceModApiTests
                 ]
             },
             HttpStatusCode.OK);
-        ResDefinition second = await PostAsync<ResDefinition>(
+        ResDefinitionItemDto second = await PostAsync<ResDefinitionItemDto>(
             client,
             "/api/ResourceConfiguration/definitions",
             new ResDefinitionAddDto
@@ -166,13 +166,13 @@ public class ResourceModApiTests
             },
             HttpStatusCode.OK);
 
-        List<ResDefinitionProperty> listed = await GetAsync<List<ResDefinitionProperty>>(
+        List<ResDefinitionPropertyItemDto> listed = await GetAsync<List<ResDefinitionPropertyItemDto>>(
             client,
             $"/api/ResourceConfiguration/properties?name=Shared-{suffix}",
             HttpStatusCode.OK);
         await Assert.That(listed.Select(item => item.Id)).IsEquivalentTo([property.Id]);
 
-        property = await PutAsync<ResDefinitionProperty>(
+        property = await PutAsync<ResDefinitionPropertyItemDto>(
             client,
             $"/api/ResourceConfiguration/properties/{property.Id}",
             new ResDefinitionPropertyUpdateDto
@@ -220,7 +220,7 @@ public class ResourceModApiTests
             new ResDefinitionPropertyAddDto { Name = $"Invalid/{suffix}" });
         await Assert.That(invalidProperty.StatusCode).IsEqualTo(HttpStatusCode.BadRequest);
 
-        ResDefinitionProperty property = await PostAsync<ResDefinitionProperty>(
+        ResDefinitionPropertyItemDto property = await PostAsync<ResDefinitionPropertyItemDto>(
             client,
             "/api/ResourceConfiguration/properties",
             new ResDefinitionPropertyAddDto { Name = $"Case-{suffix}" },
@@ -231,7 +231,7 @@ public class ResourceModApiTests
             new ResDefinitionPropertyAddDto { Name = $"Case-{suffix}" });
         await Assert.That(duplicateProperty.StatusCode).IsEqualTo(HttpStatusCode.Conflict);
 
-        ResDefinitionProperty caseVariant = await PostAsync<ResDefinitionProperty>(
+        ResDefinitionPropertyItemDto caseVariant = await PostAsync<ResDefinitionPropertyItemDto>(
             client,
             "/api/ResourceConfiguration/properties",
             new ResDefinitionPropertyAddDto { Name = $"case-{suffix}" },
@@ -296,7 +296,7 @@ public class ResourceModApiTests
         HttpClient client = data.HttpClient;
         ResourceFixture fixture = await CreateFixtureAsync(client);
         string suffix = Guid.NewGuid().ToString("N");
-        ResDefinition definition = await PostAsync<ResDefinition>(
+        ResDefinitionItemDto definition = await PostAsync<ResDefinitionItemDto>(
             client,
             "/api/ResourceConfiguration/definitions",
             new ResDefinitionAddDto
@@ -323,8 +323,8 @@ public class ResourceModApiTests
                 ]
             },
             HttpStatusCode.OK);
-        ResDefinitionProperty required = definition.Properties.Single(property => property.Name.StartsWith("Name-"));
-        ResDefinitionProperty optional = definition.Properties.Single(property => property.Name.StartsWith("OptionalIp-"));
+        ResDefinitionPropertyItemDto required = definition.Properties.Single(property => property.Name.StartsWith("Name-"));
+        ResDefinitionPropertyItemDto optional = definition.Properties.Single(property => property.Name.StartsWith("OptionalIp-"));
 
         HttpResponseMessage optionalEmpty = await client.PostAsJsonAsync(
             "/api/Resource",
@@ -416,7 +416,7 @@ public class ResourceModApiTests
             new ResTagAddDto { Name = $"Tag-{suffix}", Color = "#fedcba" },
             HttpStatusCode.OK);
 
-        ResDefinition definition = await PostAsync<ResDefinition>(
+        ResDefinitionItemDto definition = await PostAsync<ResDefinitionItemDto>(
             client,
             "/api/ResourceConfiguration/definitions",
             DefinitionInput(suffix),
@@ -449,10 +449,10 @@ public class ResourceModApiTests
         HttpResponseMessage definitionListResponse = await client.GetAsync(
             "/api/ResourceConfiguration/definitions");
         await Assert.That(definitionListResponse.StatusCode).IsEqualTo(HttpStatusCode.OK);
-        List<ResDefinition>? definitions = await definitionListResponse.Content
-            .ReadFromJsonAsync<List<ResDefinition>>();
+        List<ResDefinitionItemDto>? definitions = await definitionListResponse.Content
+            .ReadFromJsonAsync<List<ResDefinitionItemDto>>();
         await Assert.That(definitions).IsNotNull();
-        ResDefinition listed = definitions!.Single(item => item.Id == definition.Id);
+        ResDefinitionItemDto listed = definitions!.Single(item => item.Id == definition.Id);
         await Assert.That(listed.Properties.OrderBy(item => item.Sort).Select(item => item.Name))
             .IsEquivalentTo(["Address", "Enabled", "Label", "TestPort", "Uri", "When"]);
 
@@ -505,7 +505,7 @@ public class ResourceModApiTests
     {
         HttpClient client = data.HttpClient;
         string suffix = Guid.NewGuid().ToString("N");
-        ResDefinition definition = await PostAsync<ResDefinition>(
+        ResDefinitionItemDto definition = await PostAsync<ResDefinitionItemDto>(
             client,
             "/api/ResourceConfiguration/definitions",
             DefinitionInput(suffix),
@@ -531,7 +531,7 @@ public class ResourceModApiTests
             Sort = properties.Count
         });
 
-        ResDefinition updated = await PutAsync<ResDefinition>(
+        ResDefinitionItemDto updated = await PutAsync<ResDefinitionItemDto>(
             client,
             $"/api/ResourceConfiguration/definitions/{definition.Id}",
             new ResDefinitionAddDto
@@ -1204,18 +1204,18 @@ public class ResourceModApiTests
             "/api/ResourceConfiguration/tags",
             new ResTagAddDto { Name = $"Tag-{suffix}", Color = "#fedcba" },
             HttpStatusCode.OK);
-        ResDefinition definition = await PostAsync<ResDefinition>(
+        ResDefinitionItemDto definition = await PostAsync<ResDefinitionItemDto>(
             client,
             "/api/ResourceConfiguration/definitions",
             DefinitionInput(suffix),
             HttpStatusCode.OK);
 
-        ResDefinitionProperty address = definition.Properties.Single(property => property.Name == "Address");
-        ResDefinitionProperty enabled = definition.Properties.Single(property => property.Name == "Enabled");
-        ResDefinitionProperty label = definition.Properties.Single(property => property.Name == "Label");
-        ResDefinitionProperty port = definition.Properties.Single(property => property.Name == "TestPort");
-        ResDefinitionProperty uri = definition.Properties.Single(property => property.Name == "Uri");
-        ResDefinitionProperty when = definition.Properties.Single(property => property.Name == "When");
+        ResDefinitionPropertyItemDto address = definition.Properties.Single(property => property.Name == "Address");
+        ResDefinitionPropertyItemDto enabled = definition.Properties.Single(property => property.Name == "Enabled");
+        ResDefinitionPropertyItemDto label = definition.Properties.Single(property => property.Name == "Label");
+        ResDefinitionPropertyItemDto port = definition.Properties.Single(property => property.Name == "TestPort");
+        ResDefinitionPropertyItemDto uri = definition.Properties.Single(property => property.Name == "Uri");
+        ResDefinitionPropertyItemDto when = definition.Properties.Single(property => property.Name == "When");
 
         return new ResourceFixture(
             environment,
@@ -1294,7 +1294,7 @@ public class ResourceModApiTests
         ResCategory Category,
         ResGroup Group,
         ResTag Tag,
-        ResDefinition Definition,
-        ResDefinitionProperty AddressProperty,
+        ResDefinitionItemDto Definition,
+        ResDefinitionPropertyItemDto AddressProperty,
         List<ResourceValueDto> Values);
 }

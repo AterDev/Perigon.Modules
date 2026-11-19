@@ -65,14 +65,14 @@ public sealed class ResourceConfigurationEndpoints : RestEndpointBase
     public static Task<ResTag> UpdateTagAsync(Guid id, ResTagUpdateDto input, ResourceConfigurationManager manager) => manager.UpdateTagAsync(id, input);
     public static Task DeleteTagAsync(Guid id, ResourceConfigurationManager manager) => manager.DeleteTagAsync(id);
 
-    public static Task<List<ResDefinitionProperty>> PropertiesAsync(string? name, ResourceConfigurationManager manager) => manager.PropertiesAsync(name);
-    public static Task<ResDefinitionProperty> AddPropertyAsync(ResDefinitionPropertyAddDto input, ResourceConfigurationManager manager) => manager.AddPropertyAsync(input);
-    public static Task<ResDefinitionProperty> UpdatePropertyAsync(Guid id, ResDefinitionPropertyUpdateDto input, ResourceConfigurationManager manager) => manager.UpdatePropertyAsync(id, input);
+    public static Task<List<ResDefinitionPropertyItemDto>> PropertiesAsync(string? name, ResourceConfigurationManager manager) => manager.PropertiesAsync(name);
+    public static Task<ResDefinitionPropertyItemDto> AddPropertyAsync(ResDefinitionPropertyAddDto input, ResourceConfigurationManager manager) => manager.AddPropertyAsync(input);
+    public static Task<ResDefinitionPropertyItemDto> UpdatePropertyAsync(Guid id, ResDefinitionPropertyUpdateDto input, ResourceConfigurationManager manager) => manager.UpdatePropertyAsync(id, input);
     public static Task DeletePropertyAsync(Guid id, ResourceConfigurationManager manager) => manager.DeletePropertyAsync(id);
 
-    public static Task<List<ResDefinition>> DefinitionsAsync(string? name, ResourceConfigurationManager manager) => manager.DefinitionsAsync(name);
-    public static Task<ResDefinition> AddDefinitionAsync(ResDefinitionAddDto input, ResourceConfigurationManager manager) => manager.AddDefinitionAsync(input);
-    public static Task<ResDefinition> UpdateDefinitionAsync(Guid id, ResDefinitionUpdateDto input, ResourceConfigurationManager manager) => manager.UpdateDefinitionAsync(id, input);
+    public static Task<List<ResDefinitionItemDto>> DefinitionsAsync(string? name, ResourceConfigurationManager manager) => manager.DefinitionsAsync(name);
+    public static Task<ResDefinitionItemDto> AddDefinitionAsync(ResDefinitionAddDto input, ResourceConfigurationManager manager) => manager.AddDefinitionAsync(input);
+    public static Task<ResDefinitionItemDto> UpdateDefinitionAsync(Guid id, ResDefinitionUpdateDto input, ResourceConfigurationManager manager) => manager.UpdateDefinitionAsync(id, input);
     public static Task DeleteDefinitionAsync(Guid id, ResourceConfigurationManager manager) => manager.DeleteDefinitionAsync(id);
 
     public static Task<List<ResPermission>> PermissionsAsync(Guid environmentId, Guid categoryId, ResourceConfigurationManager manager) => manager.GetPermissionsAsync(environmentId, categoryId);

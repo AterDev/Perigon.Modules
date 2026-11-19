@@ -7,21 +7,15 @@ public class ResDefinitionProperty : EntityBase
     [StringLength(60)]
     public string Name { get; set; } = string.Empty;
     /// <summary>属性值类型。</summary>
-    [Column("ValueType")]
     public ResValueType ValueType { get; set; }
     /// <summary>是否必填。</summary>
     public bool IsRequired { get; set; }
     /// <summary>属性值最大长度。</summary>
     public int MaxLength { get; set; } = 200;
-    /// <summary>显示排序。排序属于定义与属性的关联，属性本身不持久化该值。</summary>
-    [NotMapped]
-    public int Sort { get; set; }
     [JsonIgnore]
-    [NotMapped]
     public ICollection<ResDefinitionPropertyMap> DefinitionMaps { get; set; } = [];
     /// <summary>使用此属性的资源值。</summary>
     [JsonIgnore]
-    [NotMapped]
     public ICollection<ResValue> Values { get; set; } = [];
 }
 

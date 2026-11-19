@@ -7,6 +7,7 @@
 - 使用 Perigon.PostgreSQL 的注册选项 `EnableOpenTelemetry` 接入 Npgsql 追踪与指标，并按部署需要配置连接池及连接、命令超时；它不负责配置 OpenTelemetry 导出器。
 - 实体索引及其他可用映射优先使用 Perigon.PostgreSQL 特性；默认表名由约定生成，无需标记表名。仅在约定不满足需求时显式配置表名。
 - 枚举属性直接使用枚举类型，Perigon.PostgreSQL 0.3.6 起默认映射为 `smallint`。升级已有整数列时保留物理列名，检查原始值处于 `-32768` 至 `32767`，并审查迁移是否原地转换列类型。
+- Perigon.PostgreSQL 0.3.7 起自动识别已注册实体的引用和集合导航。外键关系沿用命名约定，约定无法匹配时使用 `[ForeignKey]`。响应专用字段放在 DTO，关联记录的排序从关联实体投影。
 - 不要在 `OnModelCreating` 重复配置实体特性或默认约定已经表达的表名、索引等内容。额外的部分索引谓词使用 Fluent API 的 `HasFilter`，软删除谓词由库自动生成。
 - 新增实体后在 `DefaultDbContext` 添加公开、可写的 `DbSet<TEntity>` 自动属性，省略属性初始化器，由 Perigon.PostgreSQL 源生成器赋值。泛型访问直接用基类公开的 `Set<TEntity>()`。Modules 使用默认 PascalCase；索引 `Filter` 是 SQL，引用列时须使用最终物理列名并正确引用。
 - MiniApi 不内置 AppHost migration 资源。数据库 schema 的生成、部署顺序、失败恢复和回滚责任必须在计划与部署管线中明确。

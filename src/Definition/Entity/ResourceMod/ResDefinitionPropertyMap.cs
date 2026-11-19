@@ -12,11 +12,9 @@ public class ResDefinitionPropertyMap : EntityBase
     /// <summary>所属资源定义。</summary>
     [ForeignKey(nameof(DefinitionId))]
     [JsonIgnore]
-    [NotMapped]
     public ResDefinition Definition { get; set; } = null!;
     /// <summary>关联的资源属性。</summary>
     [ForeignKey(nameof(PropertyId))]
     [JsonIgnore]
-    [NotMapped]
     public ResDefinitionProperty Property { get; set; } = null!;
 }

@@ -16,12 +16,9 @@ public class ResCategory : EntityBase
     [StringLength(20)]
     public string Color { get; set; } = string.Empty;
     /// <summary>属于此分类的分组。</summary>
-    [NotMapped]
     public ICollection<ResGroup> Groups { get; set; } = [];
     /// <summary>属于此分类的资源。</summary>
-    [NotMapped]
     public ICollection<Resource> Resources { get; set; } = [];
     /// <summary>此分类下的角色授权。</summary>
-    [NotMapped]
     public ICollection<ResPermission> Permissions { get; set; } = [];
 }

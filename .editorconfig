@@ -213,5 +213,8 @@ dotnet_diagnostic.CA2251.severity = suggestion
 [src/Definition/Entity/**/*.cs]
 csharp_preserve_single_line_blocks = true
 
+[src/Modules/ResourceMod/Models/**/*ItemDto.cs]
+csharp_preserve_single_line_blocks = true
+
 [src/Definition/EntityFramework/AppDbContext/DefaultDbContext.cs]
 csharp_preserve_single_line_blocks = true

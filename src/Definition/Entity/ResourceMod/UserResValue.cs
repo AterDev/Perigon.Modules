@@ -28,20 +28,17 @@ public class UserResValue : EntityBase
     public string PropertyNameSnapshot { get; set; } = string.Empty;
 
     /// <summary>保存时的属性值类型快照。</summary>
-    [Column("ValueTypeSnapshot")]
     public ResValueType ValueTypeSnapshot { get; set; }
 
     /// <summary>
     /// 所属用户资源。
     /// </summary>
     [ForeignKey(nameof(UserResourceId))]
-    [NotMapped]
     public UserResource UserResource { get; set; } = null!;
 
     /// <summary>
     /// 所属资源定义属性。
     /// </summary>
     [ForeignKey(nameof(DefinitionPropertyId))]
-    [NotMapped]
     public ResDefinitionProperty DefinitionProperty { get; set; } = null!;
 }

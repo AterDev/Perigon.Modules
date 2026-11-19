@@ -13,9 +13,7 @@ public class ResEnvironment : EntityBase
     [StringLength(20)]
     public string Color { get; set; } = string.Empty;
     /// <summary>属于此环境的资源。</summary>
-    [NotMapped]
     public ICollection<Resource> Resources { get; set; } = [];
     /// <summary>此环境下的角色授权。</summary>
-    [NotMapped]
     public ICollection<ResPermission> Permissions { get; set; } = [];
 }

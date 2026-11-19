@@ -19,9 +19,7 @@ public class ResGroup : EntityBase
     public Guid CategoryId { get; set; }
     /// <summary>所属分类。</summary>
     [ForeignKey(nameof(CategoryId))]
-    [NotMapped]
     public ResCategory Category { get; set; } = null!;
     /// <summary>属于此分组的资源。</summary>
-    [NotMapped]
     public ICollection<Resource> Resources { get; set; } = [];
 }

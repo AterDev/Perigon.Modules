@@ -11,10 +11,8 @@ public class ResPermission : EntityBase
     public Guid CategoryId { get; set; }
     /// <summary>授权对应的环境。</summary>
     [ForeignKey(nameof(EnvironmentId))]
-    [NotMapped]
     public ResEnvironment Environment { get; set; } = null!;
     /// <summary>授权对应的分类。</summary>
     [ForeignKey(nameof(CategoryId))]
-    [NotMapped]
     public ResCategory Category { get; set; } = null!;
 }

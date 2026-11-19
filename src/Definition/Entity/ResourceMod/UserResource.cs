@@ -16,11 +16,9 @@ public class UserResource : EntityBase
     public Guid DefinitionId { get; set; }
 
     /// <summary>资源可见性。私有资源仅所有者可见，公开申请由管理员审核后转换为常规资源。</summary>
-    [Column("Status")]
     public UserResourceStatus Status { get; set; }
 
     /// <summary>公开申请审核状态。</summary>
-    [Column("AuditStatus")]
     public UserResourceAuditStatus AuditStatus { get; set; }
 
     /// <summary>
@@ -38,12 +36,10 @@ public class UserResource : EntityBase
     /// 使用的资源定义。
     /// </summary>
     [ForeignKey(nameof(DefinitionId))]
-    [NotMapped]
     public ResDefinition Definition { get; set; } = null!;
 
     /// <summary>
     /// 用户填写的资源属性值。
     /// </summary>
-    [NotMapped]
     public ICollection<UserResValue> Values { get; set; } = [];
 }
