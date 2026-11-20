@@ -1,8 +1,4 @@
 using Entity;
-using Entity.AuditMod;
-using Entity.CMSMod;
-using Entity.ResourceMod;
-
 namespace SystemMod;
 
 /// <summary>
@@ -13,38 +9,13 @@ namespace SystemMod;
 /// </summary>
 internal static class SystemEnumCatalog
 {
-    public static Dictionary<string, List<EnumDictionary>> Create()
+    public static Dictionary<string, List<EnumDictionary>> Create(
+        IReadOnlyDictionary<string, List<EnumDictionary>> externalEntries
+    )
     {
-        return EnumHelper.CreateEnumInfo(
-            (nameof(ContentType), EnumHelper.ToList<ContentType>(
-                (ContentType.News, "News"),
-                (ContentType.ViewPoint, "ViewPoint"),
-                (ContentType.Knowledge, "Knowledge"),
-                (ContentType.Documentary, "Documentary"),
-                (ContentType.Private, "Private"))),
-            (nameof(LanguageType), EnumHelper.ToList<LanguageType>(
-                (LanguageType.CN, "zh-CN"),
-                (LanguageType.EN, "en-US"))),
-            (nameof(AuditMode), EnumHelper.ToList<AuditMode>()),
-            (nameof(AuditRecordStatus), EnumHelper.ToList<AuditRecordStatus>()),
-            (nameof(AuditStepStatus), EnumHelper.ToList<AuditStepStatus>()),
-            (nameof(AuditTaskStatus), EnumHelper.ToList<AuditTaskStatus>()),
-            (nameof(AuditDecision), EnumHelper.ToList<AuditDecision>()),
-            (nameof(ResValueType), EnumHelper.ToList<ResValueType>(
-                (ResValueType.String, "字符串"),
-                (ResValueType.Number, "数字"),
-                (ResValueType.Boolean, "布尔值"),
-                (ResValueType.Date, "日期"),
-                (ResValueType.Uri, "URI"),
-                (ResValueType.IPAddress, "IP 地址"))),
-            (nameof(UserResourceStatus), EnumHelper.ToList<UserResourceStatus>(
-                (UserResourceStatus.Private, "Private"),
-                (UserResourceStatus.ApplyPublic, "ApplyPublic"))),
-            (nameof(UserResourceAuditStatus), EnumHelper.ToList<UserResourceAuditStatus>(
-                (UserResourceAuditStatus.NotRequired, "NotRequired"),
-                (UserResourceAuditStatus.Pending, "Pending"),
-                (UserResourceAuditStatus.Approved, "Approved"),
-                (UserResourceAuditStatus.Rejected, "Rejected"))),
+        Dictionary<string, List<EnumDictionary>> catalog = EnumHelper.CreateEnumInfo(
+            // SystemMod owns these enums. Other modules pass their own entries
+            // at the endpoint boundary.
             (nameof(DataScopeType), EnumHelper.ToList<DataScopeType>()),
             (nameof(MenuType), EnumHelper.ToList<MenuType>(
                 (MenuType.Page, "页面"),
@@ -54,5 +25,16 @@ internal static class SystemEnumCatalog
                 (Sex.Female, "女性"),
                 (Sex.Else, "其他")))
         );
+
+        foreach ((string name, List<EnumDictionary> values) in externalEntries)
+        {
+            if (!catalog.TryAdd(name, values))
+            {
+                throw new InvalidOperationException(
+                    $"The enum catalog already contains an entry named '{name}'.");
+            }
+        }
+
+        return catalog;
     }
 }

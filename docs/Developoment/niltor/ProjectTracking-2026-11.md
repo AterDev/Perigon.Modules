@@ -47,3 +47,5 @@
 - 2026-11-20：统一 Angular Material 弹窗滚动规则，审查 27 个正文模板，Playwright 在四种视口验证 15 个代表性弹窗。
 - 2026-11-20：Aspire NuGet 包与 AppHost SDK 升级至 17.0.0，解决方案还原和构建通过。
 - 2026-11-20：AppHost 迁移至 Aspire 17 的路径式项目注册，重启后 API 与前端运行正常。
+- 2026-11-20：用 Perigon.CLI 正式版重生成 AOT JSON 上下文和 CMSMod、ResourceMod 1.1.0。Win-x64 Native AOT 发布及模板安装构建通过，三个存在跨模块引用的独立包待处理。
+- 2026-11-20：审核、通知的跨模块调用迁移到 ApiService Endpoint，Manager 使用 ID 和 DTO，7 项 PostgreSQL API 集成测试通过。

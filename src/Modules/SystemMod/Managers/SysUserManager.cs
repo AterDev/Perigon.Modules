@@ -26,6 +26,32 @@ public class SysUserManager(
     logger
 )
 {
+    public async Task<List<Guid>> GetUserIdsAsync(Guid[] requestedUserIds, CancellationToken cancellationToken)
+    {
+        IQueryable<SysUser> users = _dbSet;
+        if (requestedUserIds.Length > 0)
+        {
+            users = users.Where(user => requestedUserIds.Contains(user.Id));
+        }
+
+        return (await users.ToListAsync(cancellationToken)).Select(user => user.Id).ToList();
+    }
+
+    public async Task<Dictionary<Guid, string>> GetDisplayNamesAsync(
+        Guid[] requestedUserIds,
+        CancellationToken cancellationToken)
+    {
+        if (requestedUserIds.Length == 0)
+        {
+            return [];
+        }
+
+        var users = await _dbSet
+            .Where(user => requestedUserIds.Contains(user.Id))
+            .ToListAsync(cancellationToken);
+        return users.ToDictionary(user => user.Id, user => user.RealName ?? user.UserName ?? user.Id.ToString());
+    }
+
     private static SysUserItemDto MapItem(SysUser x) => new() { Id = x.Id, UserName = x.UserName!, RealName = x.RealName, Email = x.Email, LastLoginTime = x.LastLoginTime, Sex = (GenderType)x.Sex, CreatedTime = x.CreatedTime };
     private static SysUserDetailDto MapDetail(SysUser x) => new() { Id = x.Id, UserName = x.UserName!, RealName = x.RealName, Email = x.Email, EmailConfirmed = x.EmailConfirmed, PhoneNumber = x.PhoneNumber, PhoneNumberConfirmed = x.PhoneNumberConfirmed, TwoFactorEnabled = x.TwoFactorEnabled, LockoutEnd = x.LockoutEnd, LockoutEnabled = x.LockoutEnabled, AccessFailedCount = x.AccessFailedCount, LastLoginTime = x.LastLoginTime, RetryCount = x.RetryCount, Avatar = x.Avatar, Sex = (GenderType)x.Sex, CreatedTime = x.CreatedTime, UpdatedTime = x.UpdatedTime };
     private readonly CacheService _cache = cache;

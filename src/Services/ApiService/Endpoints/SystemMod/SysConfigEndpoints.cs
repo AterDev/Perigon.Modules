@@ -1,3 +1,4 @@
+using ApiService.Composition;
 using Perigon.AspNetCore.Models;
 using Perigon.AspNetCore.Utils;
 using Microsoft.AspNetCore.Http.HttpResults;
@@ -27,7 +28,8 @@ public sealed class SysConfigEndpoints : RestEndpointBase
 
     private static Task<Dictionary<string, List<EnumDictionary>>> GetEnumConfigsAsync(
         SysConfigManager manager,
-        CancellationToken cancellationToken) => manager.GetEnumConfigsAsync();
+        CancellationToken cancellationToken) =>
+        manager.GetEnumConfigsAsync(ModuleEnumCatalogContributor.GetEntries(), cancellationToken);
 
     private static async Task<Created<SysConfig>> AddAsync(
         SysConfigAddDto dto,

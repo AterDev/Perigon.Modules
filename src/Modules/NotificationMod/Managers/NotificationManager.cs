@@ -1,7 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 using System.Text.RegularExpressions;
-using Entity.SystemMod;
 using NotificationMod.Models.NotificationEventDtos;
 using NotificationMod.Models.InAppNotificationDtos;
 using NotificationMod.Models.NotificationReceiverDtos;
@@ -31,6 +30,32 @@ public sealed class NotificationManager(
         where T : class, IEntityBase => _dbContext.Set<T>();
 
     public override Task<bool> HasPermissionAsync(Guid id) => _dbSet.Where(x => x.Id == id).AnyAsync();
+
+    public async Task PublishInTransactionAsync(
+        DefaultDbContext context,
+        InAppNotificationPublishDto message,
+        CancellationToken cancellationToken)
+    {
+        var notification = new InAppNotification
+        {
+            Type = message.Type,
+            Title = message.Title,
+            Content = message.Content,
+            Link = message.Link,
+            IsPublished = true,
+            PublishedTime = DateTimeOffset.UtcNow,
+            CreatedBy = message.SenderId,
+            TargetUserIds = message.RecipientIds,
+        };
+        await context.InAppNotifications.InsertAsync(notification, cancellationToken: cancellationToken);
+        await context.InAppNotificationRecipients.BulkInsertAsync(
+            message.RecipientIds.Select(userId => new InAppNotificationRecipient
+            {
+                NotificationId = notification.Id,
+                UserId = userId,
+            }),
+            cancellationToken: cancellationToken);
+    }
 
     public async Task<PageList<InAppNotificationItemDto>> FilterAsync(InAppNotificationFilterDto filter, bool mine = false)
     {
@@ -96,7 +121,9 @@ public sealed class NotificationManager(
         };
     }
 
-    public async Task<InAppNotificationDetailDto> AddAsync(InAppNotificationAddDto dto)
+    public async Task<InAppNotificationDetailDto> AddAsync(
+        InAppNotificationAddDto dto,
+        IReadOnlyCollection<Guid> recipientIds)
     {
         ValidateContent(dto.Type, dto.Title, dto.Content, dto.Link, dto.ExpiresTime);
         InAppNotification row = new()
@@ -112,7 +139,7 @@ public sealed class NotificationManager(
         await InsertAsync(row);
         if (dto.Publish)
         {
-            await PublishAsync(row.Id);
+            await PublishAsync(row.Id, row.TargetUserIds, recipientIds);
         }
 
         return (await GetAsync(row.Id))!;
@@ -146,15 +173,18 @@ public sealed class NotificationManager(
         return true;
     }
 
-    public async Task PublishAsync(Guid id)
+    public async Task<Guid[]?> GetUnpublishedTargetIdsAsync(Guid id)
     {
         InAppNotification row = await _dbSet.Where(x => x.Id == id).FirstOrDefaultAsync()
             ?? throw NotFound("通知");
-        if (row.IsPublished)
-        {
-            return;
-        }
+        return row.IsPublished ? null : row.TargetUserIds.Distinct().ToArray();
+    }
 
+    public async Task PublishAsync(
+        Guid id,
+        Guid[] requestedUserIds,
+        IReadOnlyCollection<Guid> recipientIds)
+    {
         await ExecuteInTransactionAsync(async () =>
         {
             DateTimeOffset now = DateTimeOffset.UtcNow;
@@ -169,11 +199,12 @@ public sealed class NotificationManager(
 
             InAppNotification published = await _dbSet.Where(x => x.Id == id).FirstOrDefaultAsync()
                 ?? throw NotFound("通知");
-            Guid[] requestedUsers = published.TargetUserIds.Distinct().ToArray();
-            List<SysUser> users = requestedUsers.Length == 0
-                ? await Set<SysUser>().ToListAsync()
-                : await Set<SysUser>().Where(x => requestedUsers.Contains(x.Id)).ToListAsync();
-            if (requestedUsers.Length > 0 && users.Count != requestedUsers.Length)
+            if (!published.TargetUserIds.ToHashSet().SetEquals(requestedUserIds))
+            {
+                throw new BusinessException("通知的目标用户已修改，请重试", StatusCodes.Status409Conflict);
+            }
+
+            if (requestedUserIds.Length > 0 && !recipientIds.ToHashSet().SetEquals(requestedUserIds))
             {
                 throw new BusinessException("指定的用户不存在", StatusCodes.Status400BadRequest);
             }
@@ -181,12 +212,12 @@ public sealed class NotificationManager(
             List<InAppNotificationRecipient> existingRows = await Set<InAppNotificationRecipient>()
                 .Where(x => x.NotificationId == id).ToListAsync();
             HashSet<Guid> existing = existingRows.Select(x => x.UserId).ToHashSet();
-            List<InAppNotificationRecipient> added = users.Where(x => !existing.Contains(x.Id))
-                .Select(user => new InAppNotificationRecipient
+            List<InAppNotificationRecipient> added = recipientIds.Distinct().Where(userId => !existing.Contains(userId))
+                .Select(userId => new InAppNotificationRecipient
                 {
 
                     NotificationId = id,
-                    UserId = user.Id,
+                    UserId = userId,
                 }).ToList();
             if (added.Count > 0)
             {

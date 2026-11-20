@@ -1,9 +1,33 @@
 namespace AuditMod.Managers;
 
-public sealed class AuditSubmissionManager(AppDbFactory dbContextFactory, IUserContext userContext, ILogger<AuditSubmissionManager> logger)
+public sealed class AuditSubmissionManager(
+    AppDbFactory dbContextFactory,
+    IUserContext userContext,
+    ILogger<AuditSubmissionManager> logger)
     : ManagerBase<DefaultDbContext, AuditRecord>(dbContextFactory, userContext, logger)
 {
-    public async Task<AuditRecord> SubmitAsync(string sceneCode, string bizId, string applyReason, string? formSnapshotJson, CancellationToken cancellationToken = default)
+    public async Task<IReadOnlySet<Guid>> GetAuditorIdsAsync(string sceneCode, CancellationToken cancellationToken = default)
+    {
+        string normalizedSceneCode = sceneCode.Trim();
+        var flow = await _dbContext.AuditFlows.SingleOrDefaultAsync(
+            x => x.SceneCode == normalizedSceneCode && x.IsEnabled, cancellationToken);
+        if (flow is null)
+        {
+            return new HashSet<Guid>();
+        }
+
+        var definitions = await _dbContext.AuditStepDefinitions.Where(x => x.FlowId == flow.Id).ToListAsync(cancellationToken);
+        return definitions.SelectMany(x => x.AuditorUserIds).ToHashSet();
+    }
+
+    public async Task<AuditRecord> SubmitAsync(
+        string sceneCode,
+        string bizId,
+        string applyReason,
+        string? formSnapshotJson,
+        IReadOnlyDictionary<Guid, string> auditorNames,
+        Func<DefaultDbContext, AuditNotificationMessage, CancellationToken, Task> publishNotification,
+        CancellationToken cancellationToken = default)
     {
         sceneCode = sceneCode.Trim();
         bizId = bizId.Trim();
@@ -27,13 +51,7 @@ public sealed class AuditSubmissionManager(AppDbFactory dbContextFactory, IUserC
         var definitions = await _dbContext.AuditStepDefinitions.Where(x => x.FlowId == flow.Id).OrderBy(x => x.StepNo).ToListAsync(cancellationToken);
         Validate(definitions);
         var ids = definitions.SelectMany(x => x.AuditorUserIds).Distinct().ToArray();
-        // Perigon.PostgreSQL 0.3.1 does not translate a captured collection's
-        // Perigon.PostgreSQL does not translate a captured collection for this
-        // query shape, so load users and match the configured auditor ids in memory.
-        var names = (await _dbContext.SysUsers.ToListAsync(cancellationToken))
-            .Where(x => ids.Contains(x.Id))
-            .ToDictionary(x => x.Id, x => x.RealName ?? x.UserName ?? x.Id.ToString());
-        if (names.Count != ids.Length)
+        if (ids.Any(id => !auditorNames.ContainsKey(id)))
         {
             throw new BusinessException("审核人不存在。", StatusCodes.Status400BadRequest);
         }
@@ -51,12 +69,21 @@ public sealed class AuditSubmissionManager(AppDbFactory dbContextFactory, IUserC
                 details.Add(detail);
                 foreach (var userId in definition.AuditorUserIds)
                 {
-                    tasks.Add(new AuditTask { AuditRecordDetailId = detail.Id, AssigneeUserId = userId, AssigneeNameSnapshot = names[userId], Status = i == 0 ? AuditTaskStatus.Pending : AuditTaskStatus.Waiting });
+                    tasks.Add(new AuditTask { AuditRecordDetailId = detail.Id, AssigneeUserId = userId, AssigneeNameSnapshot = auditorNames[userId], Status = i == 0 ? AuditTaskStatus.Pending : AuditTaskStatus.Waiting });
                 }
             }
             await _dbContext.AuditRecordDetails.BulkInsertAsync(details, cancellationToken: cancellationToken);
             await _dbContext.AuditTasks.BulkInsertAsync(tasks, cancellationToken: cancellationToken);
-            await AddTaskNotificationAsync(record, definitions[0].AuditorUserIds, cancellationToken);
+            await publishNotification(
+                _dbContext,
+                new AuditNotificationMessage(
+                    "audit-task",
+                    "新的审核待办",
+                    $"您有一条待审核申请：{record.FlowNameSnapshot}",
+                    $"/api/audit-records/{record.Id}",
+                    record.ApplicantUserId,
+                    definitions[0].AuditorUserIds),
+                cancellationToken);
         }, cancellationToken);
         return record;
     }
@@ -69,31 +96,5 @@ public sealed class AuditSubmissionManager(AppDbFactory dbContextFactory, IUserC
         }
     }
 
-    internal async Task AddTaskNotificationAsync(AuditRecord record, IEnumerable<Guid> recipientIds, CancellationToken cancellationToken)
-    {
-        var recipients = recipientIds.Distinct().ToArray();
-        if (recipients.Length == 0)
-        {
-            return;
-        }
-
-        var notification = new InAppNotification
-        {
-            Type = "audit-task",
-            Title = "新的审核待办",
-            Content = $"您有一条待审核申请：{record.FlowNameSnapshot}",
-            Link = $"/api/audit-records/{record.Id}",
-            IsPublished = true,
-            PublishedTime = DateTimeOffset.UtcNow,
-            CreatedBy = record.ApplicantUserId,
-            TargetUserIds = recipients,
-        };
-        await _dbContext.InAppNotifications.InsertAsync(notification, cancellationToken: cancellationToken);
-        await _dbContext.InAppNotificationRecipients.BulkInsertAsync(recipients.Select(userId => new InAppNotificationRecipient
-        {
-            NotificationId = notification.Id,
-            UserId = userId,
-        }), cancellationToken: cancellationToken);
-    }
 }
 

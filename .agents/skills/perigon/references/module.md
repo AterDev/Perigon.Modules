@@ -1,5 +1,9 @@
 # MiniApi 外部模块边界
 
+- 跨模块关联在实体中保存 ID，禁止导航到其他模块的实体，也禁止 Manager 直接读取或写入其他模块的实体集合。
+- 需要验证 ID、读取展示字段或触发其他模块的业务动作时，由 Endpoint 调用相关 Manager，再把 ID、专用 DTO 或必要的快照传给消费模块。实体查询和写入留在所属模块。需要原子提交时，由 Endpoint 接线并保留当前 DbContext 和事务。
+- 公共枚举目录由宿主显式组合，模块保留自己的枚举定义。
+
 MiniApi 默认没有 `src/Modules` 业务层。普通功能直接组织在 `ApiService/Endpoints/Managers/Models/Services`，不要为了与 ApiStandard 对齐而创建模块项目。
 
 只有用户明确要求安装/打包外部模块，且当前 Perigon CLI、模块源码和依赖已证明支持 MiniApi/Native AOT 时才使用模块工作流：

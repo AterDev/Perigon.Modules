@@ -24,19 +24,15 @@ public class SysConfigManager(
     /// 获取枚举信息
     /// </summary>
     /// <returns></returns>
-    public async Task<Dictionary<string, List<EnumDictionary>>> GetEnumConfigsAsync()
+    public Task<Dictionary<string, List<EnumDictionary>>> GetEnumConfigsAsync(
+        IReadOnlyDictionary<string, List<EnumDictionary>> externalEntries,
+        CancellationToken cancellationToken
+    )
     {
-        // 程序启动时更新缓存
-        var res = await _cache.GetValueAsync<Dictionary<string, List<EnumDictionary>>>(
-            WebConst.EnumCacheName
-        );
-        if (res == null || res.Count == 0)
-        {
-            Dictionary<string, List<EnumDictionary>> data = SystemEnumCatalog.Create();
-            await _cache.SetValueAsync(WebConst.EnumCacheName, data, null);
-            return data;
-        }
-        return res;
+        return _cache.GetOrCreateAsync(
+            WebConst.EnumCacheName,
+            _ => ValueTask.FromResult(SystemEnumCatalog.Create(externalEntries)),
+            cancellationToken);
     }
 
     /// <summary>

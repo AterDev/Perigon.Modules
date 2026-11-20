@@ -1,5 +1,7 @@
+using ApiService.Composition;
 using AuditMod.Managers;
 using AuditMod.Models.AuditTaskDtos;
+using NotificationMod.Managers;
 using Perigon.AspNetCore.Models;
 using Share;
 using Share.Implement;
@@ -38,12 +40,26 @@ public sealed class AuditTaskEndpoints : RestEndpointBase
         AuditDecisionDto dto,
         IUserContext user,
         AuditTaskManager manager,
-        CancellationToken cancellationToken) => manager.ApproveAsync(id, user.UserId, dto, cancellationToken);
+        NotificationManager notifications,
+        CancellationToken cancellationToken) => manager.ApproveAsync(
+            id, user.UserId, dto,
+            (context, message, ct) => notifications.PublishInTransactionAsync(
+                context,
+                message.ToNotificationDto(),
+                ct),
+            cancellationToken);
 
     public static Task<AuditTaskDetailDto> RejectAsync(
         Guid id,
         AuditDecisionDto dto,
         IUserContext user,
         AuditTaskManager manager,
-        CancellationToken cancellationToken) => manager.RejectAsync(id, user.UserId, dto, cancellationToken);
+        NotificationManager notifications,
+        CancellationToken cancellationToken) => manager.RejectAsync(
+            id, user.UserId, dto,
+            (context, message, ct) => notifications.PublishInTransactionAsync(
+                context,
+                message.ToNotificationDto(),
+                ct),
+            cancellationToken);
 }

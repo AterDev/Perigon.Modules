@@ -1,6 +1,9 @@
 namespace AuditMod.Managers;
 
-public sealed class AuditTaskManager(AppDbFactory dbContextFactory, IUserContext userContext, ILogger<AuditTaskManager> logger)
+public sealed class AuditTaskManager(
+    AppDbFactory dbContextFactory,
+    IUserContext userContext,
+    ILogger<AuditTaskManager> logger)
     : ManagerBase<DefaultDbContext, AuditTask>(dbContextFactory, userContext, logger)
 {
     public async Task<PageList<AuditTaskItemDto>> FilterMineAsync(Guid userId, AuditTaskFilterDto filter, CancellationToken ct = default)
@@ -86,19 +89,19 @@ public sealed class AuditTaskManager(AppDbFactory dbContextFactory, IUserContext
         var tasks = await _dbContext.AuditTasks.Where(x => ids.Contains(x.AuditRecordDetailId)).ToListAsync(ct);
         return new AuditTaskDetailDto { Id = task.Id, AuditRecordId = record.Id, AuditRecordDetailId = detail.Id, AssigneeUserId = task.AssigneeUserId, AssigneeNameSnapshot = task.AssigneeNameSnapshot, Status = task.Status, StepNo = detail.StepNoSnapshot, StepName = detail.StepNameSnapshot, BizId = record.BizId, Comment = task.Comment, ActedTime = task.ActedTime, Record = AuditRecordManager.Map(record, details, tasks) };
     }
-    public Task<AuditTaskDetailDto> ApproveAsync(Guid id, Guid userId, AuditDecisionDto dto, CancellationToken ct = default) => DecideAndGetAsync(id, userId, AuditDecision.Approve, dto.Comment, ct);
-    public Task<AuditTaskDetailDto> RejectAsync(Guid id, Guid userId, AuditDecisionDto dto, CancellationToken ct = default) => DecideAndGetAsync(id, userId, AuditDecision.Reject, dto.Comment, ct);
-    private async Task<AuditTaskDetailDto> DecideAndGetAsync(Guid id, Guid userId, AuditDecision decision, string? comment, CancellationToken ct)
+    public Task<AuditTaskDetailDto> ApproveAsync(Guid id, Guid userId, AuditDecisionDto dto, Func<DefaultDbContext, AuditNotificationMessage, CancellationToken, Task> publishNotification, CancellationToken ct = default) => DecideAndGetAsync(id, userId, AuditDecision.Approve, dto.Comment, publishNotification, ct);
+    public Task<AuditTaskDetailDto> RejectAsync(Guid id, Guid userId, AuditDecisionDto dto, Func<DefaultDbContext, AuditNotificationMessage, CancellationToken, Task> publishNotification, CancellationToken ct = default) => DecideAndGetAsync(id, userId, AuditDecision.Reject, dto.Comment, publishNotification, ct);
+    private async Task<AuditTaskDetailDto> DecideAndGetAsync(Guid id, Guid userId, AuditDecision decision, string? comment, Func<DefaultDbContext, AuditNotificationMessage, CancellationToken, Task> publishNotification, CancellationToken ct)
     {
         if (_userContext.UserId != userId)
         {
             throw new BusinessException("无权限。", StatusCodes.Status403Forbidden);
         }
 
-        await DecideAsync(id, decision, comment, ct);
+        await DecideAsync(id, decision, comment, publishNotification, ct);
         return await GetAsync(id, userId, ct) ?? throw new BusinessException("未找到审核任务。", StatusCodes.Status404NotFound);
     }
-    public async Task<AuditRecord> DecideAsync(Guid taskId, AuditDecision decision, string? comment, CancellationToken ct = default)
+    public async Task<AuditRecord> DecideAsync(Guid taskId, AuditDecision decision, string? comment, Func<DefaultDbContext, AuditNotificationMessage, CancellationToken, Task> publishNotification, CancellationToken ct = default)
     {
         var task = await _dbSet.FirstOrDefaultAsync(x => x.Id == taskId, ct) ?? throw new BusinessException("未找到审核任务。", StatusCodes.Status404NotFound);
         if (task.AssigneeUserId != _userContext.UserId)
@@ -172,7 +175,7 @@ public sealed class AuditTaskManager(AppDbFactory dbContextFactory, IUserContext
             }
             if (rejected)
             {
-                await AddResultNotificationAsync(record, false, ct);
+                await AddResultNotificationAsync(record, false, publishNotification, ct);
             }
             else
             {
@@ -182,7 +185,7 @@ public sealed class AuditTaskManager(AppDbFactory dbContextFactory, IUserContext
                     record.Status = AuditRecordStatus.Approved;
                     record.CompletedTime = completed;
                     await _dbContext.AuditRecords.Where(x => x.Id == record.Id).ExecuteUpdateAsync(s => s.Set(x => x.Status, AuditRecordStatus.Approved).Set(x => x.CompletedTime, completed), cancellationToken: ct);
-                    await AddResultNotificationAsync(record, true, ct);
+                    await AddResultNotificationAsync(record, true, publishNotification, ct);
                 }
                 else
                 {
@@ -193,7 +196,7 @@ public sealed class AuditTaskManager(AppDbFactory dbContextFactory, IUserContext
                     await _dbContext.AuditRecords.Where(x => x.Id == record.Id).ExecuteUpdateAsync(s => s.Set(x => x.CurrentStepNo, next.StepNoSnapshot), cancellationToken: ct);
                     var nextTasks = await _dbContext.AuditTasks.Where(x => x.AuditRecordDetailId == next.Id && x.Status == AuditTaskStatus.Waiting).ToListAsync(ct);
                     await _dbContext.AuditTasks.Where(x => x.AuditRecordDetailId == next.Id && x.Status == AuditTaskStatus.Waiting).ExecuteUpdateAsync(s => s.Set(x => x.Status, AuditTaskStatus.Pending), cancellationToken: ct);
-                    await AddTaskNotificationAsync(record, nextTasks.Select(x => x.AssigneeUserId), ct);
+                    await AddTaskNotificationAsync(record, nextTasks.Select(x => x.AssigneeUserId), publishNotification, ct);
                 }
             }
             result = record;
@@ -212,7 +215,7 @@ public sealed class AuditTaskManager(AppDbFactory dbContextFactory, IUserContext
     }
     public override Task<bool> HasPermissionAsync(Guid id) => _dbSet.AnyAsync(x => x.Id == id && x.AssigneeUserId == _userContext.UserId);
 
-    private async Task AddTaskNotificationAsync(AuditRecord record, IEnumerable<Guid> recipientIds, CancellationToken cancellationToken)
+    private async Task AddTaskNotificationAsync(AuditRecord record, IEnumerable<Guid> recipientIds, Func<DefaultDbContext, AuditNotificationMessage, CancellationToken, Task> publishNotification, CancellationToken cancellationToken)
     {
         var recipients = recipientIds.Distinct().ToArray();
         if (recipients.Length == 0)
@@ -220,16 +223,30 @@ public sealed class AuditTaskManager(AppDbFactory dbContextFactory, IUserContext
             return;
         }
 
-        var notification = new InAppNotification { Type = "audit-task", Title = "新的审核待办", Content = $"您有一条待审核申请：{record.FlowNameSnapshot}", Link = $"/api/audit-records/{record.Id}", IsPublished = true, PublishedTime = DateTimeOffset.UtcNow, CreatedBy = record.ApplicantUserId, TargetUserIds = recipients };
-        await _dbContext.InAppNotifications.InsertAsync(notification, cancellationToken: cancellationToken);
-        await _dbContext.InAppNotificationRecipients.BulkInsertAsync(recipients.Select(userId => new InAppNotificationRecipient { NotificationId = notification.Id, UserId = userId }), cancellationToken: cancellationToken);
+        await publishNotification(
+            _dbContext,
+            new AuditNotificationMessage(
+                "audit-task",
+                "新的审核待办",
+                $"您有一条待审核申请：{record.FlowNameSnapshot}",
+                $"/api/audit-records/{record.Id}",
+                record.ApplicantUserId,
+                recipients),
+            cancellationToken);
     }
 
-    private async Task AddResultNotificationAsync(AuditRecord record, bool approved, CancellationToken cancellationToken)
+    private async Task AddResultNotificationAsync(AuditRecord record, bool approved, Func<DefaultDbContext, AuditNotificationMessage, CancellationToken, Task> publishNotification, CancellationToken cancellationToken)
     {
-        var notification = new InAppNotification { Type = "audit-result", Title = approved ? "审核已通过" : "审核未通过", Content = approved ? $"申请“{record.FlowNameSnapshot}”已通过。" : $"申请“{record.FlowNameSnapshot}”未通过。", Link = $"/api/audit-records/{record.Id}", IsPublished = true, PublishedTime = DateTimeOffset.UtcNow, CreatedBy = record.ApplicantUserId, TargetUserIds = [record.ApplicantUserId] };
-        await _dbContext.InAppNotifications.InsertAsync(notification, cancellationToken: cancellationToken);
-        await _dbContext.InAppNotificationRecipients.InsertAsync(new InAppNotificationRecipient { NotificationId = notification.Id, UserId = record.ApplicantUserId }, cancellationToken: cancellationToken);
+        await publishNotification(
+            _dbContext,
+            new AuditNotificationMessage(
+                "audit-result",
+                approved ? "审核已通过" : "审核未通过",
+                approved ? $"申请“{record.FlowNameSnapshot}”已通过。" : $"申请“{record.FlowNameSnapshot}”未通过。",
+                $"/api/audit-records/{record.Id}",
+                record.ApplicantUserId,
+                [record.ApplicantUserId]),
+            cancellationToken);
     }
 }
 

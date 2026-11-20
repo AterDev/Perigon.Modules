@@ -40,7 +40,7 @@ public sealed class AuditFlowManager(
         return ToDetail(flow, steps);
     }
 
-    public async Task<AuditFlowDetailDto> AddAsync(AuditFlowAddDto dto, CancellationToken cancellationToken = default)
+    public async Task<AuditFlowDetailDto> AddAsync(AuditFlowAddDto dto, IReadOnlySet<Guid> availableUserIds, CancellationToken cancellationToken = default)
     {
         var normalized = Normalize(dto);
         if (await _dbContext.AuditFlows.AnyAsync(x => x.FlowKey == normalized.FlowKey, cancellationToken))
@@ -48,7 +48,7 @@ public sealed class AuditFlowManager(
             throw new BusinessException("流程标识已存在。", StatusCodes.Status409Conflict);
         }
 
-        await EnsureAuditorsExistAsync(normalized.Steps, cancellationToken);
+        EnsureAuditorsExist(normalized.Steps, availableUserIds);
         if (normalized.IsEnabled)
         {
             await EnsureUniqueSceneAsync(normalized.SceneCode, null, cancellationToken);
@@ -67,7 +67,7 @@ public sealed class AuditFlowManager(
         return ToDetail(flow, steps.OrderBy(x => x.StepNo).Select(ToDto).ToList());
     }
 
-    public async Task<AuditFlowDetailDto> UpdateAsync(Guid id, AuditFlowUpdateDto dto, CancellationToken cancellationToken = default)
+    public async Task<AuditFlowDetailDto> UpdateAsync(Guid id, AuditFlowUpdateDto dto, IReadOnlySet<Guid> availableUserIds, CancellationToken cancellationToken = default)
     {
         var normalized = Normalize(dto);
         var flow = await _dbContext.AuditFlows.FirstOrDefaultAsync(x => x.Id == id, cancellationToken) ?? throw new BusinessException("未找到流程。", StatusCodes.Status404NotFound);
@@ -76,7 +76,7 @@ public sealed class AuditFlowManager(
             throw new BusinessException("流程标识已存在。", StatusCodes.Status409Conflict);
         }
 
-        await EnsureAuditorsExistAsync(normalized.Steps, cancellationToken);
+        EnsureAuditorsExist(normalized.Steps, availableUserIds);
         if (normalized.IsEnabled)
         {
             await EnsureUniqueSceneAsync(normalized.SceneCode, id, cancellationToken);
@@ -157,11 +157,10 @@ public sealed class AuditFlowManager(
         var steps = dto.Steps.OrderBy(x => x.StepNo).Select((x, i) => { var n = x.Name.Trim(); var ids = x.AuditorUserIds ?? []; if (x.StepNo != i + 1 || n.Length == 0 || n.Length > 200 || ids.Count == 0 || ids.Any(Guid.Empty.Equals) || ids.Distinct().Count() != ids.Count || !Enum.IsDefined(x.AuditMode)) { throw new BusinessException("审核步骤配置无效。", StatusCodes.Status400BadRequest); } return new NormalizedStep(x.StepNo, n, ids, x.AuditMode); }).ToList();
         return new(flowKey, scene, name, dto.IsEnabled, steps);
     }
-    private async Task EnsureAuditorsExistAsync(IReadOnlyList<NormalizedStep> steps, CancellationToken cancellationToken)
+    private static void EnsureAuditorsExist(IReadOnlyList<NormalizedStep> steps, IReadOnlySet<Guid> availableUserIds)
     {
         var ids = steps.SelectMany(step => step.UserIds).Distinct().ToArray();
-        var count = await _dbContext.SysUsers.Where(user => ids.Contains(user.Id)).CountAsync(cancellationToken);
-        if (count != ids.Length)
+        if (ids.Any(id => !availableUserIds.Contains(id)))
         {
             throw new BusinessException("审核人必须属于当前租户。", StatusCodes.Status400BadRequest);
         }

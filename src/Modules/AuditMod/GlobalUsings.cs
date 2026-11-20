@@ -1,5 +1,4 @@
 global using Entity.AuditMod;
-global using Entity.NotificationMod;
 global using EntityFramework.AppDbContext;
 global using EntityFramework.AppDbFactory;
 global using Microsoft.AspNetCore.Http;

@@ -8,6 +8,7 @@ using AuditMod.Models.AuditRecordDtos;
 using AuditMod.Models.AuditTaskDtos;
 using CMSMod.Models.ArticleCategoryDtos;
 using CMSMod.Models.ArticleDtos;
+using Entity.AuditMod;
 using Entity.CMSMod;
 using Entity.ResourceMod;
 using Entity.SystemMod;
@@ -73,15 +74,19 @@ namespace ApiService;
 [JsonSerializable(typeof(ArticleImageUploadDto))]
 [JsonSerializable(typeof(ArticleItemDto))]
 [JsonSerializable(typeof(ArticleUpdateDto))]
+[JsonSerializable(typeof(AuditRecordStatus))]
+[JsonSerializable(typeof(AuditTaskStatus))]
 [JsonSerializable(typeof(Article))]
 [JsonSerializable(typeof(ArticleCategory))]
+[JsonSerializable(typeof(ContentType))]
+[JsonSerializable(typeof(LanguageType))]
 [JsonSerializable(typeof(ResCategory))]
-[JsonSerializable(typeof(ResDefinitionItemDto))]
-[JsonSerializable(typeof(ResDefinitionPropertyItemDto))]
 [JsonSerializable(typeof(ResEnvironment))]
 [JsonSerializable(typeof(ResGroup))]
 [JsonSerializable(typeof(ResPermission))]
 [JsonSerializable(typeof(ResTag))]
+[JsonSerializable(typeof(UserResourceAuditStatus))]
+[JsonSerializable(typeof(UserResourceStatus))]
 [JsonSerializable(typeof(SysConfig))]
 [JsonSerializable(typeof(SysDataScope))]
 [JsonSerializable(typeof(SysDataScopeGroup))]
@@ -135,8 +140,10 @@ namespace ApiService;
 [JsonSerializable(typeof(ResCategoryAddDto))]
 [JsonSerializable(typeof(ResCategoryUpdateDto))]
 [JsonSerializable(typeof(ResDefinitionAddDto))]
+[JsonSerializable(typeof(ResDefinitionItemDto))]
 [JsonSerializable(typeof(ResDefinitionUpdateDto))]
 [JsonSerializable(typeof(ResDefinitionPropertyAddDto))]
+[JsonSerializable(typeof(ResDefinitionPropertyItemDto))]
 [JsonSerializable(typeof(ResDefinitionPropertyUpdateDto))]
 [JsonSerializable(typeof(ResEnvironmentAddDto))]
 [JsonSerializable(typeof(ResEnvironmentUpdateDto))]
@@ -167,17 +174,17 @@ namespace ApiService;
 [JsonSerializable(typeof(Dictionary<string, List<EnumDictionary>>))]
 [JsonSerializable(typeof(Dictionary<string, string>))]
 [JsonSerializable(typeof(List<ResCategory>))]
-[JsonSerializable(typeof(List<ResDefinitionItemDto>))]
-[JsonSerializable(typeof(List<ResDefinitionPropertyItemDto>))]
 [JsonSerializable(typeof(List<ResEnvironment>))]
 [JsonSerializable(typeof(List<ResGroup>))]
 [JsonSerializable(typeof(List<ResPermission>))]
 [JsonSerializable(typeof(List<ResTag>))]
 [JsonSerializable(typeof(List<EnumDictionary>))]
+[JsonSerializable(typeof(List<ResDefinitionItemDto>))]
+[JsonSerializable(typeof(List<ResDefinitionPropertyItemDto>))]
 [JsonSerializable(typeof(List<Guid>))]
 [JsonSerializable(typeof(List<SysMenuSyncDto>))]
+[JsonSerializable(typeof(List<SysOrganizationItemDto>))]
 [JsonSerializable(typeof(Guid))]
-[JsonSerializable(typeof(Guid?))]
 [JsonSerializable(typeof(JsonElement))]
 [JsonSerializable(typeof(SysConfigAddDto))]
 [JsonSerializable(typeof(SysConfigDetailDto))]
@@ -213,12 +220,12 @@ namespace ApiService;
 [JsonSerializable(typeof(SysUserAddDto))]
 [JsonSerializable(typeof(SysUserDetailDto))]
 [JsonSerializable(typeof(SysUserItemDto))]
+[JsonSerializable(typeof(SysUserOptionDto))]
 [JsonSerializable(typeof(SysUserOptionDto[]))]
 [JsonSerializable(typeof(SysUserUpdateDto))]
 [JsonSerializable(typeof(UserInfoDto))]
 [JsonSerializable(typeof(int))]
 [JsonSerializable(typeof(string))]
-[JsonSerializable(typeof(List<SysOrganizationItemDto>))]
 // </perigon-aot-json:generated>
 // OpenAPI describes multipart files and flattened query parameters via JSON metadata.
 // These types are not JSON request bodies.

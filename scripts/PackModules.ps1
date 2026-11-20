@@ -213,20 +213,6 @@ else {
 	}
 }
 
-if ($hasExplicitModuleSelection) {
-	$unselectedNewModules = @(
-		$allModuleDirectories |
-			Where-Object {
-				-not $selectedModuleNames.Contains($_.Name) -and
-				$null -eq (Find-ModuleCatalogEntry -Catalog $catalogBeforePack -ModuleName $_.Name)
-			}
-	)
-	if ($unselectedNewModules.Count -gt 0) {
-		$unselectedNames = ($unselectedNewModules.Name | Sort-Object) -join ', '
-		throw "发现尚未登记到 modules.json 的新模块：$unselectedNames。请将其加入 -Modules 后再打包。"
-	}
-}
-
 $moduleDirectories = @(
 	$allModuleDirectories |
 		Where-Object { $selectedModuleNames.Contains($_.Name) }
@@ -333,18 +319,14 @@ if ($failedModules.Count -gt 0) {
 
 $sortedMetadata = @(
 	$allModuleDirectories |
-		ForEach-Object {
-			if (-not $metadataByModule.ContainsKey($_.Name)) {
-				throw "模块 '$($_.Name)' 没有可写入 modules.json 的元数据。"
-			}
-
-			$metadataByModule[$_.Name]
-		} |
+		Where-Object { $metadataByModule.ContainsKey($_.Name) } |
+		ForEach-Object { $metadataByModule[$_.Name] } |
 		Sort-Object ModuleName
 )
 
 if ($PSCmdlet.ShouldProcess($modulesJsonPath, '写入模块元数据汇总')) {
-	$sortedMetadata | ConvertTo-Json -Depth 10 | Set-Content -LiteralPath $modulesJsonPath -Encoding UTF8
+	ConvertTo-Json -InputObject $sortedMetadata -Depth 10 |
+		Set-Content -LiteralPath $modulesJsonPath -Encoding UTF8
 }
 
 Write-Host "完成，共处理 $($moduleDirectories.Count) 个模块。" -ForegroundColor Green

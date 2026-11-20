@@ -232,3 +232,18 @@
 
 - AppHost 改用标准 .NET SDK，显式引用 Aspire Hosting AppHost 和 Dotnet 17.0.0，并按项目路径注册 ApiService。
 - ApiTest 项目构建通过。重启 Aspire 后 ApiService、前端及两个连接字符串资源均由 Aspire 报告健康，API 健康检查与前端入口均返回 HTTP 200。
+
+### 2026-11-20 AOT 模块重新生成
+
+- 使用 NuGet 正式版 Perigon.CLI 10.2.2 重新生成 ApiService JSON 上下文，并使用 Perigon.PostgreSQL 0.3.8。
+- CMSMod 和 ResourceMod 从 1.0.0 升至 1.1.0，ZIP 与目录元数据一致。官方脚本支持选择已有的可打包模块，目录只记录已有包和本次生成的包。
+- AuditMod 引用 NotificationMod，NotificationMod 引用 SystemMod，SystemMod 的枚举目录引用 AuditMod、CMSMod 与 ResourceMod。CLI 拒绝将这三个模块打成独立包，现有 SystemMod 1.0.0 未替换。
+- 使用公开模板 1.3.18 创建隔离项目，CLI 安装两个新包并生成 JSON 上下文，解决方案构建通过。ApiService Windows x64 Native AOT 发布通过，保留 HybridCache 依赖的裁剪和 AOT 分析警告。
+- Windows x64 Native AOT 产物通过健康检查和 OpenAPI 测试，自动创建隔离 PostgreSQL 数据库并迁移 41 张表。验证结束后已清理临时数据库。
+
+### 2026-11-20 跨模块调用收敛到 Endpoint
+
+- 审核和通知 Manager 只接收用户 ID、显示名快照或通知 DTO。ApiService 的 Endpoint 调用 SystemMod 获取用户信息，审核通知由 Endpoint 接线到 NotificationMod，在审核事务中写入。
+- SystemMod 只定义自己的枚举目录，外部枚举值由 ApiService 汇总。枚举目录使用缓存工厂生成有效值，修复首次未命中时尝试序列化空值的问题。没有实体和迁移变更。
+- 审核 2 项、通知 5 项 API 集成测试在隔离 PostgreSQL 通过。现有 CLI 仍会拦截可打包目录里的跨模块 Endpoint，审核和通知没有出独立新包，SystemMod 保留原包。
+- Windows x64 Native AOT 重新发布后，在隔离 PostgreSQL 验证健康检查、登录以及枚举目录首次和重复读取均通过。发布保留既有 HybridCache 裁剪警告。
