@@ -11,7 +11,6 @@ import { AdminClient } from 'src/app/services/admin/admin-client';
   selector: 'app-sys-role-edit',
   imports: CommonFormModules,
   templateUrl: './edit.html',
-  styleUrl: './edit.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SysRoleEditComponent {

@@ -1,6 +1,6 @@
 .summary {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 180px), 1fr));
   gap: 12px;
   margin-bottom: 18px;
 }
@@ -23,6 +23,9 @@
   padding: 8px 0;
   border-bottom: 1px solid #eee;
 }
-mat-dialog-content {
-  min-width: min(720px, 80vw);
+
+@media (max-width: 600px) {
+  .task {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }

@@ -20,8 +20,6 @@
   display: grid;
   grid-template-columns: repeat(6, minmax(0, 1fr));
   gap: 0.25rem;
-  max-height: 22rem;
-  overflow: auto;
   padding: 0.5rem 0.125rem 0.125rem;
 }
 

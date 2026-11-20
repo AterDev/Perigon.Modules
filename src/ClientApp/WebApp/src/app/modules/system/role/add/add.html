@@ -1,7 +1,7 @@
 <h2 mat-dialog-title>{{ i18nKeys.systemRole.add | translate }}</h2>
-<mat-dialog-content>
+<mat-dialog-content class="form-dialog-content">
   <form [formGroup]="form" (ngSubmit)="save()" class="dialog-form">
-    <mat-form-field appearance="outline">
+    <mat-form-field appearance="outline" subscriptSizing="dynamic">
       <mat-label>{{ i18nKeys.systemRole.name | translate }}</mat-label>
       <input matInput formControlName="name" />
       @if (form.controls.name.hasError('required')) {
@@ -9,7 +9,7 @@
       }
     </mat-form-field>
 
-    <mat-form-field appearance="outline">
+    <mat-form-field appearance="outline" subscriptSizing="dynamic">
       <mat-label>{{ i18nKeys.systemRole.nameValue | translate }}</mat-label>
       <input matInput formControlName="nameValue" />
       @if (form.controls.nameValue.hasError('required')) {

@@ -5,6 +5,31 @@
 @include mat.elevation-classes();
 @include mat.app-background();
 
+.cdk-overlay-pane.mat-mdc-dialog-panel {
+  max-height: 96dvh;
+}
+
+.mat-mdc-dialog-surface mat-dialog-content.mat-mdc-dialog-content {
+  max-height: none;
+  min-height: 0;
+  min-width: 0;
+  padding-block: 0.25rem;
+  overflow-wrap: anywhere;
+  // Contain positioned control decorations within the body scroll area.
+  position: relative;
+}
+
+.form-dialog-content .dialog-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  min-width: 0;
+}
+
+mat-dialog-content.mat-mdc-dialog-content mat-form-field {
+  min-width: 0;
+}
+
 html,
 body {
   height: 100%;

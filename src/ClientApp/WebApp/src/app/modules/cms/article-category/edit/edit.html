@@ -1,7 +1,7 @@
 <h2 mat-dialog-title>{{ i18nKeys.cms.category.editTitle | translate }}</h2>
 <mat-dialog-content>
   <form [formGroup]="form" (ngSubmit)="save()" class="dialog-form">
-    <mat-form-field appearance="outline">
+    <mat-form-field appearance="outline" subscriptSizing="dynamic">
       <mat-label>{{ i18nKeys.cms.category.name | translate }} </mat-label>
       <input matInput formControlName="name" />
       @if (form.controls.name.hasError('required')) {

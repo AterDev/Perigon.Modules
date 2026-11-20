@@ -1,12 +1,7 @@
-:host {
-  display: block;
-}
-
 .resource-form {
   display: flex;
   flex-direction: column;
   gap: 1rem;
-  min-width: min(820px, 82vw);
   padding: 0.25rem 0;
 }
 

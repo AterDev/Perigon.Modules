@@ -1,7 +1,7 @@
 <h2 mat-dialog-title>{{ i18nKeys.common.add | translate }}</h2>
 <mat-dialog-content>
   <form [formGroup]="form" (ngSubmit)="save()" class="dialog-form">
-    <mat-form-field appearance="outline">
+    <mat-form-field appearance="outline" subscriptSizing="dynamic">
       <mat-label>{{ i18nKeys.sysDataScope.name | translate }}</mat-label>
       <input matInput formControlName="name" />
       @if (form.controls.name.hasError('required')) {
@@ -9,7 +9,7 @@
       }
     </mat-form-field>
 
-    <mat-form-field appearance="outline">
+    <mat-form-field appearance="outline" subscriptSizing="dynamic">
       <mat-label
         >{{ i18nKeys.sysDataScope.resourceCode | translate }}</mat-label
       >
@@ -19,7 +19,7 @@
       }
     </mat-form-field>
 
-    <mat-form-field appearance="outline">
+    <mat-form-field appearance="outline" subscriptSizing="dynamic">
       <mat-label>{{ i18nKeys.sysDataScope.scopeType | translate }}</mat-label>
       <mat-select formControlName="scopeType">
         @for (type of typeOptions; track type.value) {
@@ -31,7 +31,7 @@
     </mat-form-field>
 
     @if (isIncludeScope) {
-    <mat-form-field appearance="outline">
+    <mat-form-field appearance="outline" subscriptSizing="dynamic">
       <mat-label>{{ i18nKeys.sysDataScope.targetIds | translate }}</mat-label>
       <textarea matInput formControlName="targetIdsText" rows="4"></textarea>
       <mat-hint>{{ i18nKeys.sysDataScope.targetIdsHint | translate }}</mat-hint>
@@ -43,7 +43,7 @@
     </mat-form-field>
     }
 
-    <mat-form-field appearance="outline">
+    <mat-form-field appearance="outline" subscriptSizing="dynamic">
       <mat-label>{{ i18nKeys.sysDataScope.group | translate }}</mat-label>
       <mat-select formControlName="groupId">
         @for (group of groups(); track group.id) {

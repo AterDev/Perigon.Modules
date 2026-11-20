@@ -1,7 +1,7 @@
 <h2 mat-dialog-title>{{ i18nKeys.common.edit | translate }}</h2>
 <mat-dialog-content>
   <form [formGroup]="form" (ngSubmit)="save()" class="dialog-form">
-    <mat-form-field appearance="outline">
+    <mat-form-field appearance="outline" subscriptSizing="dynamic">
       <mat-label>{{ i18nKeys.systemUser.userName | translate }}</mat-label>
       <input matInput formControlName="userName" />
       @if (form.controls.userName.hasError('required')) {
@@ -9,17 +9,17 @@
       }
     </mat-form-field>
 
-    <mat-form-field appearance="outline">
+    <mat-form-field appearance="outline" subscriptSizing="dynamic">
       <mat-label>{{ i18nKeys.systemUser.newPassword | translate }}</mat-label>
       <input matInput type="password" formControlName="password" />
     </mat-form-field>
 
-    <mat-form-field appearance="outline">
+    <mat-form-field appearance="outline" subscriptSizing="dynamic">
       <mat-label>{{ i18nKeys.systemUser.realName | translate }}</mat-label>
       <input matInput formControlName="realName" />
     </mat-form-field>
 
-    <mat-form-field appearance="outline">
+    <mat-form-field appearance="outline" subscriptSizing="dynamic">
       <mat-label>{{ i18nKeys.systemUser.email | translate }}</mat-label>
       <input matInput type="email" formControlName="email" />
       @if (form.controls.email.hasError('email')) {
@@ -27,12 +27,12 @@
       }
     </mat-form-field>
 
-    <mat-form-field appearance="outline">
+    <mat-form-field appearance="outline" subscriptSizing="dynamic">
       <mat-label>{{ i18nKeys.systemUser.phoneNumber | translate }}</mat-label>
       <input matInput formControlName="phoneNumber" />
     </mat-form-field>
 
-    <mat-form-field appearance="outline">
+    <mat-form-field appearance="outline" subscriptSizing="dynamic">
       <mat-label>{{ i18nKeys.systemUser.gender | translate }}</mat-label>
       <mat-select formControlName="sex">
         @for (gender of genders; track gender.value) {
@@ -43,7 +43,7 @@
       </mat-select>
     </mat-form-field>
 
-    <mat-form-field appearance="outline">
+    <mat-form-field appearance="outline" subscriptSizing="dynamic">
       <mat-label>{{ i18nKeys.systemUser.role | translate }}</mat-label>
       <mat-select formControlName="roleIds" multiple>
         @for (role of roles(); track role.id) {
@@ -52,7 +52,7 @@
       </mat-select>
     </mat-form-field>
 
-    <mat-form-field appearance="outline">
+    <mat-form-field appearance="outline" subscriptSizing="dynamic">
       <mat-label>{{ i18nKeys.systemUser.avatarUrl | translate }}</mat-label>
       <input matInput formControlName="avatar" />
     </mat-form-field>

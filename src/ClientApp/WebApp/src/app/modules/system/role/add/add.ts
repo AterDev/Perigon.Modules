@@ -11,7 +11,6 @@ import { AdminClient } from 'src/app/services/admin/admin-client';
   selector: 'app-sys-role-add',
   imports: CommonFormModules,
   templateUrl: './add.html',
-  styleUrl: './add.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SysRoleAddComponent {
