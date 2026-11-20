@@ -12,11 +12,9 @@ public class SysUserDataScopeGroup : EntityBase
     public Guid DataScopeGroupId { get; set; }
 
     [ForeignKey(nameof(UserId))]
-    [NotMapped]
     public SysUser User { get; set; } = default!;
 
     [ForeignKey(nameof(DataScopeGroupId))]
-    [NotMapped]
     public SysDataScopeGroup DataScopeGroup { get; set; } = default!;
 
 }

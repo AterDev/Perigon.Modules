@@ -23,13 +23,11 @@ public class SysDataScopeGroup : EntityBase
     /// </summary>
     public bool IsEnabled { get; set; } = true;
 
-    [NotMapped]
     public ICollection<SysDataScope> DataScopes { get; set; } = [];
 
     /// <summary>
     /// 数据权限关联表
     /// </summary>
-    [NotMapped]
     public ICollection<SysUserDataScopeGroup> Users { get; set; } = [];
 
 }

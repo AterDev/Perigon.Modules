@@ -62,23 +62,18 @@ public class SysUser : EntityBase
     /// </summary>
     [StringLength(200)]
     public string? Avatar { get; set; }
-    [NotMapped]
     public ICollection<SysUserRole> SysUserRoles { get; set; } = [];
-    [NotMapped]
     public ICollection<SysLogs> SysLogs { get; set; } = [];
-    [NotMapped]
     public ICollection<SysUserOrganization> SysUserOrganizations { get; set; } = [];
 
     /// <summary>
     /// 数据权限关联表
     /// </summary>
-    [NotMapped]
     public ICollection<SysUserDataScopeGroup> DataScopeGroups { get; set; } = [];
 
     /// <summary>
     /// 性别
     /// </summary>
-    [Column("Sex")]
     public Sex Sex { get; set; } = Sex.Male;
 
     public string GetUniqueKey(string prefix, string client)

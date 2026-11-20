@@ -30,7 +30,6 @@ public class SysMenu : EntityBase, ITreeNode<SysMenu>
     /// 父菜单
     /// </summary>
     [ForeignKey(nameof(ParentId))]
-    [NotMapped]
     public SysMenu? Parent { get; set; }
     public Guid? ParentId { get; set; }
 
@@ -42,13 +41,11 @@ public class SysMenu : EntityBase, ITreeNode<SysMenu>
     /// <summary>
     /// 子菜单
     /// </summary>
-    [NotMapped]
     public List<SysMenu> Children { get; set; } = [];
 
     /// <summary>
     /// 所属角色关联
     /// </summary>
-    [NotMapped]
     public ICollection<SysMenuRole> SysMenuRoles { get; set; } = [];
 
     /// <summary>
@@ -61,7 +58,6 @@ public class SysMenu : EntityBase, ITreeNode<SysMenu>
     /// <summary>
     /// 菜单类型
     /// </summary>
-    [Column("MenuType")]
     public MenuType MenuType { get; set; } = MenuType.Page;
 
     /// <summary>

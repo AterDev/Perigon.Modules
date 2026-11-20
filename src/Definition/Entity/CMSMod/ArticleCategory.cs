@@ -19,16 +19,14 @@ public class ArticleCategory : EntityBase, ITreeNode<ArticleCategory>
     /// <summary>
     /// 子目录
     /// </summary>
-    [NotMapped]
     public List<ArticleCategory> Children { get; set; } = [];
 
     /// <summary>
     /// 父目录
     /// </summary>
-    [NotMapped, ForeignKey(nameof(ParentId))]
+    [ForeignKey(nameof(ParentId))]
     public ArticleCategory? Parent { get; set; }
     public Guid? ParentId { get; set; }
-    [NotMapped]
     public ICollection<Article> Blogs { get; set; } = [];
 
     public Guid UserId { get; set; }

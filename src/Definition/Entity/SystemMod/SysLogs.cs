@@ -40,7 +40,6 @@ public class SysLogs : EntityBase
     /// <summary>
     /// 操作类型
     /// </summary>
-    [Column("ActionType")]
     public UserActionType ActionType { get; set; }
 
     /// <summary>
@@ -53,7 +52,6 @@ public class SysLogs : EntityBase
     }
 
     [ForeignKey(nameof(SysUserId))]
-    [NotMapped]
     public SysUser SysUser { get; set; } = null!;
 
     public Guid SysUserId { get; set; } = default!;

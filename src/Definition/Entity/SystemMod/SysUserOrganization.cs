@@ -19,13 +19,11 @@ public class SysUserOrganization : EntityBase
     /// 导航属性 - 用户
     /// </summary>
     [ForeignKey(nameof(UserId))]
-    [NotMapped]
     public SysUser User { get; set; } = default!;
 
     /// <summary>
     /// 导航属性 - 组织
     /// </summary>
     [ForeignKey(nameof(OrganizationId))]
-    [NotMapped]
     public SysOrganization Organization { get; set; } = default!;
 }

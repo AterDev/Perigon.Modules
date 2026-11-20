@@ -3,8 +3,8 @@ using Perigon.PostgreSQL.Migrations;
 
 namespace EntityFramework.AppDbContext;
 
-[Migration(typeof(EntityFramework.AppDbContext.DefaultDbContext), "20261119062655755_Init")]
-public sealed class Init_20261119062655755Migration : Migration
+[Migration(typeof(EntityFramework.AppDbContext.DefaultDbContext), "20261120011502261_Init")]
+public sealed class Init_20261120011502261Migration : Migration
 {
     public override void Up(MigrationBuilder migrationBuilder)
     {
@@ -26,7 +26,7 @@ public sealed class Init_20261119062655755Migration : Migration
                 "Authors" character varying(200) NOT NULL,
                 "CatalogId" uuid NOT NULL,
                 "Content" character varying(200000) NOT NULL,
-                "ContentType" integer NOT NULL,
+                "ContentType" smallint NOT NULL,
                 "CreatedTime" timestamp with time zone NOT NULL,
                 "Description" character varying(300),
                 "Id" uuid NOT NULL,
@@ -34,7 +34,7 @@ public sealed class Init_20261119062655755Migration : Migration
                 "IsDeleted" boolean NOT NULL,
                 "IsOriginal" boolean NOT NULL,
                 "IsPublic" boolean NOT NULL,
-                "LanguageType" integer NOT NULL,
+                "LanguageType" smallint NOT NULL,
                 "Title" character varying(100) NOT NULL,
                 "UpdatedTime" timestamp with time zone NOT NULL,
                 "UserId" uuid NOT NULL,
@@ -57,14 +57,14 @@ public sealed class Init_20261119062655755Migration : Migration
             """, false, null);
         migrationBuilder.Sql("""
             CREATE TABLE "AuditRecordDetails" (
-                "AuditModeSnapshotValue" integer NOT NULL,
+                "AuditModeSnapshotValue" smallint NOT NULL,
                 "AuditRecordId" uuid NOT NULL,
                 "CompletedTime" timestamp with time zone,
                 "CreatedTime" timestamp with time zone NOT NULL,
                 "Id" uuid NOT NULL,
                 "IsDeleted" boolean NOT NULL,
                 "StartedTime" timestamp with time zone,
-                "StatusValue" integer NOT NULL,
+                "StatusValue" smallint NOT NULL,
                 "StepDefinitionId" uuid NOT NULL,
                 "StepNameSnapshot" character varying(200) NOT NULL,
                 "StepNoSnapshot" integer NOT NULL,
@@ -87,7 +87,7 @@ public sealed class Init_20261119062655755Migration : Migration
                 "Id" uuid NOT NULL,
                 "IsDeleted" boolean NOT NULL,
                 "SceneCode" character varying(100) NOT NULL,
-                "StatusValue" integer NOT NULL,
+                "StatusValue" smallint NOT NULL,
                 "SubmittedTime" timestamp with time zone NOT NULL,
                 "UpdatedTime" timestamp with time zone NOT NULL,
                 "WithdrawReason" character varying(2000),
@@ -97,7 +97,7 @@ public sealed class Init_20261119062655755Migration : Migration
             """, false, null);
         migrationBuilder.Sql("""
             CREATE TABLE "AuditStepDefinitions" (
-                "AuditModeValue" integer NOT NULL,
+                "AuditModeValue" smallint NOT NULL,
                 "AuditorUserIds" uuid[] NOT NULL,
                 "CreatedTime" timestamp with time zone NOT NULL,
                 "FlowId" uuid NOT NULL,
@@ -119,7 +119,7 @@ public sealed class Init_20261119062655755Migration : Migration
                 "CreatedTime" timestamp with time zone NOT NULL,
                 "Id" uuid NOT NULL,
                 "IsDeleted" boolean NOT NULL,
-                "StatusValue" integer NOT NULL,
+                "StatusValue" smallint NOT NULL,
                 "UpdatedTime" timestamp with time zone NOT NULL,
                 CONSTRAINT "pk_AuditTasks" PRIMARY KEY ("Id")
             )
@@ -285,7 +285,7 @@ public sealed class Init_20261119062655755Migration : Migration
                 "MaxLength" integer NOT NULL,
                 "Name" character varying(60) NOT NULL,
                 "UpdatedTime" timestamp with time zone NOT NULL,
-                "ValueType" integer NOT NULL,
+                "ValueType" smallint NOT NULL,
                 CONSTRAINT "pk_ResDefinitionProperties" PRIMARY KEY ("Id")
             )
             """, false, null);
@@ -372,7 +372,7 @@ public sealed class Init_20261119062655755Migration : Migration
                 "ResourceId" uuid NOT NULL,
                 "UpdatedTime" timestamp with time zone NOT NULL,
                 "Value" character varying(1000) NOT NULL,
-                "ValueTypeSnapshot" integer NOT NULL,
+                "ValueTypeSnapshot" smallint NOT NULL,
                 CONSTRAINT "pk_ResValues" PRIMARY KEY ("Id")
             )
             """, false, null);
@@ -425,7 +425,7 @@ public sealed class Init_20261119062655755Migration : Migration
                 "IsDeleted" boolean NOT NULL,
                 "Name" character varying(60) NOT NULL,
                 "ResourceCode" character varying(30) NOT NULL,
-                "ScopeType" integer NOT NULL,
+                "ScopeType" smallint NOT NULL,
                 "TargetIds" uuid[] NOT NULL,
                 "UpdatedTime" timestamp with time zone NOT NULL,
                 CONSTRAINT "pk_SysDataScopes" PRIMARY KEY ("Id")
@@ -433,7 +433,7 @@ public sealed class Init_20261119062655755Migration : Migration
             """, false, null);
         migrationBuilder.Sql("""
             CREATE TABLE "SysLogs" (
-                "ActionType" integer NOT NULL,
+                "ActionType" smallint NOT NULL,
                 "ActionUserName" character varying(100) NOT NULL,
                 "CreatedTime" timestamp with time zone NOT NULL,
                 "Description" character varying(500),
@@ -466,7 +466,7 @@ public sealed class Init_20261119062655755Migration : Migration
                 "Id" uuid NOT NULL,
                 "IsDeleted" boolean NOT NULL,
                 "IsValid" boolean NOT NULL,
-                "MenuType" integer NOT NULL,
+                "MenuType" smallint NOT NULL,
                 "Name" character varying(60) NOT NULL,
                 "ParentId" uuid,
                 "Path" character varying(100),
@@ -551,7 +551,7 @@ public sealed class Init_20261119062655755Migration : Migration
                 "PhoneNumberConfirmed" boolean NOT NULL,
                 "RealName" character varying(30),
                 "RetryCount" integer NOT NULL,
-                "Sex" integer NOT NULL,
+                "Sex" smallint NOT NULL,
                 "TwoFactorEnabled" boolean NOT NULL,
                 "UpdatedTime" timestamp with time zone NOT NULL,
                 "UserName" character varying(30),
@@ -579,20 +579,20 @@ public sealed class Init_20261119062655755Migration : Migration
                 "UpdatedTime" timestamp with time zone NOT NULL,
                 "UserResourceId" uuid NOT NULL,
                 "Value" character varying(1000) NOT NULL,
-                "ValueTypeSnapshot" integer NOT NULL,
+                "ValueTypeSnapshot" smallint NOT NULL,
                 CONSTRAINT "pk_UserResValues" PRIMARY KEY ("Id")
             )
             """, false, null);
         migrationBuilder.Sql("""
             CREATE TABLE "UserResources" (
                 "ApprovedResourceId" uuid,
-                "AuditStatus" integer NOT NULL,
+                "AuditStatus" smallint NOT NULL,
                 "CreatedTime" timestamp with time zone NOT NULL,
                 "DefinitionId" uuid NOT NULL,
                 "Id" uuid NOT NULL,
                 "IsDeleted" boolean NOT NULL,
                 "ReviewComment" character varying(500),
-                "Status" integer NOT NULL,
+                "Status" smallint NOT NULL,
                 "UpdatedTime" timestamp with time zone NOT NULL,
                 "UserId" uuid NOT NULL,
                 CONSTRAINT "pk_UserResources" PRIMARY KEY ("Id")

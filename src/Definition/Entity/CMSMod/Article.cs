@@ -30,11 +30,9 @@ public class Article : EntityBase
     public string Authors { get; set; } = string.Empty;
 
     /// <summary>语言类型。</summary>
-    [Column("LanguageType")]
     public LanguageType LanguageType { get; set; } = CMSMod.LanguageType.CN;
 
     /// <summary>全站类别。</summary>
-    [Column("ContentType")]
     public ContentType ContentType { get; set; }
 
     /// <summary>
@@ -57,7 +55,7 @@ public class Article : EntityBase
     /// <summary>
     /// 所属目录
     /// </summary>
-    [NotMapped, ForeignKey(nameof(CatalogId))]
+    [ForeignKey(nameof(CatalogId))]
     public ArticleCategory Catalog { get; set; } = null!;
     public Guid CatalogId { get; set; }
 

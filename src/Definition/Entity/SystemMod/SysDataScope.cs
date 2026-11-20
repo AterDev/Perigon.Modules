@@ -29,14 +29,12 @@ public class SysDataScope : EntityBase
     /// <summary>
     /// 权限类型
     /// </summary>
-    [Column("ScopeType")]
     public DataScopeType ScopeType { get; set; }
 
     /// <summary>
     /// 权限组
     /// </summary>
     [ForeignKey(nameof(GroupId))]
-    [NotMapped]
     public SysDataScopeGroup Group { get; set; } = null!;
 
     public Guid GroupId { get; set; } = default!;
