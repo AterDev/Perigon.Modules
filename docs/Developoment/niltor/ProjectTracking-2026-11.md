@@ -39,3 +39,11 @@
 - 使用本地 Perigon.templates 1.3.18-local.4 和 Perigon.CLI 10.2.3-local.4 创建全新 MiniApi。CLI 将 CMSMod、ResourceMod 安装到同一 ApiService，并自动生成 JSON 上下文。Debug 与 Windows x64 Native AOT 均通过隔离 PostgreSQL 冒烟测试，覆盖健康检查、OpenAPI、两个鉴权列表接口、ResourceMod 初始化和 NotMapped 列映射。原生发布仍有模板及 HybridCache 的剪裁分析警告。
 - Modules 切换本地 Perigon.PostgreSQL 0.3.6 与迁移工具 0.3.7，移除枚举整数包装。隔离 PostgreSQL 验证 16 列原地转换、旧枚举值保留及越界回滚。Windows x64 Native AOT 发布、迁移与枚举接口读写通过。
 - ResourceMod 使用本地 Perigon.PostgreSQL 0.3.7 的导航识别约定，移除导航上的 NotMapped。定义属性的 Sort 从关联记录映射至响应 DTO，保留现有响应字段。离线对比确认迁移快照不变。
+- 2026-11-20：清理 CMS 和 System 实体的冗余映射特性。迁移为空，模型快照一致，Windows x64 Native AOT 实库和鉴权接口验证通过。
+- 2026-11-20：补齐 ngx-markdown 动态依赖，恢复 Aspire 前端。冻结安装及 Angular 生产构建通过，Playwright 验证登录、18 个页面和 CMS Markdown 详情。
+- 2026-11-20：新增系统组织树管理和可空 ExternalId，完成旧数据迁移、Windows x64 Native AOT、权限和 Playwright 增删改验证。
+- 2026-11-20：修复组织与角色弹窗的多余滚动条，记录 Angular 弹窗规则。生产构建及四种视口的 Playwright 验证通过。
+
+- 2026-11-20：统一 Angular Material 弹窗滚动规则，审查 27 个正文模板，Playwright 在四种视口验证 15 个代表性弹窗。
+- 2026-11-20：Aspire NuGet 包与 AppHost SDK 升级至 17.0.0，解决方案还原和构建通过。
+- 2026-11-20：AppHost 迁移至 Aspire 17 的路径式项目注册，重启后 API 与前端运行正常。

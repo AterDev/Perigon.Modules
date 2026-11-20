@@ -197,3 +197,38 @@
 
 - Perigon.PostgreSQL 0.3.7 识别引用和集合导航。ResourceMod 清理导航上的 NotMapped 和重复列名声明，保持列、索引和外键。离线模型快照相同。
 - 资源属性的 Sort 由 ResDefinitionPropertyMap 投影至响应 DTO。Windows x64 Native AOT 实库验证三个资源定义的 17 个属性排序值、JSON 和 OpenAPI，ApiTest 项目构建通过。
+
+### 2026-11-20 其余模块的实体映射清理
+
+- CMSMod 和 SystemMod 移除冗余导航和同名列特性。保留 AuditMod 旧列名映射与 SysLogs.Data 排除映射。离线生成的 Up 和 Down 为空，模型快照逐字节一致。
+- Windows x64 Native AOT 发布产物在隔离 PostgreSQL 启动。健康检查、OpenAPI、CMS 和 System 鉴权查询及 Resource 排序回归通过。HTTP 契约与数据库结构不变，产品设计无需调整。
+
+### 2026-11-20 Aspire 前端恢复
+
+- 补齐 ngx-markdown 动态导入使用的 marked-katex-extension，修复 Angular/Vite 开发服务器无法加载 CMS 模块的问题。前端冻结锁文件安装和生产构建通过。
+- 重启 Aspire 的 frontend 资源后，Playwright 用本地管理员完成登录并覆盖 18 个页面、Resource 配置与通知管理标签页，以及 CMS 测试文章的创建、Markdown 渲染和清理。ApiService 健康，浏览器检查没有出现新错误。
+
+### 2026-11-20 SystemMod 组织管理
+
+- 系统菜单新增管理员组织管理。支持查看树、新增根组织及子组织、编辑和移动、删除无关联的组织。后端校验循环、同级重名、下级与关联用户约束。
+- AddOrganizationExternalId 仅添加可空 varchar(40) 列。Windows x64 Native AOT 从旧 schema 启动迁移，保留已有组织记录。API 验证权限、组织增删改、40 字符边界和循环与下级约束。Playwright 验证实际组织页面添加子节点、编辑、清空外部 ID 和删除。
+- Angular 生产构建、C# 格式与 IDE0011 检查通过。数据库验证使用隔离 PostgreSQL。
+
+### 2026-11-20 系统表单弹窗滚动修复
+
+- 新增组织、角色新增和角色编辑共用弹窗正文布局。表单随弹窗宽度收缩，校验提示按需占高，视口高度不足时正文滚动，操作区始终可见。同步 Perigon Angular 技能。
+- Angular 生产构建通过。Playwright 覆盖四种视口，验证必填提示、滚动边界、窄屏及操作按钮可见性。字段契约与业务流程不变。
+
+### 2026-11-20 Angular 弹窗统一滚动布局
+
+- 排查 27 个 Material 弹窗正文。由全局样式统一约束视口高度和正文滚动，清理表单最小宽度、固定滚动区域与空白提示占位。同步 Perigon Angular 技能中的布局与验证规则。
+- Playwright 在四种视口验证 15 个代表性弹窗，覆盖校验提示、长表单和嵌套选择器。高度不足时正文可滚动，标题和操作区保持可见，未出现横向滚动或弹窗外层滚动。
+
+### 2026-11-20 Aspire 17.0
+
+- Aspire NuGet 集中版本与 AppHost SDK 升至 17.0.0。NuGet 源版本核对及隔离产物的解决方案还原构建通过。现有 AppHost SDK 和项目资源写法在 Aspire 17 中有弃用警告。
+
+### 2026-11-20 Aspire 17 AppHost 迁移
+
+- AppHost 改用标准 .NET SDK，显式引用 Aspire Hosting AppHost 和 Dotnet 17.0.0，并按项目路径注册 ApiService。
+- ApiTest 项目构建通过。重启 Aspire 后 ApiService、前端及两个连接字符串资源均由 Aspire 报告健康，API 健康检查与前端入口均返回 HTTP 200。
