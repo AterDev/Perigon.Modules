@@ -17,7 +17,7 @@ var cache = builder.AddConnectionString(AppConst.Cache);
 
 #region services
 var serviceGroup = builder.AddGroup("Services", "Globe");
-var apiService = builder.AddProject<Projects.ApiService>("ApiService")
+var apiService = builder.AddDotnetProject("ApiService", "../Services/ApiService/ApiService.csproj")
     .WithParentRelationship(serviceGroup);
 builder.AddJavaScriptApp(
         "frontend",
