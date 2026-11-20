@@ -1,0 +1,49 @@
+.organization-card {
+  margin-top: 1rem;
+}
+
+.organization-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.organization-row {
+  align-items: center;
+  border-bottom: 1px solid var(--mat-sys-outline-variant);
+  display: flex;
+  gap: 0.25rem;
+  min-height: 3.5rem;
+  padding-bottom: 0.25rem;
+  padding-right: 0.25rem;
+  padding-top: 0.25rem;
+}
+
+.organization-row:last-child {
+  border-bottom: 0;
+}
+
+.expand-button {
+  flex: 0 0 auto;
+}
+
+.organization-icon {
+  color: var(--mat-sys-primary);
+}
+
+.organization-info {
+  align-items: center;
+  display: flex;
+  flex: 1;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  min-width: 0;
+}
+
+.organization-name {
+  font-weight: 500;
+}
+
+.organization-actions {
+  display: flex;
+  flex: 0 0 auto;
+}

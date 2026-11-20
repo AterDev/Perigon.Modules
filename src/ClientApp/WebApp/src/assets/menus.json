@@ -100,6 +100,15 @@
         "menuType": 0
       },
       {
+        "name": "menu.systemOrganization",
+        "path": "/system/organization",
+        "accessCode": "system-organization",
+        "icon": "account_tree",
+        "sort": 2,
+        "menuType": 0,
+        "adminOnly": true
+      },
+      {
         "name": "menu.systemLogs",
         "path": "/system/log",
         "accessCode": "system-logs",

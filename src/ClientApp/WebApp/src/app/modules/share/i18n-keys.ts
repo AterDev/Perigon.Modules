@@ -125,6 +125,23 @@ export const I18N_KEYS = {
     "accessFailedCount": "systemUser.accessFailedCount",
     "retryCount": "systemUser.retryCount"
   },
+  "systemOrganization": {
+    "title": "systemOrganization.title",
+    "description": "systemOrganization.description",
+    "name": "systemOrganization.name",
+    "externalId": "systemOrganization.externalId",
+    "parent": "systemOrganization.parent",
+    "root": "systemOrganization.root",
+    "add": "systemOrganization.add",
+    "addChild": "systemOrganization.addChild",
+    "edit": "systemOrganization.edit",
+    "toggle": "systemOrganization.toggle",
+    "empty": "systemOrganization.empty",
+    "deleteConfirm": "systemOrganization.deleteConfirm",
+    "createSuccess": "systemOrganization.createSuccess",
+    "updateSuccess": "systemOrganization.updateSuccess",
+    "deleteSuccess": "systemOrganization.deleteSuccess"
+  },
   "language": "language",
   "validation": {
     "required": "validation.required",
@@ -141,6 +158,7 @@ export const I18N_KEYS = {
     "system": "menu.system",
     "systemRole": "menu.systemRole",
     "systemUser": "menu.systemUser",
+    "systemOrganization": "menu.systemOrganization",
     "systemLogs": "menu.systemLogs",
     "systemPermission": "menu.systemPermission",
     "systemConfig": "menu.systemConfig",

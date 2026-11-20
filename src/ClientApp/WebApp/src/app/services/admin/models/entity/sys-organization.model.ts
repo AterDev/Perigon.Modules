@@ -14,10 +14,12 @@ export interface SysOrganization {
   isDeleted: boolean;
   /** 名称 */
   name: string;
+  /** 外部系统中的组织标识 */
+  externalId?: string | null;
   /** 子目录 */
   children: SysOrganization[];
   /** 组织结构 */
-  parent: SysOrganization;
+  parent?: SysOrganization | null;
   /** parentId */
   parentId?: string | null;
   /** users */

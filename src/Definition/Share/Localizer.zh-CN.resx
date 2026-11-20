@@ -224,4 +224,19 @@
   <data name="InvalidToken" xml:space="preserve">
     <value>无效的令牌</value>
   </data>
+  <data name="OrganizationParentCycle" xml:space="preserve">
+    <value>组织不能移动到自身或其子组织下</value>
+  </data>
+  <data name="OrganizationHasChildren" xml:space="preserve">
+    <value>请先删除子组织，再删除当前组织</value>
+  </data>
+  <data name="OrganizationHasUsers" xml:space="preserve">
+    <value>请先移除当前组织中的用户，再删除组织</value>
+  </data>
+  <data name="OrganizationNameExists" xml:space="preserve">
+    <value>当前层级已存在同名组织</value>
+  </data>
+  <data name="OrganizationNameRequired" xml:space="preserve">
+    <value>组织名称不能为空</value>
+  </data>
 </root>

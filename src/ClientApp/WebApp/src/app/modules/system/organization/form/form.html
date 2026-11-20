@@ -1,0 +1,41 @@
+<h2 mat-dialog-title>
+  {{ (editing ? i18nKeys.systemOrganization.edit : i18nKeys.systemOrganization.add) | translate }}
+</h2>
+<mat-dialog-content>
+  <form [formGroup]="form" (ngSubmit)="save()">
+    <mat-form-field appearance="outline">
+      <mat-label>{{ i18nKeys.systemOrganization.name | translate }}</mat-label>
+      <input matInput formControlName="name" maxlength="100" />
+      @if (form.controls.name.hasError('required')) {
+      <mat-error>{{ i18nKeys.validation.required | translate }}</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>{{ i18nKeys.systemOrganization.parent | translate }}</mat-label>
+      <mat-select formControlName="parentId">
+        <mat-option [value]="null">
+          {{ i18nKeys.systemOrganization.root | translate }}
+        </mat-option>
+        @for (option of options; track option.organization.id) {
+        <mat-option [value]="option.organization.id">
+          {{ '　'.repeat(option.level) }}{{ option.organization.name }}
+        </mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>{{ i18nKeys.systemOrganization.externalId | translate }}</mat-label>
+      <input matInput formControlName="externalId" maxlength="40" />
+    </mat-form-field>
+  </form>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button type="button" mat-dialog-close [disabled]="saving()">
+    {{ i18nKeys.common.cancel | translate }}
+  </button>
+  <button mat-flat-button type="button" [disabled]="saving()" (click)="save()">
+    {{ i18nKeys.common.save | translate }}
+  </button>
+</mat-dialog-actions>

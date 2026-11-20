@@ -122,6 +122,23 @@
     "accessFailedCount": "访问失败次数",
     "retryCount": "密码重试次数"
   },
+  "systemOrganization": {
+    "title": "组织结构",
+    "description": "查看和管理系统组织层级。",
+    "name": "组织名称",
+    "externalId": "外部系统标识",
+    "parent": "上级组织",
+    "root": "顶级组织",
+    "add": "新增组织",
+    "addChild": "新增下级组织",
+    "edit": "编辑组织",
+    "toggle": "展开或收起组织",
+    "empty": "暂无组织",
+    "deleteConfirm": "确定删除组织“{{name}}”吗？",
+    "createSuccess": "组织已创建",
+    "updateSuccess": "组织已更新",
+    "deleteSuccess": "组织已删除"
+  },
   "language": "语言",
   "validation": {
     "required": "此字段是必填项",
@@ -138,6 +155,7 @@
     "system": "系统管理",
     "systemRole": "角色管理",
     "systemUser": "账号管理",
+    "systemOrganization": "组织管理",
     "systemLogs": "系统日志",
     "systemPermission": "数据权限",
     "systemConfig": "系统设置",

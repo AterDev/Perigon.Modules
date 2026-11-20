@@ -8,6 +8,7 @@ import { SysDataScopeService } from './services/sys-data-scope.service';
 import { SysDataScopeGroupService } from './services/sys-data-scope-group.service';
 import { SysLogsService } from './services/sys-logs.service';
 import { SysMenuService } from './services/sys-menu.service';
+import { SysOrganizationService } from './services/sys-organization.service';
 import { SysRoleService } from './services/sys-role.service';
 import { SysUserService } from './services/sys-user.service';
 import { UserFavoriteResourceService } from './services/user-favorite-resource.service';
@@ -35,6 +36,8 @@ export class AdminClient {
   public sysLogs = inject(SysLogsService);
   /** 系统菜单 */
   public sysMenu = inject(SysMenuService);
+  /** 系统组织结构。 */
+  public sysOrganization = inject(SysOrganizationService);
   /** 系统角色
 SystemMod.Managers.SysRoleManager */
   public sysRole = inject(SysRoleService);

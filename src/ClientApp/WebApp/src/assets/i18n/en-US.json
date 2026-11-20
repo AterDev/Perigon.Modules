@@ -122,6 +122,23 @@
     "accessFailedCount": "Access Failed Count",
     "retryCount": "Retry Count"
   },
+  "systemOrganization": {
+    "title": "Organization structure",
+    "description": "View and manage the system organization hierarchy.",
+    "name": "Organization name",
+    "externalId": "External system ID",
+    "parent": "Parent organization",
+    "root": "Top-level organization",
+    "add": "Add organization",
+    "addChild": "Add child organization",
+    "edit": "Edit organization",
+    "toggle": "Expand or collapse organization",
+    "empty": "No organizations",
+    "deleteConfirm": "Delete organization “{{name}}”?",
+    "createSuccess": "Organization created",
+    "updateSuccess": "Organization updated",
+    "deleteSuccess": "Organization deleted"
+  },
   "language": "Language",
   "validation": {
     "required": "This field is required",
@@ -138,6 +155,7 @@
     "system": "System",
     "systemRole": "Role",
     "systemUser": "Account",
+    "systemOrganization": "Organizations",
     "systemLogs": "Logs",
     "systemPermission": "Data scopes",
     "systemConfig": "Settings",

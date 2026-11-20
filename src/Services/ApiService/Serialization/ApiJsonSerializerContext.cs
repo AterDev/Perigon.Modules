@@ -41,6 +41,7 @@ using SystemMod.Models.SysDataScopeDtos;
 using SystemMod.Models.SysDataScopeGroupDtos;
 using SystemMod.Models.SysLogsDtos;
 using SystemMod.Models.SysMenuDtos;
+using SystemMod.Models.SysOrganizationDtos;
 using SystemMod.Models.SysRoleDtos;
 using SystemMod.Models.SysUserDataScopeGroupDtos;
 using SystemMod.Models.SysUserDtos;
@@ -200,6 +201,9 @@ namespace ApiService;
 [JsonSerializable(typeof(SysMenuFilterDto))]
 [JsonSerializable(typeof(SysMenuSyncDto))]
 [JsonSerializable(typeof(SysMenuUpdateDto))]
+[JsonSerializable(typeof(SysOrganizationAddDto))]
+[JsonSerializable(typeof(SysOrganizationItemDto))]
+[JsonSerializable(typeof(SysOrganizationUpdateDto))]
 [JsonSerializable(typeof(SysRoleAddDto))]
 [JsonSerializable(typeof(SysRoleDetailDto))]
 [JsonSerializable(typeof(SysRoleItemDto))]
@@ -214,6 +218,7 @@ namespace ApiService;
 [JsonSerializable(typeof(UserInfoDto))]
 [JsonSerializable(typeof(int))]
 [JsonSerializable(typeof(string))]
+[JsonSerializable(typeof(List<SysOrganizationItemDto>))]
 // </perigon-aot-json:generated>
 // OpenAPI describes multipart files and flattened query parameters via JSON metadata.
 // These types are not JSON request bodies.

@@ -224,4 +224,19 @@
   <data name="InvalidToken" xml:space="preserve">
     <value>Token is Invalid</value>
   </data>
+  <data name="OrganizationParentCycle" xml:space="preserve">
+    <value>An organization cannot be moved below itself or its descendants</value>
+  </data>
+  <data name="OrganizationHasChildren" xml:space="preserve">
+    <value>Delete child organizations before deleting this organization</value>
+  </data>
+  <data name="OrganizationHasUsers" xml:space="preserve">
+    <value>Remove assigned users before deleting this organization</value>
+  </data>
+  <data name="OrganizationNameExists" xml:space="preserve">
+    <value>An organization with the same name already exists at this level</value>
+  </data>
+  <data name="OrganizationNameRequired" xml:space="preserve">
+    <value>Organization name is required</value>
+  </data>
 </root>

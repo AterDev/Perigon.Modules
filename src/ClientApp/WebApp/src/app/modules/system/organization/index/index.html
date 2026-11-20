@@ -1,0 +1,90 @@
+<section class="page">
+  <div class="d-flex align-items-center justify-content-between gap-3">
+    <div>
+      <h2>{{ i18nKeys.systemOrganization.title | translate }}</h2>
+      <p class="text-muted mb-0">
+        {{ i18nKeys.systemOrganization.description | translate }}
+      </p>
+    </div>
+    <button mat-flat-button type="button" (click)="add()">
+      <mat-icon>add</mat-icon>
+      {{ i18nKeys.systemOrganization.add | translate }}
+    </button>
+  </div>
+
+  @if (loading()) {
+  <mat-spinner diameter="36" />
+  } @else if (loadFailed()) {
+  <p role="alert">
+    {{ i18nKeys.common.loadFail | translate }}
+    <button mat-button type="button" (click)="load()">
+      {{ i18nKeys.common.retry | translate }}
+    </button>
+  </p>
+  } @else if (rows().length === 0) {
+  <p class="empty">{{ i18nKeys.systemOrganization.empty | translate }}</p>
+  } @else {
+  <mat-card class="organization-card">
+    <mat-card-content>
+      <div class="organization-list" role="tree">
+        @for (row of rows(); track row.organization.id) {
+        <div
+          class="organization-row"
+          role="treeitem"
+          [attr.aria-level]="row.level + 1"
+          [attr.aria-expanded]="row.hasChildren ? isExpanded(row.organization) : null"
+          [style.padding-left.rem]="0.75 + row.level * 1.75"
+        >
+          <button
+            class="expand-button"
+            mat-icon-button
+            type="button"
+            [disabled]="!row.hasChildren"
+            (click)="toggle(row.organization)"
+            [attr.aria-label]="i18nKeys.systemOrganization.toggle | translate"
+          >
+            <mat-icon>{{ row.hasChildren && isExpanded(row.organization) ? 'expand_more' : 'chevron_right' }}</mat-icon>
+          </button>
+          <mat-icon class="organization-icon">business</mat-icon>
+          <div class="organization-info">
+            <span class="organization-name">{{ row.organization.name }}</span>
+            @if (row.organization.externalId) {
+            <code>{{ row.organization.externalId }}</code>
+            }
+          </div>
+          <div class="organization-actions">
+            <button
+              mat-icon-button
+              type="button"
+              (click)="add(row.organization.id)"
+              [matTooltip]="i18nKeys.systemOrganization.addChild | translate"
+              [attr.aria-label]="i18nKeys.systemOrganization.addChild | translate"
+            >
+              <mat-icon>subdirectory_arrow_right</mat-icon>
+            </button>
+            <button
+              mat-icon-button
+              type="button"
+              (click)="edit(row.organization)"
+              [matTooltip]="i18nKeys.common.edit | translate"
+              [attr.aria-label]="i18nKeys.common.edit | translate"
+            >
+              <mat-icon class="primary">edit</mat-icon>
+            </button>
+            <button
+              mat-icon-button
+              type="button"
+              (click)="remove(row.organization)"
+              [matTooltip]="i18nKeys.common.delete | translate"
+              [attr.aria-label]="i18nKeys.common.delete | translate"
+            >
+              <mat-icon class="error">delete</mat-icon>
+            </button>
+          </div>
+        </div>
+        }
+      </div>
+    </mat-card-content>
+  </mat-card>
+  }
+</section>

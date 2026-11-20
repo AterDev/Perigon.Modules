@@ -571,6 +571,7 @@ public sealed class DefaultDbContextModelSnapshot : MigrationModelSnapshot
         new MigrationTable(null, "SysOrganizations", null, new MigrationColumn[]
         {
             new MigrationColumn("CreatedTime", "timestamp with time zone", false, false, false, null, null, null),
+            new MigrationColumn("ExternalId", "character varying(40)", true, false, false, null, null, null),
             new MigrationColumn("Id", "uuid", false, false, false, null, null, null),
             new MigrationColumn("IsDeleted", "boolean", false, false, false, null, null, null),
             new MigrationColumn("Name", "character varying(100)", false, false, false, null, null, null),
