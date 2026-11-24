@@ -247,3 +247,12 @@
 - SystemMod 只定义自己的枚举目录，外部枚举值由 ApiService 汇总。枚举目录使用缓存工厂生成有效值，修复首次未命中时尝试序列化空值的问题。没有实体和迁移变更。
 - 审核 2 项、通知 5 项 API 集成测试在隔离 PostgreSQL 通过。现有 CLI 仍会拦截可打包目录里的跨模块 Endpoint，审核和通知没有出独立新包，SystemMod 保留原包。
 - Windows x64 Native AOT 重新发布后，在隔离 PostgreSQL 验证健康检查、登录以及枚举目录首次和重复读取均通过。发布保留既有 HybridCache 裁剪警告。
+
+### 2026-11-24 OpenAPI 枚举契约同步
+
+- ApiService 切换 Perigon.AspNetCore.SourceGeneration 1.1.3，使用构建生成并嵌入的 `enum-meta.generated.xml`；移除本地 OpenAPI 源生成器和 `x-enumData`，按 OpenAPI 3.1 annotated enumerations 输出整数枚举，别名使用 `anyOf`。上述历史记录中的 PAOPENAPI001/Int32 限制已不适用。
+- Debug 解决方案构建及单元测试通过（24 通过、2 跳过）；Windows x64 Native AOT 发布并以隔离无数据库连接的进程验证 `Sex` 的数字 const、成员名和中文描述。Linux/macOS 原生运行未验证；业务数据库路径不在本次验证范围。
+
+- 公开 NuGet 源和全新包缓存还原 ApiService、Debug 构建及元数据生成通过；存在既有 SysUserManager CS8601 警告。
+
+- 当前 Perigon.CLI 客户端生成仍以 `enum` 或 `x-enumData` 判断枚举并读取旧扩展；它尚不识别本次 `oneOf`/`const` 输出。既有生成客户端不变，但重新生成前需先完成 CLI 兼容更新并验证。

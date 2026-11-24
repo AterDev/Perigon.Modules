@@ -49,3 +49,9 @@
 - 2026-11-20：AppHost 迁移至 Aspire 17 的路径式项目注册，重启后 API 与前端运行正常。
 - 2026-11-20：用 Perigon.CLI 正式版重生成 AOT JSON 上下文和 CMSMod、ResourceMod 1.1.0。Win-x64 Native AOT 发布及模板安装构建通过，三个存在跨模块引用的独立包待处理。
 - 2026-11-20：审核、通知的跨模块调用迁移到 ApiService Endpoint，Manager 使用 ID 和 DTO，7 项 PostgreSQL API 集成测试通过。
+
+- 2026-11-24：ApiService 同步模板 OpenAPI 3.1 与 1.1.3 枚举 XML 元数据，移除旧本地生成器和 x-enumData；Windows x64 Native AOT 文档请求验证通过，细节见 PT0002。
+
+- 2026-11-24：使用 nuget.org 单源及全新包缓存还原模块 ApiService，确认 1.1.3 公开包可生成 XML。
+
+- 2026-11-24：发现现有 Perigon.CLI 客户端生成未识别 annotated enum；重新生成客户端前需更新 CLI 并验证。

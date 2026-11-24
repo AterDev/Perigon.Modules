@@ -8,7 +8,11 @@ builder.AddMiddlewareServices();
 builder.Services.AddValidation();
 builder.Services.ConfigureHttpJsonOptions(options =>
     options.SerializerOptions.TypeInfoResolverChain.Insert(0, ApiService.ApiJsonSerializerContext.Default));
-builder.Services.AddOpenApi(options => options.AddSchemaTransformer<ApiService.OpenApi.EnumSchemaTransformer>());
+builder.Services.AddOpenApi(options =>
+{
+    options.OpenApiVersion = Microsoft.OpenApi.OpenApiSpecVersion.OpenApi3_1;
+    options.AddSchemaTransformer<ApiService.OpenApi.EnumSchemaTransformer>();
+});
 builder.Services.AddAuthorizationBuilder()
     .AddPolicy(WebConst.AdminUser, policy => policy.RequireRole(WebConst.AdminUser, WebConst.SuperAdmin))
     .AddPolicy(WebConst.SuperAdmin, policy => policy.RequireRole(WebConst.SuperAdmin));
