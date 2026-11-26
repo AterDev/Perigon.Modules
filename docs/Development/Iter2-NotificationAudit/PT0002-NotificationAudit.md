@@ -275,3 +275,4 @@
 - Audit 和 Notification 用户查询改由各自 Demand 接口提供。验证宿主使用模块自己的委托接线，包内骨架无 SystemMod 等业务模块引用。Notification Webhook 使用模块自己的 JSON 源生成上下文。
 - 本地 SourceGeneration 1.1.5 包在目录、实现类和模块接口名均匹配时才生成注册。使用本地 Perigon.templates 11.0.0 创建新 MiniApi 项目，安装 AuditMod 1.0.0 和 NotificationMod 1.0.0 并构建后端，确认 3 个 Demand 接口均自动注册。官方 ZIP 的元数据与目录版本一致。
 - SystemMod 1.1.0 候选包安装到干净模板时缺少 Toolkit 的 `ImageHelper`。目录继续使用 1.0.0。Angular 源码打入 ZIP，未在独立模板中完成前端接入验收。
+- 使用 SourceGeneration 1.1.5 发布 ApiService 的 Windows x64 Native AOT 产物，OpenAPI 冒烟验证了审核、通知和 Webhook 路由。仍有既有 HybridCache 裁剪告警。本轮未执行 CLI AOT 验证。
