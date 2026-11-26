@@ -256,3 +256,22 @@
 - 公开 NuGet 源和全新包缓存还原 ApiService、Debug 构建及元数据生成通过；存在既有 SysUserManager CS8601 警告。
 
 - 当前 Perigon.CLI 客户端生成仍以 `enum` 或 `x-enumData` 判断枚举并读取旧扩展；它尚不识别本次 `oneOf`/`const` 输出。既有生成客户端不变，但重新生成前需先完成 CLI 兼容更新并验证。
+
+### 2026-11-26 ModuleDemand 打包与注册
+
+- CLI 支持打包和安装 `ModuleDemand/<模块名>`，检查骨架的跨模块引用，安装时保留同名实现。CLI 打包与解包定向测试 15 项通过，隔离项目实际执行打包、安装、重装和构建通过。
+- `ManagerSourceGen` 根据宿主目录和模块程序集名生成 scoped 注册。本仓库及模板继续引用公开版分析器，使用该功能需发布并升级分析器包。Audit 和 Notification 的现有业务接线待迁移。
+- 使用本地分析器包，验证两个接口在同一 DI 作用域共享实例，在独立作用域分别实例化。隔离项目 Windows x64 Native AOT 发布及运行通过。
+
+### 2026-11-26 移除 ApiService Composition
+
+- 审核通知改由 `IAuditNotificationDemand` 转交宿主写入原审核事务。ApiService 对公开版 SourceGeneration 1.1.3 使用 `TryAddScoped` 补齐注册。安装骨架可在宿主没有接入通知时继续执行审核流程。
+- 移除 `GET /api/SysConfig/enum`、手写枚举目录及无调用方的前端客户端。OpenAPI 继续读取 `enum-meta.generated.xml`。
+- `dotnet test --project test/UnitTest/UnitTest.csproj --no-restore` 通过 24 项，Redis 专项跳过 2 项。前端 `pnpm exec tsc --noEmit -p tsconfig.app.json` 通过。
+- ApiService Windows x64 Native AOT 发布成功，仍有 HybridCache 既有告警。原生宿主的 OpenAPI 中已无旧枚举路由，保留审核路由和来自 XML 的枚举注解。本轮未执行 PostgreSQL 审核通知链路测试，未执行 CLI AOT 验证。
+
+### 2026-11-26 模块包发布验证
+
+- Audit 和 Notification 用户查询改由各自 Demand 接口提供。验证宿主使用模块自己的委托接线，包内骨架无 SystemMod 等业务模块引用。Notification Webhook 使用模块自己的 JSON 源生成上下文。
+- 本地 SourceGeneration 1.1.5 包在目录、实现类和模块接口名均匹配时才生成注册。使用本地 Perigon.templates 11.0.0 创建新 MiniApi 项目，安装 AuditMod 1.0.0 和 NotificationMod 1.0.0 并构建后端，确认 3 个 Demand 接口均自动注册。官方 ZIP 的元数据与目录版本一致。
+- SystemMod 1.1.0 候选包安装到干净模板时缺少 Toolkit 的 `ImageHelper`。目录继续使用 1.0.0。Angular 源码打入 ZIP，未在独立模板中完成前端接入验收。

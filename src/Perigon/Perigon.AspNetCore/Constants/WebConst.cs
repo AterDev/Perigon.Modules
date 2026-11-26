@@ -60,7 +60,6 @@ public static class WebConst
     /// <summary>
     /// 枚举缓存
     /// </summary>
-    public const string EnumCacheName = "EnumConfigs:bin-v1";
 
     /// <summary>
     /// 权限缓存前缀

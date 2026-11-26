@@ -55,3 +55,9 @@
 - 2026-11-24：使用 nuget.org 单源及全新包缓存还原模块 ApiService，确认 1.1.3 公开包可生成 XML。
 
 - 2026-11-24：发现现有 Perigon.CLI 客户端生成未识别 annotated enum；重新生成客户端前需更新 CLI 并验证。
+
+- 2026-11-26：PT0002 记录 ModuleDemand 打包、安装保留与 AddModules 生成支持。CLI 定向测试 15 项通过。分析器发布及两个业务模块接线迁移待处理。
+
+- 2026-11-26：移除 ApiService Composition 和旧枚举路由。审核通知迁到 Audit Demand，用户查询迁移待处理。单测 24 项和前端类型检查通过，ApiService Windows x64 Native AOT 验证 OpenAPI 枚举文档通过。
+
+- 2026-11-26：完成 Audit、Notification 的用户需求接线。用本地 11.0.0 模板和 SourceGeneration 1.1.5 验证两个 1.0.0 模块包的安装、后端构建和自动注册。SystemMod 版本沿用 1.0.0，其候选包依赖干净模板尚未提供的验证码图像组件。

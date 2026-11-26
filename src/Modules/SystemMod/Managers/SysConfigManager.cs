@@ -21,21 +21,6 @@ public class SysConfigManager(
     private readonly CacheService _cache = cache;
 
     /// <summary>
-    /// 获取枚举信息
-    /// </summary>
-    /// <returns></returns>
-    public Task<Dictionary<string, List<EnumDictionary>>> GetEnumConfigsAsync(
-        IReadOnlyDictionary<string, List<EnumDictionary>> externalEntries,
-        CancellationToken cancellationToken
-    )
-    {
-        return _cache.GetOrCreateAsync(
-            WebConst.EnumCacheName,
-            _ => ValueTask.FromResult(SystemEnumCatalog.Create(externalEntries)),
-            cancellationToken);
-    }
-
-    /// <summary>
     /// 当前用户所拥有的对象
     /// </summary>
     /// <param name="id"></param>

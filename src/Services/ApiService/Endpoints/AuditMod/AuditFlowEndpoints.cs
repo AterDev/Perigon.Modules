@@ -1,5 +1,5 @@
 using AuditMod.Managers;
-using SystemMod.Managers;
+using AuditMod.Demands;
 using AuditMod.Models.AuditFlowDtos;
 using Perigon.AspNetCore.Models;
 using Share;
@@ -38,7 +38,7 @@ public sealed class AuditFlowEndpoints : RestEndpointBase
     public static async Task<RestEndpointBase.ApiResult<AuditFlowDetailDto>> AddAsync(
         AuditFlowAddDto dto,
         AuditFlowManager manager,
-        SysUserManager users,
+        IAuditUserDemand users,
         CancellationToken cancellationToken)
     {
         var userIds = await GetAvailableUserIdsAsync(dto.Steps, users, cancellationToken);
@@ -50,7 +50,7 @@ public sealed class AuditFlowEndpoints : RestEndpointBase
         Guid id,
         AuditFlowUpdateDto dto,
         AuditFlowManager manager,
-        SysUserManager users,
+        IAuditUserDemand users,
         CancellationToken cancellationToken)
     {
         var userIds = await GetAvailableUserIdsAsync(dto.Steps, users, cancellationToken);
@@ -59,13 +59,13 @@ public sealed class AuditFlowEndpoints : RestEndpointBase
 
     private static async Task<HashSet<Guid>> GetAvailableUserIdsAsync(
         IEnumerable<AuditFlowStepDto> steps,
-        SysUserManager users,
+        IAuditUserDemand users,
         CancellationToken cancellationToken)
     {
         var requestedIds = steps.SelectMany(step => step.AuditorUserIds).Distinct().ToArray();
         return requestedIds.Length == 0
             ? []
-            : (await users.GetUserIdsAsync(requestedIds, cancellationToken)).ToHashSet();
+            : (await users.GetExistingUserIdsAsync(requestedIds, cancellationToken)).ToHashSet();
     }
 
     public static async Task<RestEndpointBase.ApiResult<bool>> SetEnabledAsync(

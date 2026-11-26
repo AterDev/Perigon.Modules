@@ -1,11 +1,9 @@
-using ApiService.Composition;
+using AuditMod.Demands;
 using AuditMod.Managers;
 using AuditMod.Models.AuditRecordDtos;
-using NotificationMod.Managers;
 using Perigon.AspNetCore.Models;
 using Share;
 using Share.Implement;
-using SystemMod.Managers;
 
 namespace ApiService.Endpoints;
 
@@ -24,22 +22,19 @@ public sealed class AuditRecordEndpoints : RestEndpointBase
         AuditRecordSubmitDto dto,
         AuditSubmissionManager submission,
         AuditRecordManager manager,
-        SysUserManager users,
-        NotificationManager notifications,
+        IAuditUserDemand users,
+        IAuditNotificationDemand notificationDemand,
         CancellationToken cancellationToken)
     {
         var auditorIds = await submission.GetAuditorIdsAsync(dto.SceneCode, cancellationToken);
-        var auditorNames = await users.GetDisplayNamesAsync(auditorIds.ToArray(), cancellationToken);
+        var auditorNames = await users.GetDisplayNamesAsync(auditorIds, cancellationToken);
         var record = await submission.SubmitAsync(
             dto.SceneCode,
             dto.BizId,
             dto.ApplyReason,
             dto.FormSnapshotJson,
             auditorNames,
-            (context, message, ct) => notifications.PublishInTransactionAsync(
-                context,
-                message.ToNotificationDto(),
-                ct),
+            notificationDemand.PublishAsync,
             cancellationToken);
         var detail = await manager.GetAsync(record.Id, cancellationToken);
         return detail is null

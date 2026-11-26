@@ -4,7 +4,6 @@ import { Observable } from 'rxjs';
 import { SysConfigFilterDto } from '../models/system-mod/sys-config-filter-dto.model';
 import { PageList } from '../models/perigon/page-list.model';
 import { SysConfigItemDto } from '../models/system-mod/sys-config-item-dto.model';
-import { EnumDictionary } from '../models/perigon/enum-dictionary.model';
 import { SysConfigAddDto } from '../models/system-mod/sys-config-add-dto.model';
 import { SysConfig } from '../models/entity/sys-config.model';
 import { SysConfigUpdateDto } from '../models/system-mod/sys-config-update-dto.model';
@@ -21,13 +20,6 @@ export class SysConfigService extends BaseService {
   filter(data: SysConfigFilterDto): Observable<PageList<SysConfigItemDto>> {
     const _url = `/api/SysConfig/filter`;
     return this.request<PageList<SysConfigItemDto>>('post', _url, data);
-  }
-  /**
-   * 获取枚举信息 ✅
-   */
-  getEnumConfigs(): Observable<Record<string, EnumDictionary[]>> {
-    const _url = `/api/SysConfig/enum`;
-    return this.request<Record<string, EnumDictionary[]>>('get', _url);
   }
   /**
    * 新增 ✅

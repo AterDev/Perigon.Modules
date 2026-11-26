@@ -23,7 +23,7 @@
 ## 当前实现与验证边界
 
 - `NotificationMod` 已包含来源/规则/接收器、Webhook 事件与投递、站内消息及每用户收件状态；`AuditMod` 已包含审核流、步骤、记录、步骤明细和审核任务，并在状态推进时写入站内通知。
-- `AuditMod` 的 Manager 直接使用 `Entity.NotificationMod` 中的 `InAppNotification` 和 `InAppNotificationRecipient` 实体（例如 `src/Modules/AuditMod/Managers/AuditSubmissionManager.cs`、`AuditTaskManager.cs`），因此审核模块对通知模型存在运行时耦合；当前耦合通过共享 `Entity` 项目承载，未形成独立的 `AuditMod -> NotificationMod` 项目引用。
+- 审核 Endpoint 通过 `IAuditNotificationDemand` 将通知交给宿主。宿主在原审核事务内写入通知，未接入通知时审核仍可进行。Audit 和 Notification 分别通过各自的用户 Demand 查询用户，用户 ID 等关联由应用层维护。
 - 13 张新增表（Notification 8 张、Audit 5 张）当前只有主键、租户过滤器和业务索引，没有数据库外键；`src/Definition/EntityFramework/PostgresMigrations/20261117011052004_NotificationAudit.cs` 中未生成 `FOREIGN KEY/REFERENCES`。跨表及跨租户一致性目前依赖 Manager 校验，后续必须决定是否补充租户复合外键，不能把现状误认为数据库级完整性。
 - 已通过 .NET 11 全解决方案构建、迁移列表和空模型漂移检查；API 测试目前仅完成发现，未执行真实测试；本地 PostgreSQL 集成、迁移应用、Webhook 投递和恢复流程仍未取得运行时证据。
 

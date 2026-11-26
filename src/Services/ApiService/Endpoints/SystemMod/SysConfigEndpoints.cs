@@ -1,6 +1,4 @@
-using ApiService.Composition;
 using Perigon.AspNetCore.Models;
-using Perigon.AspNetCore.Utils;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Entity.SystemMod;
 using SystemMod.Managers;
@@ -14,7 +12,6 @@ public sealed class SysConfigEndpoints : RestEndpointBase
     {
         var group = MapGroup(endpoints, "/api/SysConfig", "SysConfig", WebConst.User);
         group.MapPost("/filter", FilterAsync);
-        group.MapGet("/enum", GetEnumConfigsAsync);
         group.MapPost("", AddAsync);
         group.MapPatch("/{id}", UpdateAsync);
         group.MapGet("/{id}", GetDetailAsync);
@@ -25,11 +22,6 @@ public sealed class SysConfigEndpoints : RestEndpointBase
         SysConfigFilterDto filter,
         SysConfigManager manager,
         CancellationToken cancellationToken) => manager.FilterAsync(filter);
-
-    private static Task<Dictionary<string, List<EnumDictionary>>> GetEnumConfigsAsync(
-        SysConfigManager manager,
-        CancellationToken cancellationToken) =>
-        manager.GetEnumConfigsAsync(ModuleEnumCatalogContributor.GetEntries(), cancellationToken);
 
     private static async Task<Created<SysConfig>> AddAsync(
         SysConfigAddDto dto,

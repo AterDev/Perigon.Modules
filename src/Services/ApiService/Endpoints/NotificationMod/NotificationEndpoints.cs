@@ -8,10 +8,10 @@ using NotificationMod.Models.NotificationRecoveryDtos;
 using NotificationMod.Models.NotificationRuleDtos;
 using NotificationMod.Models.NotificationSourceDtos;
 using NotificationMod.Services;
+using NotificationMod.Demands;
 using Perigon.AspNetCore.Models;
 using Share;
 using Share.Implement;
-using SystemMod.Managers;
 
 namespace ApiService.Endpoints;
 
@@ -63,11 +63,11 @@ public sealed class NotificationEndpoints : RestEndpointBase
     public static async Task<RestEndpointBase.ApiResult<InAppNotificationDetailDto>> AddAsync(
         InAppNotificationAddDto dto,
         NotificationManager manager,
-        SysUserManager users,
+        INotificationUserDemand users,
         CancellationToken cancellationToken)
     {
         var recipientIds = dto.Publish
-            ? await users.GetUserIdsAsync(dto.TargetUserIds, cancellationToken)
+            ? await users.GetExistingUserIdsAsync(dto.TargetUserIds, cancellationToken)
             : [];
         var result = await manager.AddAsync(dto, recipientIds);
         return TypedResults.Created($"/api/Notification/{result.Id}", result);
@@ -79,13 +79,13 @@ public sealed class NotificationEndpoints : RestEndpointBase
     public static async Task<RestEndpointBase.ApiResult<bool>> PublishAsync(
         Guid id,
         NotificationManager manager,
-        SysUserManager users,
+        INotificationUserDemand users,
         CancellationToken cancellationToken)
     {
         var requestedUserIds = await manager.GetUnpublishedTargetIdsAsync(id);
         if (requestedUserIds is not null)
         {
-            var recipientIds = await users.GetUserIdsAsync(requestedUserIds, cancellationToken);
+            var recipientIds = await users.GetExistingUserIdsAsync(requestedUserIds, cancellationToken);
             await manager.PublishAsync(id, requestedUserIds, recipientIds);
         }
 

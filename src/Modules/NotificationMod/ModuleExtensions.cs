@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Validation;
+using NotificationMod.Serialization;
 using NotificationMod.Services;
 
 namespace NotificationMod;
@@ -14,6 +15,8 @@ public static class ModuleExtensions
     public static IHostApplicationBuilder AddNotificationMod(this IHostApplicationBuilder builder)
     {
         builder.Services.AddValidation();
+        builder.Services.ConfigureHttpJsonOptions(options =>
+            options.SerializerOptions.TypeInfoResolverChain.Add(NotificationJsonSerializerContext.Default));
         builder.Services.AddHttpClient("NotificationMod").RemoveAllResilienceHandlers();
         builder.Services.AddSingleton<NotificationRateLimiter>();
         builder.Services.AddSingleton<SourcePayloadParser>();

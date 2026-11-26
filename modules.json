@@ -1,5 +1,15 @@
 [
   {
+    "ModuleName": "AuditMod",
+    "Author": "Perigon",
+    "DisplayName": "AuditMod",
+    "Description": "业务审核流程、审核记录与审核任务",
+    "PackageType": 0,
+    "Version": "1.0.0",
+    "Frontend": "Angular",
+    "CreatedTime": "2026-11-26T09:42:18.0901972Z"
+  },
+  {
     "ModuleName": "CMSMod",
     "Author": "Perigon",
     "DisplayName": "CMSMod",
@@ -8,6 +18,16 @@
     "Version": "1.1.0",
     "Frontend": "Angular",
     "CreatedTime": "2026-11-20T07:10:20.9259783Z"
+  },
+  {
+    "ModuleName": "NotificationMod",
+    "Author": "Perigon",
+    "DisplayName": "NotificationMod",
+    "Description": "通知来源、规则投递与站内消息",
+    "PackageType": 0,
+    "Version": "1.0.0",
+    "Frontend": "Angular",
+    "CreatedTime": "2026-11-26T09:42:18.5582574Z"
   },
   {
     "ModuleName": "ResourceMod",

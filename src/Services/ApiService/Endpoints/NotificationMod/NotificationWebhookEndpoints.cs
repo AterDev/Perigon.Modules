@@ -1,8 +1,8 @@
 using System.Text.Json;
-using ApiService;
 using Microsoft.AspNetCore.Http.Metadata;
 using Microsoft.AspNetCore.Http.HttpResults;
 using NotificationMod.Models.WebhookDtos;
+using NotificationMod.Serialization;
 using NotificationMod.Services;
 using Share.Implement;
 
@@ -49,7 +49,7 @@ public sealed class NotificationWebhookEndpoints : RestEndpointBase
             httpContext.Request.Query,
             cancellationToken);
         return result.FailedCount > 0
-            ? TypedResults.Json(result, ApiJsonSerializerContext.Default.WebhookResultDto, statusCode: StatusCodes.Status502BadGateway)
+            ? TypedResults.Json(result, NotificationJsonSerializerContext.Default.WebhookResultDto, statusCode: StatusCodes.Status502BadGateway)
             : TypedResults.Ok(result);
     }
 
