@@ -64,26 +64,13 @@ public class SysUserManager(
         _serviceProvider.GetRequiredService<SysUserRoleManager>();
 
     /// <summary>
-    /// 获取验证码
-    /// 也可自己实现图片验证码
+    /// 获取邮箱验证码。
     /// </summary>
     /// <param name="length">验证码长度</param>
     /// <returns></returns>
     public static string GetCaptcha(int length = 6)
     {
         return HashCrypto.GetRandom(length);
-    }
-
-    /// <summary>
-    /// 获取图形验证码
-    /// </summary>
-    /// <param name="length"></param>
-    /// <returns></returns>
-    public byte[] GetCaptchaImage(int length = 4)
-    {
-        var code = GetCaptcha(length);
-        var width = length * 20;
-        return ImageHelper.GenerateImageCaptcha(code, width);
     }
 
     /// <summary>

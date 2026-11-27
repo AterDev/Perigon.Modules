@@ -10,7 +10,6 @@ global using Perigon.AspNetCore.Constants;
 global using Perigon.AspNetCore.Models;
 global using Perigon.AspNetCore.Options;
 global using Perigon.AspNetCore.Services;
-global using Perigon.AspNetCore.Toolkit.Helpers;
 global using Perigon.AspNetCore.Utils;
 global using Share;
 global using Share.Constants;

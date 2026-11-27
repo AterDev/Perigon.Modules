@@ -5,9 +5,9 @@
     "DisplayName": "AuditMod",
     "Description": "业务审核流程、审核记录与审核任务",
     "PackageType": 0,
-    "Version": "1.0.0",
+    "Version": "1.1.0",
     "Frontend": "Angular",
-    "CreatedTime": "2026-11-26T09:42:18.0901972Z"
+    "CreatedTime": "2026-11-27T02:36:47.4898883Z"
   },
   {
     "ModuleName": "CMSMod",
@@ -15,9 +15,9 @@
     "DisplayName": "CMSMod",
     "Description": "包含内容管理相关功能",
     "PackageType": 0,
-    "Version": "1.1.0",
+    "Version": "1.2.0",
     "Frontend": "Angular",
-    "CreatedTime": "2026-11-20T07:10:20.9259783Z"
+    "CreatedTime": "2026-11-27T02:36:48.697954Z"
   },
   {
     "ModuleName": "NotificationMod",
@@ -25,9 +25,9 @@
     "DisplayName": "NotificationMod",
     "Description": "通知来源、规则投递与站内消息",
     "PackageType": 0,
-    "Version": "1.0.0",
+    "Version": "1.1.0",
     "Frontend": "Angular",
-    "CreatedTime": "2026-11-26T09:42:18.5582574Z"
+    "CreatedTime": "2026-11-27T02:36:49.3688248Z"
   },
   {
     "ModuleName": "ResourceMod",
@@ -35,9 +35,9 @@
     "DisplayName": "ResourceMod",
     "Description": "通用资源管理模块",
     "PackageType": 0,
-    "Version": "1.1.0",
+    "Version": "1.2.0",
     "Frontend": "Angular",
-    "CreatedTime": "2026-11-20T07:10:22.4158026Z"
+    "CreatedTime": "2026-11-27T02:36:50.3476565Z"
   },
   {
     "ModuleName": "SystemMod",
@@ -45,8 +45,8 @@
     "DisplayName": "SystemMod",
     "Description": "包含用户、角色、菜单、组织、系统配置、系统日志、数据权限范围、数据权限组及用户与数据权限组关联管理",
     "PackageType": 0,
-    "Version": "1.0.0",
+    "Version": "1.1.0",
     "Frontend": "Angular",
-    "CreatedTime": "2026-09-02T09:18:06.0412942Z"
+    "CreatedTime": "2026-11-27T02:36:51.6558533Z"
   }
 ]

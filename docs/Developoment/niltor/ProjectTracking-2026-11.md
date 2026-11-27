@@ -61,3 +61,7 @@
 - 2026-11-26：移除 ApiService Composition 和旧枚举路由。审核通知迁到 Audit Demand，用户查询迁移待处理。单测 24 项和前端类型检查通过，ApiService Windows x64 Native AOT 验证 OpenAPI 枚举文档通过。
 
 - 2026-11-26：完成 Audit、Notification 的用户需求接线。用本地 11.0.0 模板和 SourceGeneration 1.1.5 验证两个 1.0.0 模块包的安装、后端构建和自动注册。SystemMod 版本沿用 1.0.0，其候选包依赖干净模板尚未提供的验证码图像组件。
+
+- 2026-11-27：移除 SystemMod 图形验证码接口和 Toolkit 依赖。ApiService 构建、前端类型检查和隔离打包通过。干净模板安装暴露了其他基础设施差异，候选包未发布。
+
+- 2026-11-27：使用 Perigon CLI 重打五个模块，ZIP 和 `modules.json` 版本核对通过。SystemMod 的干净模板安装限制记录在 PT0002。

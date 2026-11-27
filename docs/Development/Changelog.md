@@ -1,5 +1,11 @@
 # 变更记录
 
+## 2026-11-27
+
+- SystemMod 移除图形验证码接口和 Toolkit 项目依赖，保留邮箱验证码流程。
+- 使用 Perigon CLI 11.0.0-beta1 重打五个模块。AuditMod、NotificationMod、SystemMod 为 1.1.0，CMSMod、ResourceMod 为 1.2.0。
+- SystemMod 1.1.0 已通过打包检查。在干净 MiniApi 11.0.0 中安装时，仍需解决日志与查询接口、管理器方法签名及组织本地化键的兼容差异。
+
 ## 2026-11-26
 
 - 移除 `GET /api/SysConfig/enum`。OpenAPI 的枚举文档继续使用构建时生成的 XML 元数据。

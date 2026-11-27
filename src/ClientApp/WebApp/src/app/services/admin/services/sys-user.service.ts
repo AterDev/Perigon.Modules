@@ -24,13 +24,6 @@ export class SysUserService extends BaseService {
     return this.request<void>('post', _url);
   }
   /**
-   * 获取图形验证码 ✅
-   */
-  getCaptchaImage(): Observable<void> {
-    const _url = `/api/SysUser/captcha`;
-    return this.request<void>('get', _url);
-  }
-  /**
    * Get AccessToken ✅
    * @param data SysLoginDto
    */

@@ -20,7 +20,6 @@ public sealed class SysUserEndpoints : RestEndpointBase
     {
         var group = MapGroup(endpoints, "/api/SysUser", "SysUser", WebConst.User);
         group.MapPost("/verifyCode", SendVerifyCodeAsync).AllowAnonymous().RequireRateLimiting(WebConst.Limited);
-        group.MapGet("/captcha", GetCaptchaImage).AllowAnonymous().RequireRateLimiting(WebConst.Limited);
         group.MapPost("/authorize", LoginAsync).AllowAnonymous().RequireRateLimiting(WebConst.Limited);
         group.MapGet("/userinfo", GetUserInfoAsync);
         group.MapGet("/refresh_token", RefreshTokenAsync).AllowAnonymous().RequireRateLimiting(WebConst.Limited);
@@ -56,9 +55,6 @@ public sealed class SysUserEndpoints : RestEndpointBase
         await cache.SetValueAsync(key, SysUserManager.GetCaptcha(), 60 * 5);
         return TypedResults.Ok();
     }
-
-    private static FileContentHttpResult GetCaptchaImage(SysUserManager manager) =>
-        TypedResults.File(manager.GetCaptchaImage(4), "image/png");
 
     private static async Task<AccessTokenDto> LoginAsync(
         SysLoginDto dto,

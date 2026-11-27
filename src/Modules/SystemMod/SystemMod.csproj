@@ -10,6 +10,5 @@
 	<ItemGroup>
 		<InternalsVisibleTo Include="UnitTest" />
 		<ProjectReference Include="..\..\Definition\Share\Share.csproj" />
-		<ProjectReference Include="..\..\Perigon\Perigon.AspNetCore.Toolkit\Perigon.AspNetCore.Toolkit.csproj" />
 	</ItemGroup>
 </Project>

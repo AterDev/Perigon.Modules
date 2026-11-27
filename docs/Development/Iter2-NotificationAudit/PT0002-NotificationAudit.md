@@ -276,3 +276,14 @@
 - 本地 SourceGeneration 1.1.5 包在目录、实现类和模块接口名均匹配时才生成注册。使用本地 Perigon.templates 11.0.0 创建新 MiniApi 项目，安装 AuditMod 1.0.0 和 NotificationMod 1.0.0 并构建后端，确认 3 个 Demand 接口均自动注册。官方 ZIP 的元数据与目录版本一致。
 - SystemMod 1.1.0 候选包安装到干净模板时缺少 Toolkit 的 `ImageHelper`。目录继续使用 1.0.0。Angular 源码打入 ZIP，未在独立模板中完成前端接入验收。
 - 使用 SourceGeneration 1.1.5 发布 ApiService 的 Windows x64 Native AOT 产物，OpenAPI 冒烟验证了审核、通知和 Webhook 路由。仍有既有 HybridCache 裁剪告警。本轮未执行 CLI AOT 验证。
+
+### 2026-11-27 SystemMod 图形验证码清理
+
+- 删除图形验证码方法、HTTP 路由及生成客户端方法，移除 SystemMod 的 Toolkit 项目引用。邮箱验证码继续使用原有流程。
+- ApiService 构建和前端类型检查通过。隔离打包通过，干净 MiniApi 11.0.0 的安装构建已无 `ImageHelper` 错误，仍有日志接口、查询过滤、管理器方法签名和本地化资源差异。候选包未发布。
+- 单元测试通过 24 项，跳过 Redis 专项 2 项。ApiService Windows x64 Native AOT 发布通过，保留既有 HybridCache 告警。原生 OpenAPI 冒烟确认图形验证码路由已移除，邮箱验证码路由仍可见。
+
+### 2026-11-27 五个模块重新打包
+
+- 使用 Perigon CLI 11.0.0-beta1 执行 `./scripts/PackModules.ps1 -Modules AuditMod,CMSMod,NotificationMod,ResourceMod,SystemMod -Bump minor`。五个 ZIP 的模块名和版本均与 `modules.json` 一致。
+- SystemMod 包已移除图形验证码。干净 MiniApi 11.0.0 安装仍缺少 `ILogDescriptionTarget`、`IgnoreQueryFilter` 及组织管理本地化键。配置、用户和角色管理器的 `FindAsync(MapDetail, predicate)` 调用与模板基类签名不兼容。
