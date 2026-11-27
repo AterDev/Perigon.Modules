@@ -65,3 +65,7 @@
 - 2026-11-27：移除 SystemMod 图形验证码接口和 Toolkit 依赖。ApiService 构建、前端类型检查和隔离打包通过。干净模板安装暴露了其他基础设施差异，候选包未发布。
 
 - 2026-11-27：使用 Perigon CLI 重打五个模块，ZIP 和 `modules.json` 版本核对通过。SystemMod 的干净模板安装限制记录在 PT0002。
+
+- 2026-11-27：修复 SystemMod 的日志接口、查询契约、本地化和用户信息 DTO 命名差异。1.1.1 候选包通过干净 MiniApi 11.0.0 安装和宿主构建，未发布。
+
+- 2026-11-27：修复 SystemMod、ResourceMod 的 PostgreSQL 0.4.0 DTO 物化冲突，重打 1.2.0 和 1.3.0。notifier 的 CLI 安装、构建和 Windows x64 Native AOT 发布通过。随后升级 Perigon.PostgreSQL 0.4.2，从生成器修复冲突，撤除临时 DTO 映射注解，两个模块重新打包。

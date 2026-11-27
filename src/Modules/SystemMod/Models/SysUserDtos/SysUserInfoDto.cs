@@ -1,10 +1,16 @@
-namespace SystemMod.Models;
+namespace SystemMod.Models.SysUserDtos;
 
-public class UserInfoDto
+public class SysUserInfoDto
 {
-    public Guid Id { get; set; }
+    public Guid Id
+    {
+        get; set;
+    }
     public string Username { get; set; } = default!;
     public string[] Roles { get; set; } = default!;
-    public List<SysMenu>? Menus { get; set; }
+    public List<SysMenu>? Menus
+    {
+        get; set;
+    }
     public List<SysUserDataScopeGroupItemDto> DataScopeGroups { get; set; } = [];
 }

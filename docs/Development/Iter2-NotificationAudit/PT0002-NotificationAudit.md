@@ -287,3 +287,16 @@
 
 - 使用 Perigon CLI 11.0.0-beta1 执行 `./scripts/PackModules.ps1 -Modules AuditMod,CMSMod,NotificationMod,ResourceMod,SystemMod -Bump minor`。五个 ZIP 的模块名和版本均与 `modules.json` 一致。
 - SystemMod 包已移除图形验证码。干净 MiniApi 11.0.0 安装仍缺少 `ILogDescriptionTarget`、`IgnoreQueryFilter` 及组织管理本地化键。配置、用户和角色管理器的 `FindAsync(MapDetail, predicate)` 调用与模板基类签名不兼容。
+
+### 2026-11-27 SystemMod 干净模板兼容修复
+
+- 将日志目标接口移入 SystemMod。日志列表显式绕过 `SoftDelete` 查询过滤器。系统配置、用户和角色详情改用两边都有的 `FindAsync(id)`，再显式映射 DTO。
+- SystemMod 自带组织管理的英文和中文资源。将用户信息 DTO 改名为 `SysUserInfoDto`，避免安装器引入的全局 using 与模板 CommonMod 的同名类型冲突。保留 HTTP 路由和响应字段。
+- Perigon CLI 11.0.0-beta1 打包 SystemMod 1.1.1 候选包，通过全新 MiniApi 11.0.0 的 `module install`、JSON 上下文生成和 ApiService 构建。仓库 ApiTest 项目构建与 Angular 类型检查通过。候选包未发布。
+- 单元测试 24 项通过、2 项 Redis 测试跳过。安装后的 ApiService Windows x64 Native AOT 发布和 OpenAPI 冒烟通过，保留模板和 HybridCache 裁剪告警。验证模块内五组中英文消息均可解析，未连接 PostgreSQL 执行业务接口。
+
+### 2026-11-27 notifier 安装兼容
+
+- 升级 Perigon.PostgreSQL 0.4.2，由生成器跳过无法使用无参工厂构造的 HTTP DTO。已撤除临时映射注解，保留原来的 `required` 请求契约。
+- Perigon CLI 11.0.0-beta1 重打 SystemMod 1.2.0 和 ResourceMod 1.3.0，`modules.json` 与 ZIP 版本一致。两个包已在 notifier 安装，JSON 源生成和解决方案构建通过。
+- 本仓库单元测试 24 项通过，Redis 专项跳过 2 项。notifier Windows x64 Native AOT 发布通过，保留 HybridCache 裁剪告警。使用独立 PostgreSQL 验证健康检查、OpenAPI、登录、用户信息、分类创建与读取，以及缺字段返回 400。包未推送。

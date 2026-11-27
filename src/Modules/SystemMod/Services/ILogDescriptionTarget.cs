@@ -1,4 +1,4 @@
-namespace Perigon.AspNetCore.Attributes;
+namespace SystemMod.Services;
 
 /// <summary>
 /// Supplies the runtime target name for an object written to the system log.
@@ -6,5 +6,8 @@ namespace Perigon.AspNetCore.Attributes;
 /// </summary>
 public interface ILogDescriptionTarget
 {
-    string? LogTargetName { get; }
+    string? LogTargetName
+    {
+        get;
+    }
 }

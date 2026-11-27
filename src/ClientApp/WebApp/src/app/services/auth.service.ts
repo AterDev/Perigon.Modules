@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { AccessTokenDto } from 'src/app/services/admin/models/share/access-token-dto.model';
-import { UserInfoDto } from 'src/app/services/admin/models/system-mod/user-info-dto.model';
+import { SysUserInfoDto } from 'src/app/services/admin/models/system-mod/sys-user-info-dto.model';
 
 @Injectable({
   providedIn: 'root',
@@ -20,7 +20,7 @@ export class AuthService {
     localStorage.setItem('refreshToken', token.refreshToken);
   }
 
-  saveUserInfo(userinfo: UserInfoDto): void {
+  saveUserInfo(userinfo: SysUserInfoDto): void {
     this.isLogin = true;
     this.userName = userinfo.username;
     this.id = userinfo.id;

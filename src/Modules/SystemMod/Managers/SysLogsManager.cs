@@ -14,12 +14,11 @@ public class SysLogsManager : ManagerBase<DefaultDbContext, SysLogs>
         IUserContext userContext
     ) : base(dbContextFactory, userContext, logger)
     {
-        IgnoreQueryFilter = true;
     }
 
     public async Task<PageList<SysLogsItemDto>> ToPageAsync(SysLogsFilterDto filter)
     {
-        Queryable = Queryable
+        Queryable = _dbContext.SetWithoutFilters<SysLogs>("SoftDelete")
             .WhereNotNull(filter.ActionUserName, q => q.ActionUserName.Contains(filter.ActionUserName!))
             .WhereNotNull(filter.TargetName, q => q.TargetName == filter.TargetName)
             .WhereNotNull(filter.ActionType, q => q.ActionType == filter.ActionType!.Value);

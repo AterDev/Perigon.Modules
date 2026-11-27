@@ -316,7 +316,8 @@ public class SysUserManager(
     // expose DTO getter for controllers
     public async Task<SysUserDetailDto?> GetAsync(Guid id)
     {
-        return await FindAsync(MapDetail, d => d.Id == id);
+        var entity = await FindAsync(id);
+        return entity is null ? null : MapDetail(entity);
     }
 
     public async Task<AccessTokenDto> LoginAsync(SysLoginDto dto, string client)

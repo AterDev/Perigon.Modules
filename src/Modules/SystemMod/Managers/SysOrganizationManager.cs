@@ -60,7 +60,7 @@ public sealed class SysOrganizationManager(
             Guid? parentId = dto.ParentIdSpecified ? dto.ParentId : current.ParentId;
             if (parentId == id)
             {
-                throw new BusinessException(Localizer.OrganizationParentCycle, StatusCodes.Status409Conflict);
+                throw new BusinessException(SysOrganizationLocalizer.ParentCycle, StatusCodes.Status409Conflict);
             }
 
             await EnsureParentExistsAsync(parentId, cancellationToken);
@@ -103,7 +103,7 @@ public sealed class SysOrganizationManager(
             .AnyAsync(cancellationToken);
         if (hasChildren)
         {
-            throw new BusinessException(Localizer.OrganizationHasChildren, StatusCodes.Status409Conflict);
+            throw new BusinessException(SysOrganizationLocalizer.HasChildren, StatusCodes.Status409Conflict);
         }
 
         bool hasUsers = await _dbContext.SysUserOrganizations
@@ -111,7 +111,7 @@ public sealed class SysOrganizationManager(
             .AnyAsync(cancellationToken);
         if (hasUsers)
         {
-            throw new BusinessException(Localizer.OrganizationHasUsers, StatusCodes.Status409Conflict);
+            throw new BusinessException(SysOrganizationLocalizer.HasUsers, StatusCodes.Status409Conflict);
         }
 
         await DeleteOrUpdateAsync([id], cancellationToken: cancellationToken);
@@ -152,7 +152,7 @@ public sealed class SysOrganizationManager(
         bool duplicate = await siblings.AnyAsync(cancellationToken);
         if (duplicate)
         {
-            throw new BusinessException(Localizer.OrganizationNameExists, StatusCodes.Status409Conflict);
+            throw new BusinessException(SysOrganizationLocalizer.NameExists, StatusCodes.Status409Conflict);
         }
     }
 
@@ -171,7 +171,7 @@ public sealed class SysOrganizationManager(
         {
             if (!visited.Add(currentId) || currentId == id)
             {
-                throw new BusinessException(Localizer.OrganizationParentCycle, StatusCodes.Status409Conflict);
+                throw new BusinessException(SysOrganizationLocalizer.ParentCycle, StatusCodes.Status409Conflict);
             }
 
             current = parents.GetValueOrDefault(currentId);
@@ -218,7 +218,7 @@ public sealed class SysOrganizationManager(
         string name = value?.Trim() ?? string.Empty;
         if (name.Length == 0)
         {
-            throw new BusinessException(Localizer.OrganizationNameRequired, StatusCodes.Status400BadRequest);
+            throw new BusinessException(SysOrganizationLocalizer.NameRequired, StatusCodes.Status400BadRequest);
         }
 
         return name;

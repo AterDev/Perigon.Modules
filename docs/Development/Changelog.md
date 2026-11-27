@@ -2,7 +2,10 @@
 
 ## 2026-11-27
 
+- 修复 SystemMod 在干净 MiniApi 11.0.0 中的安装兼容问题。用户信息响应的 OpenAPI 模型名改为 `SysUserInfoDto`，JSON 字段保持原有契约。
+
 - SystemMod 移除图形验证码接口和 Toolkit 项目依赖，保留邮箱验证码流程。
+- 升级 Perigon.PostgreSQL 0.4.2，由生成器修复 `required` DTO 的物化工厂编译冲突。撤除两个模块 DTO 的临时映射注解并重新打包。
 - 使用 Perigon CLI 11.0.0-beta1 重打五个模块。AuditMod、NotificationMod、SystemMod 为 1.1.0，CMSMod、ResourceMod 为 1.2.0。
 - SystemMod 1.1.0 已通过打包检查。在干净 MiniApi 11.0.0 中安装时，仍需解决日志与查询接口、管理器方法签名及组织本地化键的兼容差异。
 

@@ -1,6 +1,6 @@
 using ApiTest.Data;
 using Perigon.AspNetCore.Constants;
-using SystemMod.Models;
+using SystemMod.Models.SysUserDtos;
 using System.Net.Http.Json;
 
 namespace ApiTest;
@@ -15,7 +15,7 @@ public class SysUserTests
 
         await Assert.That(response.StatusCode).IsEqualTo(HttpStatusCode.OK);
 
-        var userInfo = await response.Content.ReadFromJsonAsync<UserInfoDto>();
+        var userInfo = await response.Content.ReadFromJsonAsync<SysUserInfoDto>();
         await Assert.That(userInfo).IsNotNull();
         await Assert.That(userInfo!.Username).IsEqualTo("admin");
         await Assert.That(userInfo.Roles).IsNotNull();

@@ -220,7 +220,7 @@ namespace ApiService;
 [JsonSerializable(typeof(SysUserOptionDto))]
 [JsonSerializable(typeof(SysUserOptionDto[]))]
 [JsonSerializable(typeof(SysUserUpdateDto))]
-[JsonSerializable(typeof(UserInfoDto))]
+[JsonSerializable(typeof(SysUserInfoDto))]
 [JsonSerializable(typeof(int))]
 [JsonSerializable(typeof(string))]
 // </perigon-aot-json:generated>

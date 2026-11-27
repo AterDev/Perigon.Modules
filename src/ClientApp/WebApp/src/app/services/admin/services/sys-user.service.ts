@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { SysLoginDto } from '../models/system-mod/sys-login-dto.model';
 import { AccessTokenDto } from '../models/share/access-token-dto.model';
-import { UserInfoDto } from '../models/system-mod/user-info-dto.model';
+import { SysUserInfoDto } from '../models/system-mod/sys-user-info-dto.model';
 import { PageList } from '../models/perigon/page-list.model';
 import { SysUserItemDto } from '../models/system-mod/sys-user-item-dto.model';
 import { SysUserAddDto } from '../models/system-mod/sys-user-add-dto.model';
@@ -34,9 +34,9 @@ export class SysUserService extends BaseService {
   /**
    * Get UserInfo ✅
    */
-  getUserInfo(): Observable<UserInfoDto> {
+  getUserInfo(): Observable<SysUserInfoDto> {
     const _url = `/api/SysUser/userinfo`;
-    return this.request<UserInfoDto>('get', _url);
+    return this.request<SysUserInfoDto>('get', _url);
   }
   /**
    * 刷新 token

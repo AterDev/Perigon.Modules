@@ -128,7 +128,8 @@ public class SysConfigManager(
     /// </summary>
     public async Task<SysConfigDetailDto?> GetAsync(Guid id)
     {
-        return await FindAsync(MapDetail, c => c.Id == id);
+        var entity = await FindAsync(id);
+        return entity is null ? null : MapDetail(entity);
     }
 
     /// <summary>

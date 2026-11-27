@@ -66,7 +66,7 @@ public sealed class SysUserEndpoints : RestEndpointBase
         return await manager.LoginAsync(dto, client);
     }
 
-    private static async Task<Results<NotFound<string>, Ok<UserInfoDto>>> GetUserInfoAsync(
+    private static async Task<Results<NotFound<string>, Ok<SysUserInfoDto>>> GetUserInfoAsync(
         SysUserManager manager,
         SysRoleManager roleManager,
         SysDataScopeGroupManager dataScopeGroupManager,
@@ -84,7 +84,7 @@ public sealed class SysUserEndpoints : RestEndpointBase
             : await roleManager.GetSysMenusAsync([.. entity.SysUserRoles.Select(ur => ur.Role)]);
         var dataScopeGroups = await dataScopeGroupManager.GetUserDataScopeGroupsAsync(entity.Id);
 
-        return TypedResults.Ok(new UserInfoDto
+        return TypedResults.Ok(new SysUserInfoDto
         {
             Id = entity.Id,
             Username = entity.UserName ?? string.Empty,

@@ -1,7 +1,7 @@
 import { SysMenu } from '../entity/sys-menu.model';
 import { SysUserDataScopeGroupItemDto } from '../system-mod/sys-user-data-scope-group-item-dto.model';
 
-export interface UserInfoDto {
+export interface SysUserInfoDto {
   /** id */
   id: string;
   /** username */

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms</value></resheader>
+  <data name="ParentCycle" xml:space="preserve"><value>An organization cannot be moved below itself or its descendants</value></data>
+  <data name="HasChildren" xml:space="preserve"><value>Delete child organizations before deleting this organization</value></data>
+  <data name="HasUsers" xml:space="preserve"><value>Remove assigned users before deleting this organization</value></data>
+  <data name="NameExists" xml:space="preserve"><value>An organization with the same name already exists at this level</value></data>
+  <data name="NameRequired" xml:space="preserve"><value>Organization name is required</value></data>
+</root>
